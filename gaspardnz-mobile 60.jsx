@@ -18,6 +18,7 @@ const SvgArrow = ({ size = 20 }) => <svg width={size} height={size} viewBox="0 0
 const SvgMail = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>;
 const SvgWhatsapp = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zM12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.122 1.532 5.852L.057 23.032a.75.75 0 0 0 .921.921l5.18-1.475A11.943 11.943 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.75a9.713 9.713 0 0 1-4.953-1.355l-.355-.212-3.676 1.047 1.047-3.608-.23-.372A9.718 9.718 0 0 1 2.25 12C2.25 6.615 6.615 2.25 12 2.25S21.75 6.615 21.75 12 17.385 21.75 12 21.75z"/></svg>;
 const SvgLinkedin = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>;
+const SvgSun = ({ active }) => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="12" cy="12" r="4.5"/><line x1="12" y1="2" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="6.34" y2="17.66"/><line x1="17.66" y1="6.34" x2="19.07" y2="4.93"/></svg>;
 
 const useParallax = (inputRange, outputRange) => {
   const { scrollY } = useScroll();
@@ -84,7 +85,7 @@ const Modal = ({ isOpen, onClose, title, children }) => (
 /* ─── MOBILE-FIRST VERSION ─────────────────────────────────────── */
 
 /* ── NAV MOBILE ─────────────────────────────────────────────────── */
-const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules }) => {
+const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules, highContrast, onToggleContrast }) => {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -117,6 +118,13 @@ const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules }
           <div style={{ fontSize: "7px", letterSpacing: "0.5em", color: GOLD, textTransform: "uppercase", fontFamily: "'Montserrat', sans-serif", marginTop: "3px" }}>Paris</div>
         </button>
 
+        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+        {/* Mode soleil */}
+        <button onClick={onToggleContrast}
+          title="Mode soleil"
+          style={{ background: highContrast ? GOLD : "none", border: highContrast ? "none" : "1px solid rgba(184,151,62,0.35)", borderRadius: "50%", width: "34px", height: "34px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: highContrast ? "#1c1208" : navTextColor, transition: "all 0.3s", flexShrink: 0 }}>
+          <SvgSun />
+        </button>
         {/* Burger */}
         <button onClick={() => setOpen(v => !v)}
           style={{ background: "none", border: "none", cursor: "pointer", padding: "8px", display: "flex", flexDirection: "column", gap: "5px" }}>
@@ -127,6 +135,7 @@ const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules }
           <motion.span animate={{ rotate: open ? -45 : 0, y: open ? -7 : 0 }} transition={{ duration: 0.3 }}
             style={{ display: "block", width: "24px", height: "1.5px", background: open ? GOLD : navTextColor, transition: "background 0.4s" }} />
         </button>
+        </div>
       </nav>
 
       {/* Menu drawer */}
@@ -724,6 +733,14 @@ const FooterMobile = ({ onShowroom, onContact, onCatalogue, onMentions, onConfid
 /* ── APP PRINCIPALE ──────────────────────────────────────────────── */
 export default function App() {
   const [modal, setModal] = useState(null);
+  const [highContrast, setHighContrast] = useState(() => {
+    try { return localStorage.getItem("gnz-hc") === "1"; } catch { return false; }
+  });
+  const toggleContrast = () => setHighContrast(v => {
+    const next = !v;
+    try { localStorage.setItem("gnz-hc", next ? "1" : "0"); } catch {}
+    return next;
+  });
   const showroomRef = useRef(null);
   const heritageRef = useRef(null);
   const galleryRef = useRef(null);
@@ -851,6 +868,7 @@ export default function App() {
         * { box-sizing: border-box; margin: 0; padding: 0; }
         ::selection { background: ${GOLD}; color: #f5f0e8; }
         html { scroll-behavior: smooth; }
+        @media (prefers-contrast: more) { html { filter: contrast(1.6) saturate(1.2); } }
         button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
         a { -webkit-tap-highlight-color: transparent; }
         /* Masquer scrollbar galerie */
@@ -860,6 +878,8 @@ export default function App() {
       `}</style>
 
       <NavMobile
+        highContrast={highContrast}
+        onToggleContrast={toggleContrast}
         onShowroom={() => scrollTo(showroomRef)}
         onGalerie={() => scrollTo(galleryRef)}
         onFormules={() => scrollTo(formulesRef)}
