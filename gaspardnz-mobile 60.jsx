@@ -121,7 +121,7 @@ const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules, 
         <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
         {/* Mode soleil */}
         <motion.button onClick={onToggleContrast}
-          title={highContrast ? "Mode normal" : "Mode soleil"}
+          title={highContrast ? "Mode normal" : "Mode jour"}
           style={{ background: "none", border: "none", cursor: "pointer", color: highContrast ? GOLD : navTextColor, transition: "color 0.3s", flexShrink: 0, position: "relative", display: "flex", flexDirection: "column", alignItems: "center", gap: "2px", padding: "4px" }}>
           <motion.div
             animate={{ rotate: highContrast ? 180 : 0, scale: highContrast ? 1.2 : 1 }}
@@ -763,16 +763,26 @@ export default function App() {
     });
   };
 
-  // Applique le filtre sur <html> pour ne pas casser le nav fixe
+  // Mode jour : injection CSS !important pour tout rendre crème/lisible
   useEffect(() => {
-    const el = document.documentElement;
+    const ID = "gnz-jour";
+    let el = document.getElementById(ID);
     if (highContrast) {
-      el.style.filter = "brightness(1.25) contrast(2.1) saturate(0.85)";
-      el.style.transition = "filter 0.5s ease";
+      if (!el) { el = document.createElement("style"); el.id = ID; document.head.appendChild(el); }
+      el.textContent = `
+        body, section, footer { background: #f5f0e8 !important; background-color: #f5f0e8 !important; }
+        nav { background: rgba(245,240,232,0.98) !important; }
+        h1, h2, h3, p, span, li, label { color: #1c1208 !important; }
+        button { color: #1c1208 !important; }
+        a { color: #1c1208 !important; }
+        * > div[style] { background-color: transparent !important; }
+        section > div, section > motion\.div { background: #f5f0e8 !important; }
+        img { opacity: 1 !important; filter: brightness(0.95) !important; }
+      `;
     } else {
-      el.style.filter = "";
+      if (el) el.remove();
     }
-    return () => { el.style.filter = ""; };
+    return () => { const e = document.getElementById(ID); if (e) e.remove(); };
   }, [highContrast]);
 
   useEffect(() => {
