@@ -227,7 +227,7 @@ const HeroMobile = ({ onScrollDown }) => {
             <motion.h1
               initial={{ y: "105%" }} animate={{ y: 0 }}
               transition={{ duration: 1.1, delay: 0.65, ease: [0.16, 1, 0.3, 1] }}
-              style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(68px, 22vw, 120px)", letterSpacing: "0.04em", color: TEXT, display: "block", margin: 0 }}
+              style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(68px, 22vw, 120px)", letterSpacing: "0.04em", color: CREAM, display: "block", margin: 0, textShadow: "0 2px 24px rgba(0,0,0,0.6)" }}
             >GASPARD</motion.h1>
           </div>
           <div style={{ overflow: "hidden" }}>
