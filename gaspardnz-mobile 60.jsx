@@ -122,11 +122,20 @@ const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules, 
         {/* Mode soleil */}
         <motion.button onClick={onToggleContrast}
           title={highContrast ? "Mode normal" : "Mode soleil"}
-          animate={{ rotate: highContrast ? 180 : 0 }}
-          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-          style={{ background: "none", border: "none", borderRadius: "50%", width: "36px", height: "36px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: highContrast ? GOLD : navTextColor, transition: "color 0.3s", flexShrink: 0, position: "relative" }}>
-          {highContrast && <motion.span initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} style={{ position: "absolute", inset: "-4px", borderRadius: "50%", border: `1px solid ${GOLD}`, boxShadow: `0 0 12px rgba(184,151,62,0.5)` }} />}
-          <SvgSun />
+          style={{ background: "none", border: "none", cursor: "pointer", color: highContrast ? GOLD : navTextColor, transition: "color 0.3s", flexShrink: 0, position: "relative", display: "flex", flexDirection: "column", alignItems: "center", gap: "2px", padding: "4px" }}>
+          <motion.div
+            animate={{ rotate: highContrast ? 180 : 0, scale: highContrast ? 1.2 : 1 }}
+            transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+            style={{ position: "relative", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            {highContrast && <motion.span initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1.8, opacity: 1 }} transition={{ duration: 0.4 }} style={{ position: "absolute", inset: 0, borderRadius: "50%", background: `radial-gradient(circle, rgba(184,151,62,0.35) 0%, transparent 70%)` }} />}
+            <SvgSun />
+          </motion.div>
+          {highContrast && (
+            <motion.span initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}
+              style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "5px", letterSpacing: "0.3em", color: GOLD, textTransform: "uppercase" }}>
+              SOLEIL
+            </motion.span>
+          )}
         </motion.button>
         {/* Burger */}
         <button onClick={() => setOpen(v => !v)}
@@ -742,11 +751,28 @@ export default function App() {
   });
   const highContrast = sensorHC || manualHC;
 
-  const toggleContrast = () => setManualHC(v => {
-    const next = !v;
-    try { localStorage.setItem("gnz-hc", next ? "1" : "0"); } catch {}
-    return next;
-  });
+  const [flashing, setFlashing] = useState(false);
+  const toggleContrast = () => {
+    setFlashing(true);
+    setTimeout(() => setFlashing(false), 500);
+    setManualHC(v => {
+      const next = !v;
+      try { localStorage.setItem("gnz-hc", next ? "1" : "0"); } catch {}
+      return next;
+    });
+  };
+
+  // Applique le filtre sur <html> pour ne pas casser le nav fixe
+  useEffect(() => {
+    const el = document.documentElement;
+    if (highContrast) {
+      el.style.filter = "brightness(1.25) contrast(2.1) saturate(0.85)";
+      el.style.transition = "filter 0.5s ease";
+    } else {
+      el.style.filter = "";
+    }
+    return () => { el.style.filter = ""; };
+  }, [highContrast]);
 
   useEffect(() => {
     const cleanup = [];
@@ -908,6 +934,20 @@ export default function App() {
         .cat-row { display: flex; justify-content: space-between; align-items: center; padding: 1.4rem 0; border-bottom: 1px solid rgba(184,151,62,0.1); cursor: pointer; transition: all 0.3s; }
         .cat-lbl { font-family: 'Cormorant Garamond', serif; font-size: clamp(1.2rem, 5vw, 1.6rem); font-weight: 400; letter-spacing: 0.05em; transition: color 0.3s; }
       `}</style>
+
+      {/* Flash écran */}
+      <AnimatePresence>
+        {flashing && (
+          <motion.div
+            key="flash"
+            initial={{ opacity: 0.9 }}
+            animate={{ opacity: 0 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.45, ease: "easeOut" }}
+            style={{ position: "fixed", inset: 0, background: "white", zIndex: 9999, pointerEvents: "none" }}
+          />
+        )}
+      </AnimatePresence>
 
       <NavMobile
         highContrast={highContrast}
