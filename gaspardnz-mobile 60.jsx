@@ -386,20 +386,20 @@ const ShowroomMobile = ({ refEl, onCatalogue, onFlammes }) => {
       {/* Texte */}
       <div ref={ref} style={{ padding: "3rem 1.4rem 4rem" }}>
         <motion.p
-          initial={{ opacity: 0, y: 16 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ delay: 0.4 }}
+          initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.2 }}
           style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "8px", letterSpacing: "0.5em", color: GOLD, textTransform: "uppercase", marginBottom: "1.2rem" }}
         >Showroom</motion.p>
 
         <div style={{ overflow: "hidden", marginBottom: "1.8rem" }}>
           <motion.h2
-            initial={{ y: "105%" }} animate={inView ? { y: 0 } : {}}
-            transition={{ duration: 1, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
+            initial={{ y: "105%" }} whileInView={{ y: 0 }} viewport={{ once: true }}
+            transition={{ duration: 1, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
             style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(44px, 14vw, 76px)", lineHeight: 0.9, letterSpacing: "0.04em", color: TEXT, margin: 0 }}
           >L'ART<br />DU SUR-MESURE</motion.h2>
         </div>
 
         <motion.p
-          initial={{ opacity: 0, y: 16 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ delay: 0.8 }}
+          initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.4 }}
           style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(0.95rem, 3.8vw, 1.15rem)", fontWeight: 300, color: "rgba(28,18,8,0.45)", lineHeight: 1.8, fontStyle: "italic", marginBottom: "2.5rem" }}
         >
           Chaque vêtement est une œuvre. Chaque coupe, une signature indélébile portée par ceux qui osent se distinguer.
@@ -407,7 +407,7 @@ const ShowroomMobile = ({ refEl, onCatalogue, onFlammes }) => {
 
         {/* Stats */}
         <motion.div
-          initial={{ opacity: 0 }} animate={inView ? { opacity: 1 } : {}} transition={{ delay: 1 }}
+          initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ delay: 0.5 }}
           style={{ display: "flex", gap: "2rem", borderTop: "1px solid rgba(28,18,8,0.09)", paddingTop: "2rem", marginBottom: "2.5rem" }}
         >
           {[["07", "Ans"], ["∞", "Sur-mesure"], ["01", "Vision"]].map(([num, label]) => (
@@ -420,7 +420,7 @@ const ShowroomMobile = ({ refEl, onCatalogue, onFlammes }) => {
 
         {/* CTA */}
         <motion.button
-          initial={{ opacity: 0, y: 10 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ delay: 1.1 }}
+          initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.6 }}
           onClick={onCatalogue}
           style={{ width: "100%", background: "none", border: `1px solid rgba(184,151,62,0.4)`, color: GOLD, padding: "1.1rem", fontFamily: "'Montserrat', sans-serif", fontSize: "9px", letterSpacing: "0.4em", textTransform: "uppercase", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}
           onTouchStart={e => { e.currentTarget.style.background = GOLD; e.currentTarget.style.color = "#1c1208"; }}
