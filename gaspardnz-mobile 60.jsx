@@ -234,7 +234,7 @@ const HeroMobile = ({ onScrollDown }) => {
             <motion.h1
               initial={{ y: "105%" }} animate={{ y: 0 }}
               transition={{ duration: 1.1, delay: 0.8, ease: [0.16, 1, 0.3, 1] }}
-              style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(68px, 22vw, 120px)", letterSpacing: "0.04em", color: "transparent", WebkitTextStroke: "1.5px #f5f0e8", display: "block", margin: 0 }}
+              style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(68px, 22vw, 120px)", letterSpacing: "0.04em", color: "transparent", WebkitTextStroke: `2.5px ${GOLD}`, display: "block", margin: 0, filter: "drop-shadow(0 0 12px rgba(184,151,62,0.5))" }}
             >NZ</motion.h1>
           </div>
         </div>
