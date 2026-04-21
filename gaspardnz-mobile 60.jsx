@@ -350,15 +350,15 @@ const FlammesCarousel = ({ inView, onClick }) => {
         {Array.from({ length: N }).map((_, i) => (
           <div key={i} style={{ flexShrink: 0, width: "100%", height: "100%", background: `hsl(30,${15+i*4}%,${8+i*4}%)`, display: "flex", alignItems: "center", justifyContent: "center" }}>
             <div style={{ textAlign: "center", padding: "2rem" }}>
-              <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(2rem,10vw,3.5rem)", color: `rgba(184,151,62,${0.15+i*0.05})`, letterSpacing: "0.15em" }}>LES FLAMMES</div>
-              <div style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.5em", color: "rgba(245,240,232,0.2)", textTransform: "uppercase", marginTop: "0.8rem" }}>Photo {i+1} · À venir</div>
+              <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(2rem,10vw,3.5rem)", color: `rgba(184,151,62,${0.15+i*0.05})`, letterSpacing: "0.15em" }}>LES FLAMMES 2026</div>
+              <div style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.5em", color: "rgba(245,240,232,0.2)", textTransform: "uppercase", marginTop: "0.8rem" }}>Look {i+1} · Cérémonie 23 avril</div>
             </div>
           </div>
         ))}
       </div>
       <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 50%, rgba(245,240,232,0.95) 100%)", pointerEvents: "none" }} />
       <div style={{ position: "absolute", bottom: "1.2rem", left: "1.2rem", border: "1px solid rgba(184,151,62,0.3)", padding: "0.8rem 1.2rem" }}>
-        <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.5em", color: GOLD, textTransform: "uppercase", margin: 0 }}>Collection 2026 — Les Flammes</p>
+        <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.5em", color: GOLD, textTransform: "uppercase", margin: 0 }}>Gaspardnz · Les Flammes 2026</p>
       </div>
       <div style={{ position: "absolute", top: "1rem", right: "1rem", background: "rgba(28,18,8,0.55)", padding: "0.5rem 0.9rem", backdropFilter: "blur(4px)" }}>
         <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.3em", color: GOLD, textTransform: "uppercase", margin: 0 }}>Voir la galerie →</p>
@@ -984,15 +984,15 @@ export default function App() {
       </Modal>
 
       {/* Modal Flammes */}
-      <Modal isOpen={modal === "flammes"} onClose={() => setModal(null)} title="Collection 2026 — Les Flammes">
+      <Modal isOpen={modal === "flammes"} onClose={() => setModal(null)} title="Gaspardnz aux Flammes 2026">
         <div style={{ display: "flex", flexDirection: "column", gap: "1.2rem" }}>
           <p style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: "italic", fontSize: "1rem", color: "rgba(28,18,8,0.5)", textAlign: "center", lineHeight: 1.7 }}>
-            Les photos de la cérémonie arrivent très bientôt.
+            Nos créations sur le tapis rouge de la cérémonie Les Flammes 2026 — Seine Musicale, 23 avril.
           </p>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.8rem" }}>
             {Array.from({ length: 6 }).map((_, i) => (
               <div key={i} style={{ aspectRatio: "3/4", border: "1px dashed rgba(184,151,62,0.3)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "0.5rem", background: "rgba(28,18,8,0.03)" }}>
-                <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.5rem", color: "rgba(184,151,62,0.3)", letterSpacing: "0.1em" }}>FLAMMES</div>
+                <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.5rem", color: "rgba(184,151,62,0.3)", letterSpacing: "0.1em" }}>FLAMMES 2026</div>
                 <div style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.3em", color: "rgba(184,151,62,0.4)", textTransform: "uppercase" }}>{i+1} / 6</div>
               </div>
             ))}
