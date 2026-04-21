@@ -120,11 +120,14 @@ const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules, 
 
         <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
         {/* Mode soleil */}
-        <button onClick={onToggleContrast}
-          title="Mode soleil"
-          style={{ background: highContrast ? GOLD : "none", border: highContrast ? "none" : "1px solid rgba(184,151,62,0.35)", borderRadius: "50%", width: "34px", height: "34px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: highContrast ? "#1c1208" : navTextColor, transition: "all 0.3s", flexShrink: 0 }}>
+        <motion.button onClick={onToggleContrast}
+          title={highContrast ? "Mode normal" : "Mode soleil"}
+          animate={{ rotate: highContrast ? 180 : 0 }}
+          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+          style={{ background: "none", border: "none", borderRadius: "50%", width: "36px", height: "36px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: highContrast ? GOLD : navTextColor, transition: "color 0.3s", flexShrink: 0, position: "relative" }}>
+          {highContrast && <motion.span initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} style={{ position: "absolute", inset: "-4px", borderRadius: "50%", border: `1px solid ${GOLD}`, boxShadow: `0 0 12px rgba(184,151,62,0.5)` }} />}
           <SvgSun />
-        </button>
+        </motion.button>
         {/* Burger */}
         <button onClick={() => setOpen(v => !v)}
           style={{ background: "none", border: "none", cursor: "pointer", padding: "8px", display: "flex", flexDirection: "column", gap: "5px" }}>
@@ -733,14 +736,43 @@ const FooterMobile = ({ onShowroom, onContact, onCatalogue, onMentions, onConfid
 /* ── APP PRINCIPALE ──────────────────────────────────────────────── */
 export default function App() {
   const [modal, setModal] = useState(null);
-  const [highContrast, setHighContrast] = useState(() => {
+  const [sensorHC, setSensorHC] = useState(false);
+  const [manualHC, setManualHC] = useState(() => {
     try { return localStorage.getItem("gnz-hc") === "1"; } catch { return false; }
   });
-  const toggleContrast = () => setHighContrast(v => {
+  const highContrast = sensorHC || manualHC;
+
+  const toggleContrast = () => setManualHC(v => {
     const next = !v;
     try { localStorage.setItem("gnz-hc", next ? "1" : "0"); } catch {}
     return next;
   });
+
+  useEffect(() => {
+    const cleanup = [];
+    // 1. AmbientLightSensor (Chrome Android)
+    if (typeof window !== "undefined" && "AmbientLightSensor" in window) {
+      try {
+        const sensor = new window.AmbientLightSensor({ frequency: 0.5 });
+        sensor.addEventListener("reading", () => setSensorHC(sensor.illuminance > 3000));
+        sensor.addEventListener("error", () => {});
+        sensor.start();
+        cleanup.push(() => sensor.stop());
+      } catch (e) {}
+    }
+    // 2. prefers-contrast: more (réglages accessibilité)
+    const mqContrast = window.matchMedia("(prefers-contrast: more)");
+    const handleContrast = e => setSensorHC(v => v || e.matches);
+    if (mqContrast.matches) setSensorHC(true);
+    mqContrast.addEventListener("change", handleContrast);
+    cleanup.push(() => mqContrast.removeEventListener("change", handleContrast));
+    // 3. prefers-color-scheme: dark (mode auto du téléphone)
+    const mqDark = window.matchMedia("(prefers-color-scheme: dark)");
+    const handleDark = e => setSensorHC(v => v || e.matches);
+    mqDark.addEventListener("change", handleDark);
+    cleanup.push(() => mqDark.removeEventListener("change", handleDark));
+    return () => cleanup.forEach(fn => fn());
+  }, []);
   const showroomRef = useRef(null);
   const heritageRef = useRef(null);
   const galleryRef = useRef(null);
