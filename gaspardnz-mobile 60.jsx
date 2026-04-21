@@ -332,21 +332,16 @@ const HeritageMobile = ({ refEl }) => {
 /* ── SHOWROOM MOBILE ─────────────────────────────────────────────── */
 
 /* ── FLAMMES CAROUSEL ─────────────────────────────────────────── */
-const FlammesCarousel = ({ inView, onClick }) => {
-  const trackRef = useRef(null);
+const FlammesCarousel = ({ onClick }) => {
   const [cur, setCur] = useState(0);
   const N = 5;
   useEffect(() => {
-    if (!inView) return;
     const id = setInterval(() => setCur(c => (c + 1) % N), 3000);
     return () => clearInterval(id);
-  }, [inView]);
-  useEffect(() => {
-    trackRef.current?.scrollTo({ left: cur * trackRef.current.offsetWidth, behavior: "smooth" });
-  }, [cur]);
+  }, []);
   return (
     <div onClick={onClick} style={{ position: "relative", height: "85vw", minHeight: "340px", maxHeight: "520px", overflow: "hidden", cursor: "pointer" }}>
-      <div ref={trackRef} style={{ display: "flex", height: "100%", overflowX: "hidden" }}>
+      <div style={{ display: "flex", height: "100%", transform: `translateX(${-cur * 100}%)`, transition: "transform 0.8s cubic-bezier(0.16,1,0.3,1)", willChange: "transform" }}>
         {Array.from({ length: N }).map((_, i) => (
           <div key={i} style={{ flexShrink: 0, width: "100%", height: "100%", background: `hsl(30,${15+i*4}%,${8+i*4}%)`, display: "flex", alignItems: "center", justifyContent: "center" }}>
             <div style={{ textAlign: "center", padding: "2rem" }}>
@@ -378,7 +373,7 @@ const ShowroomMobile = ({ refEl, onCatalogue, onFlammes }) => {
 
   return (
     <section ref={refEl} style={{ background: "#f5f0e8", overflow: "hidden" }}>
-      <FlammesCarousel inView={inView} onClick={onFlammes} />
+      <FlammesCarousel onClick={onFlammes} />
 
       {/* Texte */}
       <div style={{ padding: "3rem 1.4rem 4rem" }}>
