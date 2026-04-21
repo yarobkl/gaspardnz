@@ -343,10 +343,18 @@ const FlammesCarousel = ({ onClick }) => {
     <div onClick={onClick} style={{ position: "relative", height: "85vw", minHeight: "340px", maxHeight: "520px", overflow: "hidden", cursor: "pointer" }}>
       <div style={{ display: "flex", height: "100%", transform: `translateX(${-cur * 100}%)`, transition: "transform 0.8s cubic-bezier(0.16,1,0.3,1)", willChange: "transform" }}>
         {Array.from({ length: N }).map((_, i) => (
-          <div key={i} style={{ flexShrink: 0, width: "100%", height: "100%", background: `hsl(30,${15+i*4}%,${8+i*4}%)`, display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <div style={{ textAlign: "center", padding: "2rem" }}>
-              <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(2rem,10vw,3.5rem)", color: `rgba(184,151,62,${0.15+i*0.05})`, letterSpacing: "0.15em" }}>LES FLAMMES 2026</div>
-              <div style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.5em", color: "rgba(245,240,232,0.2)", textTransform: "uppercase", marginTop: "0.8rem" }}>Look {i+1} · Cérémonie 23 avril</div>
+          <div key={i} style={{ flexShrink: 0, width: "100%", height: "100%", background: `hsl(30,${12+i*3}%,${7+i*3}%)`, display: "flex", alignItems: "center", justifyContent: "center", position: "relative", overflow: "hidden" }}>
+            {/* Ligne déco gauche */}
+            <div style={{ position: "absolute", left: "1.8rem", top: 0, bottom: 0, width: "1px", background: `linear-gradient(to bottom, transparent, rgba(184,151,62,0.4), transparent)` }} />
+            {/* Ligne déco droite */}
+            <div style={{ position: "absolute", right: "1.8rem", top: 0, bottom: 0, width: "1px", background: `linear-gradient(to bottom, transparent, rgba(184,151,62,0.4), transparent)` }} />
+            <div style={{ textAlign: "center", padding: "2rem 3rem" }}>
+              <div style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.55em", color: `rgba(184,151,62,0.6)`, textTransform: "uppercase", marginBottom: "1.4rem" }}>Gaspardnz présente</div>
+              <div style={{ width: "40px", height: "1px", background: GOLD, margin: "0 auto 1.4rem", opacity: 0.5 }} />
+              <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(2.8rem,13vw,4.5rem)", color: "rgba(245,240,232,0.92)", letterSpacing: "0.08em", lineHeight: 0.95 }}>LES<br/>FLAMMES</div>
+              <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(1.1rem,5vw,1.5rem)", color: GOLD, fontStyle: "italic", fontWeight: 300, marginTop: "0.6rem", letterSpacing: "0.05em" }}>2026</div>
+              <div style={{ width: "40px", height: "1px", background: GOLD, margin: "1.4rem auto", opacity: 0.5 }} />
+              <div style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.4em", color: "rgba(245,240,232,0.35)", textTransform: "uppercase" }}>Seine Musicale · 23 Avril</div>
             </div>
           </div>
         ))}
