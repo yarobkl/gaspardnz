@@ -376,7 +376,7 @@ const ShowroomMobile = ({ refEl, onCatalogue, onFlammes }) => {
       <FlammesCarousel onClick={onFlammes} />
 
       {/* Texte */}
-      <div style={{ padding: "3rem 1.4rem 4rem" }}>
+      <div ref={ref} style={{ padding: "3rem 1.4rem 4rem" }}>
         <motion.p
           initial={{ opacity: 0, y: 16 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ delay: 0.4 }}
           style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "8px", letterSpacing: "0.5em", color: GOLD, textTransform: "uppercase", marginBottom: "1.2rem" }}
