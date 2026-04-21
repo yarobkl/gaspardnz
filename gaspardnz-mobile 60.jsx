@@ -85,7 +85,7 @@ const Modal = ({ isOpen, onClose, title, children }) => (
 /* ─── MOBILE-FIRST VERSION ─────────────────────────────────────── */
 
 /* ── NAV MOBILE ─────────────────────────────────────────────────── */
-const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules, highContrast, onToggleContrast }) => {
+const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules, highContrast, onToggleContrast, onBiographie }) => {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -167,6 +167,7 @@ const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules, 
           >
             {/* Links */}
             {[
+              ["Biographie", onBiographie],
               ["Showroom", onShowroom],
               ["Formules", onFormules],
               ["Galerie", onGalerie],
@@ -952,6 +953,7 @@ export default function App() {
       <NavMobile
         highContrast={highContrast}
         onToggleContrast={toggleContrast}
+        onBiographie={() => setModal("biographie")}
         onShowroom={() => scrollTo(showroomRef)}
         onGalerie={() => scrollTo(galleryRef)}
         onFormules={() => scrollTo(formulesRef)}
@@ -1083,6 +1085,46 @@ export default function App() {
             <p style={{ color: GOLD, fontSize: "8px", letterSpacing: "0.35em", textTransform: "uppercase", marginBottom: "0.6rem" }}>Droit applicable</p>
             <p>Les présentes CGV sont soumises au droit français. En cas de litige, une solution amiable sera recherchée en priorité avant tout recours judiciaire.</p>
           </div>
+        </div>
+      </Modal>
+
+      {/* Modal Biographie */}
+      <Modal isOpen={modal === "biographie"} onClose={() => setModal(null)} title="Biographie">
+        <div style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "11px", lineHeight: 2, color: "rgba(28,18,8,0.65)" }}>
+
+          {/* Portrait placeholder */}
+          <div style={{ width: "80px", height: "80px", borderRadius: "50%", background: "rgba(184,151,62,0.1)", border: `1px solid rgba(184,151,62,0.3)`, margin: "0 auto 2rem", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <span style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.8rem", color: GOLD, letterSpacing: "0.05em" }}>G</span>
+          </div>
+
+          <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1.15rem", fontStyle: "italic", fontWeight: 300, color: "rgba(28,18,8,0.5)", textAlign: "center", lineHeight: 1.7, marginBottom: "2rem" }}>
+            "S'habiller, c'est choisir qui l'on est avant même d'avoir parlé."
+          </p>
+
+          <div style={{ width: "30px", height: "1px", background: GOLD, margin: "0 auto 2rem", opacity: 0.5 }} />
+
+          <div style={{ display: "flex", flexDirection: "column", gap: "1.4rem" }}>
+            <div>
+              <p style={{ color: GOLD, fontSize: "7px", letterSpacing: "0.5em", textTransform: "uppercase", marginBottom: "0.5rem" }}>Origines</p>
+              <p>Né et forgé entre deux cultures, Gaspardnz grandit avec une sensibilité aiguë pour l'élégance, la matière et le détail. C'est à Paris qu'il pose ses valises et décide de faire de la mode son langage.</p>
+            </div>
+            <div>
+              <p style={{ color: GOLD, fontSize: "7px", letterSpacing: "0.5em", textTransform: "uppercase", marginBottom: "0.5rem" }}>Vision</p>
+              <p>Depuis plus de 7 ans, il façonne des pièces sur-mesure pour des hommes qui refusent l'ordinaire. Costumes sculptés, chemises brodées, accessoires pensés jusqu'au dernier fil — chaque création est une déclaration.</p>
+            </div>
+            <div>
+              <p style={{ color: GOLD, fontSize: "7px", letterSpacing: "0.5em", textTransform: "uppercase", marginBottom: "0.5rem" }}>Engagement</p>
+              <p>Gaspardnz ne vend pas des vêtements. Il construit des identités. Chaque client devient une silhouette unique, pensée, portée avec intention. De la salle de mariage aux tapis rouges, l'excellence est la seule constante.</p>
+            </div>
+            <div>
+              <p style={{ color: GOLD, fontSize: "7px", letterSpacing: "0.5em", textTransform: "uppercase", marginBottom: "0.5rem" }}>Paris</p>
+              <p>Basé à Paris, disponible sur WhatsApp pour un premier échange. Chaque aventure commence par une conversation.</p>
+            </div>
+          </div>
+
+          <div style={{ width: "30px", height: "1px", background: GOLD, margin: "2rem auto", opacity: 0.5 }} />
+
+          <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.1rem", letterSpacing: "0.3em", color: "rgba(28,18,8,0.2)", textAlign: "center" }}>GASPARDNZ · PARIS</p>
         </div>
       </Modal>
 
