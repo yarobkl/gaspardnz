@@ -558,9 +558,6 @@ const FlammesCarousel = ({ onClick }) => {
           <div key={i} style={{ width: i === cur ? 18 : 5, height: 2, background: i === cur ? GOLD : "rgba(184,151,62,0.3)", transition: "width 0.4s", borderRadius: 1 }} />
         ))}
       </div>
-      {/* Modal Booking */}
-      <BookingModal isOpen={modal === "booking"} onClose={() => setModal(null)} />
-
     </div>
   );
 };
@@ -1323,6 +1320,8 @@ export default function App() {
           </div>
         </div>
       </Modal>
+
+      <BookingModal isOpen={modal === "booking"} onClose={() => setModal(null)} />
 
     </div>
   );
