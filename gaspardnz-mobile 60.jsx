@@ -262,8 +262,23 @@ const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules, 
   }, []);
 
   useEffect(() => {
-    document.body.style.overflow = open ? "hidden" : "";
-    return () => { document.body.style.overflow = ""; };
+    if (open) {
+      const y = window.scrollY;
+      document.body.style.position = "fixed";
+      document.body.style.top = `-${y}px`;
+      document.body.style.width = "100%";
+    } else {
+      const y = Math.abs(parseInt(document.body.style.top || "0"));
+      document.body.style.position = "";
+      document.body.style.top = "";
+      document.body.style.width = "";
+      window.scrollTo(0, y);
+    }
+    return () => {
+      document.body.style.position = "";
+      document.body.style.top = "";
+      document.body.style.width = "";
+    };
   }, [open]);
 
   const close = (fn) => { setOpen(false); fn && fn(); };
