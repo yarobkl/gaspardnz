@@ -331,7 +331,7 @@ const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules, 
           >
             {/* Links */}
             {[
-              ["Réserver", onReserver],
+              ["Me Révéler", onReserver],
           ["Biographie", onBiographie],
               ["Showroom", onShowroom],
               ["Formules", onFormules],
@@ -848,7 +848,7 @@ const FormulesSection = ({ refEl, onContact, onReserver }) => {
                         <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "0.85rem", color: "rgba(245,240,232,0.45)", fontStyle: "italic", marginTop: "0.5rem", marginBottom: "1.2rem" }}>{f.tagline}</p>
                         <button onClick={onReserver || onContact}
                           style={{ width: "100%", background: "none", border: `1px solid rgba(184,151,62,0.5)`, color: GOLD, padding: "0.9rem", fontFamily: "'Montserrat', sans-serif", fontSize: "8px", letterSpacing: "0.4em", textTransform: "uppercase", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}
-                        >Réserver cette formule <SvgArrow size={13} /></button>
+                        >Me Révéler <SvgArrow size={13} /></button>
                       </div>
                     </div>
                   </motion.div>
