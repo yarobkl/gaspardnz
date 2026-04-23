@@ -6,10 +6,11 @@
     <meta name="theme-color" content="#1c1208" />
     <style>
       * { margin: 0; padding: 0; box-sizing: border-box; }
-      html, body, #root { height: 100%; }
-      body { padding-top: env(safe-area-inset-top); background: #1c1208; }
+      html, body { min-height: 100%; }
+      #root { min-height: 100%; }
+      body { background: #1c1208; }
 
-      /* Bloque le zoom iOS sur tous les champs du site */
+      /* Bloque le zoom iOS sur tous les champs — Safari zoome si font-size < 16px */
       input, textarea, select {
         font-size: 16px !important;
         -webkit-text-size-adjust: 100%;
