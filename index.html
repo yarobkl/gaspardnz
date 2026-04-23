@@ -8,6 +8,12 @@
       * { margin: 0; padding: 0; box-sizing: border-box; }
       html, body, #root { height: 100%; }
       body { padding-top: env(safe-area-inset-top); background: #1c1208; }
+
+      /* Bloque le zoom iOS sur tous les champs du site */
+      input, textarea, select {
+        font-size: 16px !important;
+        -webkit-text-size-adjust: 100%;
+      }
     </style>
     <meta name="description" content="Gaspardnz — Conseil en image & création de vêtements sur-mesure à Paris" />
     <title>Gaspardnz</title>
