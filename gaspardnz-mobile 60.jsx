@@ -96,9 +96,11 @@ const BookingModal = ({ isOpen, onClose }) => {
 
   const ok = form.nom.trim() && form.projet.trim() && form.besoin.trim();
 
-  const waUrl = `https://wa.me/33664826920?text=${encodeURIComponent(
-    `Salut Gaspard ! Je suis ${form.nom}. Je viens de voir ton site et je souhaite discuter de mon projet de ${form.projet}. Mon besoin est le suivant : ${form.besoin}.`
-  )}`;
+  const nom = form.nom.trim();
+  const projet = form.projet.trim();
+  const besoin = form.besoin.trim();
+  const waMsg = `Salut Gaspard ! Je suis ${nom}. Je viens de voir ton site et je souhaite discuter de mon projet de ${projet}. Mon besoin est le suivant : ${besoin}.`;
+  const waUrl = `https://wa.me/33664826920?text=${encodeURIComponent(waMsg).replace(/%3A/g, ':')}`;
 
   const reset = () => { setStep(1); setForm({ nom: "", projet: "", besoin: "" }); onClose(); };
 
