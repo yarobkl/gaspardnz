@@ -96,16 +96,18 @@ const BookingModal = ({ isOpen, onClose }) => {
 
   const ok = form.nom.trim() && form.projet.trim() && form.besoin.trim();
 
-  const waUrl = `https://wa.me/33664826920?text=${encodeURIComponent(
-    `Salut Gaspard ! Je suis ${form.nom}. Je viens de voir ton site et je souhaite discuter de mon projet de ${form.projet}. Mon besoin est le suivant : ${form.besoin}.`
-  )}`;
+  const nom = form.nom.trim();
+  const projet = form.projet.trim();
+  const besoin = form.besoin.trim();
+  const waMsg = `Salut Gaspard ! Je suis ${nom}. Je viens de voir ton site et je souhaite discuter de mon projet de ${projet}. Mon besoin est le suivant : ${besoin}.`;
+  const waUrl = `https://wa.me/33664826920?text=${encodeURIComponent(waMsg).replace(/%3A/g, ':')}`;
 
   const reset = () => { setStep(1); setForm({ nom: "", projet: "", besoin: "" }); onClose(); };
 
   const inputStyle = {
     width: "100%", background: "none", border: "1px solid rgba(184,151,62,0.2)",
     padding: "0.85rem 1rem", fontFamily: "'Montserrat', sans-serif",
-    fontSize: "11px", color: TEXT, outline: "none", borderRadius: 0,
+    fontSize: "16px", color: TEXT, outline: "none", borderRadius: 0,
     transition: "border-color 0.3s",
   };
 
@@ -116,7 +118,7 @@ const BookingModal = ({ isOpen, onClose }) => {
           initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
           transition={{ duration: 0.3 }}
           onClick={reset}
-          style={{ position: "fixed", inset: 0, zIndex: 500, background: "rgba(0,0,0,0.92)", display: "flex", alignItems: "center", justifyContent: "center", padding: "1rem" }}>
+          style={{ position: "fixed", inset: 0, zIndex: 500, background: "rgba(0,0,0,0.92)", display: "flex", alignItems: "flex-start", justifyContent: "center", padding: "1rem", paddingTop: "calc(env(safe-area-inset-top) + 3.5rem)", overflowY: "auto" }}>
           <motion.div
             initial={{ opacity: 0, y: 32, scale: 0.97 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -147,7 +149,7 @@ const BookingModal = ({ isOpen, onClose }) => {
             </div>
 
             {/* Contenu */}
-            <div style={{ padding: "1.8rem", minHeight: "320px" }}>
+            <div style={{ padding: "1.8rem" }}>
               <AnimatePresence mode="wait">
                 {step === 1 ? (
                   <motion.div key="step1"
@@ -259,6 +261,26 @@ const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules, 
     return () => window.removeEventListener("scroll", fn);
   }, []);
 
+  useEffect(() => {
+    if (open) {
+      const y = window.scrollY;
+      document.body.style.position = "fixed";
+      document.body.style.top = `-${y}px`;
+      document.body.style.width = "100%";
+    } else {
+      const y = Math.abs(parseInt(document.body.style.top || "0"));
+      document.body.style.position = "";
+      document.body.style.top = "";
+      document.body.style.width = "";
+      window.scrollTo(0, y);
+    }
+    return () => {
+      document.body.style.position = "";
+      document.body.style.top = "";
+      document.body.style.width = "";
+    };
+  }, [open]);
+
   const close = (fn) => { setOpen(false); fn && fn(); };
 
   // Sur fond transparent (photo sombre) → texte blanc / Sur fond crème → texte sombre
@@ -269,7 +291,8 @@ const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules, 
     <>
       <nav style={{
         position: "fixed", top: 0, left: 0, right: 0, zIndex: 400,
-        padding: "1rem 1.4rem",
+        paddingTop: "calc(env(safe-area-inset-top) + 1rem)",
+        paddingBottom: "1rem", paddingLeft: "1.4rem", paddingRight: "1.4rem",
         display: "flex", justifyContent: "space-between", alignItems: "center",
         background: scrolled || open ? "rgba(245,240,232,0.97)" : "transparent",
         borderBottom: scrolled || open ? "1px solid rgba(184,151,62,0.25)" : "1px solid transparent",
@@ -323,10 +346,11 @@ const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules, 
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
             style={{
-              position: "fixed", top: "64px", left: 0, right: 0, zIndex: 399,
+              position: "fixed", top: "calc(env(safe-area-inset-top) + 64px)", left: 0, right: 0, bottom: 0, zIndex: 399,
               background: "rgba(245,240,232,0.98)", borderBottom: `1px solid rgba(184,151,62,0.12)`,
               padding: "2rem 1.4rem 2.5rem",
               backdropFilter: "blur(20px)",
+              overflowY: "auto",
             }}
           >
             {/* Links */}
