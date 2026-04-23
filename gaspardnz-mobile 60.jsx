@@ -444,6 +444,17 @@ const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules, 
             </motion.span>
           )}
         </motion.button>
+        {/* Sélecteur de langue */}
+        <div style={{ display: "flex", gap: "2px" }}>
+          {["FR","EN","ES","ZH"].map(l => (
+            <button key={l} onClick={() => { setLang(l); try { localStorage.setItem("gnz-lang", l); } catch {} }}
+              style={{ background: "none", border: "none", cursor: "pointer", fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.2em", padding: "3px 4px",
+                color: lang === l ? GOLD : navTextColor === "#f5f0e8" ? "rgba(245,240,232,0.45)" : "rgba(28,18,8,0.3)",
+                borderBottom: lang === l ? `1px solid ${GOLD}` : "1px solid transparent", transition: "all 0.3s" }}>
+              {l}
+            </button>
+          ))}
+        </div>
         {/* Burger */}
         <button onClick={() => setOpen(v => !v)}
           style={{ background: "none", border: "none", cursor: "pointer", padding: "8px", display: "flex", flexDirection: "column", gap: "5px" }}>
