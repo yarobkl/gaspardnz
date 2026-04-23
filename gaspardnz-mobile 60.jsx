@@ -291,7 +291,8 @@ const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules, 
     <>
       <nav style={{
         position: "fixed", top: 0, left: 0, right: 0, zIndex: 400,
-        padding: "1rem 1.4rem",
+        paddingTop: "calc(env(safe-area-inset-top) + 1rem)",
+        paddingBottom: "1rem", paddingLeft: "1.4rem", paddingRight: "1.4rem",
         display: "flex", justifyContent: "space-between", alignItems: "center",
         background: scrolled || open ? "rgba(245,240,232,0.97)" : "transparent",
         borderBottom: scrolled || open ? "1px solid rgba(184,151,62,0.25)" : "1px solid transparent",
@@ -345,7 +346,7 @@ const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules, 
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
             style={{
-              position: "fixed", top: "64px", left: 0, right: 0, bottom: 0, zIndex: 399,
+              position: "fixed", top: "calc(env(safe-area-inset-top) + 64px)", left: 0, right: 0, bottom: 0, zIndex: 399,
               background: "rgba(245,240,232,0.98)", borderBottom: `1px solid rgba(184,151,62,0.12)`,
               padding: "2rem 1.4rem 2.5rem",
               backdropFilter: "blur(20px)",
