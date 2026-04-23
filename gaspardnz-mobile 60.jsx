@@ -261,6 +261,11 @@ const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules, 
     return () => window.removeEventListener("scroll", fn);
   }, []);
 
+  useEffect(() => {
+    document.body.style.overflow = open ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
+  }, [open]);
+
   const close = (fn) => { setOpen(false); fn && fn(); };
 
   // Sur fond transparent (photo sombre) → texte blanc / Sur fond crème → texte sombre
@@ -325,10 +330,11 @@ const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules, 
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
             style={{
-              position: "fixed", top: "64px", left: 0, right: 0, zIndex: 399,
+              position: "fixed", top: "64px", left: 0, right: 0, bottom: 0, zIndex: 399,
               background: "rgba(245,240,232,0.98)", borderBottom: `1px solid rgba(184,151,62,0.12)`,
               padding: "2rem 1.4rem 2.5rem",
               backdropFilter: "blur(20px)",
+              overflowY: "auto",
             }}
           >
             {/* Links */}
