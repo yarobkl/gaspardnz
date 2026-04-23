@@ -118,7 +118,7 @@ const BookingModal = ({ isOpen, onClose }) => {
           initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
           transition={{ duration: 0.3 }}
           onClick={reset}
-          style={{ position: "fixed", inset: 0, zIndex: 500, background: "rgba(0,0,0,0.92)", display: "flex", alignItems: "center", justifyContent: "center", padding: "1rem" }}>
+          style={{ position: "fixed", inset: 0, zIndex: 500, background: "rgba(0,0,0,0.92)", display: "flex", alignItems: "flex-start", justifyContent: "center", padding: "1rem", paddingTop: "calc(env(safe-area-inset-top) + 3.5rem)", overflowY: "auto" }}>
           <motion.div
             initial={{ opacity: 0, y: 32, scale: 0.97 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -149,7 +149,7 @@ const BookingModal = ({ isOpen, onClose }) => {
             </div>
 
             {/* Contenu */}
-            <div style={{ padding: "1.8rem", minHeight: "320px" }}>
+            <div style={{ padding: "1.8rem" }}>
               <AnimatePresence mode="wait">
                 {step === 1 ? (
                   <motion.div key="step1"
