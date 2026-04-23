@@ -1,10 +1,127 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, createContext, useContext } from "react";
 import { motion, useScroll, useTransform, AnimatePresence, useInView } from "framer-motion";
 
 const GOLD = "#b8973e";
 const GOLD_LIGHT = "#d4ae5a";
 const CREAM = "#f5f0e8"
 const TEXT = "#1c1208";
+
+const T = {
+  FR: {
+    nav_reveler:"Me Révéler", nav_bio:"Biographie", nav_showroom:"Showroom",
+    nav_formules:"Formules", nav_galerie:"Galerie", nav_contact:"Contact",
+    nav_boutique:"Boutique", nav_mode_jour:"Mode jour", nav_mode_normal:"Mode normal",
+    hero_maison:"Maison Gaspardnz — Paris",
+    hero_desc:t("hero_desc"),
+    hero_cta:"Découvrir",
+    showroom_cta:"Explorer le Catalogue",
+    formules_surtitle:"Mariage & Événements", formules_title:"NOS FORMULES",
+    formules_sub:"Deux packages complets pour sublimer chaque moment de votre grand jour.",
+    btn_reveler:"Me Révéler",
+    bk_step1:"Étape 1 / 2", bk_step2:"Étape 2 / 2",
+    bk_title1:"Votre Projet", bk_title2:"Choisissez",
+    bk_lbl_nom:"Votre nom", bk_ph_nom:"Comment vous appelez-vous ?",
+    bk_lbl_projet:"Type de projet", bk_ph_projet:"Mariage, soirée, événement...",
+    bk_lbl_besoin:"Votre besoin", bk_ph_besoin:"Décrivez brièvement votre projet...",
+    bk_continue:"Continuer",
+    bk_q:(n)=>`Comment souhaitez-vous continuer, ${n} ?`,
+    bk_cal_title:"Prendre rendez-vous", bk_cal_sub:"Via calendrier · Créneau officiel",
+    bk_wa_title:"Discuter via WhatsApp", bk_wa_sub:"Message pré-rédigé · Réponse rapide",
+    bk_guarantee:"✦ Réponse sous 24h garantie ✦",
+    bk_back:"Modifier mes informations",
+    bk_wa:(n,p,b)=>`Salut Gaspard ! Je suis ${n}. Je viens de voir ton site et je souhaite discuter de mon projet de ${p}. Mon besoin est le suivant : ${b}.`,
+    contact_title:"Prendre Contact",
+    contact_desc:t("contact_desc"),
+    footer_mentions:"Mentions légales", footer_conf:"Confidentialité", footer_cgv:"CGV",
+  },
+  EN: {
+    nav_reveler:"Reveal Myself", nav_bio:"Biography", nav_showroom:"Showroom",
+    nav_formules:"Packages", nav_galerie:"Gallery", nav_contact:"Contact",
+    nav_boutique:"Boutique", nav_mode_jour:"Day mode", nav_mode_normal:"Normal mode",
+    hero_maison:"Maison Gaspardnz — Paris",
+    hero_desc:"Gaspardnz weaves an invisible bond between the rigorous elegance of Paris and a creative vision without borders.",
+    hero_cta:"Discover",
+    showroom_cta:"Explore the Catalogue",
+    formules_surtitle:"Weddings & Events", formules_title:"OUR PACKAGES",
+    formules_sub:"Two complete packages to elevate every moment of your big day.",
+    btn_reveler:"Book this package",
+    bk_step1:"Step 1 / 2", bk_step2:"Step 2 / 2",
+    bk_title1:"Your Project", bk_title2:"Choose",
+    bk_lbl_nom:"Your name", bk_ph_nom:"What is your name?",
+    bk_lbl_projet:"Project type", bk_ph_projet:"Wedding, evening, event...",
+    bk_lbl_besoin:"Your needs", bk_ph_besoin:"Briefly describe your project...",
+    bk_continue:"Continue",
+    bk_q:(n)=>`How would you like to proceed, ${n}?`,
+    bk_cal_title:"Schedule an appointment", bk_cal_sub:"Via calendar · Official slot",
+    bk_wa_title:"Chat via WhatsApp", bk_wa_sub:"Pre-written message · Fast reply",
+    bk_guarantee:"✦ Response within 24h guaranteed ✦",
+    bk_back:"Edit my information",
+    bk_wa:(n,p,b)=>`Hi Gaspard! I'm ${n}. I just saw your website and I'd like to discuss my project: ${p}. Here's what I need: ${b}.`,
+    contact_title:"Get in Touch",
+    contact_desc:"Available on WhatsApp for any bespoke order or enquiry.",
+    footer_mentions:"Legal Notice", footer_conf:"Privacy", footer_cgv:"T&C",
+  },
+  ES: {
+    nav_reveler:"Revelarme", nav_bio:"Biografía", nav_showroom:"Showroom",
+    nav_formules:"Paquetes", nav_galerie:"Galería", nav_contact:"Contacto",
+    nav_boutique:"Boutique", nav_mode_jour:"Modo día", nav_mode_normal:"Modo normal",
+    hero_maison:"Maison Gaspardnz — París",
+    hero_desc:"Gaspardnz teje un vínculo invisible entre la elegancia rigurosa de París y una visión creativa sin fronteras.",
+    hero_cta:"Descubrir",
+    showroom_cta:"Explorar el Catálogo",
+    formules_surtitle:"Bodas & Eventos", formules_title:"NUESTROS PAQUETES",
+    formules_sub:"Dos paquetes completos para realzar cada momento de tu gran día.",
+    btn_reveler:"Reservar este paquete",
+    bk_step1:"Paso 1 / 2", bk_step2:"Paso 2 / 2",
+    bk_title1:"Tu Proyecto", bk_title2:"Elige",
+    bk_lbl_nom:"Tu nombre", bk_ph_nom:"¿Cómo te llamas?",
+    bk_lbl_projet:"Tipo de proyecto", bk_ph_projet:"Boda, fiesta, evento...",
+    bk_lbl_besoin:"Tu necesidad", bk_ph_besoin:"Describe brevemente tu proyecto...",
+    bk_continue:"Continuar",
+    bk_q:(n)=>`¿Cómo deseas continuar, ${n}?`,
+    bk_cal_title:"Reservar una cita", bk_cal_sub:"Vía calendario · Horario oficial",
+    bk_wa_title:"Hablar por WhatsApp", bk_wa_sub:"Mensaje redactado · Respuesta rápida",
+    bk_guarantee:"✦ Respuesta en 24h garantizada ✦",
+    bk_back:"Modificar mi información",
+    bk_wa:(n,p,b)=>`¡Hola Gaspard! Soy ${n}. Acabo de ver tu sitio y me gustaría hablar sobre mi proyecto: ${p}. Mis necesidades: ${b}.`,
+    contact_title:"Contactar",
+    contact_desc:"Disponible en WhatsApp para cualquier solicitud de pedido personalizado.",
+    footer_mentions:"Aviso Legal", footer_conf:"Privacidad", footer_cgv:"T&C",
+  },
+  ZH: {
+    nav_reveler:"展现自我", nav_bio:"简介", nav_showroom:"展厅",
+    nav_formules:"套餐", nav_galerie:"画廊", nav_contact:"联系",
+    nav_boutique:"精品店", nav_mode_jour:"日间模式", nav_mode_normal:"普通模式",
+    hero_maison:"Maison Gaspardnz — 巴黎",
+    hero_desc:"Gaspardnz 编织了一条无形的纽带，连接巴黎严谨的优雅与无界的创意视野。",
+    hero_cta:"探索",
+    showroom_cta:"探索目录",
+    formules_surtitle:"婚礼 & 活动", formules_title:"我们的套餐",
+    formules_sub:"两套完整方案，让您的大日子每个瞬间都光彩夺目。",
+    btn_reveler:"预约此套餐",
+    bk_step1:"第 1 步 / 2", bk_step2:"第 2 步 / 2",
+    bk_title1:"您的项目", bk_title2:"选择方式",
+    bk_lbl_nom:"您的姓名", bk_ph_nom:"请问您叫什么名字？",
+    bk_lbl_projet:"项目类型", bk_ph_projet:"婚礼、晚宴、活动...",
+    bk_lbl_besoin:"您的需求", bk_ph_besoin:"请简要描述您的项目...",
+    bk_continue:"继续",
+    bk_q:(n)=>`${n}，您希望如何继续？`,
+    bk_cal_title:"预约时间", bk_cal_sub:"通过日历 · 官方预约",
+    bk_wa_title:"WhatsApp 咨询", bk_wa_sub:"预填信息 · 快速回复",
+    bk_guarantee:"✦ 24小时内保证回复 ✦",
+    bk_back:"修改我的信息",
+    bk_wa:(n,p,b)=>`你好 Gaspard！我是${n}。我刚看了您的网站，想咨询我的项目：${p}。我的需求是：${b}。`,
+    contact_title:"联系我们",
+    contact_desc:"可通过 WhatsApp 联系，处理任何个性化订单或咨询。",
+    footer_mentions:"法律声明", footer_conf:"隐私政策", footer_cgv:"销售条款",
+  },
+};
+const LangCtx = createContext({ lang: "FR", setLang: () => {} });
+const useTr = () => {
+  const { lang } = useContext(LangCtx);
+  return (k, ...a) => { const v = T[lang]?.[k] ?? T.FR[k] ?? k; return typeof v === "function" ? v(...a) : v; };
+};
+
 
 const fonts = `@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Bebas+Neue&family=Montserrat:wght@200;300;400;500&display=swap');`;
 
@@ -91,6 +208,7 @@ const Modal = ({ isOpen, onClose, title, children }) => (
 
 /* ── BOOKING MODAL ───────────────────────────────────────────────── */
 const BookingModal = ({ isOpen, onClose }) => {
+  const t = useTr();
   const [step, setStep] = useState(1);
   const [form, setForm] = useState({ nom: "", projet: "", besoin: "" });
 
@@ -99,7 +217,7 @@ const BookingModal = ({ isOpen, onClose }) => {
   const nom = form.nom.trim();
   const projet = form.projet.trim();
   const besoin = form.besoin.trim();
-  const waMsg = `Salut Gaspard ! Je suis ${nom}. Je viens de voir ton site et je souhaite discuter de mon projet de ${projet}. Mon besoin est le suivant : ${besoin}.`;
+  const waMsg = t("bk_wa", nom, projet, besoin);
   const waUrl = `https://wa.me/33664826920?text=${encodeURIComponent(waMsg).replace(/%3A/g, ':')}`;
 
   const reset = () => { setStep(1); setForm({ nom: "", projet: "", besoin: "" }); onClose(); };
@@ -139,10 +257,10 @@ const BookingModal = ({ isOpen, onClose }) => {
             <div style={{ padding: "2rem 1.8rem 1.2rem", borderBottom: "1px solid rgba(184,151,62,0.1)", display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
               <div>
                 <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.5em", color: GOLD, textTransform: "uppercase", marginBottom: "0.4rem" }}>
-                  {step === 1 ? "Étape 1 / 2" : "Étape 2 / 2"}
+                  {step === 1 ? t("bk_step1") : t("bk_step2")}
                 </p>
                 <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.6rem", letterSpacing: "0.08em", color: TEXT, lineHeight: 1 }}>
-                  {step === 1 ? "Votre Projet" : "Choisissez"}
+                  {step === 1 ? t("bk_title1") : t("bk_title2")}
                 </p>
               </div>
               <button onClick={reset} style={{ background: "none", border: "none", cursor: "pointer", padding: "4px 8px", color: "rgba(28,18,8,0.3)", fontSize: "22px", lineHeight: 1, marginTop: "-4px" }}>×</button>
@@ -157,9 +275,9 @@ const BookingModal = ({ isOpen, onClose }) => {
                     transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}>
                     <div style={{ display: "flex", flexDirection: "column", gap: "1.2rem" }}>
                       {[
-                        { k: "nom",    lbl: "Votre nom",      ph: "Comment vous appelez-vous ?" },
-                        { k: "projet", lbl: "Type de projet",  ph: "Mariage, soirée, événement..." },
-                        { k: "besoin", lbl: "Votre besoin",    ph: "Décrivez brièvement votre projet..." },
+                        { k: "nom",    lbl: t("bk_lbl_nom"), ph: t("bk_ph_nom") },
+                        { k: "projet", lbl: t("bk_lbl_projet"), ph: t("bk_ph_projet") },
+                        { k: "besoin", lbl: t("bk_lbl_besoin"), ph: t("bk_ph_besoin") },
                       ].map(({ k, lbl, ph }) => (
                         <div key={k}>
                           <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.35em", color: "rgba(28,18,8,0.4)", textTransform: "uppercase", marginBottom: "0.5rem" }}>{lbl}</p>
@@ -191,7 +309,7 @@ const BookingModal = ({ isOpen, onClose }) => {
                         cursor: ok ? "pointer" : "not-allowed", transition: "all 0.4s",
                         display: "flex", alignItems: "center", justifyContent: "center", gap: "8px",
                       }}>
-                      Continuer <SvgArrow size={12} />
+                      {t("bk_continue")} <SvgArrow size={12} />
                     </motion.button>
                   </motion.div>
                 ) : (
@@ -199,7 +317,7 @@ const BookingModal = ({ isOpen, onClose }) => {
                     initial={{ x: 60, opacity: 0 }} animate={{ x: 0, opacity: 1 }}
                     transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}>
                     <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1rem", color: "rgba(28,18,8,0.45)", fontStyle: "italic", textAlign: "center", marginBottom: "1.6rem", lineHeight: 1.65 }}>
-                      Comment souhaitez-vous continuer, {form.nom} ?
+                      {t("bk_q", form.nom)}
                     </p>
 
                     <div style={{ display: "flex", flexDirection: "column", gap: "0.9rem" }}>
@@ -212,8 +330,8 @@ const BookingModal = ({ isOpen, onClose }) => {
                           <SvgCalendar />
                         </div>
                         <div>
-                          <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.15rem", letterSpacing: "0.07em", color: TEXT, marginBottom: "0.15rem" }}>Prendre rendez-vous</p>
-                          <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.2em", color: "rgba(28,18,8,0.38)", textTransform: "uppercase" }}>Via calendrier · Créneau officiel</p>
+                          <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.15rem", letterSpacing: "0.07em", color: TEXT, marginBottom: "0.15rem" }}>{t("bk_cal_title")}</p>
+                          <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.2em", color: "rgba(28,18,8,0.38)", textTransform: "uppercase" }}>{t("bk_cal_sub")}</p>
                         </div>
                       </a>
 
@@ -226,19 +344,19 @@ const BookingModal = ({ isOpen, onClose }) => {
                           <SvgWA />
                         </div>
                         <div>
-                          <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.15rem", letterSpacing: "0.07em", color: TEXT, marginBottom: "0.15rem" }}>Discuter via WhatsApp</p>
-                          <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.2em", color: "rgba(28,18,8,0.38)", textTransform: "uppercase" }}>Message pré-rédigé · Réponse rapide</p>
+                          <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.15rem", letterSpacing: "0.07em", color: TEXT, marginBottom: "0.15rem" }}>{t("bk_wa_title")}</p>
+                          <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.2em", color: "rgba(28,18,8,0.38)", textTransform: "uppercase" }}>{t("bk_wa_sub")}</p>
                         </div>
                       </a>
                     </div>
 
                     <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.28em", color: "rgba(28,18,8,0.28)", textTransform: "uppercase", textAlign: "center", marginTop: "1.5rem" }}>
-                      ✦ Réponse sous 24h garantie ✦
+                      {t("bk_guarantee")}
                     </p>
 
                     <button onClick={() => setStep(1)}
                       style={{ display: "block", background: "none", border: "none", margin: "1.1rem auto 0", cursor: "pointer", fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.22em", color: "rgba(28,18,8,0.22)", textTransform: "uppercase" }}>
-                      Modifier mes informations
+                      {t("bk_back")}
                     </button>
                   </motion.div>
                 )}
@@ -252,6 +370,8 @@ const BookingModal = ({ isOpen, onClose }) => {
 };
 
 const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules, highContrast, onToggleContrast, onBiographie, onReserver }) => {
+  const { lang, setLang } = useContext(LangCtx);
+  const t = useTr();
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -308,7 +428,7 @@ const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules, 
         <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
         {/* Mode soleil */}
         <motion.button onClick={onToggleContrast}
-          title={highContrast ? "Mode normal" : "Mode jour"}
+          title={highContrast ? t("nav_mode_normal") : t("nav_mode_jour")}
           style={{ background: "none", border: "none", cursor: "pointer", color: highContrast ? GOLD : navTextColor, transition: "color 0.3s", flexShrink: 0, position: "relative", display: "flex", flexDirection: "column", alignItems: "center", gap: "2px", padding: "4px" }}>
           <motion.div
             animate={{ rotate: highContrast ? 180 : 0, scale: highContrast ? 1.2 : 1 }}
@@ -355,12 +475,12 @@ const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules, 
           >
             {/* Links */}
             {[
-              ["Me Révéler", onReserver],
-          ["Biographie", onBiographie],
-              ["Showroom", onShowroom],
-              ["Formules", onFormules],
-              ["Galerie", onGalerie],
-              ["Contact", onContact],
+              [t("nav_reveler"), onReserver],
+          [t("nav_bio"), onBiographie],
+              [t("nav_showroom"), onShowroom],
+              [t("nav_formules"), onFormules],
+              [t("nav_galerie"), onGalerie],
+              [t("nav_contact"), onContact],
             ].map(([label, fn], i) => (
               <motion.button key={label}
                 initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }}
@@ -378,7 +498,7 @@ const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules, 
               onClick={() => close(onCatalogue)}
               style={{ marginTop: "1.8rem", width: "100%", background: "none", border: `1px solid rgba(184,151,62,0.4)`, color: GOLD, padding: "1rem", fontFamily: "'Montserrat', sans-serif", fontSize: "9px", letterSpacing: "0.4em", textTransform: "uppercase", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}
             >
-              <SvgBag /><span>Boutique</span>
+              <SvgBag /><span>{t("nav_boutique")}</span>
             </motion.button>
 
             {/* Réseaux */}
@@ -389,6 +509,18 @@ const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules, 
                   onTouchStart={e => e.currentTarget.style.color = GOLD}
                   onTouchEnd={e => e.currentTarget.style.color = "rgba(28,18,8,0.4)"}
                 ><Icon /></a>
+              ))}
+            </motion.div>
+
+            {/* Sélecteur de langue */}
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}
+              style={{ display: "flex", gap: "0.6rem", justifyContent: "center", marginTop: "1.4rem" }}>
+              {["FR", "EN", "ES", "ZH"].map(l => (
+                <button key={l} onClick={() => { setLang(l); try { localStorage.setItem("gnz-lang", l); } catch {} }}
+                  style={{ background: "none", border: "none", cursor: "pointer", fontFamily: "'Montserrat', sans-serif", fontSize: "8px", letterSpacing: "0.3em", padding: "4px 6px",
+                    color: lang === l ? GOLD : "rgba(28,18,8,0.3)", borderBottom: lang === l ? `1px solid ${GOLD}` : "1px solid transparent", transition: "all 0.3s" }}>
+                  {l}
+                </button>
               ))}
             </motion.div>
           </motion.div>
@@ -430,7 +562,7 @@ const HeroMobile = ({ onScrollDown }) => {
           transition={{ duration: 1, delay: 0.5 }}
           style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "8px", letterSpacing: "0.6em", color: GOLD, textTransform: "uppercase", marginBottom: "1.2rem" }}
         >
-          Maison Gaspardnz — Paris
+          {t("hero_maison")}
         </motion.p>
 
         <div style={{ lineHeight: 0.88, marginBottom: "1.8rem" }}>
@@ -519,7 +651,7 @@ const HeritageMobile = ({ refEl }) => {
           transition={{ delay: 0.55, duration: 0.9 }}
           style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(1.35rem, 5.5vw, 1.9rem)", fontWeight: 300, lineHeight: 1.65, color: "rgba(28,18,8,0.82)", fontStyle: "italic", marginBottom: "2rem" }}
         >
-          "Gaspardnz tisse un lien invisible entre l'élégance rigoureuse de Paris et une vision créative sans frontières."
+          t("hero_desc")
         </motion.p>
 
         <motion.p
@@ -797,19 +929,19 @@ const FormulesSection = ({ refEl, onContact, onReserver }) => {
         {/* Header */}
         <motion.p initial={{ opacity: 0 }} animate={inView ? { opacity: 1 } : {}} transition={{ duration: 0.7 }}
           style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "8px", letterSpacing: "0.5em", color: GOLD, textTransform: "uppercase", marginBottom: "1rem" }}
-        >Mariage & Événements</motion.p>
+        >{t("formules_surtitle")}</motion.p>
 
         <div style={{ overflow: "hidden", marginBottom: "0.6rem" }}>
           <motion.h2 initial={{ y: "105%" }} animate={inView ? { y: 0 } : {}}
             transition={{ duration: 1, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
             style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(40px, 13vw, 72px)", lineHeight: 0.9, letterSpacing: "0.04em", color: "#f5f0e8", margin: 0 }}
-          >NOS FORMULES</motion.h2>
+          >{t("formules_title")}</motion.h2>
         </div>
 
         <motion.p initial={{ opacity: 0, y: 12 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ delay: 0.5 }}
           style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(0.95rem, 3.8vw, 1.1rem)", fontWeight: 300, color: "rgba(245,240,232,0.45)", lineHeight: 1.7, fontStyle: "italic", marginBottom: "3rem" }}
         >
-          Deux packages complets pour sublimer chaque moment de votre grand jour.
+          {t("formules_sub")}
         </motion.p>
 
         {/* Cards formules */}
@@ -872,7 +1004,7 @@ const FormulesSection = ({ refEl, onContact, onReserver }) => {
                         <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "0.85rem", color: "rgba(245,240,232,0.45)", fontStyle: "italic", marginTop: "0.5rem", marginBottom: "1.2rem" }}>{f.tagline}</p>
                         <button onClick={onReserver || onContact}
                           style={{ width: "100%", background: "none", border: `1px solid rgba(184,151,62,0.5)`, color: GOLD, padding: "0.9rem", fontFamily: "'Montserrat', sans-serif", fontSize: "8px", letterSpacing: "0.4em", textTransform: "uppercase", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}
-                        >Me Révéler <SvgArrow size={13} /></button>
+                        >{t("btn_reveler")} <SvgArrow size={13} /></button>
                       </div>
                     </div>
                   </motion.div>
@@ -887,7 +1019,9 @@ const FormulesSection = ({ refEl, onContact, onReserver }) => {
 };
 
 /* ── FOOTER MOBILE ───────────────────────────────────────────────── */
-const FooterMobile = ({ onShowroom, onContact, onCatalogue, onMentions, onConfidentialite, onCGV, onFormules }) => (
+const FooterMobile = ({ onShowroom, onContact, onCatalogue, onMentions, onConfidentialite, onCGV, onFormules }) => {
+  const t = useTr();
+  return (
   <footer style={{ background: "#ede8de", borderTop: "1px solid rgba(184,151,62,0.2)", padding: "4rem 1.4rem 3rem" }}>
     <div style={{ textAlign: "center", marginBottom: "3rem" }}>
       <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(2rem, 10vw, 3.2rem)", letterSpacing: "0.25em", color: TEXT }}>GASPARDNZ</div>
@@ -896,7 +1030,7 @@ const FooterMobile = ({ onShowroom, onContact, onCatalogue, onMentions, onConfid
 
     {/* Nav links */}
     <div style={{ display: "flex", justifyContent: "center", gap: "2.5rem", marginBottom: "2.5rem", flexWrap: "wrap" }}>
-      {[["Showroom", onShowroom], ["Formules", onFormules], ["Contact", onContact], ["Boutique", onCatalogue]].map(([l, fn]) => (
+      {[[t("nav_showroom"), onShowroom], [t("nav_formules"), onFormules], [t("nav_contact"), onContact], [t("nav_boutique"), onCatalogue]].map(([l, fn]) => (
         <button key={l} onClick={fn}
           style={{ background: "none", border: "none", fontFamily: "'Montserrat', sans-serif", fontSize: "8px", letterSpacing: "0.35em", textTransform: "uppercase", color: "rgba(28,18,8,0.4)", cursor: "pointer" }}
         >{l}</button>
@@ -912,7 +1046,7 @@ const FooterMobile = ({ onShowroom, onContact, onCatalogue, onMentions, onConfid
 
     {/* Liens légaux */}
     <div style={{ display: "flex", justifyContent: "center", gap: "1.5rem", marginBottom: "2.5rem", flexWrap: "wrap", borderTop: "1px solid rgba(28,18,8,0.07)", paddingTop: "1.8rem" }}>
-      {[["Mentions légales", onMentions], ["Confidentialité", onConfidentialite], ["CGV", onCGV]].map(([l, fn]) => (
+      {[[t("footer_mentions"), onMentions], [t("footer_conf"), onConfidentialite], [t("footer_cgv"), onCGV]].map(([l, fn]) => (
         <button key={l} onClick={fn}
           style={{ background: "none", border: "none", fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.25em", textTransform: "uppercase", color: "rgba(28,18,8,0.35)", cursor: "pointer", textDecoration: "underline", textUnderlineOffset: "3px" }}
         >{l}</button>
@@ -930,11 +1064,13 @@ const FooterMobile = ({ onShowroom, onContact, onCatalogue, onMentions, onConfid
       </p>
     </div>
   </footer>
-);
+  );
+};
 
 /* ── APP PRINCIPALE ──────────────────────────────────────────────── */
 export default function App() {
   const [modal, setModal] = useState(null);
+  const [lang, setLang] = useState(() => { try { return localStorage.getItem("gnz-lang") || "FR"; } catch { return "FR"; } });
   const [sensorHC, setSensorHC] = useState(false);
   const [manualHC, setManualHC] = useState(() => {
     try { return localStorage.getItem("gnz-hc") === "1"; } catch { return false; }
@@ -1120,6 +1256,7 @@ export default function App() {
   }, []);
 
   return (
+    <LangCtx.Provider value={{ lang, setLang }}>
     <div style={{ background: "#f5f0e8", color: TEXT, minHeight: "100vh", fontFamily: "'Montserrat', sans-serif", overflowX: "hidden" }}>
       <style>{`
         ${fonts}
@@ -1189,10 +1326,10 @@ export default function App() {
       </Modal>
 
       {/* Modal contact */}
-      <Modal isOpen={modal === "contact"} onClose={() => setModal(null)} title="Prendre Contact">
+      <Modal isOpen={modal === "contact"} onClose={() => setModal(null)} title={lang === "FR" ? "Prendre Contact" : lang === "EN" ? "Get in Touch" : lang === "ES" ? "Contactar" : "联系我们"}>
         <div style={{ textAlign: "center", padding: "2rem 0" }}>
           <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(1rem, 4.5vw, 1.4rem)", fontStyle: "italic", color: "rgba(28,18,8,0.82)", lineHeight: 1.6, marginBottom: "2rem" }}>
-            "Disponible sur WhatsApp pour toute demande de prise en charge ou commande personnalisée."
+            t("contact_desc")
           </p>
           <div style={{ width: "60px", height: "1px", background: `linear-gradient(90deg, transparent, ${GOLD}, transparent)`, margin: "0 auto 2rem" }} />
           <a href="https://wa.me/33664826920" target="_blank" rel="noopener noreferrer"
@@ -1348,5 +1485,6 @@ export default function App() {
       <BookingModal isOpen={modal === "booking"} onClose={() => setModal(null)} />
 
     </div>
+    </LangCtx.Provider>
   );
 }
