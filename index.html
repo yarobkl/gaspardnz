@@ -2,10 +2,23 @@
 <html lang="fr">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#1c1208" />
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { min-height: 100%; }
+      #root { min-height: 100%; }
+      body { background: #1c1208; }
+
+      /* Bloque le zoom iOS sur tous les champs — Safari zoome si font-size < 16px */
+      input, textarea, select {
+        font-size: 16px !important;
+        -webkit-text-size-adjust: 100%;
+      }
+    </style>
     <meta name="description" content="Gaspardnz — Conseil en image & création de vêtements sur-mesure à Paris" />
     <title>Gaspardnz</title>
-    <script type="module" crossorigin src="/gaspardnz/assets/index-D-2TaIFA.js"></script>
+    <script type="module" crossorigin src="/gaspardnz/assets/index-B4u_snrY.js"></script>
   </head>
   <body>
     <div id="root"></div>
