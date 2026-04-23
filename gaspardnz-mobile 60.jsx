@@ -12,6 +12,9 @@ const SvgInstagram = () => <svg width="18" height="18" viewBox="0 0 24 24" fill=
 const SvgFacebook = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>;
 const SvgTiktok = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"/></svg>;
 const SvgYoutube = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="2" y="4" width="20" height="16" rx="4"/><polygon points="10,9 16,12 10,15" fill="currentColor" stroke="none"/></svg>;
+const SvgCalendar = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={GOLD} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>;
+const SvgWA = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={GOLD} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>;
+
 const SvgBag = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>;
 const SvgX = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>;
 const SvgArrow = ({ size = 20 }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>;
@@ -85,7 +88,168 @@ const Modal = ({ isOpen, onClose, title, children }) => (
 /* ─── MOBILE-FIRST VERSION ─────────────────────────────────────── */
 
 /* ── NAV MOBILE ─────────────────────────────────────────────────── */
-const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules, highContrast, onToggleContrast, onBiographie }) => {
+
+/* ── BOOKING MODAL ───────────────────────────────────────────────── */
+const BookingModal = ({ isOpen, onClose }) => {
+  const [step, setStep] = useState(1);
+  const [form, setForm] = useState({ nom: "", projet: "", besoin: "" });
+
+  const ok = form.nom.trim() && form.projet.trim() && form.besoin.trim();
+
+  const waUrl = `https://wa.me/33664826920?text=${encodeURIComponent(
+    `Salut Gaspard ! Je suis ${form.nom}. Je viens de voir ton site et je souhaite discuter de mon projet de ${form.projet}. Mon besoin est le suivant : ${form.besoin}.`
+  )}`;
+
+  const reset = () => { setStep(1); setForm({ nom: "", projet: "", besoin: "" }); onClose(); };
+
+  const inputStyle = {
+    width: "100%", background: "none", border: "1px solid rgba(184,151,62,0.2)",
+    padding: "0.85rem 1rem", fontFamily: "'Montserrat', sans-serif",
+    fontSize: "11px", color: TEXT, outline: "none", borderRadius: 0,
+    transition: "border-color 0.3s",
+  };
+
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+          transition={{ duration: 0.3 }}
+          onClick={reset}
+          style={{ position: "fixed", inset: 0, zIndex: 500, background: "rgba(0,0,0,0.92)", display: "flex", alignItems: "center", justifyContent: "center", padding: "1rem" }}>
+          <motion.div
+            initial={{ opacity: 0, y: 32, scale: 0.97 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.97 }}
+            transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+            onClick={e => e.stopPropagation()}
+            style={{ width: "100%", maxWidth: "480px", background: "#faf7f2", position: "relative", overflow: "hidden" }}>
+
+            {/* Barre de progression */}
+            <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "2px", background: "rgba(184,151,62,0.12)", zIndex: 2 }}>
+              <motion.div
+                animate={{ width: step === 1 ? "50%" : "100%" }}
+                transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                style={{ height: "100%", background: GOLD }} />
+            </div>
+
+            {/* Header */}
+            <div style={{ padding: "2rem 1.8rem 1.2rem", borderBottom: "1px solid rgba(184,151,62,0.1)", display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+              <div>
+                <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.5em", color: GOLD, textTransform: "uppercase", marginBottom: "0.4rem" }}>
+                  {step === 1 ? "Étape 1 / 2" : "Étape 2 / 2"}
+                </p>
+                <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.6rem", letterSpacing: "0.08em", color: TEXT, lineHeight: 1 }}>
+                  {step === 1 ? "Votre Projet" : "Choisissez"}
+                </p>
+              </div>
+              <button onClick={reset} style={{ background: "none", border: "none", cursor: "pointer", padding: "4px 8px", color: "rgba(28,18,8,0.3)", fontSize: "22px", lineHeight: 1, marginTop: "-4px" }}>×</button>
+            </div>
+
+            {/* Contenu */}
+            <div style={{ padding: "1.8rem", minHeight: "320px" }}>
+              <AnimatePresence mode="wait">
+                {step === 1 ? (
+                  <motion.div key="step1"
+                    initial={{ x: 0, opacity: 1 }} exit={{ x: -60, opacity: 0 }}
+                    transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "1.2rem" }}>
+                      {[
+                        { k: "nom",    lbl: "Votre nom",      ph: "Comment vous appelez-vous ?" },
+                        { k: "projet", lbl: "Type de projet",  ph: "Mariage, soirée, événement..." },
+                        { k: "besoin", lbl: "Votre besoin",    ph: "Décrivez brièvement votre projet..." },
+                      ].map(({ k, lbl, ph }) => (
+                        <div key={k}>
+                          <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.35em", color: "rgba(28,18,8,0.4)", textTransform: "uppercase", marginBottom: "0.5rem" }}>{lbl}</p>
+                          {k === "besoin" ? (
+                            <textarea value={form[k]} rows={3} placeholder={ph}
+                              onChange={e => setForm(f => ({ ...f, [k]: e.target.value }))}
+                              onFocus={e => e.target.style.borderColor = GOLD}
+                              onBlur={e => e.target.style.borderColor = "rgba(184,151,62,0.2)"}
+                              style={{ ...inputStyle, resize: "none", display: "block" }} />
+                          ) : (
+                            <input type="text" value={form[k]} placeholder={ph}
+                              onChange={e => setForm(f => ({ ...f, [k]: e.target.value }))}
+                              onFocus={e => e.target.style.borderColor = GOLD}
+                              onBlur={e => e.target.style.borderColor = "rgba(184,151,62,0.2)"}
+                              style={inputStyle} />
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                    <motion.button
+                      onClick={() => ok && setStep(2)}
+                      whileTap={{ scale: 0.97 }}
+                      style={{
+                        marginTop: "1.8rem", width: "100%", border: "none",
+                        background: ok ? GOLD : "rgba(184,151,62,0.15)",
+                        color: ok ? "#1c1208" : "rgba(28,18,8,0.25)",
+                        padding: "1rem", fontFamily: "'Montserrat', sans-serif",
+                        fontSize: "8px", letterSpacing: "0.4em", textTransform: "uppercase",
+                        cursor: ok ? "pointer" : "not-allowed", transition: "all 0.4s",
+                        display: "flex", alignItems: "center", justifyContent: "center", gap: "8px",
+                      }}>
+                      Continuer <SvgArrow size={12} />
+                    </motion.button>
+                  </motion.div>
+                ) : (
+                  <motion.div key="step2"
+                    initial={{ x: 60, opacity: 0 }} animate={{ x: 0, opacity: 1 }}
+                    transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}>
+                    <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1rem", color: "rgba(28,18,8,0.45)", fontStyle: "italic", textAlign: "center", marginBottom: "1.6rem", lineHeight: 1.65 }}>
+                      Comment souhaitez-vous continuer, {form.nom} ?
+                    </p>
+
+                    <div style={{ display: "flex", flexDirection: "column", gap: "0.9rem" }}>
+                      {/* Calendrier */}
+                      <a href="https://calendly.com/gaspardnz" target="_blank" rel="noopener noreferrer"
+                        style={{ display: "flex", alignItems: "center", gap: "1.1rem", border: "1px solid rgba(184,151,62,0.22)", padding: "1.3rem 1.4rem", textDecoration: "none", transition: "border-color 0.3s, background 0.3s" }}
+                        onTouchStart={e => { e.currentTarget.style.borderColor = GOLD; e.currentTarget.style.background = "rgba(184,151,62,0.04)"; }}
+                        onTouchEnd={e => { e.currentTarget.style.borderColor = "rgba(184,151,62,0.22)"; e.currentTarget.style.background = "none"; }}>
+                        <div style={{ width: "38px", height: "38px", border: `1px solid rgba(184,151,62,0.35)`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                          <SvgCalendar />
+                        </div>
+                        <div>
+                          <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.15rem", letterSpacing: "0.07em", color: TEXT, marginBottom: "0.15rem" }}>Prendre rendez-vous</p>
+                          <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.2em", color: "rgba(28,18,8,0.38)", textTransform: "uppercase" }}>Via calendrier · Créneau officiel</p>
+                        </div>
+                      </a>
+
+                      {/* WhatsApp */}
+                      <a href={waUrl} target="_blank" rel="noopener noreferrer"
+                        style={{ display: "flex", alignItems: "center", gap: "1.1rem", border: `1px solid ${GOLD}`, background: "rgba(184,151,62,0.04)", padding: "1.3rem 1.4rem", textDecoration: "none", transition: "background 0.3s" }}
+                        onTouchStart={e => e.currentTarget.style.background = "rgba(184,151,62,0.12)"}
+                        onTouchEnd={e => e.currentTarget.style.background = "rgba(184,151,62,0.04)"}>
+                        <div style={{ width: "38px", height: "38px", border: `1px solid ${GOLD}`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                          <SvgWA />
+                        </div>
+                        <div>
+                          <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.15rem", letterSpacing: "0.07em", color: TEXT, marginBottom: "0.15rem" }}>Discuter via WhatsApp</p>
+                          <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.2em", color: "rgba(28,18,8,0.38)", textTransform: "uppercase" }}>Message pré-rédigé · Réponse rapide</p>
+                        </div>
+                      </a>
+                    </div>
+
+                    <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.28em", color: "rgba(28,18,8,0.28)", textTransform: "uppercase", textAlign: "center", marginTop: "1.5rem" }}>
+                      ✦ Réponse sous 24h garantie ✦
+                    </p>
+
+                    <button onClick={() => setStep(1)}
+                      style={{ display: "block", background: "none", border: "none", margin: "1.1rem auto 0", cursor: "pointer", fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.22em", color: "rgba(28,18,8,0.22)", textTransform: "uppercase" }}>
+                      Modifier mes informations
+                    </button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+};
+
+const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules, highContrast, onToggleContrast, onBiographie, onReserver }) => {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -167,7 +331,8 @@ const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules, 
           >
             {/* Links */}
             {[
-              ["Biographie", onBiographie],
+              ["Réserver", onReserver],
+          ["Biographie", onBiographie],
               ["Showroom", onShowroom],
               ["Formules", onFormules],
               ["Galerie", onGalerie],
@@ -393,6 +558,9 @@ const FlammesCarousel = ({ onClick }) => {
           <div key={i} style={{ width: i === cur ? 18 : 5, height: 2, background: i === cur ? GOLD : "rgba(184,151,62,0.3)", transition: "width 0.4s", borderRadius: 1 }} />
         ))}
       </div>
+      {/* Modal Booking */}
+      <BookingModal isOpen={modal === "booking"} onClose={() => setModal(null)} />
+
     </div>
   );
 };
@@ -525,7 +693,7 @@ const GalleryMobile = ({ refEl }) => {
 
 
 /* ── FORMULES MOBILE ─────────────────────────────────────────────── */
-const FormulesSection = ({ refEl, onContact }) => {
+const FormulesSection = ({ refEl, onContact, onReserver }) => {
   const [selected, setSelected] = useState(null);
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-8% 0px" });
@@ -681,7 +849,7 @@ const FormulesSection = ({ refEl, onContact }) => {
                         <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.4em", color: "rgba(245,240,232,0.5)", textTransform: "uppercase", marginBottom: "0.4rem" }}>Total {f.titre}</p>
                         <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "2rem", color: GOLD, letterSpacing: "0.05em" }}>{f.prix}</p>
                         <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "0.85rem", color: "rgba(245,240,232,0.45)", fontStyle: "italic", marginTop: "0.5rem", marginBottom: "1.2rem" }}>{f.tagline}</p>
-                        <button onClick={onContact}
+                        <button onClick={onReserver || onContact}
                           style={{ width: "100%", background: "none", border: `1px solid rgba(184,151,62,0.5)`, color: GOLD, padding: "0.9rem", fontFamily: "'Montserrat', sans-serif", fontSize: "8px", letterSpacing: "0.4em", textTransform: "uppercase", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}
                         >Réserver cette formule <SvgArrow size={13} /></button>
                       </div>
@@ -963,6 +1131,7 @@ export default function App() {
       <NavMobile
         highContrast={highContrast}
         onToggleContrast={toggleContrast}
+        onReserver={() => setModal("booking")}
         onBiographie={() => setModal("biographie")}
         onShowroom={() => scrollTo(showroomRef)}
         onGalerie={() => scrollTo(galleryRef)}
@@ -974,7 +1143,7 @@ export default function App() {
       <HeroMobile onScrollDown={() => scrollTo(heritageRef)} />
       <HeritageMobile refEl={heritageRef} />
       <ShowroomMobile refEl={showroomRef} onCatalogue={() => setModal("catalogue")} onFlammes={() => setModal("flammes")} />
-      <FormulesSection refEl={formulesRef} onContact={() => setModal("contact")} />
+      <FormulesSection refEl={formulesRef} onContact={() => setModal("contact")} onReserver={() => setModal("booking")} />
       <GalleryMobile refEl={galleryRef} />
       <FooterMobile
         onShowroom={() => scrollTo(showroomRef)}
