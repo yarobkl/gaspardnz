@@ -12,7 +12,7 @@ const T = {
     nav_formules:"Formules", nav_galerie:"Galerie", nav_contact:"Contact",
     nav_boutique:"Boutique", nav_mode_jour:"Mode jour", nav_mode_normal:"Mode normal",
     hero_maison:"Maison Gaspardnz — Paris",
-    hero_desc:t("hero_desc"),
+    hero_desc:"Gaspardnz tisse un lien invisible entre l'élégance rigoureuse de Paris et une vision créative sans frontières.",
     hero_cta:"Découvrir",
     showroom_cta:"Explorer le Catalogue",
     formules_surtitle:"Mariage & Événements", formules_title:"NOS FORMULES",
@@ -31,7 +31,7 @@ const T = {
     bk_back:"Modifier mes informations",
     bk_wa:(n,p,b)=>`Salut Gaspard ! Je suis ${n}. Je viens de voir ton site et je souhaite discuter de mon projet de ${p}. Mon besoin est le suivant : ${b}.`,
     contact_title:"Prendre Contact",
-    contact_desc:t("contact_desc"),
+    contact_desc:"Disponible sur WhatsApp pour toute commande sur-mesure ou demande de renseignement.",
     footer_mentions:"Mentions légales", footer_conf:"Confidentialité", footer_cgv:"CGV",
   },
   EN: {
@@ -444,17 +444,21 @@ const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules, 
             </motion.span>
           )}
         </motion.button>
-        {/* Sélecteur de langue */}
-        <div style={{ display: "flex", gap: "2px" }}>
-          {["FR","EN","ES","ZH"].map(l => (
-            <button key={l} onClick={() => { setLang(l); try { localStorage.setItem("gnz-lang", l); } catch {} }}
-              style={{ background: "none", border: "none", cursor: "pointer", fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.2em", padding: "3px 4px",
-                color: lang === l ? GOLD : navTextColor === "#f5f0e8" ? "rgba(245,240,232,0.45)" : "rgba(28,18,8,0.3)",
-                borderBottom: lang === l ? `1px solid ${GOLD}` : "1px solid transparent", transition: "all 0.3s" }}>
-              {l}
-            </button>
-          ))}
-        </div>
+        {/* Sélecteur de langue — globe */}
+        {(() => {
+          const LANGS = ["FR","EN","ES","ZH"];
+          const next = () => { const i = (LANGS.indexOf(lang) + 1) % LANGS.length; const l = LANGS[i]; setLang(l); try { localStorage.setItem("gnz-lang", l); } catch {} };
+          return (
+            <motion.button onClick={next} whileTap={{ scale: 0.88 }}
+              style={{ background: "none", border: "none", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: "2px", padding: "4px", color: navTextColor, transition: "color 0.4s" }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/>
+                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+              </svg>
+              <span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "5px", letterSpacing: "0.25em", color: GOLD }}>{lang}</span>
+            </motion.button>
+          );
+        })()}
         {/* Burger */}
         <button onClick={() => setOpen(v => !v)}
           style={{ background: "none", border: "none", cursor: "pointer", padding: "8px", display: "flex", flexDirection: "column", gap: "5px" }}>
