@@ -55,6 +55,11 @@ const T = {
     gal_1:"Costume Crème", gal_2:"Élégance Blanche", gal_3:"Veste Rayée", gal_4:"Veste Orange", gal_5:"Costume Carreaux",
     gal_6:"Veste Bleue", gal_7:"Style Parisien", gal_8:"Chemise Lavande", gal_9:"Costume Bleu & Rouge", gal_10:"Veste Bleue Rayée",
     gal_11:"Costume Bordeaux", gal_12:"Promenade Blanche", gal_13:"Smoking Doré", gal_14:"Veste Navy Soirée", gal_15:"Costume Carreaux Rose",
+    bio_quote:"\"S'habiller, c'est choisir qui l'on est avant même d'avoir parlé.\"",
+    bio_s1_title:"Origines", bio_s1:"Né et forgé entre deux cultures, Gaspardnz grandit avec une sensibilité aiguë pour l'élégance, la matière et le détail. C'est à Paris qu'il pose ses valises et décide de faire de la mode son langage.",
+    bio_s2_title:"Vision", bio_s2:"Depuis plus de 7 ans, il façonne des pièces sur-mesure pour des hommes qui refusent l'ordinaire. Costumes sculptés, chemises brodées, accessoires pensés jusqu'au dernier fil — chaque création est une déclaration.",
+    bio_s3_title:"Engagement", bio_s3:"Gaspardnz ne vend pas des vêtements. Il construit des identités. Chaque client devient une silhouette unique, pensée, portée avec intention. De la salle de mariage aux tapis rouges, l'excellence est la seule constante.",
+    bio_s4_title:"Paris", bio_s4:"Basé à Paris, disponible sur WhatsApp pour un premier échange. Chaque aventure commence par une conversation.",
   },
   EN: {
     nav_reveler:"Reveal Myself", nav_bio:"Biography", nav_showroom:"Showroom",
@@ -104,6 +109,11 @@ const T = {
     gal_1:"Cream Suit", gal_2:"White Elegance", gal_3:"Striped Jacket", gal_4:"Orange Jacket", gal_5:"Checked Suit",
     gal_6:"Blue Jacket", gal_7:"Parisian Style", gal_8:"Lavender Shirt", gal_9:"Blue & Red Suit", gal_10:"Striped Blue Jacket",
     gal_11:"Bordeaux Suit", gal_12:"White Stroll", gal_13:"Gold Tuxedo", gal_14:"Navy Evening Jacket", gal_15:"Pink Checked Suit",
+    bio_quote:"\"Getting dressed is choosing who you are before you've even spoken.\"",
+    bio_s1_title:"Origins", bio_s1:"Born and forged between two cultures, Gaspardnz grew up with a sharp sensitivity for elegance, fabric and detail. It was in Paris that he set down roots and chose fashion as his language.",
+    bio_s2_title:"Vision", bio_s2:"For over 7 years, he has crafted bespoke pieces for men who refuse the ordinary. Sculpted suits, embroidered shirts, accessories considered to the last thread — each creation is a statement.",
+    bio_s3_title:"Commitment", bio_s3:"Gaspardnz does not sell clothes. He builds identities. Each client becomes a unique silhouette, considered and worn with intention. From wedding halls to red carpets, excellence is the only constant.",
+    bio_s4_title:"Paris", bio_s4:"Based in Paris, available on WhatsApp for a first exchange. Every adventure begins with a conversation.",
   },
   ES: {
     nav_reveler:"Revelarme", nav_bio:"Biografía", nav_showroom:"Showroom",
@@ -153,6 +163,11 @@ const T = {
     gal_1:"Traje Crema", gal_2:"Elegancia Blanca", gal_3:"Chaqueta Rayada", gal_4:"Chaqueta Naranja", gal_5:"Traje de Cuadros",
     gal_6:"Chaqueta Azul", gal_7:"Estilo Parisino", gal_8:"Camisa Lavanda", gal_9:"Traje Azul & Rojo", gal_10:"Chaqueta Azul Rayada",
     gal_11:"Traje Burdeos", gal_12:"Paseo Blanco", gal_13:"Smoking Dorado", gal_14:"Chaqueta Navy de Noche", gal_15:"Traje Cuadros Rosa",
+    bio_quote:"\"Vestirse es elegir quién eres antes de haber hablado.\"",
+    bio_s1_title:"Orígenes", bio_s1:"Nacido y forjado entre dos culturas, Gaspardnz creció con una sensibilidad aguda por la elegancia, la tela y el detalle. Fue en París donde echó raíces y eligió la moda como su lenguaje.",
+    bio_s2_title:"Visión", bio_s2:"Durante más de 7 años, ha creado piezas a medida para hombres que rechazan lo ordinario. Trajes esculpidos, camisas bordadas, accesorios pensados hasta el último hilo — cada creación es una declaración.",
+    bio_s3_title:"Compromiso", bio_s3:"Gaspardnz no vende ropa. Construye identidades. Cada cliente se convierte en una silueta única, pensada y llevada con intención. Desde salones de bodas hasta alfombras rojas, la excelencia es la única constante.",
+    bio_s4_title:"París", bio_s4:"Ubicado en París, disponible en WhatsApp para un primer intercambio. Cada aventura comienza con una conversación.",
   },
   ZH: {
     nav_reveler:"展现自我", nav_bio:"简介", nav_showroom:"展厅",
@@ -202,6 +217,11 @@ const T = {
     gal_1:"奶油色西装", gal_2:"白色优雅", gal_3:"条纹外套", gal_4:"橙色外套", gal_5:"格纹西装",
     gal_6:"蓝色外套", gal_7:"巴黎风格", gal_8:"薰衣草衬衫", gal_9:"蓝红西装", gal_10:"蓝色条纹外套",
     gal_11:"酒红西装", gal_12:"白色漫步", gal_13:"金色礼服", gal_14:"海军晚宴外套", gal_15:"粉色格纹西装",
+    bio_quote:"\"穿衣是在开口之前选择你是谁。\"",
+    bio_s1_title:"起源", bio_s1:"Gaspardnz 在两种文化之间诞生与成长，对优雅、面料和细节有着敏锐的感知。他在巴黎扎根，选择以时装为语言。",
+    bio_s2_title:"愿景", bio_s2:"超过7年来，他为拒绝平庸的男士打造定制作品。雕琢的西装、刺绣的衬衫、精心设计至最后一根线的配饰——每件作品都是一份宣言。",
+    bio_s3_title:"承诺", bio_s3:"Gaspardnz 不卖衣服，他构建身份。每位客户都成为独一无二的轮廓，经过深思熟虑，带着意图穿着。从婚礼大厅到红毯，卓越是唯一的常量。",
+    bio_s4_title:"巴黎", bio_s4:"常驻巴黎，可通过 WhatsApp 进行首次沟通。每段旅程都从一次对话开始。",
   },
 };
 const LangCtx = createContext({ lang: "FR", setLang: () => {} });
@@ -1180,6 +1200,7 @@ const FooterMobile = ({ onShowroom, onContact, onCatalogue, onMentions, onConfid
 export default function App() {
   const [modal, setModal] = useState(null);
   const [lang, setLang] = useState(() => { try { return localStorage.getItem("gnz-lang") || "FR"; } catch { return "FR"; } });
+  const tr = k => T[lang]?.[k] ?? T.FR[k] ?? k;;
   const [sensorHC, setSensorHC] = useState(false);
   const [manualHC, setManualHC] = useState(() => {
     try { return localStorage.getItem("gnz-hc") === "1"; } catch { return false; }
@@ -1535,41 +1556,24 @@ export default function App() {
       </Modal>
 
       {/* Modal Biographie */}
-      <Modal isOpen={modal === "biographie"} onClose={() => setModal(null)} title="Biographie">
+      <Modal isOpen={modal === "biographie"} onClose={() => setModal(null)} title={tr("nav_bio")}>
         <div style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "11px", lineHeight: 2, color: "rgba(28,18,8,0.65)" }}>
-
-          {/* Portrait placeholder */}
           <div style={{ width: "80px", height: "80px", borderRadius: "50%", background: "rgba(184,151,62,0.1)", border: `1px solid rgba(184,151,62,0.3)`, margin: "0 auto 2rem", display: "flex", alignItems: "center", justifyContent: "center" }}>
             <span style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.8rem", color: GOLD, letterSpacing: "0.05em" }}>G</span>
           </div>
-
           <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1.15rem", fontStyle: "italic", fontWeight: 300, color: "rgba(28,18,8,0.5)", textAlign: "center", lineHeight: 1.7, marginBottom: "2rem" }}>
-            "S'habiller, c'est choisir qui l'on est avant même d'avoir parlé."
+            {tr("bio_quote")}
           </p>
-
           <div style={{ width: "30px", height: "1px", background: GOLD, margin: "0 auto 2rem", opacity: 0.5 }} />
-
           <div style={{ display: "flex", flexDirection: "column", gap: "1.4rem" }}>
-            <div>
-              <p style={{ color: GOLD, fontSize: "7px", letterSpacing: "0.5em", textTransform: "uppercase", marginBottom: "0.5rem" }}>Origines</p>
-              <p>Né et forgé entre deux cultures, Gaspardnz grandit avec une sensibilité aiguë pour l'élégance, la matière et le détail. C'est à Paris qu'il pose ses valises et décide de faire de la mode son langage.</p>
-            </div>
-            <div>
-              <p style={{ color: GOLD, fontSize: "7px", letterSpacing: "0.5em", textTransform: "uppercase", marginBottom: "0.5rem" }}>Vision</p>
-              <p>Depuis plus de 7 ans, il façonne des pièces sur-mesure pour des hommes qui refusent l'ordinaire. Costumes sculptés, chemises brodées, accessoires pensés jusqu'au dernier fil — chaque création est une déclaration.</p>
-            </div>
-            <div>
-              <p style={{ color: GOLD, fontSize: "7px", letterSpacing: "0.5em", textTransform: "uppercase", marginBottom: "0.5rem" }}>Engagement</p>
-              <p>Gaspardnz ne vend pas des vêtements. Il construit des identités. Chaque client devient une silhouette unique, pensée, portée avec intention. De la salle de mariage aux tapis rouges, l'excellence est la seule constante.</p>
-            </div>
-            <div>
-              <p style={{ color: GOLD, fontSize: "7px", letterSpacing: "0.5em", textTransform: "uppercase", marginBottom: "0.5rem" }}>Paris</p>
-              <p>Basé à Paris, disponible sur WhatsApp pour un premier échange. Chaque aventure commence par une conversation.</p>
-            </div>
+            {[["bio_s1_title","bio_s1"],["bio_s2_title","bio_s2"],["bio_s3_title","bio_s3"],["bio_s4_title","bio_s4"]].map(([tk,pk]) => (
+              <div key={tk}>
+                <p style={{ color: GOLD, fontSize: "7px", letterSpacing: "0.5em", textTransform: "uppercase", marginBottom: "0.5rem" }}>{tr(tk)}</p>
+                <p>{tr(pk)}</p>
+              </div>
+            ))}
           </div>
-
           <div style={{ width: "30px", height: "1px", background: GOLD, margin: "2rem auto", opacity: 0.5 }} />
-
           <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.1rem", letterSpacing: "0.3em", color: "rgba(28,18,8,0.2)", textAlign: "center" }}>GASPARDNZ · PARIS</p>
         </div>
       </Modal>
