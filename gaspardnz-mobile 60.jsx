@@ -60,6 +60,9 @@ const T = {
     bio_s2_title:"Vision", bio_s2:"Depuis plus de 7 ans, il façonne des pièces sur-mesure pour des hommes qui refusent l'ordinaire. Costumes sculptés, chemises brodées, accessoires pensés jusqu'au dernier fil — chaque création est une déclaration.",
     bio_s3_title:"Engagement", bio_s3:"Gaspardnz ne vend pas des vêtements. Il construit des identités. Chaque client devient une silhouette unique, pensée, portée avec intention. De la salle de mariage aux tapis rouges, l'excellence est la seule constante.",
     bio_s4_title:"Paris", bio_s4:"Basé à Paris, disponible sur WhatsApp pour un premier échange. Chaque aventure commence par une conversation.",
+    boutique_soon_badge:"Bientôt disponible",
+    boutique_soon_title:"Notre boutique en ligne est en cours de création.",
+    boutique_soon_desc:"Toutes nos pièces sur-mesure — costumes, vestes, chemises et accessoires — seront bientôt disponibles en ligne. En attendant, contactez-nous directement sur WhatsApp.",
   },
   EN: {
     nav_reveler:"Reveal Myself", nav_bio:"Biography", nav_showroom:"Showroom",
@@ -114,6 +117,9 @@ const T = {
     bio_s2_title:"Vision", bio_s2:"For over 7 years, he has crafted bespoke pieces for men who refuse the ordinary. Sculpted suits, embroidered shirts, accessories considered to the last thread — each creation is a statement.",
     bio_s3_title:"Commitment", bio_s3:"Gaspardnz does not sell clothes. He builds identities. Each client becomes a unique silhouette, considered and worn with intention. From wedding halls to red carpets, excellence is the only constant.",
     bio_s4_title:"Paris", bio_s4:"Based in Paris, available on WhatsApp for a first exchange. Every adventure begins with a conversation.",
+    boutique_soon_badge:"Coming Soon",
+    boutique_soon_title:"Our online boutique is currently being created.",
+    boutique_soon_desc:"All our bespoke pieces — suits, jackets, shirts and accessories — will soon be available online. In the meantime, contact us directly on WhatsApp.",
   },
   ES: {
     nav_reveler:"Revelarme", nav_bio:"Biografía", nav_showroom:"Showroom",
@@ -168,6 +174,9 @@ const T = {
     bio_s2_title:"Visión", bio_s2:"Durante más de 7 años, ha creado piezas a medida para hombres que rechazan lo ordinario. Trajes esculpidos, camisas bordadas, accesorios pensados hasta el último hilo — cada creación es una declaración.",
     bio_s3_title:"Compromiso", bio_s3:"Gaspardnz no vende ropa. Construye identidades. Cada cliente se convierte en una silueta única, pensada y llevada con intención. Desde salones de bodas hasta alfombras rojas, la excelencia es la única constante.",
     bio_s4_title:"París", bio_s4:"Ubicado en París, disponible en WhatsApp para un primer intercambio. Cada aventura comienza con una conversación.",
+    boutique_soon_badge:"Próximamente",
+    boutique_soon_title:"Nuestra tienda en línea está en proceso de creación.",
+    boutique_soon_desc:"Todas nuestras piezas a medida — trajes, chaquetas, camisas y accesorios — estarán disponibles en línea muy pronto. Mientras tanto, contáctanos directamente por WhatsApp.",
   },
   ZH: {
     nav_reveler:"展现自我", nav_bio:"简介", nav_showroom:"展厅",
@@ -222,6 +231,9 @@ const T = {
     bio_s2_title:"愿景", bio_s2:"超过7年来，他为拒绝平庸的男士打造定制作品。雕琢的西装、刺绣的衬衫、精心设计至最后一根线的配饰——每件作品都是一份宣言。",
     bio_s3_title:"承诺", bio_s3:"Gaspardnz 不卖衣服，他构建身份。每位客户都成为独一无二的轮廓，经过深思熟虑，带着意图穿着。从婚礼大厅到红毯，卓越是唯一的常量。",
     bio_s4_title:"巴黎", bio_s4:"常驻巴黎，可通过 WhatsApp 进行首次沟通。每段旅程都从一次对话开始。",
+    boutique_soon_badge:"即将上线",
+    boutique_soon_title:"我们的网上精品店正在筹建中。",
+    boutique_soon_desc:"所有定制作品——西装、外套、衬衫及配饰——即将在线上推出。与此同时，欢迎直接通过 WhatsApp 联系我们。",
   },
 };
 const LangCtx = createContext({ lang: "FR", setLang: () => {} });
@@ -1444,14 +1456,33 @@ export default function App() {
       />
 
       {/* Modal catalogue */}
-      <Modal isOpen={modal === "catalogue"} onClose={() => setModal(null)} title="Catalogue de Pièces">
-        <div>
-          {[T[lang]?.cat_item1??T.FR.cat_item1, T[lang]?.cat_item2??T.FR.cat_item2, T[lang]?.cat_item3??T.FR.cat_item3, T[lang]?.cat_item4??T.FR.cat_item4].map((item, i) => (
-            <motion.div key={item} initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.08 }} className="cat-row">
-              <span className="cat-lbl">{item}</span>
-              <span style={{ color: GOLD }}><SvgArrow size={18} /></span>
-            </motion.div>
-          ))}
+      <Modal isOpen={modal === "catalogue"} onClose={() => setModal(null)} title={tr("nav_boutique")}>
+        <div style={{ textAlign: "center", padding: "2rem 0 1rem" }}>
+          {/* Icône */}
+          <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+            style={{ width: "64px", height: "64px", margin: "0 auto 1.8rem", border: `1px solid rgba(184,151,62,0.3)`, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(184,151,62,0.05)" }}>
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke={GOLD} strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>
+            </svg>
+          </motion.div>
+          {/* Badge */}
+          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15, duration: 0.5 }}
+            style={{ display: "inline-block", border: `1px solid rgba(184,151,62,0.4)`, padding: "0.3rem 1rem", marginBottom: "1.4rem" }}>
+            <span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.45em", color: GOLD, textTransform: "uppercase" }}>
+              {tr("boutique_soon_badge")}
+            </span>
+          </motion.div>
+          {/* Titre */}
+          <motion.p initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25, duration: 0.5 }}
+            style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(1.2rem, 5vw, 1.6rem)", fontWeight: 300, fontStyle: "italic", color: "rgba(28,18,8,0.75)", lineHeight: 1.6, marginBottom: "1.2rem", padding: "0 0.5rem" }}>
+            {tr("boutique_soon_title")}
+          </motion.p>
+          {/* Description */}
+          <motion.p initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35, duration: 0.5 }}
+            style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", fontWeight: 300, color: "rgba(28,18,8,0.45)", lineHeight: 1.9, letterSpacing: "0.02em", padding: "0 0.5rem", marginBottom: "2rem" }}>
+            {tr("boutique_soon_desc")}
+          </motion.p>
+          <div style={{ width: "40px", height: "1px", background: `linear-gradient(90deg, transparent, ${GOLD}, transparent)`, margin: "0 auto" }} />
         </div>
       </Modal>
 
