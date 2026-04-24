@@ -45,6 +45,13 @@ const T = {
     flammes_title:"Gaspardnz aux Flammes 2026",
     flammes_desc:"Nos créations sur le tapis rouge de la cérémonie Les Flammes 2026 — Seine Musicale, 23 avril.",
     voir_galerie:"VOIR LA GALERIE", gnz_presente:"GASPARDNZ PRÉSENTE",
+    flammes_presente:"Gaspardnz présente", flammes_lieu:"Seine Musicale · 23 Avril", voir_galerie_btn:"Voir la galerie →",
+    formule_prestige_titre:"Formule Prestige", formule_gnz_titre:"Formule Gaspard NZ",
+    hors_chaussures:"hors chaussures", sous_total_lbl:"Sous-total", total_lbl:"Total",
+    item_costume:"Costume coupe droite, croisé ou trois pièces", item_chemise:"Chemise",
+    item_cravate:"Cravate", item_boutons:"Boutons de manchettes", item_chaussettes:"Chaussettes fil d'Écosse",
+    item_chaussures_opt:"Chaussures (option)", item_chaussures_prix:"à partir de 315€",
+    item_smoking:"Ensemble smoking", item_noeud:"Nœud papillon", item_plastron:"Chemise plastron col cassé",
     gal_1:"Costume Crème", gal_2:"Élégance Blanche", gal_3:"Veste Rayée", gal_4:"Veste Orange", gal_5:"Costume Carreaux",
     gal_6:"Veste Bleue", gal_7:"Style Parisien", gal_8:"Chemise Lavande", gal_9:"Costume Bleu & Rouge", gal_10:"Veste Bleue Rayée",
     gal_11:"Costume Bordeaux", gal_12:"Promenade Blanche", gal_13:"Smoking Doré", gal_14:"Veste Navy Soirée", gal_15:"Costume Carreaux Rose",
@@ -87,6 +94,13 @@ const T = {
     flammes_title:"Gaspardnz at Les Flammes 2026",
     flammes_desc:"Our creations on the red carpet of the Les Flammes 2026 ceremony — Seine Musicale, April 23.",
     voir_galerie:"VIEW GALLERY", gnz_presente:"GASPARDNZ PRESENTS",
+    flammes_presente:"Gaspardnz presents", flammes_lieu:"Seine Musicale · April 23", voir_galerie_btn:"View gallery →",
+    formule_prestige_titre:"Prestige Package", formule_gnz_titre:"Gaspard NZ Package",
+    hors_chaussures:"excl. shoes", sous_total_lbl:"Subtotal", total_lbl:"Total",
+    item_costume:"Straight, double-breasted or 3-piece suit", item_chemise:"Shirt",
+    item_cravate:"Tie", item_boutons:"Cufflinks", item_chaussettes:"Fine cotton socks",
+    item_chaussures_opt:"Shoes (option)", item_chaussures_prix:"from €315",
+    item_smoking:"Tuxedo set", item_noeud:"Bow tie", item_plastron:"Wing collar dress shirt",
     gal_1:"Cream Suit", gal_2:"White Elegance", gal_3:"Striped Jacket", gal_4:"Orange Jacket", gal_5:"Checked Suit",
     gal_6:"Blue Jacket", gal_7:"Parisian Style", gal_8:"Lavender Shirt", gal_9:"Blue & Red Suit", gal_10:"Striped Blue Jacket",
     gal_11:"Bordeaux Suit", gal_12:"White Stroll", gal_13:"Gold Tuxedo", gal_14:"Navy Evening Jacket", gal_15:"Pink Checked Suit",
@@ -129,6 +143,13 @@ const T = {
     flammes_title:"Gaspardnz en Las Llamas 2026",
     flammes_desc:"Nuestras creaciones en la alfombra roja de la ceremonia Las Llamas 2026 — Seine Musicale, 23 de abril.",
     voir_galerie:"VER GALERÍA", gnz_presente:"GASPARDNZ PRESENTA",
+    flammes_presente:"Gaspardnz presenta", flammes_lieu:"Seine Musicale · 23 de Abril", voir_galerie_btn:"Ver galería →",
+    formule_prestige_titre:"Paquete Prestige", formule_gnz_titre:"Paquete Gaspard NZ",
+    hors_chaussures:"sin zapatos", sous_total_lbl:"Subtotal", total_lbl:"Total",
+    item_costume:"Traje corte recto, cruzado o tres piezas", item_chemise:"Camisa",
+    item_cravate:"Corbata", item_boutons:"Gemelos", item_chaussettes:"Calcetines de hilo fino",
+    item_chaussures_opt:"Zapatos (opción)", item_chaussures_prix:"desde 315€",
+    item_smoking:"Conjunto smoking", item_noeud:"Pajarita", item_plastron:"Camisa plastón cuello italiano",
     gal_1:"Traje Crema", gal_2:"Elegancia Blanca", gal_3:"Chaqueta Rayada", gal_4:"Chaqueta Naranja", gal_5:"Traje de Cuadros",
     gal_6:"Chaqueta Azul", gal_7:"Estilo Parisino", gal_8:"Camisa Lavanda", gal_9:"Traje Azul & Rojo", gal_10:"Chaqueta Azul Rayada",
     gal_11:"Traje Burdeos", gal_12:"Paseo Blanco", gal_13:"Smoking Dorado", gal_14:"Chaqueta Navy de Noche", gal_15:"Traje Cuadros Rosa",
@@ -171,6 +192,13 @@ const T = {
     flammes_title:"Gaspardnz 亮相 Les Flammes 2026",
     flammes_desc:"我们的作品亮相 Les Flammes 2026 颁奖典礼红毯 — 塞纳音乐厅，4月23日。",
     voir_galerie:"查看画廊", gnz_presente:"GASPARDNZ 呈献",
+    flammes_presente:"Gaspardnz 呈献", flammes_lieu:"塞纳音乐厅 · 4月23日", voir_galerie_btn:"查看画廊 →",
+    formule_prestige_titre:"尊贵套餐", formule_gnz_titre:"Gaspard NZ 套餐",
+    hors_chaussures:"不含鞋", sous_total_lbl:"小计", total_lbl:"总计",
+    item_costume:"直裁/双排扣/三件式西装", item_chemise:"衬衫",
+    item_cravate:"领带", item_boutons:"袖扣", item_chaussettes:"精棉袜",
+    item_chaussures_opt:"鞋子（可选）", item_chaussures_prix:"起 315€",
+    item_smoking:"燕尾服套装", item_noeud:"领结", item_plastron:"翼领礼服衬衫",
     gal_1:"奶油色西装", gal_2:"白色优雅", gal_3:"条纹外套", gal_4:"橙色外套", gal_5:"格纹西装",
     gal_6:"蓝色外套", gal_7:"巴黎风格", gal_8:"薰衣草衬衫", gal_9:"蓝红西装", gal_10:"蓝色条纹外套",
     gal_11:"酒红西装", gal_12:"白色漫步", gal_13:"金色礼服", gal_14:"海军晚宴外套", gal_15:"粉色格纹西装",
@@ -753,6 +781,7 @@ const HeritageMobile = ({ refEl }) => {
 
 /* ── FLAMMES CAROUSEL ─────────────────────────────────────────── */
 const FlammesCarousel = ({ onClick }) => {
+  const t = useTr();
   const [cur, setCur] = useState(0);
   const N = 5;
   useEffect(() => {
@@ -769,12 +798,12 @@ const FlammesCarousel = ({ onClick }) => {
             {/* Ligne déco droite */}
             <div style={{ position: "absolute", right: "1.8rem", top: 0, bottom: 0, width: "1px", background: `linear-gradient(to bottom, transparent, rgba(184,151,62,0.4), transparent)` }} />
             <div style={{ textAlign: "center", padding: "2rem 3rem" }}>
-              <div style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.55em", color: `rgba(184,151,62,0.6)`, textTransform: "uppercase", marginBottom: "1.4rem" }}>Gaspardnz présente</div>
+              <div style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.55em", color: `rgba(184,151,62,0.6)`, textTransform: "uppercase", marginBottom: "1.4rem" }}>{t("flammes_presente")}</div>
               <div style={{ width: "40px", height: "1px", background: GOLD, margin: "0 auto 1.4rem", opacity: 0.5 }} />
               <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(2.8rem,13vw,4.5rem)", color: "rgba(245,240,232,0.92)", letterSpacing: "0.08em", lineHeight: 0.95 }}>LES<br/>FLAMMES</div>
               <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(1.1rem,5vw,1.5rem)", color: GOLD, fontStyle: "italic", fontWeight: 300, marginTop: "0.6rem", letterSpacing: "0.05em" }}>2026</div>
               <div style={{ width: "40px", height: "1px", background: GOLD, margin: "1.4rem auto", opacity: 0.5 }} />
-              <div style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.4em", color: "rgba(245,240,232,0.35)", textTransform: "uppercase" }}>Seine Musicale · 23 Avril</div>
+              <div style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.4em", color: "rgba(245,240,232,0.35)", textTransform: "uppercase" }}>{t("flammes_lieu")}</div>
             </div>
           </div>
         ))}
@@ -784,7 +813,7 @@ const FlammesCarousel = ({ onClick }) => {
         <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.5em", color: GOLD, textTransform: "uppercase", margin: 0 }}>Gaspardnz · Les Flammes 2026</p>
       </div>
       <div style={{ position: "absolute", top: "1rem", right: "1rem", background: "rgba(28,18,8,0.55)", padding: "0.5rem 0.9rem", backdropFilter: "blur(4px)" }}>
-        <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.3em", color: GOLD, textTransform: "uppercase", margin: 0 }}>Voir la galerie →</p>
+        <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.3em", color: GOLD, textTransform: "uppercase", margin: 0 }}>{t("voir_galerie_btn")}</p>
       </div>
       <div style={{ position: "absolute", bottom: "1.15rem", right: "1.2rem", display: "flex", gap: "5px", alignItems: "center" }}>
         {Array.from({ length: N }).map((_, i) => (
@@ -934,7 +963,7 @@ const FormulesSection = ({ refEl, onContact, onReserver }) => {
   const formules = [
     {
       id: "prestige",
-      titre: "Formule Prestige",
+      titre: t("formule_prestige_titre"),
       prix: "1447€",
       tag: "Premium",
       tagline: t("formule1_tagline"),
@@ -942,12 +971,12 @@ const FormulesSection = ({ refEl, onContact, onReserver }) => {
         {
           nom: t("look_mairie"),
           items: [
-            { label: "Costume coupe droite, croisé ou trois pièces", prix: "449€" },
-            { label: "Chemise", prix: "69€" },
-            { label: "Cravate", prix: "35€" },
-            { label: "Boutons de manchettes", prix: "29€" },
-            { label: "Chaussettes fil d'Écosse", prix: "19€" },
-            { label: "Chaussures (option)", prix: "à partir de 315€" },
+            { label: t("item_costume"), prix: "449€" },
+            { label: t("item_chemise"), prix: "69€" },
+            { label: t("item_cravate"), prix: "35€" },
+            { label: t("item_boutons"), prix: "29€" },
+            { label: t("item_chaussettes"), prix: "19€" },
+            { label: t("item_chaussures_opt"), prix: t("item_chaussures_prix") },
           ],
           sous_total: "601€",
         },
@@ -955,11 +984,11 @@ const FormulesSection = ({ refEl, onContact, onReserver }) => {
           nom: t("look_soiree"),
           tag: "Smoking",
           items: [
-            { label: "Ensemble smoking", prix: "600€" },
-            { label: "Nœud papillon", prix: "49€" },
-            { label: "Chemise plastron col cassé", prix: "149€" },
-            { label: "Boutons de manchettes", prix: "29€" },
-            { label: "Chaussettes fil d'Écosse", prix: "19€" },
+            { label: t("item_smoking"), prix: "600€" },
+            { label: t("item_noeud"), prix: "49€" },
+            { label: t("item_plastron"), prix: "149€" },
+            { label: t("item_boutons"), prix: "29€" },
+            { label: t("item_chaussettes"), prix: "19€" },
           ],
           sous_total: "846€",
         },
@@ -967,7 +996,7 @@ const FormulesSection = ({ refEl, onContact, onReserver }) => {
     },
     {
       id: "gnz",
-      titre: "Formule Gaspard NZ",
+      titre: t("formule_gnz_titre"),
       prix: "1086€",
       tag: "Signature",
       tagline: t("formule2_tagline"),
@@ -975,12 +1004,12 @@ const FormulesSection = ({ refEl, onContact, onReserver }) => {
         {
           nom: t("look_mairie"),
           items: [
-            { label: "Costume coupe droite, croisé ou trois pièces", prix: "349€" },
-            { label: "Chemise", prix: "60€" },
-            { label: "Cravate", prix: "30€" },
-            { label: "Boutons de manchettes", prix: "20€" },
-            { label: "Chaussettes fil d'Écosse", prix: "19€" },
-            { label: "Chaussures (option)", prix: "à partir de 315€" },
+            { label: t("item_costume"), prix: "349€" },
+            { label: t("item_chemise"), prix: "60€" },
+            { label: t("item_cravate"), prix: "30€" },
+            { label: t("item_boutons"), prix: "20€" },
+            { label: t("item_chaussettes"), prix: "19€" },
+            { label: t("item_chaussures_opt"), prix: t("item_chaussures_prix") },
           ],
           sous_total: "474€",
         },
@@ -988,11 +1017,11 @@ const FormulesSection = ({ refEl, onContact, onReserver }) => {
           nom: t("look_soiree"),
           tag: "Smoking",
           items: [
-            { label: "Ensemble smoking", prix: "449€" },
-            { label: "Nœud papillon", prix: "29€" },
-            { label: "Chemise plastron col cassé", prix: "99€" },
-            { label: "Boutons de manchettes", prix: "20€" },
-            { label: "Chaussettes fil d'Écosse", prix: "15€" },
+            { label: t("item_smoking"), prix: "449€" },
+            { label: t("item_noeud"), prix: "29€" },
+            { label: t("item_plastron"), prix: "99€" },
+            { label: t("item_boutons"), prix: "20€" },
+            { label: t("item_chaussettes"), prix: "15€" },
           ],
           sous_total: "612€",
         },
@@ -1041,7 +1070,7 @@ const FormulesSection = ({ refEl, onContact, onReserver }) => {
                     <span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.4em", color: GOLD, textTransform: "uppercase", border: `1px solid rgba(184,151,62,0.3)`, padding: "3px 8px" }}>{f.tag}</span>
                   </div>
                   <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(1.3rem, 5.5vw, 1.7rem)", color: "#f5f0e8", fontWeight: 400, letterSpacing: "0.02em", margin: 0 }}>{f.titre}</p>
-                  <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(1.6rem, 7vw, 2.2rem)", color: GOLD, letterSpacing: "0.05em", marginTop: "0.3rem" }}>{f.prix} <span style={{ fontSize: "0.5em", color: "rgba(184,151,62,0.5)", fontFamily: "'Montserrat', sans-serif", letterSpacing: "0.1em" }}>hors chaussures</span></p>
+                  <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(1.6rem, 7vw, 2.2rem)", color: GOLD, letterSpacing: "0.05em", marginTop: "0.3rem" }}>{f.prix} <span style={{ fontSize: "0.5em", color: "rgba(184,151,62,0.5)", fontFamily: "'Montserrat', sans-serif", letterSpacing: "0.1em" }}>{t("hors_chaussures")}</span></p>
                 </div>
                 <motion.div animate={{ rotate: selected === f.id ? 45 : 0 }} transition={{ duration: 0.3 }}
                   style={{ color: GOLD, marginTop: "0.5rem", flexShrink: 0 }}
@@ -1071,7 +1100,7 @@ const FormulesSection = ({ refEl, onContact, onReserver }) => {
                             </div>
                           ))}
                           <div style={{ display: "flex", justifyContent: "space-between", marginTop: "0.8rem", padding: "0.6rem 0", borderTop: `1px solid rgba(184,151,62,0.2)` }}>
-                            <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "8px", letterSpacing: "0.2em", color: "rgba(245,240,232,0.4)", textTransform: "uppercase" }}>Sous-total {look.nom}</p>
+                            <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "8px", letterSpacing: "0.2em", color: "rgba(245,240,232,0.4)", textTransform: "uppercase" }}>{t("sous_total_lbl")} {look.nom}</p>
                             <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "11px", color: GOLD, fontWeight: 600 }}>{look.sous_total}</p>
                           </div>
                         </div>
@@ -1079,7 +1108,7 @@ const FormulesSection = ({ refEl, onContact, onReserver }) => {
 
                       {/* Total + CTA */}
                       <div style={{ marginTop: "1.4rem", padding: "1.2rem", background: "rgba(184,151,62,0.08)", border: `1px solid rgba(184,151,62,0.25)`, textAlign: "center" }}>
-                        <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.4em", color: "rgba(245,240,232,0.5)", textTransform: "uppercase", marginBottom: "0.4rem" }}>Total {f.titre}</p>
+                        <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.4em", color: "rgba(245,240,232,0.5)", textTransform: "uppercase", marginBottom: "0.4rem" }}>{t("total_lbl")} {f.titre}</p>
                         <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "2rem", color: GOLD, letterSpacing: "0.05em" }}>{f.prix}</p>
                         <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "0.85rem", color: "rgba(245,240,232,0.45)", fontStyle: "italic", marginTop: "0.5rem", marginBottom: "1.2rem" }}>{f.tagline}</p>
                         <button onClick={onReserver || onContact}
