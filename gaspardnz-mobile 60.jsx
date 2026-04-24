@@ -33,6 +33,12 @@ const T = {
     contact_title:"Prendre Contact",
     contact_desc:"Disponible sur WhatsApp pour toute commande sur-mesure ou demande de renseignement.",
     footer_mentions:"Mentions légales", footer_conf:"Confidentialité", footer_cgv:"CGV",
+    heritage_desc:"Chaque silhouette est un dialogue entre la coupe classique et l'audace moderne — une signature portée par ceux qui osent se distinguer.",
+    showroom_desc:"Chaque vêtement est une œuvre. Chaque coupe, une signature indélébile portée par ceux qui osent se distinguer.",
+    showroom_stat1:"Ans", showroom_stat2:"Sur-mesure", showroom_stat3:"Vision",
+    formule1_tagline:"Une allure complète, élégante et inoubliable pour le jour J.",
+    formule2_tagline:"L'élégance accessible pour un mariage parfaitement maîtrisé.",
+    look_mairie:"Look Mairie", look_soiree:"Look Soirée",
   },
   EN: {
     nav_reveler:"Reveal Myself", nav_bio:"Biography", nav_showroom:"Showroom",
@@ -60,6 +66,12 @@ const T = {
     contact_title:"Get in Touch",
     contact_desc:"Available on WhatsApp for any bespoke order or enquiry.",
     footer_mentions:"Legal Notice", footer_conf:"Privacy", footer_cgv:"T&C",
+    heritage_desc:"Each silhouette is a dialogue between classic tailoring and modern boldness — a signature worn by those who dare to stand out.",
+    showroom_desc:"Every garment is a work of art. Every cut, an indelible signature worn by those who dare to stand apart.",
+    showroom_stat1:"Years", showroom_stat2:"Bespoke", showroom_stat3:"Vision",
+    formule1_tagline:"A complete, elegant and unforgettable look for the big day.",
+    formule2_tagline:"Refined elegance for a perfectly curated wedding.",
+    look_mairie:"City Hall Look", look_soiree:"Evening Look",
   },
   ES: {
     nav_reveler:"Revelarme", nav_bio:"Biografía", nav_showroom:"Showroom",
@@ -87,6 +99,12 @@ const T = {
     contact_title:"Contactar",
     contact_desc:"Disponible en WhatsApp para cualquier solicitud de pedido personalizado.",
     footer_mentions:"Aviso Legal", footer_conf:"Privacidad", footer_cgv:"T&C",
+    heritage_desc:"Cada silueta es un diálogo entre el corte clásico y la audacia moderna — una firma llevada por quienes se atreven a destacar.",
+    showroom_desc:"Cada prenda es una obra de arte. Cada corte, una firma indeleble llevada por quienes se atreven a distinguirse.",
+    showroom_stat1:"Años", showroom_stat2:"A medida", showroom_stat3:"Visión",
+    formule1_tagline:"Un look completo, elegante e inolvidable para el gran día.",
+    formule2_tagline:"La elegancia accesible para una boda perfectamente lograda.",
+    look_mairie:"Look Ceremonia", look_soiree:"Look Noche",
   },
   ZH: {
     nav_reveler:"展现自我", nav_bio:"简介", nav_showroom:"展厅",
@@ -114,6 +132,12 @@ const T = {
     contact_title:"联系我们",
     contact_desc:"可通过 WhatsApp 联系，处理任何个性化订单或咨询。",
     footer_mentions:"法律声明", footer_conf:"隐私政策", footer_cgv:"销售条款",
+    heritage_desc:"每一个轮廓都是经典剪裁与现代大胆之间的对话 — 由勇于脱颖而出者所承载的独特印记。",
+    showroom_desc:"每件服装都是一件艺术品。每一剪，都是那些敢于与众不同者所承载的不朽印记。",
+    showroom_stat1:"年", showroom_stat2:"定制", showroom_stat3:"愿景",
+    formule1_tagline:"为您的大日子打造完整、优雅且难忘的造型。",
+    formule2_tagline:"精致优雅，成就完美婚礼。",
+    look_mairie:"市政厅造型", look_soiree:"晚宴造型",
   },
 };
 const LangCtx = createContext({ lang: "FR", setLang: () => {} });
@@ -676,7 +700,7 @@ const HeritageMobile = ({ refEl }) => {
           transition={{ delay: 0.75, duration: 0.8 }}
           style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "clamp(0.72rem, 2.8vw, 0.82rem)", fontWeight: 300, lineHeight: 1.9, color: "rgba(28,18,8,0.45)", letterSpacing: "0.03em" }}
         >
-          Chaque silhouette est un dialogue entre la coupe classique et l'audace moderne — une signature portée par ceux qui osent se distinguer.
+          {t("heritage_desc")}
         </motion.p>
 
         <motion.div
@@ -736,6 +760,7 @@ const FlammesCarousel = ({ onClick }) => {
 };
 
 const ShowroomMobile = ({ refEl, onCatalogue, onFlammes }) => {
+  const t = useTr();
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-10% 0px" });
 
@@ -762,7 +787,7 @@ const ShowroomMobile = ({ refEl, onCatalogue, onFlammes }) => {
           initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.4 }}
           style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(0.95rem, 3.8vw, 1.15rem)", fontWeight: 300, color: "rgba(28,18,8,0.45)", lineHeight: 1.8, fontStyle: "italic", marginBottom: "2.5rem" }}
         >
-          Chaque vêtement est une œuvre. Chaque coupe, une signature indélébile portée par ceux qui osent se distinguer.
+          {t("showroom_desc")}
         </motion.p>
 
         {/* Stats */}
@@ -770,7 +795,7 @@ const ShowroomMobile = ({ refEl, onCatalogue, onFlammes }) => {
           initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ delay: 0.5 }}
           style={{ display: "flex", gap: "2rem", borderTop: "1px solid rgba(28,18,8,0.09)", paddingTop: "2rem", marginBottom: "2.5rem" }}
         >
-          {[["07", "Ans"], ["∞", "Sur-mesure"], ["01", "Vision"]].map(([num, label]) => (
+          {[["07", t("showroom_stat1")], ["∞", t("showroom_stat2")], ["01", t("showroom_stat3")]].map(([num, label]) => (
             <div key={label}>
               <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "2rem", color: GOLD, lineHeight: 1 }}>{num}</div>
               <div style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.2em", color: "rgba(28,18,8,0.28)", textTransform: "uppercase", marginTop: "0.4rem" }}>{label}</div>
@@ -786,7 +811,7 @@ const ShowroomMobile = ({ refEl, onCatalogue, onFlammes }) => {
           onTouchStart={e => { e.currentTarget.style.background = GOLD; e.currentTarget.style.color = "#1c1208"; }}
           onTouchEnd={e => { e.currentTarget.style.background = "none"; e.currentTarget.style.color = GOLD; }}
         >
-          Explorer le Catalogue <SvgArrow size={14} />
+          {t("showroom_cta")} <SvgArrow size={14} />
         </motion.button>
       </div>
     </section>
@@ -875,10 +900,10 @@ const FormulesSection = ({ refEl, onContact, onReserver }) => {
       titre: "Formule Prestige",
       prix: "1447€",
       tag: "Premium",
-      tagline: "Une allure complète, élégante et inoubliable pour le jour J.",
+      tagline: t("formule1_tagline"),
       looks: [
         {
-          nom: "Look Mairie",
+          nom: t("look_mairie"),
           items: [
             { label: "Costume coupe droite, croisé ou trois pièces", prix: "449€" },
             { label: "Chemise", prix: "69€" },
@@ -890,7 +915,7 @@ const FormulesSection = ({ refEl, onContact, onReserver }) => {
           sous_total: "601€",
         },
         {
-          nom: "Look Soirée",
+          nom: t("look_soiree"),
           tag: "Smoking",
           items: [
             { label: "Ensemble smoking", prix: "600€" },
@@ -908,10 +933,10 @@ const FormulesSection = ({ refEl, onContact, onReserver }) => {
       titre: "Formule Gaspard NZ",
       prix: "1086€",
       tag: "Signature",
-      tagline: "L'élégance accessible pour un mariage parfaitement maîtrisé.",
+      tagline: t("formule2_tagline"),
       looks: [
         {
-          nom: "Look Mairie",
+          nom: t("look_mairie"),
           items: [
             { label: "Costume coupe droite, croisé ou trois pièces", prix: "349€" },
             { label: "Chemise", prix: "60€" },
@@ -923,7 +948,7 @@ const FormulesSection = ({ refEl, onContact, onReserver }) => {
           sous_total: "474€",
         },
         {
-          nom: "Look Soirée",
+          nom: t("look_soiree"),
           tag: "Smoking",
           items: [
             { label: "Ensemble smoking", prix: "449€" },
