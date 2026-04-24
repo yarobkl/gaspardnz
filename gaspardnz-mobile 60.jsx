@@ -623,6 +623,7 @@ const HeroMobile = ({ onScrollDown }) => {
 
 /* ── HERITAGE MOBILE ─────────────────────────────────────────────── */
 const HeritageMobile = ({ refEl }) => {
+  const t = useTr();
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-8% 0px" });
 
@@ -1346,7 +1347,7 @@ export default function App() {
       <Modal isOpen={modal === "contact"} onClose={() => setModal(null)} title={lang === "FR" ? "Prendre Contact" : lang === "EN" ? "Get in Touch" : lang === "ES" ? "Contactar" : "联系我们"}>
         <div style={{ textAlign: "center", padding: "2rem 0" }}>
           <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(1rem, 4.5vw, 1.4rem)", fontStyle: "italic", color: "rgba(28,18,8,0.82)", lineHeight: 1.6, marginBottom: "2rem" }}>
-            {t("contact_desc")}
+            {T[lang]?.contact_desc ?? T.FR.contact_desc}
           </p>
           <div style={{ width: "60px", height: "1px", background: `linear-gradient(90deg, transparent, ${GOLD}, transparent)`, margin: "0 auto 2rem" }} />
           <a href="https://wa.me/33664826920" target="_blank" rel="noopener noreferrer"
