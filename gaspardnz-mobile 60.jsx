@@ -47,7 +47,7 @@ const T = {
     voir_galerie:"VOIR LA GALERIE", gnz_presente:"GASPARDNZ PRÉSENTE",
     flammes_presente:"Gaspardnz présente", flammes_lieu:"Seine Musicale · 23 Avril", voir_galerie_btn:"Voir la galerie →",
     formule_prestige_titre:"Formule Prestige", formule_gnz_titre:"Formule Gaspard NZ",
-    hors_chaussures:"hors chaussures", sous_total_lbl:"Sous-total", total_lbl:"Total",
+    hors_chaussures:"hors chaussures", sous_total_lbl:"Sous-total", total_lbl:"Total", prix_sur_demande:"Prix sur demande",
     item_costume:"Costume coupe droite, croisé ou trois pièces", item_chemise:"Chemise",
     item_cravate:"Cravate", item_boutons:"Boutons de manchettes", item_chaussettes:"Chaussettes fil d'Écosse",
     item_chaussures_opt:"Chaussures (option)", item_chaussures_prix:"à partir de 315€",
@@ -104,7 +104,7 @@ const T = {
     voir_galerie:"VIEW GALLERY", gnz_presente:"GASPARDNZ PRESENTS",
     flammes_presente:"Gaspardnz presents", flammes_lieu:"Seine Musicale · April 23", voir_galerie_btn:"View gallery →",
     formule_prestige_titre:"Prestige Package", formule_gnz_titre:"Gaspard NZ Package",
-    hors_chaussures:"excl. shoes", sous_total_lbl:"Subtotal", total_lbl:"Total",
+    hors_chaussures:"excl. shoes", sous_total_lbl:"Subtotal", total_lbl:"Total", prix_sur_demande:"Price on request",
     item_costume:"Straight, double-breasted or 3-piece suit", item_chemise:"Shirt",
     item_cravate:"Tie", item_boutons:"Cufflinks", item_chaussettes:"Fine cotton socks",
     item_chaussures_opt:"Shoes (option)", item_chaussures_prix:"from €315",
@@ -161,7 +161,7 @@ const T = {
     voir_galerie:"VER GALERÍA", gnz_presente:"GASPARDNZ PRESENTA",
     flammes_presente:"Gaspardnz presenta", flammes_lieu:"Seine Musicale · 23 de Abril", voir_galerie_btn:"Ver galería →",
     formule_prestige_titre:"Paquete Prestige", formule_gnz_titre:"Paquete Gaspard NZ",
-    hors_chaussures:"sin zapatos", sous_total_lbl:"Subtotal", total_lbl:"Total",
+    hors_chaussures:"sin zapatos", sous_total_lbl:"Subtotal", total_lbl:"Total", prix_sur_demande:"Precio bajo solicitud",
     item_costume:"Traje corte recto, cruzado o tres piezas", item_chemise:"Camisa",
     item_cravate:"Corbata", item_boutons:"Gemelos", item_chaussettes:"Calcetines de hilo fino",
     item_chaussures_opt:"Zapatos (opción)", item_chaussures_prix:"desde 315€",
@@ -218,7 +218,7 @@ const T = {
     voir_galerie:"查看画廊", gnz_presente:"GASPARDNZ 呈献",
     flammes_presente:"Gaspardnz 呈献", flammes_lieu:"塞纳音乐厅 · 4月23日", voir_galerie_btn:"查看画廊 →",
     formule_prestige_titre:"尊贵套餐", formule_gnz_titre:"Gaspard NZ 套餐",
-    hors_chaussures:"不含鞋", sous_total_lbl:"小计", total_lbl:"总计",
+    hors_chaussures:"不含鞋", sous_total_lbl:"小计", total_lbl:"总计", prix_sur_demande:"价格面议",
     item_costume:"直裁/双排扣/三件式西装", item_chemise:"衬衫",
     item_cravate:"领带", item_boutons:"袖扣", item_chaussettes:"精棉袜",
     item_chaussures_opt:"鞋子（可选）", item_chaussures_prix:"起 315€",
@@ -1102,7 +1102,7 @@ const FormulesSection = ({ refEl, onContact, onReserver }) => {
                     <span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.4em", color: GOLD, textTransform: "uppercase", border: `1px solid rgba(184,151,62,0.3)`, padding: "3px 8px" }}>{f.tag}</span>
                   </div>
                   <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(1.3rem, 5.5vw, 1.7rem)", color: "#f5f0e8", fontWeight: 400, letterSpacing: "0.02em", margin: 0 }}>{f.titre}</p>
-                  <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(1.6rem, 7vw, 2.2rem)", color: GOLD, letterSpacing: "0.05em", marginTop: "0.3rem" }}>{f.prix} <span style={{ fontSize: "0.5em", color: "rgba(184,151,62,0.5)", fontFamily: "'Montserrat', sans-serif", letterSpacing: "0.1em" }}>{t("hors_chaussures")}</span></p>
+                  <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "8px", letterSpacing: "0.3em", color: "rgba(184,151,62,0.6)", textTransform: "uppercase", marginTop: "0.5rem" }}>{t("prix_sur_demande")}</p>
                 </div>
                 <motion.div animate={{ rotate: selected === f.id ? 45 : 0 }} transition={{ duration: 0.3 }}
                   style={{ color: GOLD, marginTop: "0.5rem", flexShrink: 0 }}
@@ -1126,23 +1126,16 @@ const FormulesSection = ({ refEl, onContact, onReserver }) => {
                             </p>
                           </div>
                           {look.items.map((item, ii) => (
-                            <div key={ii} style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", padding: "0.45rem 0", borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
-                              <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", color: "rgba(245,240,232,0.6)", fontWeight: 300, paddingRight: "1rem", flex: 1 }}>{item.label}</p>
-                              <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", color: "#f5f0e8", fontWeight: 500, whiteSpace: "nowrap" }}>{item.prix}</p>
+                            <div key={ii} style={{ display: "flex", alignItems: "baseline", padding: "0.45rem 0", borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
+                              <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", color: "rgba(245,240,232,0.6)", fontWeight: 300, flex: 1 }}>{item.label}</p>
                             </div>
                           ))}
-                          <div style={{ display: "flex", justifyContent: "space-between", marginTop: "0.8rem", padding: "0.6rem 0", borderTop: `1px solid rgba(184,151,62,0.2)` }}>
-                            <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "8px", letterSpacing: "0.2em", color: "rgba(245,240,232,0.4)", textTransform: "uppercase" }}>{t("sous_total_lbl")} {look.nom}</p>
-                            <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "11px", color: GOLD, fontWeight: 600 }}>{look.sous_total}</p>
-                          </div>
                         </div>
                       ))}
 
-                      {/* Total + CTA */}
+                      {/* CTA */}
                       <div style={{ marginTop: "1.4rem", padding: "1.2rem", background: "rgba(184,151,62,0.08)", border: `1px solid rgba(184,151,62,0.25)`, textAlign: "center" }}>
-                        <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.4em", color: "rgba(245,240,232,0.5)", textTransform: "uppercase", marginBottom: "0.4rem" }}>{t("total_lbl")} {f.titre}</p>
-                        <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "2rem", color: GOLD, letterSpacing: "0.05em" }}>{f.prix}</p>
-                        <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "0.85rem", color: "rgba(245,240,232,0.45)", fontStyle: "italic", marginTop: "0.5rem", marginBottom: "1.2rem" }}>{f.tagline}</p>
+                        <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "0.85rem", color: "rgba(245,240,232,0.45)", fontStyle: "italic", marginBottom: "1.2rem" }}>{f.tagline}</p>
                         <button onClick={onReserver || onContact}
                           style={{ width: "100%", background: "none", border: `1px solid rgba(184,151,62,0.5)`, color: GOLD, padding: "0.9rem", fontFamily: "'Montserrat', sans-serif", fontSize: "8px", letterSpacing: "0.4em", textTransform: "uppercase", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}
                         >{t("btn_reveler")} <SvgArrow size={13} /></button>
