@@ -330,6 +330,289 @@ const Modal = ({ isOpen, onClose, title, children }) => (
 
 /* ── NAV MOBILE ─────────────────────────────────────────────────── */
 
+/* ── CHATBOT ─────────────────────────────────────────────────────── */
+const KB = [
+  {
+    keys: ["bonjour","salut","hello","bonsoir","hi","hey","salam"],
+    rep: "Bonjour ! Je suis l'assistant de Gaspard NZ. Comment puis-je vous aider aujourd'hui ?",
+    btns: ["Les formules","Le showroom","Prendre rendez-vous","La galerie"]
+  },
+  {
+    keys: ["formule","formules","pack","offre","package","mariage","service","prestation"],
+    rep: "Gaspard NZ propose 3 formules pour votre mariage :\n\n• **Formule GNZ Showroom** — Costumes disponibles sur place, essayage immédiat.\n• **Formule Prestige** — Habillage sur-mesure selon vos goûts, commande personnalisée.\n• **Pack Complet Prestige** — Costume sur-mesure + Maître de cérémonie + Habillage à l'hôtel le matin du mariage.\n\nLes prix sont disponibles sur demande.",
+    btns: ["Voir les détails","Prendre rendez-vous","En savoir plus sur le Prestige"]
+  },
+  {
+    keys: ["prestige","sur mesure","sur-mesure","personnalisé","personnalisé"],
+    rep: "La **Formule Prestige** c'est l'expérience complète :\n\nGaspard vous habille en fonction de vos goûts personnels. Chaque pièce est sélectionnée et commandée spécialement pour vous — costume, chemise, cravate, boutons de manchettes, chaussettes.\n\nC'est le choix des mariés qui veulent être uniques le jour J.",
+    btns: ["Inclus dans le Pack Complet ?","Prendre rendez-vous","Les prix"]
+  },
+  {
+    keys: ["pack complet","pack prestige","tout en un","tout-en-un","cérémonie","ceremonie","maitre","maître"],
+    rep: "Le **Pack Complet Prestige** regroupe 3 services en 1 :\n\n✦ Costume sur-mesure (Formule Prestige)\n✦ Gaspard anime votre cérémonie en tant que Maître de cérémonie\n✦ Il vous accompagne à l'hôtel le matin du mariage pour l'habillage\n\nC'est l'offre la plus complète — un seul prestataire pour tout gérer.",
+    btns: ["Prendre rendez-vous","Disponible où ?","Les prix"]
+  },
+  {
+    keys: ["prix","tarif","coût","cout","combien","budget"],
+    rep: "Les prix sont disponibles sur demande — chaque projet est unique.\n\nGaspard établit un devis personnalisé après échange avec vous sur WhatsApp ou par rendez-vous.\n\nSi vous réservez **6 mois à l'avance**, vous bénéficiez d'une remise de -10% sur le Pack Complet.",
+    btns: ["Réserver maintenant","Contactez sur WhatsApp","Remise early booking"]
+  },
+  {
+    keys: ["remise","reduction","réduction","promo","promotion","early","tôt","tot","avance"],
+    rep: "✦ **Offre Early Booking — -10%**\n\nRéservez votre Pack Complet 6 mois avant votre mariage et bénéficiez de 10% de réduction.\n\nAvantages :\n• Vous économisez sur le prix\n• Gaspard réserve votre hôtel à l'avance (prix plus bas)\n• Votre date est garantie et bloquée",
+    btns: ["Prendre rendez-vous","En savoir plus"]
+  },
+  {
+    keys: ["showroom","boutique","magasin","essayage","essayer","sur place","venir"],
+    rep: "Le Showroom Gaspard NZ est un espace privé et exclusif aménagé comme une vraie boutique de luxe.\n\nVous venez, vous essayez directement les pièces disponibles, et si ça vous va — vous repartez habillé.\n\nSitué en **Île-de-France**. Sur rendez-vous uniquement.",
+    btns: ["Prendre rendez-vous","Voir la galerie","Les formules disponibles"]
+  },
+  {
+    keys: ["où","localisation","location","idf","île-de-france","ile de france","paris","déplacement","deplacement","province","étranger","etranger"],
+    rep: "Gaspard NZ est basé en **Île-de-France**.\n\n• Showroom & prestations IDF : inclus dans le prix\n• Hors IDF (province, étranger) : les frais de déplacement et d'hôtel (2 nuits) sont pris en charge par le client\n\nIl se déplace partout en France et à l'étranger.",
+    btns: ["Prendre rendez-vous","Les formules","Contactez sur WhatsApp"]
+  },
+  {
+    keys: ["hôtel","hotel","nuit","hébergement","hebergement","déplace","deplace"],
+    rep: "Pour les prestations **hors Île-de-France** :\n\nGaspard arrive la veille du mariage et repart le lendemain — soit **2 nuits d'hôtel**.\n\nCes frais sont pris en charge par le client, en supplément du pack choisi. Gaspard se charge lui-même de la réservation pour garantir un hôtel de qualité.",
+    btns: ["Prendre rendez-vous","Les formules","En savoir plus"]
+  },
+  {
+    keys: ["annulation","annuler","rembours","remboursement","cancel"],
+    rep: "Conditions d'annulation :\n\n• **+6 mois avant** → 50% de l'acompte remboursé\n• **1 à 6 mois avant** → acompte non remboursé\n• **-1 mois avant** → 100% du montant dû\n\nReport de date : accepté une fois, avec 3 mois de préavis minimum.",
+    btns: ["Prendre rendez-vous","L'acompte","Les formules"]
+  },
+  {
+    keys: ["acompte","paiement","payer","régler","regler","virement"],
+    rep: "Le paiement se fait en 2 fois :\n\n• **50% à la réservation** — pour bloquer votre date\n• **50% restants 30 jours avant** le mariage\n\nPaiement par virement bancaire uniquement.",
+    btns: ["Prendre rendez-vous","Les conditions d'annulation"]
+  },
+  {
+    keys: ["contrat","signer","signature","document"],
+    rep: "Une fois votre formule choisie et votre devis validé avec Gaspard, un contrat est établi.\n\nGaspard vous envoie un code unique — vous signez directement depuis ce site web. Les deux parties reçoivent le contrat signé par email.",
+    btns: ["Prendre rendez-vous","Contactez sur WhatsApp"]
+  },
+  {
+    keys: ["flammes","flamme","2026","événement","evenement","feu"],
+    rep: "**Les Flammes 2026** — l'événement exclusif de Gaspard NZ.\n\nUn défilé et une soirée mode organisés par Gaspard NZ. Les détails seront bientôt dévoilés.\n\nRestez connecté pour ne rien manquer !",
+    btns: ["Voir la galerie","Prendre rendez-vous","Contacter Gaspard"]
+  },
+  {
+    keys: ["galerie","photo","photos","look","tenue","style","création","creation"],
+    rep: "La galerie Gaspard NZ présente ses créations : costumes, vestes structurées, chemises brodées, smoking...\n\nChaque pièce raconte une histoire. Découvrez l'univers Gaspardnz.",
+    btns: ["Voir la galerie","Prendre rendez-vous"]
+  },
+  {
+    keys: ["qui est","gaspard","biographie","bio","parcours","histoire","créateur","createur"],
+    rep: "**Gaspard NZ** — Styliste & Maître de cérémonie basé à Paris.\n\nDepuis plus de 7 ans, il crée des pièces sur-mesure pour des hommes qui refusent l'ordinaire. Sa devise : *\"S'habiller, c'est choisir qui l'on est avant même d'avoir parlé.\"*\n\nIl cumule aujourd'hui 450K followers sur TikTok et des millions de vues.",
+    btns: ["Les formules","Prendre rendez-vous","Voir la galerie"]
+  },
+  {
+    keys: ["contact","whatsapp","appel","appeler","joindre","parler","message"],
+    rep: "Vous pouvez contacter Gaspard directement sur **WhatsApp** — il répond sous 24h.\n\nPour un premier échange sur votre projet mariage, c'est la meilleure façon de commencer.",
+    btns: ["Ouvrir WhatsApp","Prendre rendez-vous"]
+  },
+  {
+    keys: ["rdv","rendez-vous","rendez vous","réservation","reservation","réserver","reserver","bookez","booker"],
+    rep: "Pour prendre rendez-vous avec Gaspard :\n\n1. Cliquez sur le bouton ci-dessous\n2. Renseignez votre nom et votre projet\n3. Choisissez WhatsApp ou Calendrier\n\nGaspard vous répond sous 24h.",
+    btns: ["Prendre rendez-vous","Ouvrir WhatsApp"]
+  },
+  {
+    keys: ["disponible","disponibilité","libre","date","quand"],
+    rep: "Les disponibilités dépendent de la période de l'année.\n\nLes week-ends de printemps et d'été (mai-septembre) sont les plus demandés pour les mariages.\n\nContactez Gaspard directement pour vérifier votre date.",
+    btns: ["Ouvrir WhatsApp","Prendre rendez-vous"]
+  },
+  {
+    keys: ["merci","super","parfait","excellent","top","génial","genial","bravo"],
+    rep: "Merci à vous ! Gaspard NZ est là pour rendre votre jour J inoubliable. N'hésitez pas si vous avez d'autres questions. ✦",
+    btns: ["Prendre rendez-vous","Ouvrir WhatsApp"]
+  },
+];
+
+const DEFAULT_REPLY = {
+  rep: "Je n'ai pas bien compris votre question. Voici comment je peux vous aider :",
+  btns: ["Les formules","Le showroom","Prendre rendez-vous","Contacter Gaspard"]
+};
+
+const GREET = {
+  rep: "Bienvenue chez **Gaspard NZ** ✦\n\nJe suis votre assistant personnel. Posez-moi vos questions sur les formules, le showroom, les tarifs ou la prise de rendez-vous.",
+  btns: ["Les formules","Le showroom","Prendre rendez-vous","La galerie"]
+};
+
+function findReply(msg) {
+  const low = msg.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+  for (const entry of KB) {
+    if (entry.keys.some(k => low.includes(k.normalize("NFD").replace(/[̀-ͯ]/g, "")))) {
+      return entry;
+    }
+  }
+  return DEFAULT_REPLY;
+}
+
+const ChatBot = ({ onReserver, onGalerie, onShowroom }) => {
+  const [open, setOpen] = useState(false);
+  const [msgs, setMsgs] = useState([]);
+  const [input, setInput] = useState("");
+  const [typing, setTyping] = useState(false);
+  const [greeted, setGreeted] = useState(false);
+  const bottomRef = useRef(null);
+
+  useEffect(() => {
+    if (open && !greeted) {
+      setGreeted(true);
+      setTimeout(() => {
+        setMsgs([{ from: "bot", text: GREET.rep, btns: GREET.btns, id: Date.now() }]);
+      }, 400);
+    }
+  }, [open, greeted]);
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [msgs, typing]);
+
+  const handleAction = (btn) => {
+    addUserMsg(btn);
+    triggerReply(btn);
+  };
+
+  const addUserMsg = (text) => {
+    setMsgs(m => [...m, { from: "user", text, id: Date.now() }]);
+  };
+
+  const triggerReply = (text) => {
+    setTyping(true);
+    setTimeout(() => {
+      setTyping(false);
+      const entry = findReply(text);
+      if (text === "Prendre rendez-vous" || text.toLowerCase().includes("rendez-vous") || text.toLowerCase().includes("réserver")) {
+        setMsgs(m => [...m, { from: "bot", text: entry.rep, btns: entry.btns, action: "booking", id: Date.now() }]);
+      } else if (text === "Voir la galerie" || text.toLowerCase().includes("galerie")) {
+        setMsgs(m => [...m, { from: "bot", text: "Je vous emmène directement dans la galerie !", btns: [], id: Date.now() }]);
+        setTimeout(() => { setOpen(false); onGalerie?.(); }, 600);
+      } else if (text === "Le showroom" || text.toLowerCase().includes("showroom")) {
+        setMsgs(m => [...m, { from: "bot", text: entry.rep, btns: entry.btns, action: "showroom", id: Date.now() }]);
+      } else if (text === "Ouvrir WhatsApp") {
+        window.open("https://wa.me/33664826920", "_blank");
+        setMsgs(m => [...m, { from: "bot", text: "Je vous redirige vers WhatsApp. Gaspard vous répondra sous 24h ✦", btns: [], id: Date.now() }]);
+      } else {
+        setMsgs(m => [...m, { from: "bot", text: entry.rep, btns: entry.btns, id: Date.now() }]);
+      }
+    }, 900 + Math.random() * 400);
+  };
+
+  const handleSend = () => {
+    const txt = input.trim();
+    if (!txt) return;
+    setInput("");
+    addUserMsg(txt);
+    triggerReply(txt);
+  };
+
+  const formatText = (txt) => {
+    return txt.split("\n").map((line, i) => {
+      const bold = line.replace(/\*\*(.*?)\*\*/g, (_, w) => `<strong>${w}</strong>`);
+      const italic = bold.replace(/\*(.*?)\*/g, (_, w) => `<em>${w}</em>`);
+      return <p key={i} style={{ margin: "0.15rem 0" }} dangerouslySetInnerHTML={{ __html: italic }} />;
+    });
+  };
+
+  return (
+    <>
+      {/* Bouton flottant */}
+      <motion.button
+        onClick={() => setOpen(o => !o)}
+        whileTap={{ scale: 0.93 }}
+        style={{ position: "fixed", bottom: "1.5rem", right: "1.2rem", zIndex: 600, width: "52px", height: "52px", borderRadius: "50%", background: GOLD, border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 20px rgba(184,151,62,0.4)" }}>
+        <AnimatePresence mode="wait">
+          {open
+            ? <motion.span key="x" initial={{ rotate: -90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: 90, opacity: 0 }} style={{ color: "#1c1208", fontSize: "20px", fontWeight: 300, lineHeight: 1 }}>×</motion.span>
+            : <motion.svg key="c" initial={{ scale: 0.7, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.7, opacity: 0 }} width="22" height="22" viewBox="0 0 24 24" fill="#1c1208"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></motion.svg>
+          }
+        </AnimatePresence>
+        {!open && <motion.span animate={{ scale: [1, 1.3, 1] }} transition={{ repeat: Infinity, duration: 2, delay: 3 }} style={{ position: "absolute", top: "2px", right: "2px", width: "10px", height: "10px", borderRadius: "50%", background: "#25D366", border: "2px solid #fff" }} />}
+      </motion.button>
+
+      {/* Fenêtre chat */}
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, y: 20, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 20, scale: 0.95 }}
+            transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+            style={{ position: "fixed", bottom: "5.5rem", right: "1.2rem", left: "1.2rem", maxWidth: "380px", marginLeft: "auto", zIndex: 599, background: "#faf7f2", borderRadius: "16px", overflow: "hidden", boxShadow: "0 8px 40px rgba(0,0,0,0.18)", display: "flex", flexDirection: "column", height: "70vh", maxHeight: "520px" }}>
+
+            {/* Header */}
+            <div style={{ background: "#1c1208", padding: "1rem 1.2rem", display: "flex", alignItems: "center", gap: "0.8rem", flexShrink: 0 }}>
+              <div style={{ width: "36px", height: "36px", borderRadius: "50%", background: GOLD, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                <span style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.1rem", color: "#1c1208", letterSpacing: "0.05em" }}>G</span>
+              </div>
+              <div>
+                <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1rem", color: CREAM, letterSpacing: "0.1em", margin: 0 }}>GASPARD NZ</p>
+                <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                  <div style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#25D366" }} />
+                  <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", color: "rgba(245,240,232,0.6)", letterSpacing: "0.2em", textTransform: "uppercase", margin: 0 }}>Assistant en ligne</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Messages */}
+            <div style={{ flex: 1, overflowY: "auto", padding: "1rem", display: "flex", flexDirection: "column", gap: "0.8rem" }}>
+              {msgs.map(m => (
+                <div key={m.id} style={{ display: "flex", flexDirection: "column", alignItems: m.from === "user" ? "flex-end" : "flex-start", gap: "0.5rem" }}>
+                  <div style={{ maxWidth: "85%", background: m.from === "user" ? GOLD : "#fff", color: m.from === "user" ? "#1c1208" : TEXT, padding: "0.7rem 0.9rem", borderRadius: m.from === "user" ? "12px 12px 2px 12px" : "12px 12px 12px 2px", fontFamily: "'Montserrat', sans-serif", fontSize: "11px", lineHeight: 1.7, boxShadow: "0 1px 4px rgba(0,0,0,0.07)" }}>
+                    {formatText(m.text)}
+                  </div>
+                  {m.btns && m.btns.length > 0 && (
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: "0.4rem", maxWidth: "100%" }}>
+                      {m.btns.map((btn, bi) => (
+                        <button key={bi} onClick={() => {
+                          if (btn === "Prendre rendez-vous") { setOpen(false); onReserver?.(); }
+                          else if (btn === "Voir la galerie") { setOpen(false); onGalerie?.(); }
+                          else if (btn === "Le showroom") { setOpen(false); onShowroom?.(); }
+                          else if (btn === "Ouvrir WhatsApp") { window.open("https://wa.me/33664826920", "_blank"); }
+                          else handleAction(btn);
+                        }}
+                          style={{ background: "none", border: `1px solid rgba(184,151,62,0.5)`, color: GOLD, padding: "0.35rem 0.7rem", fontFamily: "'Montserrat', sans-serif", fontSize: "9px", letterSpacing: "0.15em", cursor: "pointer", borderRadius: "20px", transition: "all 0.2s", whiteSpace: "nowrap" }}>
+                          {btn}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+              {typing && (
+                <div style={{ display: "flex", alignItems: "flex-start" }}>
+                  <div style={{ background: "#fff", padding: "0.7rem 1rem", borderRadius: "12px 12px 12px 2px", boxShadow: "0 1px 4px rgba(0,0,0,0.07)", display: "flex", gap: "4px", alignItems: "center" }}>
+                    {[0, 1, 2].map(i => (
+                      <motion.div key={i} animate={{ y: [0, -5, 0] }} transition={{ repeat: Infinity, duration: 0.7, delay: i * 0.15 }}
+                        style={{ width: "5px", height: "5px", borderRadius: "50%", background: GOLD }} />
+                    ))}
+                  </div>
+                </div>
+              )}
+              <div ref={bottomRef} />
+            </div>
+
+            {/* Input */}
+            <div style={{ padding: "0.8rem", borderTop: "1px solid rgba(184,151,62,0.1)", display: "flex", gap: "0.5rem", flexShrink: 0, background: "#faf7f2" }}>
+              <input
+                value={input}
+                onChange={e => setInput(e.target.value)}
+                onKeyDown={e => e.key === "Enter" && handleSend()}
+                placeholder="Posez votre question..."
+                style={{ flex: 1, background: "#fff", border: "1px solid rgba(184,151,62,0.2)", padding: "0.6rem 0.9rem", fontFamily: "'Montserrat', sans-serif", fontSize: "12px", color: TEXT, outline: "none", borderRadius: "20px" }}
+              />
+              <button onClick={handleSend}
+                style={{ width: "36px", height: "36px", borderRadius: "50%", background: GOLD, border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="#1c1208"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg>
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
+  );
+};
+
 /* ── BOOKING MODAL ───────────────────────────────────────────────── */
 const BookingModal = ({ isOpen, onClose, boutiqueMode = false }) => {
   const t = useTr();
@@ -1634,6 +1917,12 @@ export default function App() {
       </Modal>
 
       <BookingModal isOpen={modal === "booking" || modal === "booking-boutique"} boutiqueMode={modal === "booking-boutique"} onClose={() => setModal(null)} />
+
+      <ChatBot
+        onReserver={() => setModal("booking")}
+        onGalerie={() => setModal("galerie")}
+        onShowroom={() => showroomRef.current?.scrollIntoView({ behavior: "smooth" })}
+      />
 
     </div>
     </LangCtx.Provider>
