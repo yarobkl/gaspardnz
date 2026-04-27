@@ -317,7 +317,7 @@ const Modal = ({ isOpen, onClose, title, children }) => (
           onClick={e => e.stopPropagation()}
           style={{ width: "100%", maxWidth: "560px", background: "#faf7f2", border: `1px solid rgba(184,151,62,0.2)`, padding: "3rem 2.5rem", position: "relative" }}
         >
-          <button onClick={onClose} style={{ position: "absolute", top: "1.5rem", right: "1.5rem", background: "none", border: "none", color: "rgba(28,18,8,0.32)", cursor: "pointer", padding: "0.5rem", transition: "color 0.2s" }} onMouseEnter={e => e.currentTarget.style.color = "white"} onMouseLeave={e => e.currentTarget.style.color = "rgba(28,18,8,0.32)"}><SvgX /></button>
+          <button onClick={onClose} style={{ position: "absolute", top: "1.5rem", right: "1.5rem", background: "none", border: "none", color: "rgba(28,18,8,0.65)", cursor: "pointer", padding: "0.5rem", transition: "color 0.2s" }} onMouseEnter={e => e.currentTarget.style.color = "white"} onMouseLeave={e => e.currentTarget.style.color = "rgba(28,18,8,0.32)"}><SvgX /></button>
           <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "9px", letterSpacing: "0.5em", color: GOLD, textTransform: "uppercase", textAlign: "center", marginBottom: "2.5rem", borderBottom: `1px solid rgba(184,151,62,0.15)`, paddingBottom: "1.5rem" }}>{title}</p>
           {children}
         </motion.div>
@@ -387,7 +387,7 @@ const BookingModal = ({ isOpen, onClose, boutiqueMode = false }) => {
                   {step === 1 ? t("bk_title1") : t("bk_title2")}
                 </p>
               </div>
-              <button onClick={reset} style={{ background: "none", border: "none", cursor: "pointer", padding: "4px 8px", color: "rgba(28,18,8,0.3)", fontSize: "22px", lineHeight: 1, marginTop: "-4px" }}>×</button>
+              <button onClick={reset} style={{ background: "none", border: "none", cursor: "pointer", padding: "4px 8px", color: "rgba(28,18,8,0.62)", fontSize: "22px", lineHeight: 1, marginTop: "-4px" }}>×</button>
             </div>
 
             {/* Contenu */}
@@ -404,7 +404,7 @@ const BookingModal = ({ isOpen, onClose, boutiqueMode = false }) => {
                         { k: "besoin", lbl: t("bk_lbl_besoin"), ph: t("bk_ph_besoin") },
                       ].map(({ k, lbl, ph }) => (
                         <div key={k}>
-                          <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.35em", color: "rgba(28,18,8,0.4)", textTransform: "uppercase", marginBottom: "0.5rem" }}>{lbl}</p>
+                          <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.35em", color: "rgba(28,18,8,0.72)", textTransform: "uppercase", marginBottom: "0.5rem" }}>{lbl}</p>
                           {k === "besoin" ? (
                             <textarea value={form[k]} rows={3} placeholder={ph}
                               onChange={e => setForm(f => ({ ...f, [k]: e.target.value }))}
@@ -440,7 +440,7 @@ const BookingModal = ({ isOpen, onClose, boutiqueMode = false }) => {
                   <motion.div key="step2"
                     initial={{ x: 60, opacity: 0 }} animate={{ x: 0, opacity: 1 }}
                     transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}>
-                    <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1rem", color: "rgba(28,18,8,0.45)", fontStyle: "italic", textAlign: "center", marginBottom: "1.6rem", lineHeight: 1.65 }}>
+                    <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1rem", color: "rgba(28,18,8,0.78)", fontStyle: "italic", textAlign: "center", marginBottom: "1.6rem", lineHeight: 1.65 }}>
                       {t("bk_q", form.nom)}
                     </p>
 
@@ -456,7 +456,7 @@ const BookingModal = ({ isOpen, onClose, boutiqueMode = false }) => {
                           </div>
                           <div>
                             <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.15rem", letterSpacing: "0.07em", color: TEXT, marginBottom: "0.15rem" }}>{t("bk_cal_title")}</p>
-                            <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.2em", color: "rgba(28,18,8,0.38)", textTransform: "uppercase" }}>{t("bk_cal_sub")}</p>
+                            <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.2em", color: "rgba(28,18,8,0.68)", textTransform: "uppercase" }}>{t("bk_cal_sub")}</p>
                           </div>
                         </a>
                       )}
@@ -471,17 +471,17 @@ const BookingModal = ({ isOpen, onClose, boutiqueMode = false }) => {
                         </div>
                         <div>
                           <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.15rem", letterSpacing: "0.07em", color: TEXT, marginBottom: "0.15rem" }}>{t("bk_wa_title")}</p>
-                          <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.2em", color: "rgba(28,18,8,0.38)", textTransform: "uppercase" }}>{t("bk_wa_sub")}</p>
+                          <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.2em", color: "rgba(28,18,8,0.68)", textTransform: "uppercase" }}>{t("bk_wa_sub")}</p>
                         </div>
                       </a>
                     </div>
 
-                    <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.28em", color: "rgba(28,18,8,0.28)", textTransform: "uppercase", textAlign: "center", marginTop: "1.5rem" }}>
+                    <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.28em", color: "rgba(28,18,8,0.6)", textTransform: "uppercase", textAlign: "center", marginTop: "1.5rem" }}>
                       {t("bk_guarantee")}
                     </p>
 
                     <button onClick={() => setStep(1)}
-                      style={{ display: "block", background: "none", border: "none", margin: "1.1rem auto 0", cursor: "pointer", fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.22em", color: "rgba(28,18,8,0.22)", textTransform: "uppercase" }}>
+                      style={{ display: "block", background: "none", border: "none", margin: "1.1rem auto 0", cursor: "pointer", fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.22em", color: "rgba(28,18,8,0.58)", textTransform: "uppercase" }}>
                       {t("bk_back")}
                     </button>
                   </motion.div>
@@ -646,7 +646,7 @@ const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules, 
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.25 }}
               style={{ display: "flex", gap: "1.2rem", marginTop: "1.8rem", justifyContent: "center" }}>
               {[[SvgInstagram, "https://www.instagram.com/gaspardnz/"], [SvgTiktok, "https://www.tiktok.com/@gaspardnz?_r=1&_t=ZS-95fqfjKhCcf"], [SvgYoutube, "http://www.youtube.com/@Gaspardnz"]].map(([Icon, href], i) => (
-                <a key={i} href={href} target="_blank" rel="noopener noreferrer" style={{ color: "rgba(28,18,8,0.4)", transition: "color 0.3s" }}
+                <a key={i} href={href} target="_blank" rel="noopener noreferrer" style={{ color: "rgba(28,18,8,0.72)", transition: "color 0.3s" }}
                   onTouchStart={e => e.currentTarget.style.color = GOLD}
                   onTouchEnd={e => e.currentTarget.style.color = "rgba(28,18,8,0.4)"}
                 ><Icon /></a>
@@ -734,7 +734,7 @@ const HeroMobile = ({ onScrollDown }) => {
           initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.5 }}
           style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}
         >
-          <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(13px, 3.5vw, 16px)", letterSpacing: "0.18em", color: "rgba(245,240,232,0.5)", fontStyle: "italic" }}>
+          <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(13px, 3.5vw, 16px)", letterSpacing: "0.18em", color: "rgba(245,240,232,0.85)", fontStyle: "italic" }}>
             {t("hero_subtitle")}
           </p>
           <button onClick={onScrollDown}
@@ -800,7 +800,7 @@ const HeritageMobile = ({ refEl }) => {
         <motion.p
           initial={{ opacity: 0, y: 12 }} animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ delay: 0.75, duration: 0.8 }}
-          style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "clamp(0.72rem, 2.8vw, 0.82rem)", fontWeight: 300, lineHeight: 1.9, color: "rgba(28,18,8,0.45)", letterSpacing: "0.03em" }}
+          style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "clamp(0.72rem, 2.8vw, 0.82rem)", fontWeight: 300, lineHeight: 1.9, color: "rgba(28,18,8,0.78)", letterSpacing: "0.03em" }}
         >
           {t("heritage_desc")}
         </motion.p>
@@ -841,7 +841,7 @@ const FlammesCarousel = ({ onClick }) => {
               <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(2.8rem,13vw,4.5rem)", color: "rgba(245,240,232,0.92)", letterSpacing: "0.08em", lineHeight: 0.95 }}>LES<br/>FLAMMES</div>
               <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(1.1rem,5vw,1.5rem)", color: GOLD, fontStyle: "italic", fontWeight: 300, marginTop: "0.6rem", letterSpacing: "0.05em" }}>2026</div>
               <div style={{ width: "40px", height: "1px", background: GOLD, margin: "1.4rem auto", opacity: 0.5 }} />
-              <div style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.4em", color: "rgba(245,240,232,0.35)", textTransform: "uppercase" }}>{t("flammes_lieu")}</div>
+              <div style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.4em", color: "rgba(245,240,232,0.75)", textTransform: "uppercase" }}>{t("flammes_lieu")}</div>
             </div>
           </div>
         ))}
@@ -888,7 +888,7 @@ const ShowroomMobile = ({ refEl, onCatalogue, onFlammes }) => {
 
         <motion.p
           initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.4 }}
-          style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(0.95rem, 3.8vw, 1.15rem)", fontWeight: 300, color: "rgba(28,18,8,0.45)", lineHeight: 1.8, fontStyle: "italic", marginBottom: "2.5rem" }}
+          style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(0.95rem, 3.8vw, 1.15rem)", fontWeight: 300, color: "rgba(28,18,8,0.78)", lineHeight: 1.8, fontStyle: "italic", marginBottom: "2.5rem" }}
         >
           {t("showroom_desc")}
         </motion.p>
@@ -901,7 +901,7 @@ const ShowroomMobile = ({ refEl, onCatalogue, onFlammes }) => {
           {[["07", t("showroom_stat1")], ["∞", t("showroom_stat2")], ["01", t("showroom_stat3")]].map(([num, label]) => (
             <div key={label}>
               <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "2rem", color: GOLD, lineHeight: 1 }}>{num}</div>
-              <div style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.2em", color: "rgba(28,18,8,0.28)", textTransform: "uppercase", marginTop: "0.4rem" }}>{label}</div>
+              <div style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.2em", color: "rgba(28,18,8,0.6)", textTransform: "uppercase", marginTop: "0.4rem" }}>{label}</div>
             </div>
           ))}
         </motion.div>
@@ -973,7 +973,7 @@ const GalleryMobile = ({ refEl }) => {
             <img src={src} alt={label}
               style={{ width: "100%", aspectRatio: "3/4", objectFit: "cover", objectPosition: "top", filter: "brightness(0.82) contrast(1.05) saturate(0.8)", display: "block" }} />
             <div style={{ position: "absolute", bottom: "1rem", left: "1rem" }}>
-              <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.4em", color: "rgba(28,18,8,0.55)", textTransform: "uppercase" }}>{label}</p>
+              <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.4em", color: "rgba(28,18,8,0.85)", textTransform: "uppercase" }}>{label}</p>
             </div>
           </motion.div>
         ))}
@@ -1086,7 +1086,7 @@ const FormulesSection = ({ refEl, onContact, onReserver }) => {
         </div>
 
         <motion.p initial={{ opacity: 0, y: 12 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ delay: 0.5 }}
-          style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(0.95rem, 3.8vw, 1.1rem)", fontWeight: 300, color: "rgba(245,240,232,0.45)", lineHeight: 1.7, fontStyle: "italic", marginBottom: "3rem" }}
+          style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(0.95rem, 3.8vw, 1.1rem)", fontWeight: 300, color: "rgba(245,240,232,0.82)", lineHeight: 1.7, fontStyle: "italic", marginBottom: "3rem" }}
         >
           {t("formules_sub")}
         </motion.p>
@@ -1133,7 +1133,7 @@ const FormulesSection = ({ refEl, onContact, onReserver }) => {
                           </div>
                           {look.items.map((item, ii) => (
                             <div key={ii} style={{ display: "flex", alignItems: "baseline", padding: "0.45rem 0", borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
-                              <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", color: "rgba(245,240,232,0.6)", fontWeight: 300, flex: 1 }}>{item.label}</p>
+                              <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", color: "rgba(245,240,232,0.88)", fontWeight: 300, flex: 1 }}>{item.label}</p>
                             </div>
                           ))}
                         </div>
@@ -1141,7 +1141,7 @@ const FormulesSection = ({ refEl, onContact, onReserver }) => {
 
                       {/* CTA */}
                       <div style={{ marginTop: "1.4rem", padding: "1.2rem", background: "rgba(184,151,62,0.08)", border: `1px solid rgba(184,151,62,0.25)`, textAlign: "center" }}>
-                        <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "0.85rem", color: "rgba(245,240,232,0.45)", fontStyle: "italic", marginBottom: "1.2rem" }}>{f.tagline}</p>
+                        <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "0.85rem", color: "rgba(245,240,232,0.82)", fontStyle: "italic", marginBottom: "1.2rem" }}>{f.tagline}</p>
                         <button onClick={onReserver || onContact}
                           style={{ width: "100%", background: "none", border: `1px solid rgba(184,151,62,0.5)`, color: GOLD, padding: "0.9rem", fontFamily: "'Montserrat', sans-serif", fontSize: "8px", letterSpacing: "0.4em", textTransform: "uppercase", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}
                         >{t("btn_reveler")} <SvgArrow size={13} /></button>
@@ -1165,14 +1165,14 @@ const FooterMobile = ({ onShowroom, onContact, onCatalogue, onMentions, onConfid
   <footer style={{ background: "#ede8de", borderTop: "1px solid rgba(184,151,62,0.2)", padding: "4rem 1.4rem 3rem" }}>
     <div style={{ textAlign: "center", marginBottom: "3rem" }}>
       <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(2rem, 10vw, 3.2rem)", letterSpacing: "0.25em", color: TEXT }}>GASPARDNZ</div>
-      <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "0.85rem", color: "rgba(28,18,8,0.3)", fontStyle: "italic", marginTop: "0.5rem", letterSpacing: "0.1em" }}>{t("footer_subtitle")}</div>
+      <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "0.85rem", color: "rgba(28,18,8,0.62)", fontStyle: "italic", marginTop: "0.5rem", letterSpacing: "0.1em" }}>{t("footer_subtitle")}</div>
     </div>
 
     {/* Nav links */}
     <div style={{ display: "flex", justifyContent: "center", gap: "2.5rem", marginBottom: "2.5rem", flexWrap: "wrap" }}>
       {[[t("nav_showroom"), onShowroom], [t("nav_formules"), onFormules], [t("nav_contact"), onContact], [t("nav_boutique"), onCatalogue]].map(([l, fn]) => (
         <button key={l} onClick={fn}
-          style={{ background: "none", border: "none", fontFamily: "'Montserrat', sans-serif", fontSize: "8px", letterSpacing: "0.35em", textTransform: "uppercase", color: "rgba(28,18,8,0.4)", cursor: "pointer" }}
+          style={{ background: "none", border: "none", fontFamily: "'Montserrat', sans-serif", fontSize: "8px", letterSpacing: "0.35em", textTransform: "uppercase", color: "rgba(28,18,8,0.72)", cursor: "pointer" }}
         >{l}</button>
       ))}
     </div>
@@ -1180,7 +1180,7 @@ const FooterMobile = ({ onShowroom, onContact, onCatalogue, onMentions, onConfid
     {/* Réseaux */}
     <div style={{ display: "flex", gap: "1.5rem", justifyContent: "center", marginBottom: "2rem", flexWrap: "wrap" }}>
       {[[SvgInstagram, "https://www.instagram.com/gaspardnz/"], [SvgFacebook, "http://facebook.com/Delgadimasaprod"], [SvgTiktok, "https://www.tiktok.com/@gaspardnz?_r=1&_t=ZS-95fqfjKhCcf"], [SvgYoutube, "http://www.youtube.com/@Gaspardnz"], [SvgWhatsapp, "https://wa.me/33664826920"], [SvgLinkedin, "#"]].map(([Icon, href], i) => (
-        <a key={i} href={href} target="_blank" rel="noopener noreferrer" style={{ color: "rgba(28,18,8,0.32)" }}><Icon /></a>
+        <a key={i} href={href} target="_blank" rel="noopener noreferrer" style={{ color: "rgba(28,18,8,0.65)" }}><Icon /></a>
       ))}
     </div>
 
@@ -1194,8 +1194,8 @@ const FooterMobile = ({ onShowroom, onContact, onCatalogue, onMentions, onConfid
     </div>
 
     <div style={{ borderTop: "1px solid rgba(28,18,8,0.07)", paddingTop: "1.5rem", textAlign: "center" }}>
-      <p style={{ fontSize: "8px", letterSpacing: "0.3em", color: "rgba(28,18,8,0.5)", textTransform: "uppercase", fontFamily: "'Montserrat', sans-serif" }}>© 2025 Gaspardnz — Tous droits réservés</p>
-      <p style={{ fontSize: "8px", letterSpacing: "0.25em", color: "rgba(28,18,8,0.55)", marginTop: "0.8rem", fontFamily: "'Montserrat', sans-serif", textTransform: "uppercase" }}>
+      <p style={{ fontSize: "8px", letterSpacing: "0.3em", color: "rgba(28,18,8,0.82)", textTransform: "uppercase", fontFamily: "'Montserrat', sans-serif" }}>© 2025 Gaspardnz — Tous droits réservés</p>
+      <p style={{ fontSize: "8px", letterSpacing: "0.25em", color: "rgba(28,18,8,0.85)", marginTop: "0.8rem", fontFamily: "'Montserrat', sans-serif", textTransform: "uppercase" }}>
         Développé par{" "}
         <a href="https://www.tiktok.com/@yaro_bkl?_r=1&_t=ZS-95ftAfp3nDo" target="_blank" rel="noopener noreferrer"
           style={{ color: "#b8973e", textDecoration: "none", letterSpacing: "0.25em", fontWeight: 500 }}>
@@ -1478,7 +1478,7 @@ export default function App() {
           </motion.p>
           {/* Description */}
           <motion.p initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35, duration: 0.5 }}
-            style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", fontWeight: 300, color: "rgba(28,18,8,0.45)", lineHeight: 1.9, letterSpacing: "0.02em", padding: "0 0.5rem", marginBottom: "2rem" }}>
+            style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", fontWeight: 300, color: "rgba(28,18,8,0.78)", lineHeight: 1.9, letterSpacing: "0.02em", padding: "0 0.5rem", marginBottom: "2rem" }}>
             {tr("boutique_soon_desc")}
           </motion.p>
           {/* Bouton WhatsApp boutique */}
@@ -1599,7 +1599,7 @@ export default function App() {
           <div style={{ width: "80px", height: "80px", borderRadius: "50%", background: "rgba(184,151,62,0.1)", border: `1px solid rgba(184,151,62,0.3)`, margin: "0 auto 2rem", display: "flex", alignItems: "center", justifyContent: "center" }}>
             <span style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.8rem", color: GOLD, letterSpacing: "0.05em" }}>G</span>
           </div>
-          <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1.15rem", fontStyle: "italic", fontWeight: 300, color: "rgba(28,18,8,0.5)", textAlign: "center", lineHeight: 1.7, marginBottom: "2rem" }}>
+          <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1.15rem", fontStyle: "italic", fontWeight: 300, color: "rgba(28,18,8,0.82)", textAlign: "center", lineHeight: 1.7, marginBottom: "2rem" }}>
             {tr("bio_quote")}
           </p>
           <div style={{ width: "30px", height: "1px", background: GOLD, margin: "0 auto 2rem", opacity: 0.5 }} />
@@ -1612,14 +1612,14 @@ export default function App() {
             ))}
           </div>
           <div style={{ width: "30px", height: "1px", background: GOLD, margin: "2rem auto", opacity: 0.5 }} />
-          <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.1rem", letterSpacing: "0.3em", color: "rgba(28,18,8,0.2)", textAlign: "center" }}>GASPARDNZ · PARIS</p>
+          <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.1rem", letterSpacing: "0.3em", color: "rgba(28,18,8,0.85)", textAlign: "center" }}>GASPARDNZ · PARIS</p>
         </div>
       </Modal>
 
       {/* Modal Flammes */}
       <Modal isOpen={modal === "flammes"} onClose={() => setModal(null)} title={T[lang]?.flammes_title??T.FR.flammes_title}>
         <div style={{ display: "flex", flexDirection: "column", gap: "1.2rem" }}>
-          <p style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: "italic", fontSize: "1rem", color: "rgba(28,18,8,0.5)", textAlign: "center", lineHeight: 1.7 }}>
+          <p style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: "italic", fontSize: "1rem", color: "rgba(28,18,8,0.82)", textAlign: "center", lineHeight: 1.7 }}>
             {T[lang]?.flammes_desc??T.FR.flammes_desc}
           </p>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.8rem" }}>
