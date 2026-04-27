@@ -63,6 +63,7 @@ const T = {
     boutique_soon_badge:"Bientôt disponible",
     boutique_soon_title:"Notre boutique en ligne est en cours de création.",
     boutique_soon_desc:"Toutes nos pièces sur-mesure — costumes, vestes, chemises et accessoires — seront bientôt disponibles en ligne. En attendant, contactez-nous directement sur WhatsApp.",
+    boutique_wa_cta:"Discuter sur WhatsApp",
   },
   EN: {
     nav_reveler:"Reveal Myself", nav_bio:"Biography", nav_showroom:"Showroom",
@@ -120,6 +121,7 @@ const T = {
     boutique_soon_badge:"Coming Soon",
     boutique_soon_title:"Our online boutique is currently being created.",
     boutique_soon_desc:"All our bespoke pieces — suits, jackets, shirts and accessories — will soon be available online. In the meantime, contact us directly on WhatsApp.",
+    boutique_wa_cta:"Chat on WhatsApp",
   },
   ES: {
     nav_reveler:"Revelarme", nav_bio:"Biografía", nav_showroom:"Showroom",
@@ -177,6 +179,7 @@ const T = {
     boutique_soon_badge:"Próximamente",
     boutique_soon_title:"Nuestra tienda en línea está en proceso de creación.",
     boutique_soon_desc:"Todas nuestras piezas a medida — trajes, chaquetas, camisas y accesorios — estarán disponibles en línea muy pronto. Mientras tanto, contáctanos directamente por WhatsApp.",
+    boutique_wa_cta:"Chatear por WhatsApp",
   },
   ZH: {
     nav_reveler:"展现自我", nav_bio:"简介", nav_showroom:"展厅",
@@ -234,6 +237,7 @@ const T = {
     boutique_soon_badge:"即将上线",
     boutique_soon_title:"我们的网上精品店正在筹建中。",
     boutique_soon_desc:"所有定制作品——西装、外套、衬衫及配饰——即将在线上推出。与此同时，欢迎直接通过 WhatsApp 联系我们。",
+    boutique_wa_cta:"通过 WhatsApp 联系",
   },
 };
 const LangCtx = createContext({ lang: "FR", setLang: () => {} });
@@ -327,7 +331,7 @@ const Modal = ({ isOpen, onClose, title, children }) => (
 /* ── NAV MOBILE ─────────────────────────────────────────────────── */
 
 /* ── BOOKING MODAL ───────────────────────────────────────────────── */
-const BookingModal = ({ isOpen, onClose }) => {
+const BookingModal = ({ isOpen, onClose, boutiqueMode = false }) => {
   const t = useTr();
   const [step, setStep] = useState(1);
   const [form, setForm] = useState({ nom: "", projet: "", besoin: "" });
@@ -441,19 +445,21 @@ const BookingModal = ({ isOpen, onClose }) => {
                     </p>
 
                     <div style={{ display: "flex", flexDirection: "column", gap: "0.9rem" }}>
-                      {/* Calendrier */}
-                      <a href="https://calendly.com/gaspardnz" target="_blank" rel="noopener noreferrer"
-                        style={{ display: "flex", alignItems: "center", gap: "1.1rem", border: "1px solid rgba(184,151,62,0.22)", padding: "1.3rem 1.4rem", textDecoration: "none", transition: "border-color 0.3s, background 0.3s" }}
-                        onTouchStart={e => { e.currentTarget.style.borderColor = GOLD; e.currentTarget.style.background = "rgba(184,151,62,0.04)"; }}
-                        onTouchEnd={e => { e.currentTarget.style.borderColor = "rgba(184,151,62,0.22)"; e.currentTarget.style.background = "none"; }}>
-                        <div style={{ width: "38px", height: "38px", border: `1px solid rgba(184,151,62,0.35)`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                          <SvgCalendar />
-                        </div>
-                        <div>
-                          <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.15rem", letterSpacing: "0.07em", color: TEXT, marginBottom: "0.15rem" }}>{t("bk_cal_title")}</p>
-                          <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.2em", color: "rgba(28,18,8,0.38)", textTransform: "uppercase" }}>{t("bk_cal_sub")}</p>
-                        </div>
-                      </a>
+                      {/* Calendrier — masqué en mode boutique */}
+                      {!boutiqueMode && (
+                        <a href="https://calendly.com/gaspardnz" target="_blank" rel="noopener noreferrer"
+                          style={{ display: "flex", alignItems: "center", gap: "1.1rem", border: "1px solid rgba(184,151,62,0.22)", padding: "1.3rem 1.4rem", textDecoration: "none", transition: "border-color 0.3s, background 0.3s" }}
+                          onTouchStart={e => { e.currentTarget.style.borderColor = GOLD; e.currentTarget.style.background = "rgba(184,151,62,0.04)"; }}
+                          onTouchEnd={e => { e.currentTarget.style.borderColor = "rgba(184,151,62,0.22)"; e.currentTarget.style.background = "none"; }}>
+                          <div style={{ width: "38px", height: "38px", border: `1px solid rgba(184,151,62,0.35)`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                            <SvgCalendar />
+                          </div>
+                          <div>
+                            <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.15rem", letterSpacing: "0.07em", color: TEXT, marginBottom: "0.15rem" }}>{t("bk_cal_title")}</p>
+                            <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.2em", color: "rgba(28,18,8,0.38)", textTransform: "uppercase" }}>{t("bk_cal_sub")}</p>
+                          </div>
+                        </a>
+                      )}
 
                       {/* WhatsApp */}
                       <a href={waUrl} target="_blank" rel="noopener noreferrer"
@@ -1475,6 +1481,14 @@ export default function App() {
             style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", fontWeight: 300, color: "rgba(28,18,8,0.45)", lineHeight: 1.9, letterSpacing: "0.02em", padding: "0 0.5rem", marginBottom: "2rem" }}>
             {tr("boutique_soon_desc")}
           </motion.p>
+          {/* Bouton WhatsApp boutique */}
+          <motion.button
+            initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45, duration: 0.5 }}
+            onClick={() => { setModal("booking-boutique"); }}
+            style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "0.7rem", width: "calc(100% - 1rem)", margin: "0 auto 1.6rem", background: GOLD, border: "none", padding: "1rem", cursor: "pointer", fontFamily: "'Montserrat', sans-serif", fontSize: "8px", letterSpacing: "0.4em", textTransform: "uppercase", color: "#1c1208", fontWeight: 600 }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.122 1.532 5.852L.057 23.032a.75.75 0 0 0 .921.921l5.18-1.475A11.943 11.943 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.75a9.713 9.713 0 0 1-4.953-1.355l-.355-.212-3.676 1.047 1.047-3.608-.23-.372A9.718 9.718 0 0 1 2.25 12C2.25 6.615 6.615 2.25 12 2.25S21.75 6.615 21.75 12 17.385 21.75 12 21.75z"/></svg>
+            {tr("boutique_wa_cta")}
+          </motion.button>
           <div style={{ width: "40px", height: "1px", background: `linear-gradient(90deg, transparent, ${GOLD}, transparent)`, margin: "0 auto" }} />
         </div>
       </Modal>
@@ -1619,7 +1633,7 @@ export default function App() {
         </div>
       </Modal>
 
-      <BookingModal isOpen={modal === "booking"} onClose={() => setModal(null)} />
+      <BookingModal isOpen={modal === "booking" || modal === "booking-boutique"} boutiqueMode={modal === "booking-boutique"} onClose={() => setModal(null)} />
 
     </div>
     </LangCtx.Provider>
