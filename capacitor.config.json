@@ -1,0 +1,23 @@
+{
+  "appId": "com.gaspardnz.app",
+  "appName": "Gaspardnz",
+  "webDir": "dist",
+  "ios": {
+    "scheme": "Gaspardnz",
+    "backgroundColor": "#1c1208"
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 2000,
+      "launchAutoHide": true,
+      "backgroundColor": "#1c1208",
+      "iosSpinnerStyle": "small",
+      "spinnerColor": "#b8973e",
+      "showSpinner": false
+    },
+    "StatusBar": {
+      "style": "LIGHT",
+      "backgroundColor": "#1c1208"
+    }
+  }
+}
