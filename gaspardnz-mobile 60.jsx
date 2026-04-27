@@ -439,12 +439,14 @@ const GREET = {
   btns: ["Les formules","Le showroom","Prendre rendez-vous","La galerie"]
 };
 
+function normalise(s) {
+  return (s || "").toLowerCase().replace(/[àâä]/g,"a").replace(/[éèêë]/g,"e").replace(/[îï]/g,"i").replace(/[ôö]/g,"o").replace(/[ùûü]/g,"u").replace(/[ç]/g,"c");
+}
+
 function findReply(msg) {
-  const low = msg.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+  const low = normalise(msg);
   for (const entry of KB) {
-    if (entry.keys.some(k => low.includes(k.normalize("NFD").replace(/[̀-ͯ]/g, "")))) {
-      return entry;
-    }
+    if (entry.keys.some(k => low.includes(normalise(k)))) return entry;
   }
   return DEFAULT_REPLY;
 }
@@ -509,10 +511,17 @@ const ChatBot = ({ onReserver, onGalerie, onShowroom }) => {
   };
 
   const formatText = (txt) => {
-    return txt.split("\n").map((line, i) => {
-      const bold = line.replace(/\*\*(.*?)\*\*/g, (_, w) => `<strong>${w}</strong>`);
-      const italic = bold.replace(/\*(.*?)\*/g, (_, w) => `<em>${w}</em>`);
-      return <p key={i} style={{ margin: "0.15rem 0" }} dangerouslySetInnerHTML={{ __html: italic }} />;
+    return (txt || "").split("\n").map((line, i) => {
+      const parts = line.split(/(\*\*.*?\*\*)/g);
+      return (
+        <p key={i} style={{ margin: "0.15rem 0" }}>
+          {parts.map((part, j) =>
+            part.startsWith("**") && part.endsWith("**")
+              ? <strong key={j}>{part.slice(2, -2)}</strong>
+              : part
+          )}
+        </p>
+      );
     });
   };
 
