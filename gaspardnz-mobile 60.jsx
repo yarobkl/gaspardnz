@@ -1527,8 +1527,123 @@ const FooterMobile = ({ onShowroom, onContact, onCatalogue, onMentions, onConfid
   );
 };
 
+/* ── SPLASH SCREEN ───────────────────────────────────────────────── */
+const SplashScreen = ({ onDone }) => {
+  const [progress, setProgress] = useState(0);
+  const [exiting, setExiting] = useState(false);
+
+  useEffect(() => {
+    const duration = 2400;
+    const start = Date.now();
+    const tick = () => {
+      const p = Math.min((Date.now() - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - p, 2.5);
+      setProgress(eased * 100);
+      if (p < 1) requestAnimationFrame(tick);
+      else setTimeout(() => { setExiting(true); setTimeout(onDone, 700); }, 250);
+    };
+    const raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [onDone]);
+
+  return (
+    <motion.div
+      animate={exiting ? { opacity: 0, scale: 1.015 } : { opacity: 1, scale: 1 }}
+      transition={{ duration: 0.7, ease: [0.4, 0, 0.2, 1] }}
+      style={{ position: "fixed", inset: 0, zIndex: 9999, background: "#0d0b08", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}
+    >
+      <style>{`
+        @keyframes shimmerTitle {
+          0%   { background-position: 200% center; }
+          100% { background-position: -200% center; }
+        }
+        @keyframes shimmerBar {
+          0%   { transform: translateX(-100%); }
+          100% { transform: translateX(400%); }
+        }
+        @keyframes fadeSubtitle {
+          0%, 100% { opacity: 0.45; }
+          50%       { opacity: 0.75; }
+        }
+      `}</style>
+
+      {/* Logo */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.9, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
+        style={{ textAlign: "center", marginBottom: "3.2rem" }}
+      >
+        <p style={{
+          fontFamily: "'Bebas Neue', sans-serif",
+          fontSize: "clamp(44px, 12vw, 76px)",
+          letterSpacing: "0.2em",
+          lineHeight: 1,
+          margin: 0,
+          background: "linear-gradient(90deg, #c9a84c 0%, #f0d080 22%, #b8973e 38%, #e8c96a 50%, #b8973e 62%, #f0d080 78%, #c9a84c 100%)",
+          backgroundSize: "200% auto",
+          WebkitBackgroundClip: "text",
+          WebkitTextFillColor: "transparent",
+          backgroundClip: "text",
+          animation: "shimmerTitle 2.8s linear infinite"
+        }}>GASPARDNZ</p>
+
+        <p style={{
+          fontFamily: "'Montserrat', sans-serif",
+          fontSize: "clamp(9px, 2.2vw, 11px)",
+          color: "rgba(184,151,62,0.7)",
+          letterSpacing: "0.7em",
+          textTransform: "uppercase",
+          marginTop: "10px",
+          paddingLeft: "0.7em"
+        }}>PARIS</p>
+      </motion.div>
+
+      {/* Barre de chargement */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.4, duration: 0.6 }}
+        style={{ width: "clamp(180px, 48vw, 260px)", marginBottom: "3rem" }}
+      >
+        <div style={{ width: "100%", height: "1px", background: "rgba(184,151,62,0.18)", position: "relative", overflow: "hidden" }}>
+          <div style={{
+            position: "absolute", top: 0, left: 0, height: "100%",
+            width: `${progress}%`,
+            background: "linear-gradient(90deg, #9a7a2e, #d4ae5a, #f0d080, #d4ae5a, #9a7a2e)",
+            transition: "width 0.04s linear",
+            overflow: "hidden"
+          }}>
+            <div style={{
+              position: "absolute", top: 0, bottom: 0, width: "40%",
+              background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.85), transparent)",
+              animation: "shimmerBar 0.9s ease-in-out infinite"
+            }} />
+          </div>
+        </div>
+      </motion.div>
+
+      {/* Tagline */}
+      <motion.p
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.6, duration: 1 }}
+        style={{
+          fontFamily: "'Cormorant Garamond', serif",
+          fontStyle: "italic",
+          fontSize: "clamp(14px, 3.8vw, 17px)",
+          color: "rgba(245,240,232,0.55)",
+          letterSpacing: "0.14em",
+          animation: "fadeSubtitle 3s ease-in-out infinite"
+        }}
+      >S'habiller autrement</motion.p>
+    </motion.div>
+  );
+};
+
 /* ── APP PRINCIPALE ──────────────────────────────────────────────── */
 export default function App() {
+  const [splashDone, setSplashDone] = useState(false);
   const [modal, setModal] = useState(null);
   const [lang, setLang] = useState(() => { try { return localStorage.getItem("gnz-lang") || "FR"; } catch { return "FR"; } });
   const tr = k => T[lang]?.[k] ?? T.FR[k] ?? k;;
@@ -1718,6 +1833,7 @@ export default function App() {
 
   return (
     <LangCtx.Provider value={{ lang, setLang }}>
+    {!splashDone && <SplashScreen onDone={() => setSplashDone(true)} />}
     <div style={{ background: "#f5f0e8", color: TEXT, minHeight: "100vh", fontFamily: "'Montserrat', sans-serif", overflowX: "hidden" }}>
       <style>{`
         ${fonts}
