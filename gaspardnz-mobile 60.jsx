@@ -1030,7 +1030,7 @@ const HeroMobile = ({ onScrollDown }) => {
             {t("hero_subtitle")}
           </p>
           <button onClick={onScrollDown}
-            style={{ background: "none", border: `1px solid rgba(245,240,232,0.15)`, color: TEXT, cursor: "pointer", padding: "0.7rem 1.2rem", fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.35em", textTransform: "uppercase", whiteSpace: "nowrap" }}>
+            style={{ background: "none", border: `1px solid rgba(245,240,232,0.65)`, color: "rgba(245,240,232,0.95)", cursor: "pointer", padding: "0.7rem 1.4rem", fontFamily: "'Montserrat', sans-serif", fontSize: "11px", letterSpacing: "0.35em", textTransform: "uppercase", whiteSpace: "nowrap" }}>
             {t("hero_cta")}
           </button>
         </motion.div>
