@@ -456,6 +456,20 @@ function findReply(msg) {
   return DEFAULT_REPLY;
 }
 
+const AVATAR_SRC = (typeof import.meta !== "undefined" ? (import.meta.env.BASE_URL || "/") : "/") + "avatar.jpg";
+
+const AvatarImg = ({ size, ring = true }) => {
+  const [err, setErr] = useState(false);
+  return (
+    <div style={{ width: size, height: size, borderRadius: "50%", border: ring ? `2px solid ${GOLD}` : "none", overflow: "hidden", flexShrink: 0, background: "#1c1208", display: "flex", alignItems: "center", justifyContent: "center" }}>
+      {!err
+        ? <img src={AVATAR_SRC} onError={() => setErr(true)} alt="Gaspard NZ" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center top" }} />
+        : <span style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: `${Math.round(size * 0.3)}px`, color: GOLD, letterSpacing: "0.05em" }}>GNZ</span>
+      }
+    </div>
+  );
+};
+
 const ChatBot = ({ onReserver, onGalerie, onShowroom }) => {
   const [open, setOpen] = useState(false);
   const [msgs, setMsgs] = useState([]);
@@ -536,14 +550,14 @@ const ChatBot = ({ onReserver, onGalerie, onShowroom }) => {
       <motion.button
         onClick={() => setOpen(o => !o)}
         whileTap={{ scale: 0.93 }}
-        style={{ position: "fixed", bottom: "1.5rem", right: "1.2rem", zIndex: 600, width: "52px", height: "52px", borderRadius: "50%", background: GOLD, border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 20px rgba(184,151,62,0.4)" }}>
+        style={{ position: "fixed", bottom: "1.5rem", right: "1.2rem", zIndex: 600, width: "56px", height: "56px", borderRadius: "50%", background: open ? GOLD : "transparent", border: open ? "none" : `2px solid ${GOLD}`, padding: 0, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 24px rgba(184,151,62,0.45)", overflow: "hidden" }}>
         <AnimatePresence mode="wait">
           {open
-            ? <motion.span key="x" initial={{ rotate: -90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: 90, opacity: 0 }} style={{ color: "#1c1208", fontSize: "20px", fontWeight: 300, lineHeight: 1 }}>×</motion.span>
-            : <motion.svg key="c" initial={{ scale: 0.7, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.7, opacity: 0 }} width="22" height="22" viewBox="0 0 24 24" fill="#1c1208"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></motion.svg>
+            ? <motion.span key="x" initial={{ rotate: -90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: 90, opacity: 0 }} style={{ color: "#1c1208", fontSize: "22px", fontWeight: 300, lineHeight: 1 }}>×</motion.span>
+            : <motion.div key="av" initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.8, opacity: 0 }} style={{ width: "100%", height: "100%" }}><AvatarImg size={52} ring={false} /></motion.div>
           }
         </AnimatePresence>
-        {!open && <motion.span animate={{ scale: [1, 1.3, 1] }} transition={{ repeat: Infinity, duration: 2, delay: 3 }} style={{ position: "absolute", top: "2px", right: "2px", width: "10px", height: "10px", borderRadius: "50%", background: "#25D366", border: "2px solid #fff" }} />}
+        {!open && <motion.span animate={{ scale: [1, 1.3, 1] }} transition={{ repeat: Infinity, duration: 2, delay: 3 }} style={{ position: "absolute", top: "3px", right: "3px", width: "11px", height: "11px", borderRadius: "50%", background: "#25D366", border: "2px solid #fff", zIndex: 1 }} />}
       </motion.button>
 
       {/* Fenêtre chat */}
@@ -555,25 +569,29 @@ const ChatBot = ({ onReserver, onGalerie, onShowroom }) => {
             style={{ position: "fixed", bottom: "5.5rem", right: "1.2rem", left: "1.2rem", maxWidth: "380px", marginLeft: "auto", zIndex: 599, background: "#faf7f2", borderRadius: "16px", overflow: "hidden", boxShadow: "0 8px 40px rgba(0,0,0,0.18)", display: "flex", flexDirection: "column", height: "70vh", maxHeight: "520px" }}>
 
             {/* Header */}
-            <div style={{ background: "#1c1208", padding: "1rem 1.2rem", display: "flex", alignItems: "center", gap: "0.8rem", flexShrink: 0 }}>
-              <div style={{ width: "36px", height: "36px", borderRadius: "50%", background: GOLD, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                <span style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.1rem", color: "#1c1208", letterSpacing: "0.05em" }}>G</span>
+            <div style={{ background: "#1c1208", padding: "0.85rem 1.2rem", display: "flex", alignItems: "center", gap: "0.85rem", flexShrink: 0 }}>
+              <div style={{ position: "relative", flexShrink: 0 }}>
+                <AvatarImg size={44} ring={true} />
+                <span style={{ position: "absolute", bottom: "1px", right: "1px", width: "10px", height: "10px", borderRadius: "50%", background: "#25D366", border: "2px solid #1c1208", display: "block" }} />
               </div>
-              <div>
-                <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1rem", color: CREAM, letterSpacing: "0.1em", margin: 0 }}>GASPARD NZ</p>
-                <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-                  <div style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#25D366" }} />
-                  <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", color: "rgba(245,240,232,0.6)", letterSpacing: "0.2em", textTransform: "uppercase", margin: 0 }}>Assistant en ligne</p>
-                </div>
+              <div style={{ flex: 1 }}>
+                <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1rem", color: CREAM, letterSpacing: "0.12em", margin: 0, lineHeight: 1.2 }}>GASPARD NZ</p>
+                <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7.5px", color: "rgba(245,240,232,0.55)", letterSpacing: "0.2em", textTransform: "uppercase", margin: "3px 0 0" }}>Habilleur · En ligne</p>
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "2px" }}>
+                <div style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#25D366" }} />
               </div>
             </div>
 
             {/* Messages */}
             <div style={{ flex: 1, overflowY: "auto", padding: "1rem", display: "flex", flexDirection: "column", gap: "0.8rem" }}>
               {msgs.map(m => (
-                <div key={m.id} style={{ display: "flex", flexDirection: "column", alignItems: m.from === "user" ? "flex-end" : "flex-start", gap: "0.5rem" }}>
-                  <div style={{ maxWidth: "85%", background: m.from === "user" ? GOLD : "#fff", color: m.from === "user" ? "#1c1208" : TEXT, padding: "0.7rem 0.9rem", borderRadius: m.from === "user" ? "12px 12px 2px 12px" : "12px 12px 12px 2px", fontFamily: "'Montserrat', sans-serif", fontSize: "11px", lineHeight: 1.7, boxShadow: "0 1px 4px rgba(0,0,0,0.07)" }}>
-                    {formatText(m.text)}
+                <div key={m.id} style={{ display: "flex", flexDirection: "column", alignItems: m.from === "user" ? "flex-end" : "flex-start", gap: "0.4rem" }}>
+                  <div style={{ display: "flex", alignItems: "flex-end", gap: "6px", flexDirection: m.from === "user" ? "row-reverse" : "row" }}>
+                    {m.from === "bot" && <AvatarImg size={24} ring={true} />}
+                    <div style={{ maxWidth: "80%", background: m.from === "user" ? GOLD : "#fff", color: m.from === "user" ? "#1c1208" : TEXT, padding: "0.7rem 0.9rem", borderRadius: m.from === "user" ? "12px 12px 2px 12px" : "12px 12px 12px 2px", fontFamily: "'Montserrat', sans-serif", fontSize: "11px", lineHeight: 1.7, boxShadow: "0 1px 4px rgba(0,0,0,0.07)" }}>
+                      {formatText(m.text)}
+                    </div>
                   </div>
                   {m.btns && m.btns.length > 0 && (
                     <div style={{ display: "flex", flexWrap: "wrap", gap: "0.4rem", maxWidth: "100%" }}>
@@ -598,7 +616,8 @@ const ChatBot = ({ onReserver, onGalerie, onShowroom }) => {
                 </div>
               ))}
               {typing && (
-                <div style={{ display: "flex", alignItems: "flex-start" }}>
+                <div style={{ display: "flex", alignItems: "flex-end", gap: "6px" }}>
+                  <AvatarImg size={24} ring={true} />
                   <div style={{ background: "#fff", padding: "0.7rem 1rem", borderRadius: "12px 12px 12px 2px", boxShadow: "0 1px 4px rgba(0,0,0,0.07)", display: "flex", gap: "4px", alignItems: "center" }}>
                     {[0, 1, 2].map(i => (
                       <motion.div key={i} animate={{ y: [0, -5, 0] }} transition={{ repeat: Infinity, duration: 0.7, delay: i * 0.15 }}
