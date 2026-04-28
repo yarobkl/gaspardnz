@@ -1392,6 +1392,16 @@ const FormulesSection = ({ refEl, onContact, onReserver }) => {
       {/* Watermark */}
       <div style={{ position: "absolute", right: "-1rem", top: "50%", transform: "translateY(-50%)", fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(80px, 35vw, 220px)", color: "rgba(255,255,255,0.03)", lineHeight: 1, letterSpacing: "0.05em", whiteSpace: "nowrap", userSelect: "none", pointerEvents: "none" }}>FORMULES</div>
 
+      {/* Logo GNZ — haut à droite, discret */}
+      <motion.img
+        src={(typeof import.meta !== "undefined" ? (import.meta.env.BASE_URL || "/") : "/") + "logo-gnz.png"}
+        alt="Gaspard NZ"
+        initial={{ opacity: 0 }}
+        animate={inView ? { opacity: 1 } : {}}
+        transition={{ duration: 1.2, delay: 0.4 }}
+        style={{ position: "absolute", top: "2.5rem", right: "1.2rem", width: "clamp(70px, 18vw, 100px)", opacity: 0.18, userSelect: "none", pointerEvents: "none", filter: "brightness(2) saturate(0)" }}
+      />
+
       <div ref={ref} style={{ padding: "0 1.4rem", position: "relative" }}>
         {/* Header */}
         <motion.p initial={{ opacity: 0 }} animate={inView ? { opacity: 1 } : {}} transition={{ duration: 0.7 }}
