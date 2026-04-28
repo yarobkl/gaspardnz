@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prompt Présentation — Gaspard NZ</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Georgia', serif;
+    background: #faf8f4;
+    color: #1a1410;
+    line-height: 1.7;
+  }
+
+  .page {
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 60px 64px;
+  }
+
+  /* COVER */
+  .cover {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background: #0d0b08;
+    color: #f5f0e8;
+    padding: 80px 64px;
+    page-break-after: always;
+  }
+
+  .cover-eyebrow {
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: #b8973e;
+    margin-bottom: 48px;
+  }
+
+  .cover-title {
+    font-size: 64px;
+    font-weight: 400;
+    letter-spacing: 0.05em;
+    line-height: 1.1;
+    margin-bottom: 8px;
+  }
+
+  .cover-subtitle {
+    font-size: 18px;
+    color: #b8973e;
+    font-style: italic;
+    margin-bottom: 48px;
+  }
+
+  .cover-divider {
+    width: 60px;
+    height: 1px;
+    background: #b8973e;
+    margin-bottom: 40px;
+  }
+
+  .cover-desc {
+    font-size: 14px;
+    color: rgba(245,240,232,0.65);
+    letter-spacing: 0.08em;
+    line-height: 2;
+  }
+
+  .cover-footer {
+    margin-top: auto;
+    padding-top: 80px;
+    font-size: 11px;
+    color: rgba(245,240,232,0.35);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    font-family: 'Courier New', monospace;
+  }
+
+  /* SECTIONS */
+  .section {
+    padding: 56px 0;
+    border-bottom: 1px solid rgba(26,20,16,0.1);
+    page-break-inside: avoid;
+  }
+
+  .section:last-child { border-bottom: none; }
+
+  .section-label {
+    font-family: 'Courier New', monospace;
+    font-size: 10px;
+    letter-spacing: 0.5em;
+    text-transform: uppercase;
+    color: #b8973e;
+    margin-bottom: 24px;
+  }
+
+  h1 {
+    font-size: 42px;
+    font-weight: 400;
+    letter-spacing: 0.03em;
+    line-height: 1.2;
+    margin-bottom: 32px;
+    color: #0d0b08;
+  }
+
+  h2 {
+    font-size: 28px;
+    font-weight: 400;
+    letter-spacing: 0.06em;
+    margin-bottom: 20px;
+    color: #0d0b08;
+  }
+
+  h3 {
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    color: #b8973e;
+  }
+
+  p {
+    font-size: 15px;
+    color: #3a3028;
+    margin-bottom: 16px;
+    line-height: 1.8;
+  }
+
+  ul {
+    list-style: none;
+    margin-bottom: 20px;
+  }
+
+  ul li {
+    font-size: 14px;
+    color: #3a3028;
+    padding: 6px 0;
+    padding-left: 20px;
+    position: relative;
+    line-height: 1.7;
+  }
+
+  ul li::before {
+    content: "—";
+    position: absolute;
+    left: 0;
+    color: #b8973e;
+  }
+
+  .highlight-box {
+    background: #0d0b08;
+    color: #f5f0e8;
+    padding: 40px 48px;
+    margin: 32px 0;
+    page-break-inside: avoid;
+  }
+
+  .highlight-box h3 { color: #b8973e; }
+  .highlight-box p { color: rgba(245,240,232,0.8); }
+  .highlight-box ul li { color: rgba(245,240,232,0.8); }
+  .highlight-box ul li::before { color: #b8973e; }
+
+  .gold-box {
+    border-left: 3px solid #b8973e;
+    padding: 24px 32px;
+    margin: 24px 0;
+    background: rgba(184,151,62,0.06);
+  }
+
+  .gold-box p {
+    font-style: italic;
+    font-size: 16px;
+    color: #1a1410;
+    margin: 0;
+  }
+
+  /* TABLE */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 24px 0;
+    font-size: 13px;
+  }
+
+  th {
+    text-align: left;
+    padding: 12px 16px;
+    background: #0d0b08;
+    color: #b8973e;
+    font-family: 'Courier New', monospace;
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    font-weight: normal;
+  }
+
+  td {
+    padding: 12px 16px;
+    border-bottom: 1px solid rgba(26,20,16,0.08);
+    color: #3a3028;
+    vertical-align: top;
+  }
+
+  tr:nth-child(even) td { background: rgba(26,20,16,0.03); }
+
+  td:first-child { color: #0d0b08; font-style: italic; }
+
+  /* FORMULA CARDS */
+  .formula-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin: 24px 0;
+  }
+
+  .formula-card {
+    border: 1px solid rgba(26,20,16,0.15);
+    padding: 32px;
+    page-break-inside: avoid;
+  }
+
+  .formula-card.prestige {
+    background: #0d0b08;
+    color: #f5f0e8;
+    border-color: #b8973e;
+  }
+
+  .formula-card .formula-name {
+    font-size: 11px;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: #b8973e;
+    margin-bottom: 8px;
+    font-family: 'Courier New', monospace;
+  }
+
+  .formula-card .formula-title {
+    font-size: 22px;
+    font-weight: 400;
+    margin-bottom: 24px;
+  }
+
+  .formula-card.prestige .formula-title { color: #f5f0e8; }
+
+  .formula-card .formula-price {
+    font-size: 36px;
+    color: #b8973e;
+    margin-bottom: 4px;
+  }
+
+  .formula-card .formula-note {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(26,20,16,0.4);
+    margin-bottom: 24px;
+    font-family: 'Courier New', monospace;
+  }
+
+  .formula-card.prestige .formula-note { color: rgba(245,240,232,0.35); }
+
+  .formula-card ul { margin: 0; }
+  .formula-card ul li { font-size: 13px; }
+  .formula-card.prestige ul li { color: rgba(245,240,232,0.75); }
+
+  .formula-item-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    padding: 5px 0;
+    color: #3a3028;
+    border-bottom: 1px solid rgba(26,20,16,0.07);
+  }
+
+  .formula-card.prestige .formula-item-row {
+    color: rgba(245,240,232,0.7);
+    border-bottom-color: rgba(245,240,232,0.08);
+  }
+
+  .formula-subtotal {
+    display: flex;
+    justify-content: space-between;
+    font-size: 18px;
+    color: #b8973e;
+    padding: 12px 0 16px;
+    font-weight: 400;
+  }
+
+  .formula-section-title {
+    font-size: 10px;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: #b8973e;
+    padding: 12px 0 6px;
+    font-family: 'Courier New', monospace;
+  }
+
+  /* PHOTO REFERENCES */
+  .photo-ref {
+    background: rgba(184,151,62,0.08);
+    border: 1px dashed rgba(184,151,62,0.4);
+    padding: 20px 24px;
+    margin: 16px 0;
+    font-size: 12px;
+    color: #b8973e;
+    font-family: 'Courier New', monospace;
+    letter-spacing: 0.1em;
+  }
+
+  .photo-ref strong { display: block; margin-bottom: 4px; }
+  .photo-ref span { color: #3a3028; font-family: Georgia, serif; letter-spacing: 0; font-size: 13px; }
+
+  /* SLIDE INDICATOR */
+  .slide-number {
+    display: inline-block;
+    background: #b8973e;
+    color: #0d0b08;
+    font-family: 'Courier New', monospace;
+    font-size: 10px;
+    padding: 4px 10px;
+    letter-spacing: 0.2em;
+    margin-bottom: 20px;
+  }
+
+  /* PAGE BREAK */
+  .page-break { page-break-after: always; }
+
+  /* IMPORTANT NOTE */
+  .important-note {
+    background: #1a1410;
+    color: #f5f0e8;
+    padding: 32px 40px;
+    margin-bottom: 48px;
+    border-left: 4px solid #b8973e;
+  }
+
+  .important-note h3 { color: #b8973e; margin-bottom: 12px; font-size: 11px; }
+  .important-note p { color: rgba(245,240,232,0.85); font-size: 14px; margin: 0; }
+
+  /* PRINT */
+  @media print {
+    body { background: white; }
+    .cover { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .highlight-box { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .formula-card.prestige { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .slide-number { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .important-note { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .section { page-break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+
+<!-- COVER -->
+<div class="cover">
+  <div class="cover-eyebrow">Document confidentiel — Usage interne</div>
+  <div class="cover-title">GASPARD NZ</div>
+  <div class="cover-subtitle">Présentation stratégique de marque</div>
+  <div class="cover-divider"></div>
+  <div class="cover-desc">
+    Repositionnement & Stratégie d'Image<br>
+    Restructuration des offres<br>
+    Refonte des supports de communication<br>
+    Vision Application & Déploiement global
+  </div>
+  <div class="cover-footer">Prompt complet pour Claude — Présentation Canva 16 slides</div>
+</div>
+
+<!-- MAIN PROMPT PAGE -->
+<div class="page">
+
+  <div class="section">
+    <div class="section-label">Instructions</div>
+    <h1>Prompt à donner à Claude</h1>
+
+    <div class="important-note">
+      <h3>Comment utiliser ce document</h3>
+      <p>Copie l'intégralité du texte ci-dessous et envoie-le à Claude (claude.ai) en y joignant les deux photos des flyers. Claude créera la présentation Canva slide par slide avec tout le contenu, la direction artistique et les détails de chaque formule.</p>
+    </div>
+
+    <div class="gold-box">
+      <p>"Tu es un consultant senior en branding, business stratégie et direction artistique spécialisé dans les marques de mode haut de gamme."</p>
+    </div>
+  </div>
+
+  <!-- PROMPT BODY -->
+  <div class="section">
+    <div class="section-label">Prompt complet</div>
+
+    <h2>Le Contexte</h2>
+    <p>Je t'envoie deux photos de flyers (Formule Mariage et Formule Prestige) qui sont les nouveaux supports de communication de mon client Gaspard NZ. J'ai également travaillé avec lui sur une refonte complète de sa marque. Tu dois créer une présentation professionnelle de 16 slides à intégrer dans Canva.</p>
+
+    <div class="photo-ref">
+      <strong>📎 PHOTO 1 — À joindre au prompt</strong>
+      <span>Flyer Formule Prestige (fond noir, TOTAL PRESTIGE 1 447€)<br>
+      Contient : Look Mairie (601€) + Look Soirée Smoking (846€)<br>
+      Photo de Gaspard en costume marron lisant un journal, carnet GaspardNZ visible</span>
+    </div>
+
+    <div class="photo-ref">
+      <strong>📎 PHOTO 2 — À joindre au prompt</strong>
+      <span>Flyer Formule Mariage (fond noir, PACK COMPLET 1 086€)<br>
+      Contient : Look Mairie (474€) + Look Soirée Smoking (612€)<br>
+      Même style éditorial, même photo de Gaspard</span>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Qui est Gaspard NZ</h2>
+
+    <ul>
+      <li>Habilleur (pas styliste, pas consultant — habilleur)</li>
+      <li>Basé à Paris, spécialisé dans les grandes occasions (mariages, galas, cérémonies)</li>
+      <li>Également Maître de Cérémonie disponible pour les mariages</li>
+      <li>Déplacements possibles hors Île-de-France (frais à charge du client)</li>
+      <li>Site web : gaspardnz.fr — site vitrine mobile-first multilingue (FR/EN/ES/ZH)</li>
+      <li>Application iOS en cours de déploiement sur l'App Store</li>
+    </ul>
+
+    <div class="gold-box">
+      <p>Le rôle de consultant en image et en business stratégie est assuré par moi (le commanditaire de cette présentation), pas par Gaspard NZ. Cette distinction est importante et doit apparaître clairement dans la présentation.</p>
+    </div>
+  </div>
+
+  <div class="section page-break">
+    <h2>Les Nouvelles Formules</h2>
+    <p>Voici le détail exact des deux formules à présenter dans les slides. Ces chiffres proviennent directement des flyers joints.</p>
+
+    <div class="formula-grid">
+
+      <!-- FORMULE MARIAGE -->
+      <div class="formula-card">
+        <div class="formula-name">Formule</div>
+        <div class="formula-title">Mariage</div>
+        <div class="formula-price">1 086 €</div>
+        <div class="formula-note">Hors chaussures — Pack complet</div>
+
+        <div class="formula-section-title">Look Mairie</div>
+        <div class="formula-item-row"><span>Costume</span><span>349 €</span></div>
+        <div class="formula-item-row"><span>Chemise</span><span>60 €</span></div>
+        <div class="formula-item-row"><span>Cravate</span><span>30 €</span></div>
+        <div class="formula-item-row"><span>Accessoires</span><span>39 €</span></div>
+        <div class="formula-subtotal"><span>Sous-total</span><span>474 €</span></div>
+
+        <div class="formula-section-title">Look Soirée — Smoking</div>
+        <div class="formula-item-row"><span>Smoking</span><span>449 €</span></div>
+        <div class="formula-item-row"><span>Nœud papillon</span><span>29 €</span></div>
+        <div class="formula-item-row"><span>Chemise cérémonie</span><span>99 €</span></div>
+        <div class="formula-item-row"><span>Accessoires</span><span>35 €</span></div>
+        <div class="formula-subtotal"><span>Sous-total</span><span>612 €</span></div>
+
+        <div style="margin-top:16px; font-style:italic; font-size:13px; color:#b8973e;">
+          "L'élégance, sans compromis."
+        </div>
+      </div>
+
+      <!-- FORMULE PRESTIGE -->
+      <div class="formula-card prestige">
+        <div class="formula-name">Formule</div>
+        <div class="formula-title">Prestige</div>
+        <div class="formula-price">1 447 €</div>
+        <div class="formula-note">Hors chaussures — Total prestige</div>
+
+        <div class="formula-section-title">Look Mairie</div>
+        <div class="formula-item-row"><span>Costume</span><span>449 €</span></div>
+        <div class="formula-item-row"><span>Chemise</span><span>69 €</span></div>
+        <div class="formula-item-row"><span>Cravate</span><span>35 €</span></div>
+        <div class="formula-item-row"><span>Accessoires</span><span>48 €</span></div>
+        <div class="formula-subtotal"><span>Sous-total</span><span>601 €</span></div>
+
+        <div class="formula-section-title">Look Soirée — Smoking</div>
+        <div class="formula-item-row"><span>Smoking</span><span>600 €</span></div>
+        <div class="formula-item-row"><span>Nœud papillon</span><span>49 €</span></div>
+        <div class="formula-item-row"><span>Chemise cérémonie</span><span>149 €</span></div>
+        <div class="formula-item-row"><span>Accessoires</span><span>48 €</span></div>
+        <div class="formula-subtotal"><span>Sous-total</span><span>846 €</span></div>
+
+        <div style="margin-top:16px; font-style:italic; font-size:13px; color:#b8973e;">
+          "Une allure complète, élégante et inoubliable."
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Conditions Commerciales</h2>
+    <p>Ces éléments doivent apparaître dans la slide sur les nouvelles formules et le plan d'action.</p>
+
+    <table>
+      <tr>
+        <th>Élément</th>
+        <th>Détail</th>
+      </tr>
+      <tr>
+        <td>Acompte</td>
+        <td>30% à la réservation, non remboursable</td>
+      </tr>
+      <tr>
+        <td>Solde</td>
+        <td>Payable 30 jours avant l'événement</td>
+      </tr>
+      <tr>
+        <td>Annulation +60 jours</td>
+        <td>Remboursement de 50% de l'acompte</td>
+      </tr>
+      <tr>
+        <td>Annulation 30–60 jours</td>
+        <td>Acompte conservé intégralement</td>
+      </tr>
+      <tr>
+        <td>Annulation -30 jours</td>
+        <td>100% du montant total dû</td>
+      </tr>
+      <tr>
+        <td>Hors Île-de-France</td>
+        <td>Frais de déplacement + hôtel 2 nuits à charge du client</td>
+      </tr>
+      <tr>
+        <td>Réservation anticipée</td>
+        <td>Avantage tarifaire possible — places limitées par mois</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="section page-break">
+    <h2>Structure des 16 Slides</h2>
+    <p>Voici la structure exacte que Claude doit respecter. Chaque slide doit être épurée, avec beaucoup d'espace, dans l'esprit maison de couture parisienne.</p>
+
+    <br>
+
+    <div class="slide-number">SLIDE 01</div>
+    <h3>Couverture</h3>
+    <ul>
+      <li>Titre : GASPARD NZ</li>
+      <li>Sous-titre : Habilleur — Paris</li>
+      <li>Mention : Repositionnement & Stratégie d'Image</li>
+      <li>Fond noir, typographie serif blanche, accent doré</li>
+      <li>Photo de Gaspard en arrière-plan (floue ou en demi-teinte)</li>
+    </ul>
+
+    <br>
+
+    <div class="slide-number">SLIDE 02</div>
+    <h3>Contexte & Objectifs</h3>
+    <ul>
+      <li>Situation initiale : supports visuels trop chargés, offres peu lisibles, site sans stratégie éditoriale, perception décalée</li>
+      <li>Enjeux : attirer une clientèle plus exigeante, justifier des prix à la hauteur, créer une expérience cohérente</li>
+      <li>Objectif : aligner l'image, les supports et les offres sur un positionnement haut de gamme</li>
+    </ul>
+
+    <br>
+
+    <div class="slide-number">SLIDE 03</div>
+    <h3>Positionnement</h3>
+    <ul>
+      <li>Gaspard NZ est un habilleur — définition précise et rare</li>
+      <li>Différence avec styliste/vendeur/loueur</li>
+      <li>Maîtrise des codes vestimentaires selon les occasions</li>
+      <li>Présence le jour J</li>
+      <li>Perception cible : prestataire de cérémonie choisi avec soin</li>
+    </ul>
+
+    <br>
+
+    <div class="slide-number">SLIDE 04</div>
+    <h3>Importance de l'Image</h3>
+    <ul>
+      <li>Dans ce métier, l'image EST le produit</li>
+      <li>Tableau comparatif : Avant → Après (vente costume → expérience / liste prix → invitation / transaction → relation)</li>
+      <li>Ce que ça change : le client ne se pose plus la question du prix</li>
+    </ul>
+
+    <br>
+
+    <div class="slide-number">SLIDE 05</div>
+    <h3>Analyse du Site Web</h3>
+    <ul>
+      <li>Site gaspardnz.fr — mobile-first, développé sur mesure</li>
+      <li>Fonctionnalités : formules, galerie, réservation Calendly, boutique, chatbot 24h/24, multilingue FR/EN/ES/ZH, iOS app</li>
+      <li>Points forts : design épuré, mobile-first, multilingue, chatbot</li>
+      <li>Points à renforcer : biographie, galerie, témoignages, section maître de cérémonie</li>
+    </ul>
+
+    <br>
+
+    <div class="slide-number">SLIDE 06</div>
+    <h3>Stratégie de Refonte de l'Image</h3>
+    <ul>
+      <li>Direction artistique : maison de couture parisienne, épuré, éditorial, intemporel</li>
+      <li>Principes : espace = luxe / photo parle / hiérarchie claire / rien de superflu</li>
+      <li>Ton de marque : sobre, sûr de lui, élégant sans ostentation</li>
+      <li>Cohérence sur tous supports : site, flyers, réseaux, app</li>
+    </ul>
+
+    <br>
+
+    <div class="slide-number">SLIDE 07</div>
+    <h3>Anciens Flyers — Analyse</h3>
+    <ul>
+      <li>Logique de vente directe : prix, détail des pièces, total affiché</li>
+      <li>Problèmes forme : surcharge, hiérarchie absente, aucun espace, style générique</li>
+      <li>Problèmes fond : décomposition qui banalise le service, focus sur les chiffres pas l'expérience</li>
+      <li>Impact : le client compare les prix au lieu de désirer l'expérience</li>
+    </ul>
+
+    <br>
+
+    <div class="slide-number">SLIDE 08</div>
+    <h3>Nouveaux Flyers — Proposition</h3>
+    <ul>
+      <li>Créer le désir avant de donner le prix</li>
+      <li>Photo centrale de Gaspard — incarne l'univers</li>
+      <li>Nom de formule comme titre de collection</li>
+      <li>Détails propres, total assumé en grand</li>
+      <li>Intégrer les deux photos des flyers joints dans cette slide</li>
+    </ul>
+
+    <br>
+
+    <div class="slide-number">SLIDE 09</div>
+    <h3>Comparatif Avant / Après — Flyers</h3>
+    <ul>
+      <li>Tableau : Approche / Structure / Visuel / Message / Émotion / Différenciation / Positionnement</li>
+      <li>Avant : vente de produits, liste items, chargé, "voici ce que ça coûte", aucune émotion, nulle, mid-market</li>
+      <li>Après : expérience, look complet, épuré, "voici qui vous serez", désir, forte, haut de gamme</li>
+    </ul>
+
+    <br>
+
+    <div class="slide-number">SLIDE 10</div>
+    <h3>Anciennes Formules</h3>
+    <ul>
+      <li>Pas de noms mémorables, aucune hiérarchie entre offres</li>
+      <li>Tarifs non justifiés par une promesse différenciée</li>
+      <li>Client ne sait pas quel niveau lui correspond</li>
+      <li>Pas de formule aspirationnelle → le client choisit toujours le moins cher</li>
+    </ul>
+
+    <br>
+
+    <div class="slide-number">SLIDE 11</div>
+    <h3>Nouvelles Formules</h3>
+    <ul>
+      <li>Formule Mariage — 1 086 € : Look Mairie (474€) + Look Soirée Smoking (612€) — "L'élégance, sans compromis."</li>
+      <li>Formule Prestige — 1 447 € : Look Mairie (601€) + Look Soirée Smoking (846€) — "Une allure complète, élégante et inoubliable."</li>
+      <li>Logique : Mariage = entrée dans l'univers / Prestige = expression complète</li>
+      <li>Toutes deux hors chaussures</li>
+    </ul>
+
+    <br>
+
+    <div class="slide-number">SLIDE 12</div>
+    <h3>Comparatif Offres Avant / Après</h3>
+    <ul>
+      <li>Tableau : Lisibilité / Logique de gamme / Nommage / Promesse / Hiérarchie / Positionnement prix / Effet aspirationnel</li>
+      <li>Avant : faible, absente, générique, non formulée, inexistante, non justifié, nul</li>
+      <li>Après : immédiate, claire et assumée, éditorial, intégrée, structurée, valorisé, fort</li>
+    </ul>
+
+    <br>
+
+    <div class="slide-number">SLIDE 13</div>
+    <h3>Cohérence Globale de Marque</h3>
+    <ul>
+      <li>5 points de contact : site web / flyers / offres / communication digitale / application</li>
+      <li>Règle d'or : un client qui voit le flyer reconnaît le site</li>
+      <li>Une marque cohérente n'a pas besoin de se répéter — elle se reconnaît</li>
+    </ul>
+
+    <br>
+
+    <div class="slide-number">SLIDE 14</div>
+    <h3>Plan d'Action</h3>
+    <ul>
+      <li>Phase 1 — Finalisation supports (en cours) : flyers, formules site, chatbot</li>
+      <li>Phase 2 — Mise à jour site : nouvelles formules, galerie, section maître de cérémonie, témoignages</li>
+      <li>Phase 3 — Activation commerciale : diffusion flyers, système acompte, contrats numériques</li>
+      <li>Phase 4 — Application : App Store iOS, notifications, galerie exclusive</li>
+    </ul>
+
+    <br>
+
+    <div class="slide-number">SLIDE 15</div>
+    <h3>Prochaine Étape — L'Application</h3>
+    <ul>
+      <li>Application iOS en cours — publication App Store</li>
+      <li>Permet : accès aux formules, prise de rendez-vous, suivi projet, signature contrat</li>
+      <li>Signal d'appartenance : avoir l'app Gaspard NZ c'est appartenir à un cercle exigeant</li>
+      <li>Vision long terme : programme fidélité, accès anticipé nouvelles pièces, contenu exclusif</li>
+    </ul>
+
+    <br>
+
+    <div class="slide-number">SLIDE 16</div>
+    <h3>Conclusion</h3>
+    <ul>
+      <li>La transformation en 3 points : image (de prestataire à maison) / offres (de liste à expérience) / supports (de générique à éditorial reconnaissable)</li>
+      <li>Positionnement final : "Gaspard NZ n'est pas le moins cher. Il est le meilleur choix pour l'homme qui comprend ce que son image dit de lui."</li>
+      <li>Vision : marque parisienne, internationale, qui grandit par la qualité, la cohérence et la fidélité</li>
+    </ul>
+  </div>
+
+  <div class="section page-break">
+    <h2>Direction Artistique pour Canva</h2>
+    <p>Claude doit préciser ces instructions pour chaque slide dans la présentation Canva.</p>
+
+    <div class="highlight-box">
+      <h3>Palette de couleurs</h3>
+      <ul>
+        <li>Fond principal : noir profond #0D0B08</li>
+        <li>Texte principal : blanc cassé / crème #F5F0E8</li>
+        <li>Accent : or / champagne #B8973E</li>
+        <li>Fond slides secondaires : beige très clair #FAF8F4</li>
+        <li>Texte secondaire : marron profond #3A3028</li>
+      </ul>
+    </div>
+
+    <div class="highlight-box">
+      <h3>Typographie</h3>
+      <ul>
+        <li>Titres principaux : Cormorant Garamond ou Playfair Display (serif, léger)</li>
+        <li>Sous-titres et labels : Montserrat Light (espacé, uppercase)</li>
+        <li>Corps de texte : Lora ou Georgia (lisible, élégant)</li>
+        <li>Données/chiffres : Cormorant Garamond Bold ou grandes tailles</li>
+      </ul>
+    </div>
+
+    <div class="highlight-box">
+      <h3>Règles de mise en page</h3>
+      <ul>
+        <li>Beaucoup d'espace vide — l'espace EST le luxe</li>
+        <li>Alignement à gauche systématiquement</li>
+        <li>Aucune icône, aucun emoji, aucune illustration clipart</li>
+        <li>Filets dorés fins pour séparer les sections</li>
+        <li>Les chiffres importants en très grande taille et en or</li>
+        <li>Photos : toujours en noir et blanc ou teinte chaude</li>
+        <li>Pas de fond blanc pur — utiliser beige crème ou noir profond uniquement</li>
+      </ul>
+    </div>
+
+    <div class="gold-box">
+      <p>INTERDIT : icônes génériques Canva, blocs colorés rigides, dégradés criards, style "PowerPoint", surcharge d'informations sur une même slide, typographies sans-serif pour les titres.</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Texte Exact du Prompt Final à Copier</h2>
+    <p>Voici le message complet à copier-coller dans Claude, avec les deux photos jointes :</p>
+
+    <div class="highlight-box" style="font-family: 'Courier New', monospace; font-size: 12px; line-height: 1.9; letter-spacing: 0.01em;">
+      <p style="font-family: 'Courier New', monospace; font-size: 12px; color: rgba(245,240,232,0.85);">
+        Tu es un consultant senior en branding et direction artistique spécialisé dans les marques de mode haut de gamme.<br><br>
+
+        Je t'envoie deux flyers (Formule Mariage 1086€ et Formule Prestige 1447€) pour mon client Gaspard NZ, habilleur basé à Paris.<br><br>
+
+        Crée une présentation Canva complète de 16 slides pour présenter la transformation de la marque Gaspard NZ.<br><br>
+
+        CONTEXTE :<br>
+        — Gaspard NZ est un habilleur (pas styliste, pas consultant)<br>
+        — Également Maître de Cérémonie pour mariages<br>
+        — Site : gaspardnz.fr (mobile-first, FR/EN/ES/ZH, chatbot, app iOS en cours)<br>
+        — Le rôle de consultant stratégique est le mien (commanditaire de cette présentation)<br><br>
+
+        DIRECTION ARTISTIQUE :<br>
+        — Fond noir profond (#0D0B08) ou beige crème (#FAF8F4)<br>
+        — Typographie : Cormorant Garamond (titres) + Montserrat Light (labels)<br>
+        — Accents dorés (#B8973E) uniquement<br>
+        — Beaucoup d'espace vide — épuré, éditorial<br>
+        — Aucune icône, aucun effet template Canva<br>
+        — Inspiration : maison de couture parisienne<br><br>
+
+        [Puis coller ici l'intégralité de la structure des 16 slides détaillée dans ce document]<br><br>
+
+        Produis le contenu complet de chaque slide avec les textes exacts, la mise en page recommandée, et les instructions de design pour Canva.
+      </p>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="section" style="text-align:center; padding: 40px 0;">
+    <div style="width:40px; height:1px; background:#b8973e; margin:0 auto 24px;"></div>
+    <p style="font-family:'Courier New',monospace; font-size:10px; letter-spacing:0.4em; text-transform:uppercase; color:rgba(26,20,16,0.35);">
+      Gaspard NZ — Document Stratégique Confidentiel
+    </p>
+  </div>
+
+</div>
+</body>
+</html>
