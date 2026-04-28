@@ -1929,8 +1929,8 @@ export default function App() {
 
       <ChatBot
         onReserver={() => setModal("booking")}
-        onGalerie={() => setModal("galerie")}
-        onShowroom={() => showroomRef.current?.scrollIntoView({ behavior: "smooth" })}
+        onGalerie={() => scrollTo(galleryRef)}
+        onShowroom={() => scrollTo(showroomRef)}
       />
 
     </div>
