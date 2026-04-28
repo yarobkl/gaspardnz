@@ -427,6 +427,11 @@ const KB = [
     rep: "Merci à vous ! Gaspard NZ est là pour rendre votre jour J inoubliable. N'hésitez pas si vous avez d'autres questions. ✦",
     btns: ["Prendre rendez-vous","Ouvrir WhatsApp"]
   },
+  {
+    keys: ["instagram","tiktok","facebook","youtube","réseaux","reseaux","réseau","reseau","social","suivre","suivi","communauté","communaute","abonner"],
+    rep: "Retrouvez Gaspard NZ sur toutes les plateformes pour suivre ses créations, ses looks et ses coulisses :\n\n**Instagram** — @gaspardnz\n**TikTok** — @gaspardnz\n**Facebook** — Delgadimasaprod\n**YouTube** — @Gaspardnz\n\nChaque réseau a sa propre ambiance — à vous de choisir celui qui vous correspond.",
+    btns: ["Instagram","TikTok","Facebook","YouTube"]
+  },
 ];
 
 const DEFAULT_REPLY = {
@@ -578,6 +583,10 @@ const ChatBot = ({ onReserver, onGalerie, onShowroom }) => {
                           else if (btn === "Voir la galerie") { setOpen(false); onGalerie?.(); }
                           else if (btn === "Le showroom") { setOpen(false); onShowroom?.(); }
                           else if (btn === "Ouvrir WhatsApp") { window.open("https://wa.me/33664826920", "_blank"); }
+                          else if (btn === "Instagram") { window.open("https://www.instagram.com/gaspardnz/", "_blank"); }
+                          else if (btn === "TikTok") { window.open("https://www.tiktok.com/@gaspardnz", "_blank"); }
+                          else if (btn === "Facebook") { window.open("http://facebook.com/Delgadimasaprod", "_blank"); }
+                          else if (btn === "YouTube") { window.open("http://www.youtube.com/@Gaspardnz", "_blank"); }
                           else handleAction(btn);
                         }}
                           style={{ background: "none", border: `1px solid rgba(184,151,62,0.5)`, color: GOLD, padding: "0.35rem 0.7rem", fontFamily: "'Montserrat', sans-serif", fontSize: "9px", letterSpacing: "0.15em", cursor: "pointer", borderRadius: "20px", transition: "all 0.2s", whiteSpace: "nowrap" }}>
