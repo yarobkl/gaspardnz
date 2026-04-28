@@ -1533,15 +1533,16 @@ const SplashScreen = ({ onDone }) => {
   const [exiting, setExiting] = useState(false);
 
   useEffect(() => {
-    const duration = 2600;
+    const duration = 4000;
     const start = Date.now();
     let raf;
     const tick = () => {
       const p = Math.min((Date.now() - start) / duration, 1);
-      const eased = p < 1 ? 1 - Math.pow(1 - p, 2) : 1;
+      // Quasi-linéaire — très légère décélération à la fin seulement
+      const eased = p < 1 ? 1 - Math.pow(1 - p, 1.25) : 1;
       setProgress(eased * 100);
       if (p < 1) { raf = requestAnimationFrame(tick); }
-      else setTimeout(() => { setExiting(true); setTimeout(onDone, 1000); }, 200);
+      else setTimeout(() => { setExiting(true); setTimeout(onDone, 1100); }, 300);
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
@@ -1550,8 +1551,8 @@ const SplashScreen = ({ onDone }) => {
   return (
     <motion.div
       animate={exiting ? { y: "-100%" } : { y: "0%" }}
-      transition={{ duration: 0.95, ease: [0.76, 0, 0.24, 1] }}
-      style={{ position: "fixed", inset: 0, zIndex: 9999, background: "#0d0b08", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", overflow: "hidden" }}
+      transition={{ duration: 1.1, ease: [0.76, 0, 0.24, 1] }}
+      style={{ position: "fixed", inset: 0, zIndex: 9999, background: "#0d0b08", overflow: "hidden" }}
     >
       <style>{`
         @keyframes shimmerTitle {
@@ -1559,27 +1560,33 @@ const SplashScreen = ({ onDone }) => {
           100% { background-position: -200% center; }
         }
         @keyframes shimmerBar {
-          0%   { transform: translateX(-100%); }
-          100% { transform: translateX(300%); }
+          0%   { transform: translateX(-120%); }
+          100% { transform: translateX(500%); }
         }
         @keyframes pulse {
           0%, 100% { opacity: 1; transform: scale(1); }
-          50%       { opacity: 0.85; transform: scale(1.012); }
+          50%       { opacity: 0.82; transform: scale(1.014); }
         }
         @keyframes breathe {
-          0%, 100% { opacity: 0.4; }
-          50%       { opacity: 0.7; }
+          0%, 100% { opacity: 0.35; }
+          50%       { opacity: 0.65; }
         }
       `}</style>
 
-      {/* Centre — Logo + barre + tagline */}
+      {/* Logo — centré verticalement dans la moitié haute */}
       <motion.div
-        initial={{ opacity: 0, y: 24 }}
+        initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 1, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-        style={{ textAlign: "center", userSelect: "none", width: "100%", padding: "0 2rem" }}
+        transition={{ duration: 1.1, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
+        style={{
+          position: "absolute",
+          top: "38%", left: "50%",
+          transform: "translate(-50%, -50%)",
+          textAlign: "center",
+          userSelect: "none",
+          width: "100%"
+        }}
       >
-        {/* GASPARDNZ — bat + brille */}
         <p style={{
           fontFamily: "'Bebas Neue', sans-serif",
           fontSize: "clamp(48px, 13vw, 80px)",
@@ -1591,56 +1598,67 @@ const SplashScreen = ({ onDone }) => {
           WebkitBackgroundClip: "text",
           WebkitTextFillColor: "transparent",
           backgroundClip: "text",
-          animation: "shimmerTitle 2.2s linear infinite, pulse 2.8s ease-in-out infinite"
+          animation: "shimmerTitle 2.4s linear infinite, pulse 3s ease-in-out infinite"
         }}>GASPARDNZ</p>
 
         <p style={{
           fontFamily: "'Montserrat', sans-serif",
           fontSize: "clamp(8px, 2vw, 10px)",
-          color: "rgba(184,151,62,0.65)",
-          letterSpacing: "0.75em",
+          color: "rgba(184,151,62,0.6)",
+          letterSpacing: "0.8em",
           textTransform: "uppercase",
-          marginTop: "10px",
-          paddingLeft: "0.75em",
-          animation: "pulse 2.8s ease-in-out infinite"
+          marginTop: "12px",
+          paddingLeft: "0.8em",
+          animation: "pulse 3s ease-in-out infinite"
         }}>PARIS</p>
+      </motion.div>
 
-        {/* Barre juste en dessous du nom */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.4, duration: 0.6 }}
-          style={{ marginTop: "28px" }}
-        >
-          <div style={{ width: "100%", height: "1px", background: "rgba(184,151,62,0.12)", position: "relative", overflow: "hidden", borderRadius: "1px" }}>
-            <div style={{
-              position: "absolute", top: 0, left: 0, height: "100%",
-              width: `${progress}%`,
-              background: "linear-gradient(90deg, #7a6020, #b8973e, #e8c96a, #f5e090, #e8c96a, #b8973e)",
-              backgroundSize: "200% 100%",
-              animation: "shimmerTitle 1.6s linear infinite",
-              transition: "width 0.04s linear",
-              overflow: "hidden"
-            }}>
-              <div style={{
-                position: "absolute", top: 0, bottom: 0, width: "30%",
-                background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.75), transparent)",
-                animation: "shimmerBar 1s ease-in-out infinite"
-              }} />
-            </div>
-          </div>
-        </motion.div>
-
-        {/* Tagline */}
-        <p style={{
+      {/* Tagline — centrée verticalement dans la moitié basse */}
+      <motion.p
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.7, duration: 1 }}
+        style={{
+          position: "absolute",
+          top: "62%", left: "50%",
+          transform: "translateX(-50%)",
           fontFamily: "'Cormorant Garamond', serif",
           fontStyle: "italic",
-          fontSize: "clamp(13px, 3.2vw, 16px)",
-          color: "rgba(245,240,232,0.4)",
+          fontSize: "clamp(14px, 3.5vw, 17px)",
+          color: "rgba(245,240,232,0.38)",
           letterSpacing: "0.12em",
-          marginTop: "28px",
-          animation: "breathe 2.8s ease-in-out infinite"
-        }}>S'habiller autrement</p>
+          whiteSpace: "nowrap",
+          animation: "breathe 3s ease-in-out infinite"
+        }}
+      >S'habiller autrement</motion.p>
+
+      {/* Barre PLEINE LARGEUR — bord à bord, au centre de l'écran */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.5, duration: 0.8 }}
+        style={{ position: "absolute", top: "50%", left: 0, right: 0, transform: "translateY(-50%)" }}
+      >
+        {/* Track — fond très subtil */}
+        <div style={{ width: "100%", height: "1px", background: "rgba(184,151,62,0.1)", position: "relative", overflow: "hidden" }}>
+          {/* Fill doré */}
+          <div style={{
+            position: "absolute", top: 0, left: 0,
+            height: "100%",
+            width: `${progress}%`,
+            background: "linear-gradient(90deg, #6a5218, #b8973e, #d4ae5a, #f0d880, #d4ae5a, #b8973e)",
+            backgroundSize: "300% 100%",
+            animation: "shimmerTitle 2s linear infinite",
+            overflow: "hidden"
+          }}>
+            {/* Éclat blanc lent qui glisse */}
+            <div style={{
+              position: "absolute", top: 0, bottom: 0, width: "18%",
+              background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.65), transparent)",
+              animation: "shimmerBar 2.2s ease-in-out infinite"
+            }} />
+          </div>
+        </div>
       </motion.div>
     </motion.div>
   );
