@@ -1,4 +1,4 @@
-const VERSION = "gnz-v20260429-2386f8c";
+const VERSION = "gnz-v20260429-0ff1984";
 
 self.addEventListener("install", () => self.skipWaiting());
 self.addEventListener("activate", e => e.waitUntil(
