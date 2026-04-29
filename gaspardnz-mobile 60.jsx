@@ -1511,6 +1511,10 @@ const FormulesSection = ({ refEl, onContact, onReserver }) => {
 
   return (
     <section ref={refEl} style={{ background: "#0d1b3e", padding: "5rem 0 6rem", overflow: "hidden", position: "relative" }}>
+      {/* Fondu haut — transition depuis le showroom crème */}
+      <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "100px", background: "linear-gradient(to bottom, #f5f0e8, transparent)", pointerEvents: "none", zIndex: 2 }} />
+      {/* Fondu bas — transition vers le footer crème */}
+      <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "100px", background: "linear-gradient(to bottom, transparent, #ede8de)", pointerEvents: "none", zIndex: 2 }} />
       {/* Watermark */}
       <div style={{ position: "absolute", right: "-1rem", top: "50%", transform: "translateY(-50%)", fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(80px, 35vw, 220px)", color: "rgba(255,255,255,0.03)", lineHeight: 1, letterSpacing: "0.05em", whiteSpace: "nowrap", userSelect: "none", pointerEvents: "none" }}>FORMULES</div>
 
