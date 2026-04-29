@@ -659,7 +659,7 @@ const BookingModal = ({ isOpen, onClose, boutiqueMode = false }) => {
             exit={{ opacity: 0, y: 20, scale: 0.97 }}
             transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
             onClick={e => e.stopPropagation()}
-            style={{ width: "100%", maxWidth: "480px", background: "#faf7f2", position: "relative", overflow: "hidden" }}>
+            style={{ width: "100%", maxWidth: "480px", background: "#faf7f2", position: "relative", maxHeight: "90vh", display: "flex", flexDirection: "column" }}>
 
             {/* Barre de progression */}
             <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "2px", background: "rgba(184,151,62,0.12)", zIndex: 2 }}>
@@ -669,8 +669,8 @@ const BookingModal = ({ isOpen, onClose, boutiqueMode = false }) => {
                 style={{ height: "100%", background: GOLD }} />
             </div>
 
-            {/* Header */}
-            <div style={{ padding: "2rem 1.8rem 1.2rem", borderBottom: "1px solid rgba(184,151,62,0.1)", display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+            {/* Header — toujours visible */}
+            <div style={{ padding: "2rem 1.8rem 1.2rem", borderBottom: "1px solid rgba(184,151,62,0.1)", display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexShrink: 0 }}>
               <div>
                 <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.5em", color: GOLD, textTransform: "uppercase", marginBottom: "0.4rem" }}>
                   {step === 1 ? t("bk_step1") : t("bk_step2")}
@@ -682,8 +682,8 @@ const BookingModal = ({ isOpen, onClose, boutiqueMode = false }) => {
               <button onClick={reset} style={{ background: "none", border: "none", cursor: "pointer", padding: "4px 8px", color: "rgba(28,18,8,0.62)", fontSize: "22px", lineHeight: 1, marginTop: "-4px" }}>×</button>
             </div>
 
-            {/* Contenu */}
-            <div style={{ padding: "1.8rem" }}>
+            {/* Contenu scrollable */}
+            <div style={{ padding: "1.8rem", overflowY: "auto", flex: 1 }}>
               <AnimatePresence mode="wait">
                 {step === 1 ? (
                   <motion.div key="step1"
