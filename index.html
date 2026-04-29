@@ -18,6 +18,24 @@
         font-size: 16px !important;
         -webkit-text-size-adjust: 100%;
       }
+
+      /* Supprime TOUS les contrôles natifs WebKit/Safari sur les vidéos */
+      video::-webkit-media-controls,
+      video::-webkit-media-controls-enclosure,
+      video::-webkit-media-controls-panel,
+      video::-webkit-media-controls-play-button,
+      video::-webkit-media-controls-overlay-play-button,
+      video::-webkit-media-controls-start-playback-button,
+      video::-webkit-media-controls-timeline,
+      video::-webkit-media-controls-current-time-display,
+      video::-webkit-media-controls-time-remaining-display,
+      video::-webkit-media-controls-mute-button,
+      video::-webkit-media-controls-fullscreen-button {
+        display: none !important;
+        -webkit-appearance: none !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+      }
     </style>
     <meta name="description" content="Gaspardnz — Conseil en image & création de vêtements sur-mesure à Paris" />
     <title>Gaspardnz</title>
