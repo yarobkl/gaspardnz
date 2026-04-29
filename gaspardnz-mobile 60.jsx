@@ -315,7 +315,7 @@ const Modal = ({ isOpen, onClose, title, children }) => (
           exit={{ y: 60, opacity: 0 }}
           transition={{ ease: [0.16, 1, 0.3, 1], duration: 0.7 }}
           onClick={e => e.stopPropagation()}
-          style={{ width: "100%", maxWidth: "560px", background: "#faf7f2", border: `1px solid rgba(184,151,62,0.2)`, padding: "3rem 2.5rem", position: "relative" }}
+          style={{ width: "100%", maxWidth: "560px", background: "#faf7f2", border: `1px solid rgba(184,151,62,0.2)`, padding: "3rem 2.5rem", position: "relative", maxHeight: "85vh", overflowY: "auto" }}
         >
           <button onClick={onClose} style={{ position: "absolute", top: "1.5rem", right: "1.5rem", background: "none", border: "none", color: "rgba(28,18,8,0.65)", cursor: "pointer", padding: "0.5rem", transition: "color 0.2s" }} onMouseEnter={e => e.currentTarget.style.color = "white"} onMouseLeave={e => e.currentTarget.style.color = "rgba(28,18,8,0.32)"}><SvgX /></button>
           <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "9px", letterSpacing: "0.5em", color: GOLD, textTransform: "uppercase", textAlign: "center", marginBottom: "2.5rem", borderBottom: `1px solid rgba(184,151,62,0.15)`, paddingBottom: "1.5rem" }}>{title}</p>
@@ -1844,14 +1844,13 @@ export default function App() {
     if (highContrast) {
       if (!el) { el = document.createElement("style"); el.id = ID; document.head.appendChild(el); }
       el.textContent = `
-        body, section, footer { background: #f5f0e8 !important; background-color: #f5f0e8 !important; }
-        nav { background: rgba(245,240,232,0.98) !important; }
-        h1, h2, h3, p, span, li, label { color: #1c1208 !important; }
-        button { color: #1c1208 !important; }
-        a { color: #1c1208 !important; }
-        * > div[style] { background-color: transparent !important; }
-        section > div, section > motion\.div { background: #f5f0e8 !important; }
-        img { opacity: 1 !important; filter: brightness(1.05) !important; }
+        #gnz-root {
+          filter: brightness(1.35) contrast(1.05) !important;
+        }
+        #gnz-root section[style*="0d1b3e"],
+        #gnz-root section[style*="1c1208"] {
+          filter: brightness(1.8) !important;
+        }
       `;
     } else {
       if (el) el.remove();
@@ -2007,7 +2006,7 @@ export default function App() {
   return (
     <LangCtx.Provider value={{ lang, setLang }}>
     {!splashDone && <SplashScreen onDone={() => setSplashDone(true)} />}
-    <div style={{ background: "#f5f0e8", color: TEXT, minHeight: "100vh", fontFamily: "'Montserrat', sans-serif", overflowX: "hidden" }}>
+    <div id="gnz-root" style={{ background: "#f5f0e8", color: TEXT, minHeight: "100vh", fontFamily: "'Montserrat', sans-serif", overflowX: "hidden" }}>
       <style>{`
         ${fonts}
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -2120,7 +2119,7 @@ export default function App() {
       </Modal>
       {/* Modal Mentions Légales */}
       <Modal isOpen={modal === "mentions"} onClose={() => setModal(null)} title="Mentions Légales">
-        <div style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "11px", lineHeight: 1.9, color: "rgba(245,240,232,0.7)", display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+        <div style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "11px", lineHeight: 1.9, color: "rgba(28,18,8,0.78)", display: "flex", flexDirection: "column", gap: "1.5rem" }}>
           <div>
             <p style={{ color: GOLD, fontSize: "8px", letterSpacing: "0.35em", textTransform: "uppercase", marginBottom: "0.6rem" }}>Éditeur du site</p>
             <p>Raison sociale : Gaspardnz</p>
@@ -2149,7 +2148,7 @@ export default function App() {
 
       {/* Modal Politique de Confidentialité */}
       <Modal isOpen={modal === "confidentialite"} onClose={() => setModal(null)} title="Politique de Confidentialité">
-        <div style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "11px", lineHeight: 1.9, color: "rgba(245,240,232,0.7)", display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+        <div style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "11px", lineHeight: 1.9, color: "rgba(28,18,8,0.78)", display: "flex", flexDirection: "column", gap: "1.5rem" }}>
           <div>
             <p style={{ color: GOLD, fontSize: "8px", letterSpacing: "0.35em", textTransform: "uppercase", marginBottom: "0.6rem" }}>Données collectées</p>
             <p>Ce site ne collecte aucune donnée personnelle automatiquement. Les seules informations échangées sont celles que vous nous communiquez volontairement via WhatsApp ou les réseaux sociaux.</p>
@@ -2175,7 +2174,7 @@ export default function App() {
 
       {/* Modal CGV */}
       <Modal isOpen={modal === "cgv"} onClose={() => setModal(null)} title="Conditions Générales de Vente">
-        <div style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "11px", lineHeight: 1.9, color: "rgba(245,240,232,0.7)", display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+        <div style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "11px", lineHeight: 1.9, color: "rgba(28,18,8,0.78)", display: "flex", flexDirection: "column", gap: "1.5rem" }}>
           <div>
             <p style={{ color: GOLD, fontSize: "8px", letterSpacing: "0.35em", textTransform: "uppercase", marginBottom: "0.6rem" }}>Objet</p>
             <p>Les présentes CGV régissent les relations commerciales entre Gaspardnz et ses clients pour toute commande de vêtements sur-mesure, accessoires ou prestations de conseil en image.</p>
