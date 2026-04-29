@@ -1362,51 +1362,70 @@ const GalleryMobile = ({ refEl }) => {
 
   const n = items.length;
   const [cur, setCur] = useState(0);
+  const timerRef = useRef(null);
+
+  const go = (dir) => {
+    setCur(c => (c + dir + n) % n);
+  };
+
+  const resetTimer = () => {
+    clearInterval(timerRef.current);
+    timerRef.current = setInterval(() => setCur(c => (c + 1) % n), 4000);
+  };
+
   useEffect(() => {
     if (!n) return;
-    const id = setInterval(() => setCur(c => (c + 1) % n), 3500);
-    return () => clearInterval(id);
+    timerRef.current = setInterval(() => setCur(c => (c + 1) % n), 4000);
+    return () => clearInterval(timerRef.current);
   }, [n]);
 
   return (
-    <section ref={refEl} style={{ background: "#f5f0e8", paddingBottom: "5rem" }}>
+    <section ref={refEl} style={{ background: "#f5f0e8", paddingBottom: "4rem" }}>
       <motion.p
         initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
         style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "8px", letterSpacing: "0.5em", color: GOLD, textTransform: "uppercase", padding: "3rem 1.4rem 1.5rem" }}
       >{t("nav_galerie")}</motion.p>
 
-      <div style={{ overflow: "hidden" }}>
-      <div style={{
-        display: "flex", gap: "1rem", padding: "0 1.4rem",
-        transform: `translateX(calc(${-cur} * (72vw + 1rem)))`,
-        transition: "transform 0.9s cubic-bezier(0.16,1,0.3,1)",
-        willChange: "transform",
-      }}>
-        {items.map(({ src, label }, i) => (
-          <motion.div key={i}
-            initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }} transition={{ duration: 0.7, delay: i * 0.1 }}
-            style={{ flexShrink: 0, width: "72vw", position: "relative", borderRadius: "2px", overflow: "hidden", opacity: i === cur ? 1 : 0.4, transform: i === cur ? "scale(1)" : "scale(0.95)", transition: "opacity 0.6s, transform 0.6s" }}
-          >
-            <img src={src} alt={label}
-              style={{ width: "100%", aspectRatio: "3/4", objectFit: "cover", objectPosition: "top", filter: "brightness(0.94) contrast(1.02) saturate(0.9)", display: "block" }} />
-            <div style={{ position: "absolute", bottom: "1rem", left: "1rem" }}>
-              <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.4em", color: "rgba(28,18,8,0.85)", textTransform: "uppercase" }}>{label}</p>
+      <div style={{ position: "relative", overflow: "hidden" }}>
+        <div style={{
+          display: "flex",
+          transform: `translateX(${-cur * 100}%)`,
+          transition: "transform 0.7s cubic-bezier(0.16,1,0.3,1)",
+          willChange: "transform",
+        }}>
+          {items.map(({ src, label }, i) => (
+            <div key={i} style={{ flex: "0 0 100%", width: "100%", position: "relative" }}>
+              <img src={src} alt={label}
+                style={{ width: "100%", aspectRatio: "3/4", objectFit: "cover", objectPosition: "top", filter: "brightness(0.94) contrast(1.02) saturate(0.9)", display: "block" }} />
+              {label && (
+                <div style={{ position: "absolute", bottom: "1rem", left: "1rem" }}>
+                  <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.4em", color: "rgba(255,255,255,0.85)", textTransform: "uppercase" }}>{label}</p>
+                </div>
+              )}
             </div>
-          </motion.div>
-        ))}
-      </div>
+          ))}
+        </div>
+
+        <button onClick={() => { go(-1); resetTimer(); }}
+          style={{ position: "absolute", left: "0.8rem", top: "50%", transform: "translateY(-50%)", background: "rgba(255,255,255,0.18)", border: "none", borderRadius: "50%", width: "36px", height: "36px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", backdropFilter: "blur(4px)", WebkitBackdropFilter: "blur(4px)" }}>
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 3L5 8l5 5" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+        </button>
+
+        <button onClick={() => { go(1); resetTimer(); }}
+          style={{ position: "absolute", right: "0.8rem", top: "50%", transform: "translateY(-50%)", background: "rgba(255,255,255,0.18)", border: "none", borderRadius: "50%", width: "36px", height: "36px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", backdropFilter: "blur(4px)", WebkitBackdropFilter: "blur(4px)" }}>
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 3l5 5-5 5" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+        </button>
       </div>
 
-      {/* Indicateur scroll */}
-      <div style={{ display: "flex", gap: "6px", justifyContent: "center", marginTop: "1.5rem" }}>
+      <div style={{ display: "flex", gap: "6px", justifyContent: "center", marginTop: "1.2rem" }}>
         {items.map((_, i) => (
-          <div key={i} style={{ width: i === cur ? "20px" : "6px", height: "2px", background: i === cur ? GOLD : "rgba(28,18,8,0.2)", borderRadius: "1px", transition: "all 0.3s", cursor: "pointer" }} onClick={() => setCur(i)} />
+          <div key={i} style={{ width: i === cur ? "20px" : "6px", height: "2px", background: i === cur ? GOLD : "rgba(28,18,8,0.2)", borderRadius: "1px", transition: "all 0.3s", cursor: "pointer" }} onClick={() => { setCur(i); resetTimer(); }} />
         ))}
       </div>
     </section>
   );
 };
+
 
 
 /* ── FORMULES MOBILE ─────────────────────────────────────────────── */
