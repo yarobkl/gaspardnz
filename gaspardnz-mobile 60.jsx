@@ -1590,20 +1590,20 @@ const SplashScreen = ({ onDone }) => {
         transition={{ duration: 1.1, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
         style={{
           position: "absolute",
-          top: "38%", left: "50%",
-          transform: "translate(-50%, -50%)",
+          top: "38%", left: 0, right: 0,
+          transform: "translateY(-50%)",
           textAlign: "center",
           userSelect: "none",
-          width: "100%"
+          padding: "0 1.5rem"
         }}
       >
         <p style={{
           fontFamily: "'Bebas Neue', sans-serif",
-          fontSize: "clamp(32px, 8.5vw, 58px)",
-          letterSpacing: "0.2em",
-          paddingLeft: "0.2em",
+          fontSize: "clamp(30px, 8vw, 56px)",
+          letterSpacing: "0.15em",
           lineHeight: 1,
-          margin: 0,
+          margin: "0 auto",
+          display: "inline-block",
           background: "linear-gradient(90deg, #9a7a2e 0%, #d4ae5a 18%, #f5e070 35%, #fff8e0 50%, #f5e070 65%, #d4ae5a 82%, #9a7a2e 100%)",
           backgroundSize: "250% auto",
           WebkitBackgroundClip: "text",
@@ -1614,10 +1614,9 @@ const SplashScreen = ({ onDone }) => {
 
         <p style={{
           fontFamily: "'Montserrat', sans-serif",
-          fontSize: "clamp(7px, 1.8vw, 9px)",
+          fontSize: "9px",
           color: "rgba(184,151,62,0.6)",
-          letterSpacing: "0.45em",
-          paddingLeft: "0.45em",
+          letterSpacing: "0.4em",
           textTransform: "uppercase",
           marginTop: "10px",
           animation: "pulse 3s ease-in-out infinite"
