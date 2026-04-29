@@ -498,7 +498,7 @@ const ChatBot = ({ onReserver, onGalerie, onShowroom }) => {
   }, [msgs, typing]);
 
   useEffect(() => {
-    const t = setTimeout(() => { if (!open) setShowBubble(true); }, 3500);
+    const t = setTimeout(() => { if (!open) { setShowBubble(true); setTimeout(() => setShowBubble(false), 8000); } }, 3500);
     return () => clearTimeout(t);
   }, []);
 
@@ -580,9 +580,9 @@ const ChatBot = ({ onReserver, onGalerie, onShowroom }) => {
             exit={{ opacity: 0, y: 8, scale: 0.92 }}
             transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
             onClick={() => { setShowBubble(false); setOpen(true); }}
-            style={{ position: "fixed", bottom: "5.2rem", right: "1.2rem", background: "rgba(20,13,5,0.55)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)", border: `1px solid rgba(184,151,62,0.25)`, borderRadius: "14px 14px 4px 14px", padding: "0.75rem 1rem", maxWidth: "210px", cursor: "pointer", zIndex: 598, boxShadow: "0 4px 20px rgba(0,0,0,0.2)" }}
+            style={{ position: "fixed", bottom: "5.2rem", right: "1.2rem", background: "transparent", padding: "0.5rem 1rem 0.5rem 0", maxWidth: "200px", cursor: "pointer", zIndex: 598, textAlign: "right" }}
           >
-            <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "0.88rem", color: "rgba(245,240,232,0.92)", lineHeight: 1.45, margin: 0 }}>Je suis là si vous avez des questions 💬</p>
+            <p style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: "italic", fontSize: "0.92rem", color: GOLD, lineHeight: 1.45, margin: 0, textShadow: "0 1px 8px rgba(0,0,0,0.9), 0 0 20px rgba(0,0,0,0.8)" }}>Je suis là si vous avez des questions 💬</p>
             <button onClick={e => { e.stopPropagation(); setShowBubble(false); }} style={{ position: "absolute", top: "4px", right: "6px", background: "none", border: "none", cursor: "pointer", color: "rgba(245,240,232,0.35)", fontSize: "0.75rem", lineHeight: 1 }}>✕</button>
           </motion.div>
         )}
