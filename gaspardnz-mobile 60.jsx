@@ -476,6 +476,8 @@ const ChatBot = ({ onReserver, onGalerie, onShowroom }) => {
   const [input, setInput] = useState("");
   const [typing, setTyping] = useState(false);
   const [greeted, setGreeted] = useState(false);
+  const [showBubble, setShowBubble] = useState(false);
+  const [dragPos, setDragPos] = useState({ x: 0, y: 0 });
   const bottomRef = useRef(null);
 
   useEffect(() => {
@@ -490,6 +492,11 @@ const ChatBot = ({ onReserver, onGalerie, onShowroom }) => {
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [msgs, typing]);
+
+  useEffect(() => {
+    const t = setTimeout(() => { if (!open) setShowBubble(true); }, 3500);
+    return () => clearTimeout(t);
+  }, []);
 
   const handleAction = (btn) => {
     addUserMsg(btn);
@@ -548,7 +555,7 @@ const ChatBot = ({ onReserver, onGalerie, onShowroom }) => {
     <>
       {/* Bouton flottant */}
       <motion.button
-        onClick={() => setOpen(o => !o)}
+        onClick={() => { setOpen(o => !o); setShowBubble(false); }}
         whileTap={{ scale: 0.93 }}
         style={{ position: "fixed", bottom: "1.5rem", right: "1.2rem", zIndex: 600, width: "56px", height: "56px", borderRadius: "50%", background: open ? GOLD : "transparent", border: open ? "none" : `2px solid ${GOLD}`, padding: 0, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 24px rgba(184,151,62,0.45)", overflow: "hidden" }}>
         <AnimatePresence mode="wait">
@@ -560,13 +567,31 @@ const ChatBot = ({ onReserver, onGalerie, onShowroom }) => {
         {!open && <motion.span animate={{ scale: [1, 1.3, 1] }} transition={{ repeat: Infinity, duration: 2, delay: 3 }} style={{ position: "absolute", top: "3px", right: "3px", width: "11px", height: "11px", borderRadius: "50%", background: "#25D366", border: "2px solid #fff", zIndex: 1 }} />}
       </motion.button>
 
+      {/* Bulle d'accueil */}
+      <AnimatePresence>
+        {showBubble && !open && (
+          <motion.div
+            initial={{ opacity: 0, y: 8, scale: 0.92 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 8, scale: 0.92 }}
+            transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+            onClick={() => { setShowBubble(false); setOpen(true); }}
+            style={{ position: "fixed", bottom: "5.2rem", right: "1.2rem", background: "#1c1208", border: `1px solid rgba(184,151,62,0.35)`, borderRadius: "14px 14px 4px 14px", padding: "0.75rem 1rem", maxWidth: "210px", cursor: "pointer", zIndex: 598, boxShadow: "0 4px 20px rgba(0,0,0,0.35)" }}
+          >
+            <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "0.88rem", color: "rgba(245,240,232,0.92)", lineHeight: 1.45, margin: 0 }}>Bonjour ! Je suis disponible pour répondre à toutes vos questions ✨</p>
+            <button onClick={e => { e.stopPropagation(); setShowBubble(false); }} style={{ position: "absolute", top: "4px", right: "6px", background: "none", border: "none", cursor: "pointer", color: "rgba(245,240,232,0.35)", fontSize: "0.75rem", lineHeight: 1 }}>✕</button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Fenêtre chat */}
       <AnimatePresence>
         {open && (
           <motion.div
             initial={{ opacity: 0, y: 20, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-            style={{ position: "fixed", bottom: "5.5rem", right: "1.2rem", left: "1.2rem", maxWidth: "380px", marginLeft: "auto", zIndex: 599, background: "#faf7f2", borderRadius: "16px", overflow: "hidden", boxShadow: "0 8px 40px rgba(0,0,0,0.18)", display: "flex", flexDirection: "column", height: "70vh", maxHeight: "520px" }}>
+            drag dragMomentum={false} dragElastic={0.05} dragConstraints={{ top: -500, bottom: 50, left: -300, right: 50 }}
+            style={{ position: "fixed", bottom: "5.5rem", right: "1.2rem", left: "1.2rem", maxWidth: "380px", cursor: "grab", marginLeft: "auto", zIndex: 599, background: "#faf7f2", borderRadius: "16px", overflow: "hidden", boxShadow: "0 8px 40px rgba(0,0,0,0.18)", display: "flex", flexDirection: "column", height: "70vh", maxHeight: "520px" }}>
 
             {/* Header */}
             <div style={{ background: "#1c1208", padding: "0.85rem 1.2rem", display: "flex", alignItems: "center", gap: "0.85rem", flexShrink: 0 }}>
@@ -581,6 +606,7 @@ const ChatBot = ({ onReserver, onGalerie, onShowroom }) => {
               <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "2px" }}>
                 <div style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#25D366" }} />
               </div>
+              <button onClick={() => setOpen(false)} style={{ background: "none", border: "none", cursor: "pointer", color: "rgba(245,240,232,0.55)", fontSize: "1.1rem", padding: "0.2rem 0 0.2rem 0.6rem", lineHeight: 1 }}>✕</button>
             </div>
 
             {/* Messages */}
