@@ -934,22 +934,23 @@ const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules, 
 
         <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
         {/* Mode soleil */}
-        <motion.button onClick={onToggleContrast}
+        {/* Mode soleil */}
+        <motion.button onClick={onToggleContrast} whileTap={{ scale: 0.88 }}
           title={highContrast ? t("nav_mode_normal") : t("nav_mode_jour")}
-          style={{ background: "none", border: "none", cursor: "pointer", color: highContrast ? GOLD : navTextColor, transition: "color 0.3s", flexShrink: 0, position: "relative", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "2px", padding: "4px" }}>
+          style={{ background: "none", border: "none", cursor: "pointer", color: highContrast ? GOLD : navTextColor, transition: "color 0.4s", flexShrink: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "2px", padding: "4px", minWidth: "32px", minHeight: "36px" }}>
           <motion.div
-            animate={{ rotate: highContrast ? 180 : 0, scale: highContrast ? 1.2 : 1 }}
+            animate={{ rotate: highContrast ? 180 : 0, scale: highContrast ? 1.15 : 1 }}
             transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
             style={{ position: "relative", display: "flex", alignItems: "center", justifyContent: "center" }}>
             {highContrast && <motion.span initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1.8, opacity: 1 }} transition={{ duration: 0.4 }} style={{ position: "absolute", inset: 0, borderRadius: "50%", background: `radial-gradient(circle, rgba(184,151,62,0.35) 0%, transparent 70%)` }} />}
-            <SvgSun />
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="4.5"/><line x1="12" y1="2" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22"/>
+              <line x1="4.93" y1="4.93" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.07" y2="19.07"/>
+              <line x1="2" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="22" y2="12"/>
+              <line x1="4.93" y1="19.07" x2="6.34" y2="17.66"/><line x1="17.66" y1="6.34" x2="19.07" y2="4.93"/>
+            </svg>
           </motion.div>
-          {highContrast && (
-            <motion.span initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}
-              style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "5px", letterSpacing: "0.3em", color: GOLD, textTransform: "uppercase" }}>
-              SOLEIL
-            </motion.span>
-          )}
+          <span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "5px", letterSpacing: "0.3em", color: highContrast ? GOLD : "transparent", textTransform: "uppercase", userSelect: "none" }}>MODE</span>
         </motion.button>
         {/* Sélecteur de langue — globe */}
         {(() => {
@@ -957,7 +958,7 @@ const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules, 
           const next = () => { const i = (LANGS.indexOf(lang) + 1) % LANGS.length; const l = LANGS[i]; setLang(l); try { localStorage.setItem("gnz-lang", l); } catch {} };
           return (
             <motion.button onClick={next} whileTap={{ scale: 0.88 }}
-              style={{ background: "none", border: "none", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "2px", padding: "4px", color: navTextColor, transition: "color 0.4s" }}>
+              style={{ background: "none", border: "none", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "2px", padding: "4px", color: navTextColor, transition: "color 0.4s", minWidth: "32px", minHeight: "36px" }}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/>
                 <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
@@ -966,6 +967,20 @@ const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules, 
             </motion.button>
           );
         })()}
+        {/* Boutique — sac avec point de notification */}
+        <motion.button onClick={onCatalogue} whileTap={{ scale: 0.88 }}
+          style={{ background: "none", border: "none", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "2px", padding: "4px", color: navTextColor, transition: "color 0.4s", minWidth: "32px", minHeight: "36px", position: "relative" }}>
+          <div style={{ position: "relative", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>
+            </svg>
+            <motion.span
+              animate={{ scale: [1, 1.25, 1] }}
+              transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
+              style={{ position: "absolute", top: "-3px", right: "-4px", width: "7px", height: "7px", background: GOLD, borderRadius: "50%", border: "1.5px solid rgba(245,240,232,0.9)" }} />
+          </div>
+          <span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "5px", letterSpacing: "0.3em", color: GOLD, userSelect: "none" }}>SHOP</span>
+        </motion.button>
         {/* Burger */}
         <button onClick={() => setOpen(v => !v)}
           style={{ background: "none", border: "none", cursor: "pointer", padding: "8px", display: "flex", flexDirection: "column", gap: "5px" }}>
