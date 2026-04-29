@@ -477,15 +477,19 @@ const ChatBot = ({ onReserver, onGalerie, onShowroom }) => {
   const [typing, setTyping] = useState(false);
   const [greeted, setGreeted] = useState(false);
   const [showBubble, setShowBubble] = useState(false);
-  const [dragPos, setDragPos] = useState({ x: 0, y: 0 });
+  const [showAvatar, setShowAvatar] = useState(false);
   const bottomRef = useRef(null);
 
   useEffect(() => {
     if (open && !greeted) {
       setGreeted(true);
+      setShowAvatar(true);
       setTimeout(() => {
-        setMsgs([{ from: "bot", text: GREET.rep, btns: GREET.btns, id: Date.now() }]);
-      }, 400);
+        setShowAvatar(false);
+        setTimeout(() => {
+          setMsgs([{ from: "bot", text: GREET.rep, btns: GREET.btns, id: Date.now() }]);
+        }, 700);
+      }, 10000);
     }
   }, [open, greeted]);
 
@@ -591,7 +595,7 @@ const ChatBot = ({ onReserver, onGalerie, onShowroom }) => {
             initial={{ opacity: 0, y: 20, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
             drag dragMomentum={false} dragElastic={0.05} dragConstraints={{ top: -500, bottom: 50, left: -300, right: 50 }}
-            style={{ position: "fixed", bottom: "5.5rem", right: "1.2rem", left: "1.2rem", maxWidth: "380px", cursor: "grab", marginLeft: "auto", zIndex: 599, background: "#faf7f2", borderRadius: "16px", overflow: "hidden", boxShadow: "0 8px 40px rgba(0,0,0,0.18)", display: "flex", flexDirection: "column", height: "70vh", maxHeight: "520px" }}>
+            style={{ position: "fixed", bottom: "5.5rem", right: "1.2rem", left: "1.2rem", maxWidth: "380px", cursor: "grab", overflow: "hidden", marginLeft: "auto", zIndex: 599, background: "#faf7f2", borderRadius: "16px", overflow: "hidden", boxShadow: "0 8px 40px rgba(0,0,0,0.18)", display: "flex", flexDirection: "column", height: "70vh", maxHeight: "520px" }}>
 
             {/* Header */}
             <div style={{ background: "#1c1208", padding: "0.85rem 1.2rem", display: "flex", alignItems: "center", gap: "0.85rem", flexShrink: 0 }}>
@@ -608,6 +612,30 @@ const ChatBot = ({ onReserver, onGalerie, onShowroom }) => {
               </div>
               <button onClick={() => setOpen(false)} style={{ background: "none", border: "none", cursor: "pointer", color: "rgba(245,240,232,0.55)", fontSize: "1.1rem", padding: "0.2rem 0 0.2rem 0.6rem", lineHeight: 1 }}>✕</button>
             </div>
+
+
+            {/* Avatar d'accueil animé */}
+            <AnimatePresence>
+              {showAvatar && (
+                <motion.div
+                  initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                  transition={{ duration: 0.6 }}
+                  style={{ position: "absolute", top: "73px", left: 0, right: 0, bottom: 0, background: "#0d0b08", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", zIndex: 10, borderBottomLeftRadius: "16px", borderBottomRightRadius: "16px" }}
+                >
+                  <style>{`
+                    @keyframes gnzBreathe { 0%,100%{transform:scale(1) translateY(0px)} 50%{transform:scale(1.03) translateY(-6px)} }
+                    @keyframes gnzGlow { 0%,100%{box-shadow:0 0 0 0 rgba(184,151,62,0.0),0 0 25px rgba(184,151,62,0.12)} 50%{box-shadow:0 0 0 8px rgba(184,151,62,0.08),0 0 50px rgba(184,151,62,0.3)} }
+                    @keyframes gnzShimmer { 0%{background-position:200% center} 100%{background-position:-200% center} }
+                  `}</style>
+                  <div style={{ width: "150px", height: "150px", borderRadius: "50%", overflow: "hidden", border: `2px solid ${GOLD}`, animation: "gnzBreathe 3.5s ease-in-out infinite, gnzGlow 3.5s ease-in-out infinite", marginBottom: "1.4rem" }}>
+                    <img src={AVATAR_SRC} alt="Gaspard NZ" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center top" }} />
+                  </div>
+                  <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.4rem", letterSpacing: "0.2em", margin: 0, background: "linear-gradient(90deg, #9a7a2e 0%, #d4ae5a 25%, #f5e070 50%, #d4ae5a 75%, #9a7a2e 100%)", backgroundSize: "250% auto", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text", animation: "gnzShimmer 2.5s linear infinite" }}>GASPARD NZ</p>
+                  <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.4em", color: "rgba(184,151,62,0.55)", textTransform: "uppercase", marginTop: "8px" }}>Habilleur · Paris</p>
+                  <button onClick={() => setShowAvatar(false)} style={{ position: "absolute", bottom: "1.2rem", background: "none", border: "1px solid rgba(184,151,62,0.25)", color: "rgba(245,240,232,0.35)", fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.35em", textTransform: "uppercase", padding: "0.45rem 1.1rem", cursor: "pointer", borderRadius: "2px" }}>Passer</button>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             {/* Messages */}
             <div style={{ flex: 1, overflowY: "auto", padding: "1rem", display: "flex", flexDirection: "column", gap: "0.8rem" }}>
