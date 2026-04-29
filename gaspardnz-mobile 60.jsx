@@ -1399,7 +1399,7 @@ const FormulesSection = ({ refEl, onContact, onReserver }) => {
         initial={{ opacity: 0 }}
         animate={inView ? { opacity: 1 } : {}}
         transition={{ duration: 1.2, delay: 0.4 }}
-        style={{ position: "absolute", top: "2.5rem", right: "1.2rem", width: "clamp(70px, 18vw, 100px)", opacity: 0.18, userSelect: "none", pointerEvents: "none", filter: "brightness(2) saturate(0)" }}
+        style={{ position: "absolute", top: "2rem", right: "1rem", width: "clamp(72px, 19vw, 105px)", opacity: 0.72, userSelect: "none", pointerEvents: "none", borderRadius: "4px" }}
       />
 
       <div ref={ref} style={{ padding: "0 1.4rem", position: "relative" }}>
@@ -1543,7 +1543,7 @@ const SplashScreen = ({ onDone }) => {
   const [exiting, setExiting] = useState(false);
 
   useEffect(() => {
-    const duration = 4000;
+    const duration = 2000;
     const start = Date.now();
     let raf;
     const tick = () => {
@@ -1599,8 +1599,9 @@ const SplashScreen = ({ onDone }) => {
       >
         <p style={{
           fontFamily: "'Bebas Neue', sans-serif",
-          fontSize: "clamp(48px, 13vw, 80px)",
-          letterSpacing: "0.22em",
+          fontSize: "clamp(36px, 9.5vw, 64px)",
+          letterSpacing: "0.28em",
+          paddingLeft: "0.28em",
           lineHeight: 1,
           margin: 0,
           background: "linear-gradient(90deg, #9a7a2e 0%, #d4ae5a 18%, #f5e070 35%, #fff8e0 50%, #f5e070 65%, #d4ae5a 82%, #9a7a2e 100%)",
@@ -1613,12 +1614,12 @@ const SplashScreen = ({ onDone }) => {
 
         <p style={{
           fontFamily: "'Montserrat', sans-serif",
-          fontSize: "clamp(8px, 2vw, 10px)",
+          fontSize: "clamp(7px, 1.8vw, 9px)",
           color: "rgba(184,151,62,0.6)",
-          letterSpacing: "0.8em",
+          letterSpacing: "0.55em",
+          paddingLeft: "0.55em",
           textTransform: "uppercase",
-          marginTop: "12px",
-          paddingLeft: "0.8em",
+          marginTop: "10px",
           animation: "pulse 3s ease-in-out infinite"
         }}>PARIS</p>
       </motion.div>
