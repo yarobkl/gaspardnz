@@ -1072,32 +1072,33 @@ const _HERO_SRC = (typeof import.meta !== "undefined" ? (import.meta.env.BASE_UR
 const _VIDEO_STYLE = { position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 20%", filter: "brightness(0.82) contrast(1.05) saturate(1.0)" };
 
 const HeroVideoLoop = () => {
-  const vRef = useRef(null);
-  const cRef = useRef(null);
-  const raf  = useRef(null);
-
+  const ref = useRef(null);
   useEffect(() => {
-    const v = vRef.current;
-    const c = cRef.current;
-    if (!v || !c) return;
-    const ctx = c.getContext("2d");
-
-    const draw = () => {
-      const cw = c.offsetWidth, ch = c.offsetHeight;
-      if (v.readyState >= 2 && cw && ch) {
-        if (c.width !== cw)  c.width  = cw;
-        if (c.height !== ch) c.height = ch;
-        const vw = v.videoWidth, vh = v.videoHeight;
-        if (vw && vh) {
-          const scale = Math.max(cw / vw, ch / vh);
-          const w = vw * scale, h = vh * scale;
-          const x = (cw - w) / 2;
-          const y = (ch - h) / 2 - h * 0.05;
-          ctx.drawImage(v, x, y, w, h);
-        }
-      }
-      raf.current = requestAnimationFrame(draw);
+    const v = ref.current;
+    if (!v) return;
+    const play = () => v.play().catch(() => {});
+    play();
+    v.addEventListener("canplay",    play, { once: true });
+    v.addEventListener("loadeddata", play, { once: true });
+    document.addEventListener("touchstart", play, { once: true });
+    document.addEventListener("visibilitychange", () => { if (!document.hidden) play(); });
+    return () => {
+      v.removeEventListener("canplay",    play);
+      v.removeEventListener("loadeddata", play);
+      document.removeEventListener("touchstart", play);
     };
+  }, []);
+  return (
+    <video
+      ref={ref}
+      src={_HERO_SRC}
+      autoPlay muted playsInline loop
+      disablePictureInPicture
+      preload="auto"
+      style={{ ..._VIDEO_STYLE }}
+    />
+  );
+};
 
     const play = () => v.play().catch(() => {});
     const start = () => { play(); draw(); };
