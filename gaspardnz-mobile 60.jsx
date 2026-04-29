@@ -992,6 +992,42 @@ const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules, 
 };
 
 /* ── HERO MOBILE ─────────────────────────────────────────────────── */
+const _HERO_SRC = (typeof import.meta !== "undefined" ? (import.meta.env.BASE_URL || "/") : "/") + "31121E44-6D22-4C32-AAE4-BEFD0EF4D6B6.mov";
+const _VIDEO_STYLE = { position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 20%", filter: "brightness(0.6) contrast(1.1) saturate(1.0)", transition: "opacity 0.9s ease-in-out" };
+
+const HeroVideoLoop = () => {
+  const r1 = useRef(null), r2 = useRef(null);
+  const active = useRef(1);
+  const FADE = 1.0;
+  useEffect(() => {
+    const v1 = r1.current, v2 = r2.current;
+    if (!v1 || !v2) return;
+    const swap = (from, to) => {
+      if (active.current !== from) return;
+      active.current = to;
+      to === 2 ? (v2.currentTime = 0, v2.play().catch(() => {})) : (v1.currentTime = 0, v1.play().catch(() => {}));
+      const show = to === 2 ? v2 : v1, hide = to === 2 ? v1 : v2;
+      show.style.opacity = "1";
+      setTimeout(() => { hide.style.opacity = "0"; hide.pause(); }, FADE * 1000);
+    };
+    const t1 = () => { if (v1.duration && (v1.duration - v1.currentTime) < FADE) swap(1, 2); };
+    const t2 = () => { if (v2.duration && (v2.duration - v2.currentTime) < FADE) swap(2, 1); };
+    v1.addEventListener("timeupdate", t1);
+    v2.addEventListener("timeupdate", t2);
+    return () => { v1.removeEventListener("timeupdate", t1); v2.removeEventListener("timeupdate", t2); };
+  }, []);
+  return (
+    <>
+      <video ref={r1} autoPlay muted playsInline style={{ ..._VIDEO_STYLE, opacity: 1 }}>
+        <source src={_HERO_SRC} type="video/mp4" /><source src={_HERO_SRC} type="video/quicktime" />
+      </video>
+      <video ref={r2} muted playsInline style={{ ..._VIDEO_STYLE, opacity: 0 }}>
+        <source src={_HERO_SRC} type="video/mp4" /><source src={_HERO_SRC} type="video/quicktime" />
+      </video>
+    </>
+  );
+};
+
 const HeroMobile = ({ onScrollDown }) => {
   const t = useTr();
   const opacity = useParallax([0, 400], [1, 0]);
