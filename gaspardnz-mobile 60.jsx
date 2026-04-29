@@ -623,11 +623,18 @@ const ChatBot = ({ onReserver, onGalerie, onShowroom }) => {
                   style={{ position: "absolute", top: "73px", left: 0, right: 0, bottom: 0, background: "#0d0b08", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", zIndex: 10, borderBottomLeftRadius: "16px", borderBottomRightRadius: "16px" }}
                 >
                   <style>{`
-                    @keyframes gnzBreathe { 0%,100%{transform:scale(1) translateY(0px)} 50%{transform:scale(1.03) translateY(-6px)} }
+                    @keyframes gnzWalk {
+                      0%   { transform: translateY(0px)  translateX(0px)  rotate(0deg)   scale(1);    }
+                      20%  { transform: translateY(-7px) translateX(-4px) rotate(-1.5deg) scale(1.02); }
+                      40%  { transform: translateY(1px)  translateX(-2px) rotate(-0.5deg) scale(0.99); }
+                      60%  { transform: translateY(-7px) translateX(4px)  rotate(1.5deg)  scale(1.02); }
+                      80%  { transform: translateY(1px)  translateX(2px)  rotate(0.5deg)  scale(0.99); }
+                      100% { transform: translateY(0px)  translateX(0px)  rotate(0deg)   scale(1);    }
+                    }
                     @keyframes gnzGlow { 0%,100%{box-shadow:0 0 0 0 rgba(184,151,62,0.0),0 0 25px rgba(184,151,62,0.12)} 50%{box-shadow:0 0 0 8px rgba(184,151,62,0.08),0 0 50px rgba(184,151,62,0.3)} }
                     @keyframes gnzShimmer { 0%{background-position:200% center} 100%{background-position:-200% center} }
                   `}</style>
-                  <div style={{ width: "150px", height: "150px", borderRadius: "50%", overflow: "hidden", border: `2px solid ${GOLD}`, animation: "gnzBreathe 3.5s ease-in-out infinite, gnzGlow 3.5s ease-in-out infinite", marginBottom: "1.4rem" }}>
+                  <div style={{ width: "150px", height: "150px", borderRadius: "50%", overflow: "hidden", border: `2px solid ${GOLD}`, animation: "gnzWalk 0.85s ease-in-out infinite, gnzGlow 2.5s ease-in-out infinite", marginBottom: "1.4rem" }}>
                     <img src={AVATAR_SRC} alt="Gaspard NZ" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center top" }} />
                   </div>
                   <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.4rem", letterSpacing: "0.2em", margin: 0, background: "linear-gradient(90deg, #9a7a2e 0%, #d4ae5a 25%, #f5e070 50%, #d4ae5a 75%, #9a7a2e 100%)", backgroundSize: "250% auto", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text", animation: "gnzShimmer 2.5s linear infinite" }}>GASPARD NZ</p>
