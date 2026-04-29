@@ -1628,7 +1628,7 @@ const FormulesSection = ({ refEl, onContact, onReserver }) => {
 };
 
 /* ── FOOTER MOBILE ───────────────────────────────────────────────── */
-const FooterMobile = ({ onShowroom, onContact, onCatalogue, onMentions, onConfidentialite, onCGV, onFormules }) => {
+const FooterMobile = ({ onShowroom, onContact, onCatalogue, onMentions, onConfidentialite, onCGV, onFormules, onReserver }) => {
   const t = useTr();
   return (
   <footer style={{ background: "#ede8de", borderTop: "1px solid rgba(184,151,62,0.2)", padding: "4rem 1.4rem 3rem" }}>
@@ -1647,10 +1647,11 @@ const FooterMobile = ({ onShowroom, onContact, onCatalogue, onMentions, onConfid
     </div>
 
     {/* Réseaux */}
-    <div style={{ display: "flex", gap: "1.5rem", justifyContent: "center", marginBottom: "2rem", flexWrap: "wrap" }}>
-      {[[SvgInstagram, "https://www.instagram.com/gaspardnz_?igsh=YWgzb3Jua2NkeDdq"], [SvgFacebook, "https://www.facebook.com/share/1JXsWJwpTW/?mibextid=wwXIfr"], [SvgTiktok, "https://www.tiktok.com/@gaspardnz?_r=1&_t=ZS-95wB65ZWhvB"], [SvgYoutube, "https://youtube.com/@gaspardnz?si=s4saxiuv7rt9iUmT"], [SvgWhatsapp, "https://wa.me/33664826920"], [SvgLinkedin, "#"]].map(([Icon, href], i) => (
+    <div style={{ display: "flex", gap: "1.5rem", justifyContent: "center", marginBottom: "2rem", flexWrap: "wrap", alignItems: "center" }}>
+      {[[SvgInstagram, "https://www.instagram.com/gaspardnz_?igsh=YWgzb3Jua2NkeDdq"], [SvgFacebook, "https://www.facebook.com/share/1JXsWJwpTW/?mibextid=wwXIfr"], [SvgTiktok, "https://www.tiktok.com/@gaspardnz?_r=1&_t=ZS-95wB65ZWhvB"], [SvgYoutube, "https://youtube.com/@gaspardnz?si=s4saxiuv7rt9iUmT"]].map(([Icon, href], i) => (
         <a key={i} href={href} target="_blank" rel="noopener noreferrer" style={{ color: "rgba(28,18,8,0.65)" }}><Icon /></a>
       ))}
+      <button onClick={onReserver} style={{ background: "none", border: "none", cursor: "pointer", color: "rgba(28,18,8,0.65)", display: "flex", padding: 0 }}><SvgWhatsapp /></button>
     </div>
 
     {/* Liens légaux */}
@@ -2060,7 +2061,8 @@ export default function App() {
         onMentions={() => setModal("mentions")}
         onConfidentialite={() => setModal("confidentialite")}
         onCGV={() => setModal("cgv")}
-      />
+        onCGV={() => setModal("cgv")}
+        onReserver={() => setModal("booking")}
 
       {/* Modal catalogue */}
       <Modal isOpen={modal === "catalogue"} onClose={() => setModal(null)} title={tr("nav_boutique")}>
