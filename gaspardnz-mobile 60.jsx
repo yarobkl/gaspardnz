@@ -604,7 +604,7 @@ const ChatBot = ({ onReserver, onGalerie, onShowroom }) => {
                           else if (btn === "Instagram") { window.open("https://www.instagram.com/gaspardnz_?igsh=YWgzb3Jua2NkeDdq", "_blank"); }
                           else if (btn === "TikTok") { window.open("https://www.tiktok.com/@gaspardnz", "_blank"); }
                           else if (btn === "Facebook") { window.open("https://www.facebook.com/share/1JXsWJwpTW/?mibextid=wwXIfr", "_blank"); }
-                          else if (btn === "YouTube") { window.open("http://www.youtube.com/@Gaspardnz", "_blank"); }
+                          else if (btn === "YouTube") { window.open("https://youtube.com/@gaspardnz?si=s4saxiuv7rt9iUmT", "_blank"); }
                           else handleAction(btn);
                         }}
                           style={{ background: "none", border: `1px solid rgba(184,151,62,0.5)`, color: GOLD, padding: "0.35rem 0.7rem", fontFamily: "'Montserrat', sans-serif", fontSize: "9px", letterSpacing: "0.15em", cursor: "pointer", borderRadius: "20px", transition: "all 0.2s", whiteSpace: "nowrap" }}>
@@ -965,7 +965,7 @@ const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules, 
             {/* Réseaux */}
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.25 }}
               style={{ display: "flex", gap: "1.2rem", marginTop: "1.8rem", justifyContent: "center" }}>
-              {[[SvgInstagram, "https://www.instagram.com/gaspardnz_?igsh=YWgzb3Jua2NkeDdq"], [SvgTiktok, "https://www.tiktok.com/@gaspardnz?_r=1&_t=ZS-95fqfjKhCcf"], [SvgYoutube, "http://www.youtube.com/@Gaspardnz"]].map(([Icon, href], i) => (
+              {[[SvgInstagram, "https://www.instagram.com/gaspardnz_?igsh=YWgzb3Jua2NkeDdq"], [SvgTiktok, "https://www.tiktok.com/@gaspardnz?_r=1&_t=ZS-95fqfjKhCcf"], [SvgYoutube, "https://youtube.com/@gaspardnz?si=s4saxiuv7rt9iUmT"]].map(([Icon, href], i) => (
                 <a key={i} href={href} target="_blank" rel="noopener noreferrer" style={{ color: "rgba(28,18,8,0.72)", transition: "color 0.3s" }}
                   onTouchStart={e => e.currentTarget.style.color = GOLD}
                   onTouchEnd={e => e.currentTarget.style.color = "rgba(28,18,8,0.4)"}
@@ -1509,7 +1509,7 @@ const FooterMobile = ({ onShowroom, onContact, onCatalogue, onMentions, onConfid
 
     {/* Réseaux */}
     <div style={{ display: "flex", gap: "1.5rem", justifyContent: "center", marginBottom: "2rem", flexWrap: "wrap" }}>
-      {[[SvgInstagram, "https://www.instagram.com/gaspardnz_?igsh=YWgzb3Jua2NkeDdq"], [SvgFacebook, "https://www.facebook.com/share/1JXsWJwpTW/?mibextid=wwXIfr"], [SvgTiktok, "https://www.tiktok.com/@gaspardnz?_r=1&_t=ZS-95fqfjKhCcf"], [SvgYoutube, "http://www.youtube.com/@Gaspardnz"], [SvgWhatsapp, "https://wa.me/33664826920"], [SvgLinkedin, "#"]].map(([Icon, href], i) => (
+      {[[SvgInstagram, "https://www.instagram.com/gaspardnz_?igsh=YWgzb3Jua2NkeDdq"], [SvgFacebook, "https://www.facebook.com/share/1JXsWJwpTW/?mibextid=wwXIfr"], [SvgTiktok, "https://www.tiktok.com/@gaspardnz?_r=1&_t=ZS-95fqfjKhCcf"], [SvgYoutube, "https://youtube.com/@gaspardnz?si=s4saxiuv7rt9iUmT"], [SvgWhatsapp, "https://wa.me/33664826920"], [SvgLinkedin, "#"]].map(([Icon, href], i) => (
         <a key={i} href={href} target="_blank" rel="noopener noreferrer" style={{ color: "rgba(28,18,8,0.65)" }}><Icon /></a>
       ))}
     </div>
@@ -1820,7 +1820,7 @@ export default function App() {
             "https://www.instagram.com/gaspardnz_?igsh=YWgzb3Jua2NkeDdq",
             "https://www.facebook.com/share/1JXsWJwpTW/?mibextid=wwXIfr",
             "https://www.tiktok.com/@gaspardnz",
-            "https://www.youtube.com/@Gaspardnz"
+            "https://youtube.com/@gaspardnz?si=s4saxiuv7rt9iUmT"
           ],
           "hasOfferCatalog": {
             "@type": "OfferCatalog",
