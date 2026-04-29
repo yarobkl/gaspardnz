@@ -1086,7 +1086,7 @@ const HeroVideoLoop = () => {
       ref={ref}
       autoPlay muted playsInline loop
       disablePictureInPicture
-      style={{ ..._VIDEO_STYLE, pointerEvents: "none" }}
+      style={{ ..._VIDEO_STYLE }}
     >
       <source src={_HERO_SRC} type="video/mp4" />
       <source src={_HERO_SRC} type="video/quicktime" />
@@ -1108,6 +1108,8 @@ const HeroMobile = ({ onScrollDown }) => {
         style={{ position: "absolute", inset: 0, willChange: "transform" }}
       >
         <HeroVideoLoop />
+        {/* Absorbe les taps pour empêcher iOS d'afficher ses contrôles natifs */}
+        <div style={{ position: "absolute", inset: 0, zIndex: 5 }} />
         {/* Gradient bas fort pour lire le texte */}
         <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0.05) 0%, transparent 30%, rgba(0,0,0,0.2) 60%, rgba(0,0,0,0.65) 100%)" }} />
       </motion.div>
