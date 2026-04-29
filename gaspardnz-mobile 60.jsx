@@ -1947,9 +1947,9 @@ export default function App() {
 
       <HeroMobile onScrollDown={() => scrollTo(heritageRef)} />
       <HeritageMobile refEl={heritageRef} />
+      <GalleryMobile refEl={galleryRef} />
       <ShowroomMobile refEl={showroomRef} onCatalogue={() => setModal("catalogue")} onFlammes={() => setModal("flammes")} />
       <FormulesSection refEl={formulesRef} onContact={() => setModal("contact")} onReserver={() => setModal("booking")} />
-      <GalleryMobile refEl={galleryRef} />
       <FooterMobile
         onShowroom={() => scrollTo(showroomRef)}
         onFormules={() => scrollTo(formulesRef)}
