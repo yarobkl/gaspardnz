@@ -1046,15 +1046,7 @@ const HeroMobile = ({ onScrollDown }) => {
           alt="Gaspard NZ"
           style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 20%", filter: "brightness(0.6) contrast(1.1) saturate(1.0)" }}
         />
-        <video
-          autoPlay loop muted playsInline
-          autoPlay loop muted playsInline
-          onTimeUpdate={e => { const v = e.target; if (v.duration && v.currentTime > v.duration - 0.15) { v.currentTime = 0.001; } }}
-          onEnded={e => { e.target.currentTime = 0; e.target.play(); }}
-        >
-          <source src={import.meta.env.BASE_URL + "31121E44-6D22-4C32-AAE4-BEFD0EF4D6B6.mov"} type="video/mp4" />
-          <source src={import.meta.env.BASE_URL + "31121E44-6D22-4C32-AAE4-BEFD0EF4D6B6.mov"} type="video/quicktime" />
-        </video>
+        <HeroVideoLoop />
         {/* Gradient bas fort pour lire le texte */}
         <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0.2) 0%, transparent 25%, rgba(0,0,0,0.45) 60%, rgba(0,0,0,0.88) 100%)" }} />
       </motion.div>
