@@ -1560,8 +1560,8 @@ const SplashScreen = ({ onDone }) => {
 
   return (
     <motion.div
-      animate={exiting ? { y: "-100%" } : { y: "0%" }}
-      transition={{ duration: 1.1, ease: [0.76, 0, 0.24, 1] }}
+      animate={exiting ? { opacity: 0 } : { opacity: 1 }}
+      transition={{ duration: 0.9, ease: "easeInOut" }}
       style={{ position: "fixed", inset: 0, zIndex: 9999, background: "#0d0b08", overflow: "hidden" }}
     >
       <style>{`
@@ -1599,9 +1599,9 @@ const SplashScreen = ({ onDone }) => {
       >
         <p style={{
           fontFamily: "'Bebas Neue', sans-serif",
-          fontSize: "clamp(36px, 9.5vw, 64px)",
-          letterSpacing: "0.28em",
-          paddingLeft: "0.28em",
+          fontSize: "clamp(32px, 8.5vw, 58px)",
+          letterSpacing: "0.2em",
+          paddingLeft: "0.2em",
           lineHeight: 1,
           margin: 0,
           background: "linear-gradient(90deg, #9a7a2e 0%, #d4ae5a 18%, #f5e070 35%, #fff8e0 50%, #f5e070 65%, #d4ae5a 82%, #9a7a2e 100%)",
@@ -1616,8 +1616,8 @@ const SplashScreen = ({ onDone }) => {
           fontFamily: "'Montserrat', sans-serif",
           fontSize: "clamp(7px, 1.8vw, 9px)",
           color: "rgba(184,151,62,0.6)",
-          letterSpacing: "0.55em",
-          paddingLeft: "0.55em",
+          letterSpacing: "0.45em",
+          paddingLeft: "0.45em",
           textTransform: "uppercase",
           marginTop: "10px",
           animation: "pulse 3s ease-in-out infinite"
