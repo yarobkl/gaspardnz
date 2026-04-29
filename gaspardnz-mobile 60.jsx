@@ -470,7 +470,7 @@ const AvatarImg = ({ size, ring = true }) => {
   );
 };
 
-const ChatBot = ({ onReserver, onGalerie, onShowroom }) => {
+const ChatBot = ({ onReserver, onGalerie, onShowroom, onFormules }) => {
   const [open, setOpen] = useState(false);
   const [msgs, setMsgs] = useState([]);
   const [input, setInput] = useState("");
@@ -483,13 +483,9 @@ const ChatBot = ({ onReserver, onGalerie, onShowroom }) => {
   useEffect(() => {
     if (open && !greeted) {
       setGreeted(true);
-      setShowAvatar(true);
       setTimeout(() => {
-        setShowAvatar(false);
-        setTimeout(() => {
-          setMsgs([{ from: "bot", text: GREET.rep, btns: GREET.btns, id: Date.now() }]);
-        }, 700);
-      }, 10000);
+        setMsgs([{ from: "bot", text: GREET.rep, btns: GREET.btns, id: Date.now() }]);
+      }, 400);
     }
   }, [open, greeted]);
 
@@ -518,11 +514,15 @@ const ChatBot = ({ onReserver, onGalerie, onShowroom }) => {
       const entry = findReply(text);
       if (text === "Prendre rendez-vous" || text.toLowerCase().includes("rendez-vous") || text.toLowerCase().includes("réserver")) {
         setMsgs(m => [...m, { from: "bot", text: entry.rep, btns: entry.btns, action: "booking", id: Date.now() }]);
-      } else if (text === "Voir la galerie" || text.toLowerCase().includes("galerie")) {
-        setMsgs(m => [...m, { from: "bot", text: "Je vous emmène directement dans la galerie !", btns: [], id: Date.now() }]);
+      } else if (text === "La galerie" || text.toLowerCase().includes("galerie")) {
+        setMsgs(m => [...m, { from: "bot", text: "Je vous emmène dans la galerie ✦", btns: [], id: Date.now() }]);
         setTimeout(() => { setOpen(false); onGalerie?.(); }, 600);
       } else if (text === "Le showroom" || text.toLowerCase().includes("showroom")) {
-        setMsgs(m => [...m, { from: "bot", text: entry.rep, btns: entry.btns, action: "showroom", id: Date.now() }]);
+        setMsgs(m => [...m, { from: "bot", text: "Je vous emmène au showroom ✦", btns: [], id: Date.now() }]);
+        setTimeout(() => { setOpen(false); onShowroom?.(); }, 600);
+      } else if (text === "Les formules" || text.toLowerCase().includes("formule")) {
+        setMsgs(m => [...m, { from: "bot", text: "Je vous emmène vers les formules ✦", btns: [], id: Date.now() }]);
+        setTimeout(() => { setOpen(false); onFormules?.(); }, 600);
       } else if (text === "Ouvrir WhatsApp") {
         window.open("https://wa.me/33664826920", "_blank");
         setMsgs(m => [...m, { from: "bot", text: "Je vous redirige vers WhatsApp. Gaspard vous répondra sous 24h ✦", btns: [], id: Date.now() }]);
@@ -2247,6 +2247,7 @@ export default function App() {
         onReserver={() => setModal("booking")}
         onGalerie={() => scrollTo(galleryRef)}
         onShowroom={() => scrollTo(showroomRef)}
+        onFormules={() => scrollTo(formulesRef)}
       />
 
     </div>
