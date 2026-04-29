@@ -1076,7 +1076,8 @@ const HeroVideoLoop = () => {
   useEffect(() => {
     const v = ref.current;
     if (!v) return;
-    const play = () => v.play().catch(() => {});
+    const show = () => { v.style.opacity = "1"; };
+    const play = () => v.play().then(show).catch(() => {});
     play();
     v.addEventListener("canplay",    play, { once: true });
     v.addEventListener("loadeddata", play, { once: true });
@@ -1087,6 +1088,18 @@ const HeroVideoLoop = () => {
       v.removeEventListener("loadeddata", play);
       document.removeEventListener("touchstart", play);
     };
+  }, []);
+  return (
+    <video
+      ref={ref}
+      src={_HERO_SRC}
+      autoPlay muted playsInline loop
+      disablePictureInPicture
+      preload="auto"
+      style={{ ..._VIDEO_STYLE, opacity: 0, transition: "opacity 0.6s ease" }}
+    />
+  );
+};
   }, []);
   return (
     <video
@@ -1141,7 +1154,7 @@ const HeroMobile = ({ onScrollDown }) => {
   const opacity = useParallax([0, 400], [1, 0]);
 
   return (
-    <section style={{ height: "100dvh", position: "relative", overflow: "hidden", display: "flex", alignItems: "flex-end", justifyContent: "center" }}>
+    <section style={{ height: "100dvh", position: "relative", overflow: "hidden", display: "flex", alignItems: "flex-end", justifyContent: "center", background: "#1c1208" }}>
       {/* Photo plein écran */}
       <motion.div
         initial={{ scale: 1.08 }}
