@@ -1114,6 +1114,9 @@ const HeroMobile = ({ onScrollDown }) => {
         <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0.05) 0%, transparent 30%, rgba(0,0,0,0.2) 60%, rgba(0,0,0,0.65) 100%)" }} />
       </motion.div>
 
+      {/* Fondu bas vers crème — transition douce vers la section suivante */}
+      <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "100px", background: "linear-gradient(to bottom, transparent 0%, #f5f0e8 100%)", zIndex: 8, pointerEvents: "none" }} />
+
       {/* Grain overlay */}
       <div style={{ position: "absolute", inset: 0, opacity: 0.03, backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`, backgroundSize: "200px" }} />
 
@@ -1188,8 +1191,8 @@ const HeritageMobile = ({ refEl }) => {
           alt="Gaspardnz — L'Inspirateur"
           style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center top", display: "block" }}
         />
-        {/* Gradient bas vers crème */}
-        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 45%, rgba(245,240,232,0.7) 80%, #f5f0e8 100%)" }} />
+        {/* Gradient haut : transition depuis le hero sombre */}
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, #f5f0e8 0%, transparent 25%, transparent 45%, rgba(245,240,232,0.7) 80%, #f5f0e8 100%)" }} />
         {/* Tag flottant */}
         <motion.div
           initial={{ opacity: 0, x: -12 }} animate={inView ? { opacity: 1, x: 0 } : {}}
