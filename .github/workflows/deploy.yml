@@ -20,6 +20,9 @@ jobs:
 
       - run: npm ci
 
+      - name: Inject SW version
+        run: sed -i "s/gnz-v[0-9]*/gnz-v$(date +%Y%m%d)-${GITHUB_SHA::7}/" public/sw.js
+
       - run: npx vite build --base=/gaspardnz/
 
       - name: Deploy to GitHub Pages

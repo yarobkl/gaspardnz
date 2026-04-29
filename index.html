@@ -27,7 +27,7 @@
     <script type="module" src="/src/main.jsx"></script>
     <script>
       if ("serviceWorker" in navigator) {
-        navigator.serviceWorker.register("/gaspardnz/sw.js").catch(() => {});
+        navigator.serviceWorker.register("%BASE_URL%sw.js").catch(() => {});
       }
     </script>
   </body>
