@@ -1071,13 +1071,12 @@ const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules, 
 const _HERO_SRC = (typeof import.meta !== "undefined" ? (import.meta.env.BASE_URL || "/") : "/") + "31121E44-6D22-4C32-AAE4-BEFD0EF4D6B6.mov";
 const _VIDEO_STYLE = { position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 20%", filter: "brightness(0.82) contrast(1.05) saturate(1.0)" };
 
-const HeroVideoLoop = () => {
+const HeroVideoLoop = ({ onPlaying }) => {
   const ref = useRef(null);
   useEffect(() => {
     const v = ref.current;
     if (!v) return;
-    const show = () => { v.style.opacity = "1"; };
-    const play = () => v.play().then(show).catch(() => {});
+    const play = () => v.play().then(() => onPlaying && onPlaying()).catch(() => {});
     play();
     v.addEventListener("canplay",    play, { once: true });
     v.addEventListener("loadeddata", play, { once: true });
@@ -1096,62 +1095,15 @@ const HeroVideoLoop = () => {
       autoPlay muted playsInline loop
       disablePictureInPicture
       preload="auto"
-      style={{ ..._VIDEO_STYLE, opacity: 0, transition: "opacity 0.6s ease" }}
-    />
-  );
-};
-  }, []);
-  return (
-    <video
-      ref={ref}
-      src={_HERO_SRC}
-      autoPlay muted playsInline loop
-      disablePictureInPicture
-      preload="auto"
       style={{ ..._VIDEO_STYLE }}
     />
-  );
-};
-
-    const play = () => v.play().catch(() => {});
-    const start = () => { play(); draw(); };
-
-    v.addEventListener("canplay",    start, { once: true });
-    v.addEventListener("loadeddata", play,  { once: true });
-    document.addEventListener("touchstart", play, { once: true });
-    document.addEventListener("visibilitychange", () => { if (!document.hidden) play(); });
-    play();
-
-    return () => {
-      cancelAnimationFrame(raf.current);
-      document.removeEventListener("touchstart", play);
-    };
-  }, []);
-
-  return (
-    <>
-      <video
-        ref={vRef}
-        src={_HERO_SRC}
-        autoPlay muted playsInline loop
-        disablePictureInPicture
-        preload="auto"
-        style={{ display: "none" }}
-      />
-      <canvas
-        ref={cRef}
-        style={{
-          position: "absolute", inset: 0, width: "100%", height: "100%",
-          filter: "brightness(0.82) contrast(1.05) saturate(1.0)",
-        }}
-      />
-    </>
   );
 };
 
 const HeroMobile = ({ onScrollDown }) => {
   const t = useTr();
   const opacity = useParallax([0, 400], [1, 0]);
+  const [playing, setPlaying] = useState(false);
 
   return (
     <section style={{ height: "100dvh", position: "relative", overflow: "hidden", display: "flex", alignItems: "flex-end", justifyContent: "center", background: "#1c1208" }}>
@@ -1162,12 +1114,18 @@ const HeroMobile = ({ onScrollDown }) => {
         transition={{ duration: 2.8, ease: [0.16, 1, 0.3, 1] }}
         style={{ position: "absolute", inset: 0, willChange: "transform" }}
       >
-        <HeroVideoLoop />
-        {/* Absorbe les taps pour empêcher iOS d'afficher ses contrôles natifs */}
-        <div style={{ position: "absolute", inset: 0, zIndex: 5 }} />
+        <HeroVideoLoop onPlaying={() => setPlaying(true)} />
         {/* Gradient bas fort pour lire le texte */}
         <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0.05) 0%, transparent 30%, rgba(0,0,0,0.2) 60%, rgba(0,0,0,0.65) 100%)" }} />
       </motion.div>
+      {/* Overlay sombre — cache le bouton play iOS jusqu'à ce que la vidéo tourne */}
+      <div style={{
+        position: "absolute", inset: 0, zIndex: 20,
+        background: "#1c1208",
+        opacity: playing ? 0 : 1,
+        transition: "opacity 0.8s ease",
+        pointerEvents: playing ? "none" : "all",
+      }} />
 
       {/* Fondu bas vers crème — transition douce vers la section suivante */}
       <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "100px", background: "linear-gradient(to bottom, transparent 0%, #f5f0e8 100%)", zIndex: 8, pointerEvents: "none" }} />
