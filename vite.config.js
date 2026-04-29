@@ -8,5 +8,13 @@ export default defineConfig({
   base: isCapacitor ? "/" : "/gaspardnz/",
   build: {
     outDir: "dist",
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          "react-vendor": ["react", "react-dom"],
+          "framer-motion": ["framer-motion"],
+        },
+      },
+    },
   },
 });

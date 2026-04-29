@@ -1415,7 +1415,7 @@ const GalleryMobile = ({ refEl }) => {
         }}>
           {items.map(({ src, label }, i) => (
             <div key={i} style={{ flex: "0 0 100%", width: "100%", position: "relative" }}>
-              <img src={src} alt={label}
+              <img src={src} alt={label} loading="lazy"
                 style={{ width: "100%", aspectRatio: "3/4", objectFit: "cover", objectPosition: "top", filter: "brightness(0.94) contrast(1.02) saturate(0.9)", display: "block" }} />
               {label && (
                 <div style={{ position: "absolute", bottom: "1rem", left: "1rem" }}>
@@ -2062,8 +2062,8 @@ export default function App() {
         onMentions={() => setModal("mentions")}
         onConfidentialite={() => setModal("confidentialite")}
         onCGV={() => setModal("cgv")}
-        onCGV={() => setModal("cgv")}
         onReserver={() => setModal("booking")}
+      />
 
       {/* Modal catalogue */}
       <Modal isOpen={modal === "catalogue"} onClose={() => setModal(null)} title={tr("nav_boutique")}>
