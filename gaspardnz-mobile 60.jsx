@@ -440,7 +440,7 @@ const DEFAULT_REPLY = {
 };
 
 const GREET = {
-  rep: "Bienvenue chez **Gaspard NZ** ✦\n\nJe suis votre assistant personnel. Posez-moi vos questions sur les formules, le showroom, les tarifs ou la prise de rendez-vous.",
+  rep: "Bienvenue chez **Gaspard NZ** ✦\n\nJe suis votre assistant virtuel. Je peux vous renseigner sur les formules, le showroom, les tarifs ou la prise de rendez-vous.",
   btns: ["Les formules","Le showroom","Prendre rendez-vous","La galerie"]
 };
 
@@ -578,7 +578,7 @@ const ChatBot = ({ onReserver, onGalerie, onShowroom }) => {
             onClick={() => { setShowBubble(false); setOpen(true); }}
             style={{ position: "fixed", bottom: "5.2rem", right: "1.2rem", background: "#1c1208", border: `1px solid rgba(184,151,62,0.35)`, borderRadius: "14px 14px 4px 14px", padding: "0.75rem 1rem", maxWidth: "210px", cursor: "pointer", zIndex: 598, boxShadow: "0 4px 20px rgba(0,0,0,0.35)" }}
           >
-            <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "0.88rem", color: "rgba(245,240,232,0.92)", lineHeight: 1.45, margin: 0 }}>Bonjour ! Je suis disponible pour répondre à toutes vos questions ✨</p>
+            <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "0.88rem", color: "rgba(245,240,232,0.92)", lineHeight: 1.45, margin: 0 }}>Je suis là si vous avez des questions 💬</p>
             <button onClick={e => { e.stopPropagation(); setShowBubble(false); }} style={{ position: "absolute", top: "4px", right: "6px", background: "none", border: "none", cursor: "pointer", color: "rgba(245,240,232,0.35)", fontSize: "0.75rem", lineHeight: 1 }}>✕</button>
           </motion.div>
         )}
