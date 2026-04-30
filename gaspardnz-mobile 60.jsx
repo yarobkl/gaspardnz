@@ -247,7 +247,7 @@ const useTr = () => {
 };
 
 
-const fonts = `@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Bebas+Neue&family=Montserrat:wght@200;300;400;500&family=Great+Vibes&display=swap');`;
+const fonts = `@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Bebas+Neue&family=Montserrat:wght@200;300;400;500&family=Parisienne&display=swap');`;
 
 const SvgInstagram = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="0.5" fill="currentColor" stroke="none"/></svg>;
 const SvgFacebook = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>;
@@ -1172,7 +1172,7 @@ const HeroMobile = ({ onScrollDown }) => {
           initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.5 }}
           style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}
         >
-          <motion.p style={{ fontFamily: "'Great Vibes', cursive", fontSize: "clamp(24px, 6vw, 32px)", color: "rgba(245,240,232,0.92)", lineHeight: 1.2, letterSpacing: "0.04em" }}>
+          <motion.p style={{ fontFamily: "'Parisienne', cursive", fontSize: "clamp(17px, 4.5vw, 22px)", color: "rgba(245,240,232,0.95)", lineHeight: 1.3, letterSpacing: "0.02em", flexShrink: 1, minWidth: 0, paddingRight: "0.8rem" }}>
             {t("hero_subtitle").split("").map((char, i) => (
               <motion.span key={i}
                 initial={{ opacity: 0, y: 5 }}
@@ -1185,7 +1185,7 @@ const HeroMobile = ({ onScrollDown }) => {
           <motion.button onClick={onScrollDown}
             animate={{ boxShadow: ["0 0 0px rgba(184,151,62,0)", "0 0 14px rgba(184,151,62,0.55)", "0 0 0px rgba(184,151,62,0)"] }}
             transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
-            style={{ position: "relative", overflow: "hidden", background: "none", border: "1px solid rgba(245,240,232,0.65)", color: "rgba(245,240,232,0.95)", cursor: "pointer", padding: "0.7rem 1.4rem", fontFamily: "'Montserrat', sans-serif", fontSize: "11px", letterSpacing: "0.35em", textTransform: "uppercase", whiteSpace: "nowrap" }}>
+            style={{ position: "relative", overflow: "hidden", flexShrink: 0, background: "none", border: "1px solid rgba(245,240,232,0.65)", color: "rgba(245,240,232,0.95)", cursor: "pointer", padding: "0.7rem 1.4rem", fontFamily: "'Montserrat', sans-serif", fontSize: "11px", letterSpacing: "0.35em", textTransform: "uppercase", whiteSpace: "nowrap" }}>
             <motion.span
               animate={{ x: ["-130%", "230%"] }}
               transition={{ duration: 1.6, repeat: Infinity, repeatDelay: 2, ease: "easeInOut" }}
