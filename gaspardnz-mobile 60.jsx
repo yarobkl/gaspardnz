@@ -1084,10 +1084,19 @@ const HeroVideoLoop = ({ onPlaying }) => {
     v.addEventListener("loadeddata", play, { once: true });
     document.addEventListener("touchstart", play, { once: true });
     document.addEventListener("visibilitychange", () => { if (!document.hidden) play(); });
+    const smooth = () => {
+      if (!v.duration) return;
+      const left = v.duration - v.currentTime;
+      if (left < 0.35) v.style.opacity = Math.max(0, left / 0.35);
+      else if (v.currentTime < 0.35) v.style.opacity = Math.min(1, v.currentTime / 0.35);
+      else v.style.opacity = 1;
+    };
+    v.addEventListener("timeupdate", smooth);
     return () => {
       v.removeEventListener("canplay",    play);
       v.removeEventListener("loadeddata", play);
       document.removeEventListener("touchstart", play);
+      v.removeEventListener("timeupdate", smooth);
     };
   }, []);
   return (
@@ -1105,6 +1114,8 @@ const HeroVideoLoop = ({ onPlaying }) => {
 const HeroMobile = ({ onScrollDown }) => {
   const t = useTr();
   const opacity = useParallax([0, 400], [1, 0]);
+  const heroTextRef = useRef(null);
+  const heroInView = useInView(heroTextRef, { once: false, margin: "-10% 0px" });
 
   return (
     <section style={{ height: "100dvh", position: "relative", overflow: "hidden", display: "flex", alignItems: "flex-end", justifyContent: "center", background: "#1c1208" }}>
@@ -1164,13 +1175,14 @@ const HeroMobile = ({ onScrollDown }) => {
           initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.5 }}
           style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: "0.9rem" }}
         >
-          <motion.p style={{ fontFamily: "'Parisienne', cursive", fontSize: "clamp(17px, 4.5vw, 22px)", color: "rgba(245,240,232,0.95)", lineHeight: 1.3, letterSpacing: "0.02em",  }}>
-            {t("hero_subtitle").split("").map((char, i) => (
-              <motion.span key={i}
-                initial={{ opacity: 0, y: 5 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 1.2 + i * 0.055, duration: 0.3, ease: "easeOut" }}>
-                {char === " " ? " " : char}
+          <motion.p ref={heroTextRef} style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: "italic", fontWeight: 300, fontSize: "clamp(18px, 5vw, 24px)", color: "rgba(245,240,232,0.97)", lineHeight: 1.3, letterSpacing: "0.06em" }}>
+            {t("hero_subtitle").split(" ").map((word, i) => (
+              <motion.span key={`${heroInView}-${i}`}
+                initial={{ opacity: 0, y: 8 }}
+                animate={heroInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 8 }}
+                transition={{ delay: 0.3 + i * 0.12, duration: 0.5, ease: "easeOut" }}
+                style={{ display: "inline-block", marginRight: "0.3em" }}>
+                {word}
               </motion.span>
             ))}
           </motion.p>
