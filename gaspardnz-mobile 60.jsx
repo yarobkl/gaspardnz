@@ -1105,7 +1105,6 @@ const HeroVideoLoop = ({ onPlaying }) => {
 const HeroMobile = ({ onScrollDown }) => {
   const t = useTr();
   const opacity = useParallax([0, 400], [1, 0]);
-  const [playing, setPlaying] = useState(false);
 
   return (
     <section style={{ height: "100dvh", position: "relative", overflow: "hidden", display: "flex", alignItems: "flex-end", justifyContent: "center", background: "#1c1208" }}>
@@ -1116,18 +1115,11 @@ const HeroMobile = ({ onScrollDown }) => {
         transition={{ duration: 2.8, ease: [0.16, 1, 0.3, 1] }}
         style={{ position: "absolute", inset: 0, willChange: "transform" }}
       >
-        <HeroVideoLoop onPlaying={() => setPlaying(true)} />
+        <HeroVideoLoop />
         {/* Gradient bas fort pour lire le texte */}
         <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0.05) 0%, transparent 30%, rgba(0,0,0,0.2) 60%, rgba(0,0,0,0.65) 100%)" }} />
       </motion.div>
-      {/* Overlay sombre — cache le bouton play iOS jusqu'à ce que la vidéo tourne */}
-      <div style={{
-        position: "absolute", inset: 0, zIndex: 20,
-        background: "#1c1208",
-        opacity: playing ? 0 : 1,
-        transition: "opacity 0.8s ease",
-        pointerEvents: playing ? "none" : "all",
-      }} />
+
 
       {/* Fondu bas vers crème — transition douce vers la section suivante */}
       <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "100px", background: "linear-gradient(to bottom, transparent 0%, #f5f0e8 100%)", zIndex: 8, pointerEvents: "none" }} />
