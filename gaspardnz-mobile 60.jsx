@@ -1175,10 +1175,16 @@ const HeroMobile = ({ onScrollDown }) => {
           <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(13px, 3.5vw, 16px)", letterSpacing: "0.18em", color: "rgba(245,240,232,0.85)", fontStyle: "italic" }}>
             {t("hero_subtitle")}
           </p>
-          <button onClick={onScrollDown}
-            style={{ background: "none", border: `1px solid rgba(245,240,232,0.65)`, color: "rgba(245,240,232,0.95)", cursor: "pointer", padding: "0.7rem 1.4rem", fontFamily: "'Montserrat', sans-serif", fontSize: "11px", letterSpacing: "0.35em", textTransform: "uppercase", whiteSpace: "nowrap" }}>
+          <motion.button onClick={onScrollDown}
+            animate={{ boxShadow: ["0 0 0px rgba(184,151,62,0)", "0 0 14px rgba(184,151,62,0.55)", "0 0 0px rgba(184,151,62,0)"] }}
+            transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
+            style={{ position: "relative", overflow: "hidden", background: "none", border: "1px solid rgba(245,240,232,0.65)", color: "rgba(245,240,232,0.95)", cursor: "pointer", padding: "0.7rem 1.4rem", fontFamily: "'Montserrat', sans-serif", fontSize: "11px", letterSpacing: "0.35em", textTransform: "uppercase", whiteSpace: "nowrap" }}>
+            <motion.span
+              animate={{ x: ["-130%", "230%"] }}
+              transition={{ duration: 1.6, repeat: Infinity, repeatDelay: 2, ease: "easeInOut" }}
+              style={{ position: "absolute", top: 0, left: 0, width: "60%", height: "100%", background: "linear-gradient(90deg, transparent, rgba(184,151,62,0.5), transparent)", pointerEvents: "none" }} />
             {t("hero_cta")}
-          </button>
+          </motion.button>
         </motion.div>
       </motion.div>
     </section>
