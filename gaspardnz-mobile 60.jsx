@@ -1084,19 +1084,10 @@ const HeroVideoLoop = ({ onPlaying }) => {
     v.addEventListener("loadeddata", play, { once: true });
     document.addEventListener("touchstart", play, { once: true });
     document.addEventListener("visibilitychange", () => { if (!document.hidden) play(); });
-    const smooth = () => {
-      if (!v.duration) return;
-      const left = v.duration - v.currentTime;
-      if (left < 0.35) v.style.opacity = Math.max(0, left / 0.35);
-      else if (v.currentTime < 0.35) v.style.opacity = Math.min(1, v.currentTime / 0.35);
-      else v.style.opacity = 1;
-    };
-    v.addEventListener("timeupdate", smooth);
     return () => {
       v.removeEventListener("canplay",    play);
       v.removeEventListener("loadeddata", play);
       document.removeEventListener("touchstart", play);
-      v.removeEventListener("timeupdate", smooth);
     };
   }, []);
   return (
@@ -1175,16 +1166,12 @@ const HeroMobile = ({ onScrollDown }) => {
           initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.5 }}
           style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: "0.9rem" }}
         >
-          <motion.p ref={heroTextRef} style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: "italic", fontWeight: 300, fontSize: "clamp(18px, 5vw, 24px)", color: "rgba(245,240,232,0.97)", lineHeight: 1.3, letterSpacing: "0.06em" }}>
-            {t("hero_subtitle").split(" ").map((word, i) => (
-              <motion.span key={`${heroInView}-${i}`}
-                initial={{ opacity: 0, y: 8 }}
-                animate={heroInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 8 }}
-                transition={{ delay: 0.3 + i * 0.12, duration: 0.5, ease: "easeOut" }}
-                style={{ display: "inline-block", marginRight: "0.3em" }}>
-                {word}
-              </motion.span>
-            ))}
+          <motion.p ref={heroTextRef}
+            initial={{ clipPath: "inset(0 100% 0 0)" }}
+            animate={heroInView ? { clipPath: "inset(0 0% 0 0)" } : { clipPath: "inset(0 100% 0 0)" }}
+            transition={{ duration: 1.8, delay: 0.3, ease: [0.4, 0, 0.2, 1] }}
+            style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: "italic", fontWeight: 300, fontSize: "clamp(18px, 5vw, 24px)", color: "rgba(245,240,232,0.97)", lineHeight: 1.3, letterSpacing: "0.06em" }}>
+            {t("hero_subtitle")}
           </motion.p>
           <motion.button onClick={onScrollDown}
             animate={{ boxShadow: ["0 0 0px rgba(184,151,62,0)", "0 0 14px rgba(184,151,62,0.55)", "0 0 0px rgba(184,151,62,0)"] }}
