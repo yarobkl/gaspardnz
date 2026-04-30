@@ -1170,9 +1170,9 @@ const HeroMobile = ({ onScrollDown }) => {
 
         <motion.div
           initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.5 }}
-          style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}
+          style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: "0.9rem" }}
         >
-          <motion.p style={{ fontFamily: "'Parisienne', cursive", fontSize: "clamp(17px, 4.5vw, 22px)", color: "rgba(245,240,232,0.95)", lineHeight: 1.3, letterSpacing: "0.02em", flexShrink: 1, minWidth: 0, paddingRight: "0.8rem" }}>
+          <motion.p style={{ fontFamily: "'Parisienne', cursive", fontSize: "clamp(17px, 4.5vw, 22px)", color: "rgba(245,240,232,0.95)", lineHeight: 1.3, letterSpacing: "0.02em",  }}>
             {t("hero_subtitle").split("").map((char, i) => (
               <motion.span key={i}
                 initial={{ opacity: 0, y: 5 }}
@@ -1185,7 +1185,7 @@ const HeroMobile = ({ onScrollDown }) => {
           <motion.button onClick={onScrollDown}
             animate={{ boxShadow: ["0 0 0px rgba(184,151,62,0)", "0 0 14px rgba(184,151,62,0.55)", "0 0 0px rgba(184,151,62,0)"] }}
             transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
-            style={{ position: "relative", overflow: "hidden", flexShrink: 0, background: "none", border: "1px solid rgba(245,240,232,0.65)", color: "rgba(245,240,232,0.95)", cursor: "pointer", padding: "0.7rem 1.4rem", fontFamily: "'Montserrat', sans-serif", fontSize: "11px", letterSpacing: "0.35em", textTransform: "uppercase", whiteSpace: "nowrap" }}>
+            style={{ position: "relative", overflow: "hidden", background: "none", border: "1px solid rgba(245,240,232,0.65)", color: "rgba(245,240,232,0.95)", cursor: "pointer", padding: "0.7rem 1.4rem", fontFamily: "'Montserrat', sans-serif", fontSize: "11px", letterSpacing: "0.35em", textTransform: "uppercase", whiteSpace: "nowrap" }}>
             <motion.span
               animate={{ x: ["-130%", "230%"] }}
               transition={{ duration: 1.6, repeat: Infinity, repeatDelay: 2, ease: "easeInOut" }}
