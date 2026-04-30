@@ -1097,6 +1097,7 @@ const HeroVideoLoop = ({ onPlaying }) => {
       autoPlay muted playsInline loop
       disablePictureInPicture
       preload="auto"
+      onEnded={e => { e.target.currentTime = 0; e.target.play().catch(() => {}); }}
       style={{ ..._VIDEO_STYLE }}
     />
   );
