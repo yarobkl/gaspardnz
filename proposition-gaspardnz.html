@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Proposition Commerciale — Gaspardnz</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Montserrat:wght@300;400;500;600&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background: #faf7f2;
+      color: #1c1208;
+      padding: 60px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    /* ── HEADER ── */
+    .header {
+      border-bottom: 1px solid #b8973e;
+      padding-bottom: 32px;
+      margin-bottom: 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+
+    .brand {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 42px;
+      font-weight: 300;
+      letter-spacing: 0.15em;
+      color: #1c1208;
+    }
+
+    .brand span {
+      color: #b8973e;
+    }
+
+    .doc-label {
+      font-size: 9px;
+      letter-spacing: 0.4em;
+      text-transform: uppercase;
+      color: rgba(28,18,8,0.5);
+      text-align: right;
+      line-height: 1.8;
+    }
+
+    /* ── GOLD LINE ── */
+    .gold-line {
+      width: 60px;
+      height: 1px;
+      background: #b8973e;
+      margin: 0 0 32px 0;
+    }
+
+    /* ── SECTION TITLE ── */
+    .section-title {
+      font-size: 8px;
+      letter-spacing: 0.5em;
+      text-transform: uppercase;
+      color: #b8973e;
+      margin-bottom: 18px;
+    }
+
+    /* ── INTRO ── */
+    .intro {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 22px;
+      font-style: italic;
+      font-weight: 300;
+      color: rgba(28,18,8,0.75);
+      line-height: 1.6;
+      margin-bottom: 48px;
+    }
+
+    /* ── META INFO ── */
+    .meta {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 24px;
+      margin-bottom: 48px;
+      padding: 24px;
+      background: rgba(184,151,62,0.05);
+      border: 1px solid rgba(184,151,62,0.2);
+    }
+
+    .meta-item label {
+      font-size: 7px;
+      letter-spacing: 0.4em;
+      text-transform: uppercase;
+      color: #b8973e;
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .meta-item p {
+      font-size: 12px;
+      font-weight: 500;
+      color: #1c1208;
+    }
+
+    /* ── LIVRAISON ── */
+    .features {
+      margin-bottom: 48px;
+    }
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .feature-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 14px 16px;
+      border-left: 2px solid rgba(184,151,62,0.3);
+    }
+
+    .feature-item .dot {
+      width: 5px;
+      height: 5px;
+      background: #b8973e;
+      border-radius: 50%;
+      margin-top: 5px;
+      flex-shrink: 0;
+    }
+
+    .feature-item p {
+      font-size: 11px;
+      line-height: 1.5;
+      color: rgba(28,18,8,0.8);
+    }
+
+    /* ── FORMULE ── */
+    .formule {
+      margin-bottom: 48px;
+    }
+
+    .formule-card {
+      border: 1px solid #b8973e;
+      padding: 36px;
+      background: #fff;
+    }
+
+    .formule-main {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 28px;
+      padding-bottom: 28px;
+      border-bottom: 1px solid rgba(184,151,62,0.2);
+    }
+
+    .formule-label {
+      font-size: 8px;
+      letter-spacing: 0.4em;
+      text-transform: uppercase;
+      color: rgba(28,18,8,0.5);
+      margin-bottom: 8px;
+    }
+
+    .formule-value {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 36px;
+      font-weight: 600;
+      color: #1c1208;
+    }
+
+    .formule-sub {
+      font-size: 10px;
+      color: rgba(28,18,8,0.5);
+      margin-top: 4px;
+    }
+
+    .formule-total {
+      background: rgba(184,151,62,0.06);
+      padding: 16px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .formule-total span {
+      font-size: 9px;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: rgba(28,18,8,0.6);
+    }
+
+    .formule-total strong {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 24px;
+      color: #b8973e;
+    }
+
+    /* ── MAINTENANCE ── */
+    .maintenance {
+      margin-bottom: 48px;
+    }
+
+    .maintenance-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .maintenance-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 12px 16px;
+      background: rgba(184,151,62,0.04);
+    }
+
+    .maintenance-item .check {
+      font-size: 14px;
+      color: #b8973e;
+    }
+
+    .maintenance-item p {
+      font-size: 11px;
+      color: rgba(28,18,8,0.8);
+    }
+
+    /* ── CONDITIONS ── */
+    .conditions {
+      margin-bottom: 48px;
+      padding: 24px;
+      border: 1px solid rgba(28,18,8,0.08);
+    }
+
+    .conditions p {
+      font-size: 10px;
+      line-height: 2;
+      color: rgba(28,18,8,0.6);
+    }
+
+    .conditions p strong {
+      color: #1c1208;
+      font-weight: 600;
+    }
+
+    /* ── SIGNATURE ── */
+    .signature {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      margin-bottom: 40px;
+    }
+
+    .signature-box {
+      border-top: 1px solid rgba(28,18,8,0.15);
+      padding-top: 16px;
+    }
+
+    .signature-box p {
+      font-size: 9px;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: rgba(28,18,8,0.5);
+      margin-bottom: 40px;
+    }
+
+    .signature-box .sign-line {
+      border-bottom: 1px solid rgba(28,18,8,0.15);
+      margin-bottom: 8px;
+    }
+
+    .signature-box .sign-label {
+      font-size: 8px;
+      color: rgba(28,18,8,0.3);
+      letter-spacing: 0.2em;
+    }
+
+    /* ── FOOTER ── */
+    .footer {
+      border-top: 1px solid rgba(184,151,62,0.3);
+      padding-top: 20px;
+      text-align: center;
+    }
+
+    .footer p {
+      font-size: 8px;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: rgba(28,18,8,0.35);
+    }
+
+    /* ── PRINT ── */
+    @media print {
+      body { padding: 40px; background: white; }
+      @page { margin: 0; size: A4; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="brand">GASPARD<span>NZ</span></div>
+    <div class="doc-label">
+      Proposition Commerciale<br/>
+      Référence : GNZ-2025-001<br/>
+      Date : Avril 2025
+    </div>
+  </div>
+
+  <div class="gold-line"></div>
+
+  <!-- INTRO -->
+  <p class="intro">
+    Création d'un site vitrine sur-mesure, pensé pour la haute allure,<br/>
+    optimisé pour le trafic mobile et le référencement international.
+  </p>
+
+  <!-- META -->
+  <p class="section-title">Informations</p>
+  <div class="meta">
+    <div class="meta-item">
+      <label>Client</label>
+      <p>Gaspardnz</p>
+    </div>
+    <div class="meta-item">
+      <label>Prestataire</label>
+      <p>Yaro_Bkl</p>
+    </div>
+    <div class="meta-item">
+      <label>Site livré</label>
+      <p>gaspardnz.com</p>
+    </div>
+  </div>
+
+  <!-- LIVRAISON -->
+  <div class="features">
+    <p class="section-title">Ce qui a été livré</p>
+    <div class="feature-grid">
+      <div class="feature-item"><div class="dot"></div><p>Design luxe mobile-first avec animations haut de gamme</p></div>
+      <div class="feature-item"><div class="dot"></div><p>Galerie de créations — 15 looks présentés en carousel</p></div>
+      <div class="feature-item"><div class="dot"></div><p>Système de réservation en 2 étapes intégré</p></div>
+      <div class="feature-item"><div class="dot"></div><p>Chatbot assistant personnalisé Gaspardnz</p></div>
+      <div class="feature-item"><div class="dot"></div><p>4 langues : Français, Anglais, Espagnol, Mandarin</p></div>
+      <div class="feature-item"><div class="dot"></div><p>SEO complet — Google, ChatGPT, Perplexity, Claude</p></div>
+      <div class="feature-item"><div class="dot"></div><p>Optimisé pour tenir un pic de trafic TikTok viral</p></div>
+      <div class="feature-item"><div class="dot"></div><p>Bundle JS optimisé : 112 Ko (vs 3 Mo standard)</p></div>
+    </div>
+  </div>
+
+  <!-- FORMULE -->
+  <div class="formule">
+    <p class="section-title">Formule hybride</p>
+    <div class="formule-card">
+      <div class="formule-main">
+        <div>
+          <p class="formule-label">Livraison du site</p>
+          <p class="formule-value">1 500 €</p>
+          <p class="formule-sub">Payable à la signature</p>
+        </div>
+        <div style="text-align:center; color:rgba(28,18,8,0.2); font-size:24px;">+</div>
+        <div>
+          <p class="formule-label">Maintenance mensuelle</p>
+          <p class="formule-value">150 €<span style="font-size:16px; font-weight:300;">/mois</span></p>
+          <p class="formule-sub">Engagement minimum 12 mois</p>
+        </div>
+        <div style="text-align:center; color:rgba(28,18,8,0.2); font-size:24px;">=</div>
+        <div>
+          <p class="formule-label">Engagement minimum</p>
+          <p class="formule-value">12 mois</p>
+          <p class="formule-sub">Résiliation après 12 mois</p>
+        </div>
+      </div>
+      <div class="formule-total">
+        <span>Total première année</span>
+        <strong>3 300 €</strong>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAINTENANCE -->
+  <div class="maintenance">
+    <p class="section-title">La maintenance inclut</p>
+    <div class="maintenance-list">
+      <div class="maintenance-item"><span class="check">✦</span><p>Mise à jour de la galerie — nouvelles photos, nouveaux looks</p></div>
+      <div class="maintenance-item"><span class="check">✦</span><p>Modifications des textes, tarifs et formules</p></div>
+      <div class="maintenance-item"><span class="check">✦</span><p>Gestion de l'hébergement et du nom de domaine</p></div>
+      <div class="maintenance-item"><span class="check">✦</span><p>SEO continu — suivi du référencement Google & LLMs</p></div>
+      <div class="maintenance-item"><span class="check">✦</span><p>Support prioritaire — réponse sous 24h</p></div>
+    </div>
+  </div>
+
+  <!-- CONDITIONS -->
+  <div class="conditions">
+    <p class="section-title">Conditions</p>
+    <p>
+      <strong>Acompte :</strong> 1 500 € à la signature du contrat, avant livraison.<br/>
+      <strong>Mensualité :</strong> 150 € prélevés le 1er de chaque mois, dès la livraison.<br/>
+      <strong>Durée minimale :</strong> 12 mois d'engagement.<br/>
+      <strong>Résiliation :</strong> Possible après 12 mois avec préavis de 30 jours par écrit.<br/>
+      <strong>Propriété :</strong> Le code source reste la propriété du prestataire pendant la durée du contrat.
+    </p>
+  </div>
+
+  <!-- SIGNATURE -->
+  <div class="signature">
+    <div class="signature-box">
+      <p>Le client — Gaspardnz</p>
+      <div class="sign-line" style="height:50px;"></div>
+      <p class="sign-label">Signature & date</p>
+    </div>
+    <div class="signature-box">
+      <p>Le prestataire — Yaro_Bkl</p>
+      <div class="sign-line" style="height:50px;"></div>
+      <p class="sign-label">Signature & date</p>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <p>Gaspardnz — Proposition confidentielle · Avril 2025</p>
+  </div>
+
+</body>
+</html>
