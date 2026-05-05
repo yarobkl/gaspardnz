@@ -1124,6 +1124,14 @@ const HeroMobile = ({ onScrollDown }) => {
       </motion.div>
 
 
+      {/* Overlay — cache le bouton play iOS, disparaît automatiquement */}
+      <motion.div
+        initial={{ opacity: 1 }}
+        animate={{ opacity: 0 }}
+        transition={{ delay: 1.5, duration: 0.8, ease: "easeOut" }}
+        style={{ position: "absolute", inset: 0, zIndex: 20, background: "#1c1208", pointerEvents: "none" }}
+      />
+
       {/* Fondu bas vers crème — transition douce vers la section suivante */}
       <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "100px", background: "linear-gradient(to bottom, transparent 0%, #f5f0e8 100%)", zIndex: 8, pointerEvents: "none" }} />
 
