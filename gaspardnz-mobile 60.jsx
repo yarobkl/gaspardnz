@@ -1070,7 +1070,7 @@ const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules, 
 };
 
 /* ── HERO MOBILE ─────────────────────────────────────────────────── */
-const _HERO_SRC = (typeof import.meta !== "undefined" ? (import.meta.env.BASE_URL || "/") : "/") + "31121E44-6D22-4C32-AAE4-BEFD0EF4D6B6.mov";
+const _HERO_SRC = (typeof import.meta !== "undefined" ? (import.meta.env.BASE_URL || "/") : "/") + "hero.mp4";
 const _VIDEO_STYLE = { position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 20%", filter: "brightness(0.82) contrast(1.05) saturate(1.0)" };
 
 const HeroVideoLoop = ({ onPlaying }) => {
