@@ -1095,8 +1095,11 @@ const HeroVideoLoop = ({ onPlaying }) => {
       ref={ref}
       src={_HERO_SRC}
       autoPlay muted playsInline loop
-      disablePictureInPicture
+      disablePictureInPicture disableRemotePlayback
       preload="auto"
+      controls={false}
+      x-webkit-airplay="deny"
+      controlsList="nodownload nofullscreen noremoteplayback"
       onEnded={e => { e.target.currentTime = 0; e.target.play().catch(() => {}); }}
       style={{ ..._VIDEO_STYLE }}
     />
