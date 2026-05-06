@@ -878,7 +878,7 @@ const BookingModal = ({ isOpen, onClose, boutiqueMode = false }) => {
   );
 };
 
-const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules, highContrast, onToggleContrast, onBiographie, onReserver }) => {
+const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules, highContrast, onToggleContrast, onBiographie, onReserver, lightMode, onToggleDark }) => {
   const { lang, setLang } = useContext(LangCtx);
   const t = useTr();
   const [open, setOpen] = useState(false);
@@ -953,6 +953,18 @@ const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules, 
             </svg>
           </motion.div>
           <span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "5px", letterSpacing: "0.3em", color: highContrast ? GOLD : "transparent", textTransform: "uppercase", userSelect: "none" }}>MODE</span>
+        </motion.button>
+        {/* Mode nuit / mode jour */}
+        <motion.button onClick={onToggleDark} whileTap={{ scale: 0.88 }}
+          title={lightMode ? "Mode nuit" : "Mode jour"}
+          style={{ background: "none", border: "none", cursor: "pointer", color: lightMode ? GOLD : navTextColor, transition: "color 0.4s", flexShrink: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "2px", padding: "4px", minWidth: "32px", minHeight: "36px" }}>
+          <motion.div animate={{ rotate: lightMode ? 360 : 0 }} transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}>
+            {lightMode
+              ? <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={GOLD} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="4.5"/><line x1="12" y1="2" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="6.34" y2="17.66"/><line x1="17.66" y1="6.34" x2="19.07" y2="4.93"/></svg>
+              : <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            }
+          </motion.div>
+          <span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "5px", letterSpacing: "0.3em", color: lightMode ? GOLD : "rgba(184,151,62,0.5)", textTransform: "uppercase", userSelect: "none" }}>{lightMode ? "JOUR" : "NUIT"}</span>
         </motion.button>
         {/* Sélecteur de langue — globe */}
         {(() => {
@@ -2401,6 +2413,30 @@ export default function App() {
   });
   const highContrast = sensorHC || manualHC;
 
+  // Mode nuit / jour (vrai changement de thème)
+  const [lightMode, setLightMode] = useState(() => {
+    try { return localStorage.getItem("gnz-light") === "1"; } catch { return false; }
+  });
+  const toggleDark = () => setLightMode(v => {
+    const next = !v;
+    try { localStorage.setItem("gnz-light", next ? "1" : "0"); } catch {}
+    return next;
+  });
+  useEffect(() => {
+    const ID = "gnz-dark-toggle";
+    let el = document.getElementById(ID);
+    if (lightMode) {
+      if (!el) { el = document.createElement("style"); el.id = ID; document.head.appendChild(el); }
+      el.textContent = `
+        #gnz-root { filter: invert(1) hue-rotate(180deg) !important; }
+        #gnz-root img, #gnz-root video, #gnz-root iframe { filter: invert(1) hue-rotate(180deg) !important; }
+      `;
+    } else {
+      if (el) el.remove();
+    }
+    return () => { const e = document.getElementById(ID); if (e) e.remove(); };
+  }, [lightMode]);
+
   const [flashing, setFlashing] = useState(false);
   const toggleContrast = () => {
     setFlashing(true);
@@ -2613,6 +2649,8 @@ export default function App() {
       <NavMobile
         highContrast={highContrast}
         onToggleContrast={toggleContrast}
+        lightMode={lightMode}
+        onToggleDark={toggleDark}
         onReserver={() => setModal("booking")}
         onBiographie={() => setModal("biographie")}
         onShowroom={() => scrollTo(showroomRef)}
