@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, createContext, useContext } from "react";
-import { motion, useScroll, useTransform, AnimatePresence, useInView } from "framer-motion";
+import { motion, useScroll, useTransform, AnimatePresence, useInView, useMotionValue, animate } from "framer-motion";
 
 const GOLD = "#b8973e";
 const GOLD_LIGHT = "#d4ae5a";
@@ -1904,11 +1904,8 @@ const VIPClientsSection = () => {
   const inView = useInView(ref, { once: true, margin: "-6% 0px" });
   const [cur, setCur] = useState(0);
   const [vw, setVw] = useState(() => typeof window !== "undefined" ? window.innerWidth / 100 : 3.9);
-  useEffect(() => {
-    const update = () => setVw(window.innerWidth / 100);
-    window.addEventListener("resize", update);
-    return () => window.removeEventListener("resize", update);
-  }, []);
+  const curRef = useRef(0);
+  useEffect(() => { curRef.current = cur; });
   const clients = [
     { initials: "R.B", name: "Rodrin B. Moengue", city: "Paris", event: "Mariage", gradient: "linear-gradient(135deg,#1e3a5f,#2d6a9f)" },
     { initials: "C.M", name: "Cédric M.", city: "Monaco", event: "Gala de prestige", gradient: "linear-gradient(135deg,#4a1942,#8b2fc9)" },
@@ -1918,6 +1915,21 @@ const VIPClientsSection = () => {
     { initials: "T.R", name: "Théo R.", city: "Paris", event: "Shooting pro", gradient: "linear-gradient(135deg,#3d001a,#8b0030)" },
   ];
   const CARD_W = 68;
+  const getX = (idx) => ((100 - CARD_W) / 2 - idx * CARD_W) * vw;
+  const x = useMotionValue(getX(0));
+  const snapTo = (idx) => {
+    setCur(idx);
+    curRef.current = idx;
+    animate(x, getX(idx), { type: "spring", stiffness: 380, damping: 38 });
+  };
+  useEffect(() => {
+    const update = () => setVw(window.innerWidth / 100);
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
+  useEffect(() => {
+    x.set(((100 - CARD_W) / 2 - curRef.current * CARD_W) * vw);
+  }, [vw]);
   return (
     <section ref={ref} style={{ background: "#0a0602", padding: "4.5rem 0 5rem", overflow: "hidden" }}>
       <motion.div initial={{ opacity: 0, y: 20 }} animate={inView ? { opacity: 1, y: 0 } : {}}
@@ -1927,29 +1939,26 @@ const VIPClientsSection = () => {
         <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "28px", fontWeight: 300, color: "#faf7f2", letterSpacing: "0.02em", lineHeight: 1.2 }}>Ils ont fait confiance<br/>à Gaspardnz</p>
       </motion.div>
 
-      {/* Carousel avec effet zoom + swipe */}
+      {/* Carousel suivi 1:1 du doigt */}
       <div style={{ position: "relative", overflow: "hidden", cursor: "grab" }}>
         <motion.div
           drag="x"
           dragMomentum={false}
-          dragElastic={0.12}
-          dragConstraints={{ left: 0, right: 0 }}
+          dragElastic={0}
+          dragConstraints={{ left: getX(clients.length - 1), right: getX(0) }}
           onDragEnd={(_, { offset, velocity }) => {
-            const swipe = Math.abs(offset.x) > 40 || Math.abs(velocity.x) > 400;
-            if (swipe) {
-              if (offset.x < 0) setCur(c => Math.min(c + 1, clients.length - 1));
-              else setCur(c => Math.max(c - 1, 0));
-            }
+            const cw = CARD_W * vw;
+            if (offset.x < -cw * 0.2 || velocity.x < -300) snapTo(Math.min(curRef.current + 1, clients.length - 1));
+            else if (offset.x > cw * 0.2 || velocity.x > 300) snapTo(Math.max(curRef.current - 1, 0));
+            else snapTo(curRef.current);
           }}
-          style={{ display: "flex", alignItems: "center" }}
-          animate={{ x: ((100 - CARD_W) / 2 - cur * CARD_W) * vw }}
-          transition={{ type: "spring", stiffness: 320, damping: 35 }}>
+          style={{ x, display: "flex", alignItems: "center" }}>
           {clients.map((c, i) => {
             const isActive = i === cur;
             const dist = Math.abs(i - cur);
             return (
               <motion.div key={i}
-                onClick={() => setCur(i)}
+                onClick={() => snapTo(i)}
                 animate={{ scale: isActive ? 1 : 0.80, opacity: dist === 0 ? 1 : dist === 1 ? 0.55 : 0.3 }}
                 transition={{ type: "spring", stiffness: 280, damping: 28 }}
                 style={{ flexShrink: 0, width: `${CARD_W}vw`, paddingLeft: "6px", paddingRight: "6px", cursor: isActive ? "grab" : "pointer", transformOrigin: "center center" }}>
@@ -1975,7 +1984,7 @@ const VIPClientsSection = () => {
       {/* Dots */}
       <div style={{ display: "flex", justifyContent: "center", gap: "7px", marginTop: "1.6rem" }}>
         {clients.map((_, i) => (
-          <button key={i} onClick={() => setCur(i)}
+          <button key={i} onClick={() => snapTo(i)}
             style={{ width: i === cur ? "22px" : "6px", height: "6px", borderRadius: "3px", background: i === cur ? GOLD : "rgba(184,151,62,0.25)", border: "none", cursor: "pointer", transition: "all 0.35s", padding: 0 }} />
         ))}
       </div>
