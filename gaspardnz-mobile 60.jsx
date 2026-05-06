@@ -1903,6 +1903,12 @@ const VIPClientsSection = () => {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-6% 0px" });
   const [cur, setCur] = useState(0);
+  const [vw, setVw] = useState(() => typeof window !== "undefined" ? window.innerWidth / 100 : 3.9);
+  useEffect(() => {
+    const update = () => setVw(window.innerWidth / 100);
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
   const clients = [
     { initials: "R.B", name: "Rodrin B. Moengue", city: "Paris", event: "Mariage", gradient: "linear-gradient(135deg,#1e3a5f,#2d6a9f)" },
     { initials: "C.M", name: "Cédric M.", city: "Monaco", event: "Gala de prestige", gradient: "linear-gradient(135deg,#4a1942,#8b2fc9)" },
@@ -1911,7 +1917,7 @@ const VIPClientsSection = () => {
     { initials: "D.K", name: "Diarietou K.", city: "Abidjan", event: "Cérémonie", gradient: "linear-gradient(135deg,#1a1a3d,#3d3d8b)" },
     { initials: "T.R", name: "Théo R.", city: "Paris", event: "Shooting pro", gradient: "linear-gradient(135deg,#3d001a,#8b0030)" },
   ];
-  const CARD_W = 68; // % of viewport shown for active card
+  const CARD_W = 68;
   return (
     <section ref={ref} style={{ background: "#0a0602", padding: "4.5rem 0 5rem", overflow: "hidden" }}>
       <motion.div initial={{ opacity: 0, y: 20 }} animate={inView ? { opacity: 1, y: 0 } : {}}
@@ -1925,7 +1931,7 @@ const VIPClientsSection = () => {
       <div style={{ position: "relative", overflow: "hidden" }}>
         <motion.div
           style={{ display: "flex", alignItems: "center" }}
-          animate={{ x: `calc(${(100 - CARD_W) / 2}vw - ${cur * CARD_W}vw)` }}
+          animate={{ x: ((100 - CARD_W) / 2 - cur * CARD_W) * vw }}
           transition={{ type: "spring", stiffness: 300, damping: 32 }}>
           {clients.map((c, i) => {
             const isActive = i === cur;
