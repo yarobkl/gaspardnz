@@ -1368,92 +1368,63 @@ const ShowroomMobile = ({ refEl, onCatalogue, onFlammes }) => {
 };
 
 /* ── SHOP THE LOOK — hotspots data ──────────────────────────────── */
-/* Structure : Haut (revers x:36) · Bas (pantalon y:63) · Chaussures (y:83) */
-/* + Cravate ou Nœud papillon (x:51) UNIQUEMENT si porté sur la photo        */
-/* + Chapeau (y:12) UNIQUEMENT si porté sur la photo                          */
+/* Règle : ne mettre un dot QUE si la pièce est VISIBLE sur la photo          */
+/* Haut (x:36, y:33) · Bas (x:50, y:65) · Chaussures (x:44, y:87)           */
+/* Cravate/NP (x:51, y:40) · Chapeau (x:50, y:12)                            */
+/* Chaque look n'a que ce qui est réellement visible — à affiner avec Gaspard */
 const _WA_STL = "33664826920";
 const _STL_SPOTS = [
   [ // 0 — Costume Crème
     { x:36, y:35, label:"Haut — Costume 3 pièces crème", detail:"Lin crème sur-mesure, revers en pointe, coupe ajustée — veste + gilet + pantalon assortis, doublure soie ivoire" },
-    { x:50, y:63, label:"Bas — Pantalon crème assorti", detail:"Lin crème sur-mesure, coupe droite, revers 2 cm, pli marqué — fait main, assorti au gilet" },
-    { x:42, y:83, label:"Chaussures — Derby bicolores cuir", detail:"Cuir caramel & crème, semelle Goodyear, chaussettes fil d'Écosse crème — fabrication artisanale" },
   ],
   [ // 1 — Élégance Blanche
     { x:36, y:33, label:"Haut — Veste structurée blanche", detail:"Épaules structurées, blanc cassé sur-mesure, boutons nacre irisés, doublure soie ivoire" },
-    { x:50, y:63, label:"Bas — Pantalon blanc à revers", detail:"Blanc cassé, coupe droite, revers 2 cm, pli creux — laine légère sur-mesure, fait main" },
-    { x:44, y:83, label:"Chaussures — Derby blancs cuir", detail:"Cuir blanc patiné, bout captoe, semelle cuir naturel, chaussettes soie blanche ultra-fine" },
   ],
   [ // 2 — Veste Rayée
     { x:36, y:33, label:"Haut — Veste rayée sur-mesure", detail:"Rayures navy & crème contrastées, coupe slim, doublure soie navy, 2 boutons" },
     { x:51, y:40, label:"Cravate — Soie navy slim", detail:"Soie navy 6 cm, motifs discrets tissés, nœud four-in-hand — longueur ajustée sur-mesure" },
-    { x:50, y:63, label:"Bas — Pantalon navy uni", detail:"Laine fine navy, coupe droite, revers discret — ton sur ton avec la veste, tombé parfait" },
-    { x:44, y:83, label:"Chaussures — Derbies navy", detail:"Cuir navy cousu Goodyear, chaussettes fil d'Écosse rayées navy & blanc — artisanat français" },
   ],
   [ // 3 — Veste Orange
     { x:36, y:33, label:"Haut — Veste orange sur-mesure", detail:"Orange vif, cintrée sur-mesure, doublure soie bronze, boutons corne — pièce signature Gaspardnz" },
-    { x:50, y:63, label:"Bas — Pantalon noir slim", detail:"Laine noire, coupe slim, légèrement taille haute — tombé parfait, couture sur-mesure" },
-    { x:44, y:83, label:"Chaussures — Derbies cuir camel", detail:"Cuir lisse camel, bout carré, chaussettes fil d'Écosse noires — fabrication artisanale" },
   ],
   [ // 4 — Costume Carreaux
     { x:36, y:33, label:"Haut — Costume prince-de-galles", detail:"2 pièces, carreaux fins navy & crème, laine anglaise sur-mesure, revers en pointe" },
     { x:51, y:40, label:"Cravate — Soie assortie carreaux", detail:"Soie tissée carreaux 7 cm, nœud four-in-hand, barrette dorée — longueur sur-mesure" },
-    { x:50, y:63, label:"Bas — Pantalon carreaux assorti", detail:"Laine anglaise carreaux sur-mesure, coupe droite, revers 1,5 cm — tombé classique" },
-    { x:44, y:83, label:"Chaussures — Oxford bicolores", detail:"Cuir patiné camel & marron, semelle Goodyear, chaussettes argyle laine fin ton sur ton" },
   ],
   [ // 5 — Veste Bleue
     { x:36, y:33, label:"Haut — Veste bleue nuit sur-mesure", detail:"Bleu nuit structuré, épaules marquées, boutons dorés ciselés, doublure soie" },
-    { x:50, y:63, label:"Bas — Pantalon crème", detail:"Lin crème, coupe droite sur-mesure, ceinture discrète assortie — contraste élégant" },
-    { x:44, y:83, label:"Chaussures — Richelieu marine", detail:"Cuir bleu marine cousu Goodyear, finition miroir, chaussettes soie marine" },
   ],
   [ // 6 — Style Parisien
     { x:36, y:33, label:"Haut — Manteau parisien sur-mesure", detail:"Laine cachemire mélangée, coupe droite parisienne, boutonnage croisé — silhouette intemporelle" },
-    { x:50, y:63, label:"Bas — Pantalon chino taupe", detail:"Coton taupe, coupe slim légèrement conique sur-mesure, ourlet brut — allure urbaine" },
-    { x:44, y:83, label:"Chaussures — Chelsea cuir brun", detail:"Cuir brun waxé, élastiques crème, semelle Vibram, chaussettes laine mérinos marron" },
   ],
   [ // 7 — Chemise Lavande
     { x:50, y:33, label:"Haut — Chemise lavande brodée", detail:"Popeline lavande, broderies main sur col & poignets, col classique sur-mesure — pièce artisanale unique" },
-    { x:50, y:63, label:"Bas — Pantalon crème lin", detail:"Lin crème cassé, coupe droite, revers léger, ceinture fine — tissu respirant, été & soirée" },
-    { x:44, y:83, label:"Chaussures — Loafers mocca dorés", detail:"Cuir mocca, boucle dorée ciselée artisanat italien, chaussettes fil d'Écosse beige & lavande" },
   ],
   [ // 8 — Costume Bleu & Rouge
     { x:36, y:33, label:"Haut — Costume bicolore unique", detail:"2 tons bleu saphir & rouge profond sur-mesure — pièce unique Gaspardnz, coupe cintrée, doublure contrastée" },
     { x:51, y:38, label:"Nœud papillon — Soie bordeaux", detail:"Soie bordeaux à nouer sur-mesure — accord chromatique parfait avec le rouge du costume" },
-    { x:50, y:63, label:"Bas — Pantalon bicolore assorti", detail:"Laine sur-mesure, coupe slim — partie basse du costume bicolore, pièce unique" },
-    { x:44, y:83, label:"Chaussures — Derbies noirs miroir", detail:"Cuir noir lisse, finition miroir absolue, chaussettes soie noire ultra-fine — élégance soirée" },
   ],
   [ // 9 — Veste Bleue Rayée
     { x:36, y:33, label:"Haut — Veste bleue rayée sur-mesure", detail:"Rayures fines bleu & blanc, coupe ajustée, revers cranté, doublure soie — légèreté estivale" },
     { x:51, y:40, label:"Cravate — Soie navy", detail:"Soie navy 7 cm, micro-motifs tissés, nœud Pratt, barrette plaqué or — finesse absolue" },
-    { x:50, y:63, label:"Bas — Pantalon blanc slim", detail:"Laine légère blanche, coupe slim, ourlet net — lumineux et tranchant face à la veste" },
-    { x:44, y:83, label:"Chaussures — Derby bicolores", detail:"Cuir blanc & bleu marine, bout captoe, chaussettes fil d'Écosse blanc & navy — faits main" },
   ],
   [ // 10 — Costume Bordeaux
     { x:36, y:33, label:"Haut — Costume bordeaux 3 pièces", detail:"Laine fine bordeaux, veste + gilet + pantalon sur-mesure, revers en pointe cranté" },
     { x:51, y:40, label:"Cravate — Soie bordeaux motifs", detail:"Soie bordeaux, motifs cachemire tissés discrets 7,5 cm, nœud Windsor — longueur sur-mesure" },
-    { x:50, y:63, label:"Bas — Pantalon bordeaux assorti", detail:"Laine fine bordeaux sur-mesure, coupe droite, pli marqué — partie basse du 3 pièces" },
-    { x:44, y:83, label:"Chaussures — Oxford bordeaux", detail:"Cuir bordeaux patiné Goodyear, chaussettes cachemire bordeaux — accord total tête aux pieds" },
   ],
   [ // 11 — Promenade Blanche
     { x:36, y:33, label:"Haut — Veste blanche slim", detail:"Blanc cassé, boutons nacrés irisés, coupe slim sur-mesure, doublure lin écru" },
-    { x:50, y:63, label:"Bas — Pantalon fluide blanc", detail:"Tombé fluide blanc cassé, coupe droite légèrement évasée sur-mesure — tissu prestige" },
-    { x:44, y:83, label:"Chaussures — Sneakers cuir blanc", detail:"Cuir blanc premium, semelle crème, socquettes coton blanc — édition limitée" },
   ],
   [ // 12 — Smoking Doré
     { x:36, y:33, label:"Haut — Smoking doré sur-mesure", detail:"Reflets bronze dorés, revers satin or, coupe soirée gala, doublure soie champagne — 1 bouton" },
     { x:51, y:38, label:"Nœud papillon — Soie dorée", detail:"Soie bronze dorée à nouer sur-mesure — reflet miroir des revers satin du smoking" },
-    { x:50, y:63, label:"Bas — Pantalon smoking noir", detail:"Laine fine noire, galon satin sur couture — coupe slim, sans ceinture, bretelles soie dorée" },
-    { x:44, y:84, label:"Chaussures — Souliers vernis noirs", detail:"Vernis noir, bout en amande, finition miroir absolue, chaussettes soie noire Fil de Calais" },
   ],
   [ // 13 — Veste Navy Soirée
     { x:36, y:33, label:"Haut — Veste tuxedo navy sur-mesure", detail:"Tuxedo navy, revers satin bleu nuit, 1 bouton, doublure soie navy — coupe soirée exclusive" },
     { x:51, y:38, label:"Nœud papillon — Soie navy satin", detail:"Soie navy satin mat à nouer sur-mesure — continuité parfaite avec les revers de la veste" },
-    { x:50, y:63, label:"Bas — Pantalon smoking navy", detail:"Laine navy, galon satin nuit sur couture — coupe slim effilée, sans revers" },
-    { x:44, y:84, label:"Chaussures — Oxford vernis noir", detail:"Oxford vernis, finition miroir absolue, chaussettes soie noire Fil de Calais — luxe invisible" },
   ],
   [ // 14 — Costume Carreaux Rose
     { x:36, y:33, label:"Haut — Costume carreaux rose poudré", detail:"Rose poudré, carreaux fins, coupe cintrée 2 boutons sur-mesure — laine italienne douce" },
-    { x:50, y:63, label:"Bas — Pantalon rose carreaux assorti", detail:"Laine italienne rose poudré, coupe droite sur-mesure — partie basse du costume coordonné" },
-    { x:44, y:83, label:"Chaussures — Derby rose poudré", detail:"Cuir rose poudré sur-mesure, bout captoe, chaussettes fil d'Écosse rose clair — pièce unique" },
   ],
 ];
 
