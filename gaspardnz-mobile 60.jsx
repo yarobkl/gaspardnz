@@ -1817,7 +1817,7 @@ const TikTokViralSection = () => {
 
       <motion.div initial={{ opacity: 0 }} animate={inView ? { opacity: 1 } : {}} transition={{ delay: 0.7 }}
         style={{ textAlign: "center", marginTop: "2rem" }}>
-        <motion.a href="https://www.tiktok.com/@gaspardnz" target="_blank" rel="noopener noreferrer"
+        <motion.a href="https://www.tiktok.com/@gaspardnz?_r=1&_t=ZS-95wB65ZWhvB" target="_blank" rel="noopener noreferrer"
           whileTap={{ scale: 0.97 }}
           style={{ display: "inline-flex", alignItems: "center", gap: "8px", background: "#010101", padding: "12px 22px", borderRadius: "24px", textDecoration: "none", border: "1px solid rgba(255,255,255,0.12)" }}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.34 6.34 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.82a8.27 8.27 0 004.84 1.54V6.91a4.85 4.85 0 01-1.07-.22z"/></svg>
