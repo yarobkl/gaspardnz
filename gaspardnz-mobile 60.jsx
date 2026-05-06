@@ -1921,18 +1921,24 @@ const TestimonialsSection = () => {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-6% 0px" });
   const reviews = [
+    { type: "tiktok", username: "Emmanuel", likes: 894,
+      text: "Son élégance m'inspire", avatar: "E", avatarBg: "#1565c0",
+      reply: "🥰 Je suis honoré ! Merci 🙏", replyLikes: 106 },
     { type: "google", name: "Marcus T.", location: "Paris", date: "Il y a 3 semaines",
       text: "Gaspard m'a conseillé pour mon mariage. Sa vision du style est exceptionnelle. Chaque détail était pensé, j'ai eu des compliments toute la soirée. Professionnel, à l'écoute — je recommande les yeux fermés.",
       avatar: "M", avatarBg: "#1e40af" },
+    { type: "tiktok", username: "Yaro_BAKALO'S 🌴🦍🥂", likes: 64,
+      text: "Le daron a encore frappé 🔥", avatar: "Y", avatarBg: "#1b5e20" },
+    { type: "tiktok", username: "SAVEURS DU TERROIR &D'AILLEURS", likes: 125,
+      text: "J'aime le style raffiné et le boss cartonne", avatar: "S", avatarBg: "#4a148c" },
+    { type: "tiktok", username: "Immaculée conception", likes: 38,
+      text: "Le tonton es trop classe 😍", avatar: "I", avatarBg: "#880e4f" },
     { type: "instagram", username: "@yannick_b_official", name: "Yannick B.", likes: 847,
       text: "Gaspard te transforme littéralement 🔥 J'avais jamais eu autant de confiance dans mon style. Maintenant je sais plus m'habiller sans lui lol. Merci chef @gaspardnz 🙏",
       avatar: "Y", avatarBg: "#7c3aed" },
     { type: "google", name: "Cédric Morel", location: "Monaco", date: "Il y a 1 mois",
       text: "Pour un gala à Monaco, Gaspard m'a proposé quelque chose d'unique. Réactivité sur WhatsApp, sens du détail, résultat parfait. Service 5 étoiles absolument.",
       avatar: "C", avatarBg: "#dc2626" },
-    { type: "instagram", username: "@theo_remy_", name: "Théo R.", likes: 1203,
-      text: "Si t'as pas encore fait appel à @gaspardnz pour ton prochain événement, t'as raté quelque chose. Look de folie pour mon shooting 📸✨ Tout le monde demandait d'où ça venait.",
-      avatar: "T", avatarBg: "#059669" },
     { type: "google", name: "Alexis N.", location: "Dubai", date: "Il y a 2 mois",
       text: "Même à distance, tout était parfait. J'étais à Dubai, on a tout géré sur WhatsApp. La tenue est arrivée impeccable. Jamais été aussi élégant de ma vie.",
       avatar: "A", avatarBg: "#d97706" },
@@ -1950,7 +1956,7 @@ const TestimonialsSection = () => {
         {reviews.map((r, i) => (
           <motion.div key={i} initial={{ opacity: 0, y: 20 }} animate={inView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.5, delay: 0.1 + i * 0.08 }}
-            style={{ flexShrink: 0, width: "76vw", maxWidth: "300px", scrollSnapAlign: "start", background: r.type === "google" ? "#faf7f2" : "#1c1208", borderRadius: "14px", padding: "1.2rem", border: r.type === "instagram" ? "1px solid rgba(184,151,62,0.22)" : "none" }}>
+            style={{ flexShrink: 0, width: "76vw", maxWidth: "300px", scrollSnapAlign: "start", background: r.type === "google" ? "#faf7f2" : "#1c1208", borderRadius: "14px", padding: "1.2rem", border: r.type === "tiktok" ? "1px solid rgba(254,44,85,0.25)" : r.type === "instagram" ? "1px solid rgba(184,151,62,0.22)" : "none" }}>
             {r.type === "google" ? (
               <>
                 <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "10px" }}>
@@ -1994,7 +2000,37 @@ const TestimonialsSection = () => {
                   <span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "9px", color: "rgba(184,151,62,0.65)" }}>{r.likes.toLocaleString()} j'aime</span>
                 </div>
               </>
-            )}
+            ) : r.type === "tiktok" ? (
+              <>
+                <div style={{ display: "flex", alignItems: "center", gap: "9px", marginBottom: "11px" }}>
+                  <div style={{ width: "32px", height: "32px", borderRadius: "50%", background: r.avatarBg, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                    <span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "11px", fontWeight: 700, color: "#fff" }}>{r.avatar}</span>
+                  </div>
+                  <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "11px", fontWeight: 600, color: "#faf7f2", flex: 1 }}>{r.username}</p>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.34 6.34 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.82a8.27 8.27 0 004.84 1.54V6.91a4.85 4.85 0 01-1.07-.22z"/></svg>
+                </div>
+                <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "13px", color: "#faf7f2", lineHeight: 1.55 }}>{r.text}</p>
+                <div style={{ display: "flex", alignItems: "center", gap: "5px", marginTop: "9px" }}>
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="rgba(254,44,85,0.85)"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                  <span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "9px", color: "rgba(250,247,242,0.45)" }}>{r.likes.toLocaleString()}</span>
+                </div>
+                {r.reply && (
+                  <div style={{ marginTop: "10px", paddingTop: "10px", borderTop: "1px solid rgba(255,255,255,0.08)", display: "flex", gap: "8px" }}>
+                    <div style={{ width: "24px", height: "24px", borderRadius: "50%", background: "#0a0602", border: `1px solid ${GOLD}`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                      <span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "6px", fontWeight: 700, color: GOLD }}>GNZ</span>
+                    </div>
+                    <div>
+                      <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "9px", fontWeight: 700, color: GOLD, marginBottom: "3px" }}>Gaspardnz</p>
+                      <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "11px", color: "rgba(250,247,242,0.75)", lineHeight: 1.45 }}>{r.reply}</p>
+                      <div style={{ display: "flex", alignItems: "center", gap: "4px", marginTop: "5px" }}>
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="rgba(254,44,85,0.7)"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                        <span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "8px", color: "rgba(250,247,242,0.3)" }}>{r.replyLikes}</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </>
+            ) : null}
           </motion.div>
         ))}
       </div>
