@@ -1408,8 +1408,7 @@ const _STL_SPOTS = [
     { x:48, y:88, label:"Chaussures — Sneakers bleus & blancs", detail:"Sneakers cuir bleu & blanc, semelle blanche — touche sportive chic au total look" },
   ],
   [ // 6 — Style Parisien — ASSIS canapé · pas chapeau · bas ✓ · chaussures ✗ (coupé)
-    { x:40, y:38, label:"Haut — Ensemble marron col mao", detail:"Veste col mao marron sur-mesure, style africain parisien, col montant boutonné" },
-    { x:48, y:65, label:"Bas — Pantalon marron coordonné", detail:"Pantalon marron sur-mesure, coupe droite — ensemble 2 pièces coordonné total look marron" },
+    { x:44, y:48, label:"Tenue complète — Ensemble marron col mao", detail:"Veste & pantalon marron sur-mesure, col mao boutonné, coupe africaine ajustée — total look marron, style africain parisien" },
   ],
   [ // 7 — Chemise Lavande — DEBOUT (gauche) · pas chapeau · bas ✓ · chaussures ✓
     { x:30, y:35, label:"Haut — Chemise rayée lavande", detail:"Chemise rayures lavande & blanc sur-mesure, col contrasté blanc, double manchette — coupe ajustée" },
