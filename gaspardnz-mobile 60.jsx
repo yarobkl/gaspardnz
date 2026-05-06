@@ -1367,10 +1367,96 @@ const ShowroomMobile = ({ refEl, onCatalogue, onFlammes }) => {
   );
 };
 
+/* ── SHOP THE LOOK — hotspots data ──────────────────────────────── */
+const _WA_STL = "33664826920";
+const _STL_SPOTS = [
+  [ // 0 — Costume Crème
+    { x:52, y:22, label:"Costume 3 pièces crème", detail:"Lin crème sur-mesure, coupe ajustée, revers en pointe" },
+    { x:62, y:31, label:"Pochette de costume", detail:"Pochette soie crème, pliage signature Gaspardnz" },
+    { x:46, y:70, label:"Derby bicolores", detail:"Cuir caramel & crème, semelle cuir — finition artisanale" },
+  ],
+  [ // 1 — Élégance Blanche
+    { x:50, y:19, label:"Veste structurée blanche", detail:"Épaules structurées, blanc cassé sur-mesure, boutons nacre" },
+    { x:50, y:36, label:"Chemise blanche sur-mesure", detail:"Col français, blanc pur, coupe slim sur-mesure" },
+    { x:50, y:60, label:"Pantalon à revers", detail:"Blanc cassé, coupe droite, revers 2 cm — fait main" },
+  ],
+  [ // 2 — Veste Rayée
+    { x:50, y:21, label:"Veste rayée sur-mesure", detail:"Rayures contrastées navy & crème, coupe slim, doublure soie" },
+    { x:53, y:37, label:"Chemise brodée", detail:"Broderies fines sur col & poignets, sur-mesure" },
+    { x:48, y:62, label:"Pantalon uni", detail:"Ton sur ton, coupe droite, tissu premium" },
+  ],
+  [ // 3 — Veste Orange
+    { x:50, y:20, label:"Veste orange vif", detail:"Orange vif, cintrée sur-mesure, doublure soie bronze" },
+    { x:50, y:37, label:"Chemise blanche", detail:"Col officier, blanc pur, sur-mesure" },
+    { x:54, y:70, label:"Chaussures de ville", detail:"Cuir lisse camel, bout carré — fabrication artisanale" },
+  ],
+  [ // 4 — Costume Carreaux
+    { x:50, y:19, label:"Costume prince-de-galles", detail:"2 pièces, carreaux fins, laine anglaise sur-mesure" },
+    { x:56, y:30, label:"Cravate slim soie", detail:"Soie tissée assortie, nœud four-in-hand signé" },
+    { x:50, y:43, label:"Chemise à rayures fines", detail:"Rayures fines, col cutaway, sur-mesure" },
+    { x:50, y:72, label:"Oxford bicolores", detail:"Cuir patiné camel & marron, semelle Goodyear" },
+  ],
+  [ // 5 — Veste Bleue
+    { x:50, y:21, label:"Veste bleue nuit", detail:"Structurée, bleue nuit sur-mesure, boutons dorés" },
+    { x:50, y:38, label:"Chemise col français", detail:"Blanc pur, col français, sur-mesure" },
+    { x:53, y:66, label:"Richelieu marine", detail:"Cuir bleu marine, cousu Goodyear — finition miroir" },
+  ],
+  [ // 6 — Style Parisien
+    { x:50, y:22, label:"Manteau coupe parisienne", detail:"Laine fine, coupe parisienne structurée sur-mesure" },
+    { x:50, y:44, label:"Chemise col boutonné", detail:"Col boutonné, tissu Oxford, sur-mesure" },
+    { x:52, y:73, label:"Bottines Chelsea", detail:"Chelsea cuir brun, élastiques crème — finition wax" },
+  ],
+  [ // 7 — Chemise Lavande
+    { x:52, y:23, label:"Chemise lavande brodée", detail:"Broderies main sur-mesure, lavande doux, col classique" },
+    { x:50, y:46, label:"Pantalon crème", detail:"Coupe droite, crème cassé, taille ajustée sur-mesure" },
+    { x:50, y:71, label:"Loafers cuir mocca", detail:"Cuir mocca, boucle dorée ciselée — artisanat italien" },
+  ],
+  [ // 8 — Costume Bleu & Rouge
+    { x:50, y:19, label:"Costume bicolore unique", detail:"2 tons bleu & rouge sur-mesure — pièce unique, coupe moderne" },
+    { x:55, y:29, label:"Nœud papillon bordeaux", detail:"Soie bordeaux sur-mesure, nœud papillon à nouer" },
+    { x:50, y:41, label:"Chemise blanche sur-mesure", detail:"Col classique, blanc pur, repassage facile" },
+  ],
+  [ // 9 — Veste Bleue Rayée
+    { x:50, y:21, label:"Veste bleue rayée fine", detail:"Rayures fines bleu & blanc, coupe ajustée sur-mesure" },
+    { x:50, y:38, label:"Chemise unie coupe slim", detail:"Blanc pur, coupe slim, col semi-cutaway sur-mesure" },
+    { x:52, y:66, label:"Derby bicolores marine", detail:"Cuir blanc & bleu marine, bout captoe — fait main" },
+  ],
+  [ // 10 — Costume Bordeaux
+    { x:50, y:19, label:"Costume bordeaux 3 pièces", detail:"Laine fine bordeaux, 3 pièces sur-mesure — gilet inclus" },
+    { x:57, y:27, label:"Pochette soie dorée", detail:"Soie dorée, pliage signature Gaspardnz" },
+    { x:54, y:34, label:"Cravate à motifs fins", detail:"Soie bordeaux, motifs tissés discrets sur-mesure" },
+    { x:50, y:43, label:"Chemise col français", detail:"Blanc pur, col français — excellence de coupe" },
+  ],
+  [ // 11 — Promenade Blanche
+    { x:50, y:19, label:"Veste blanche slim", detail:"Blanc cassé, boutons nacrés, coupe slim sur-mesure" },
+    { x:50, y:37, label:"Polo col montant blanc", detail:"Col montant, maille fine, blanc pur sur-mesure" },
+    { x:50, y:58, label:"Pantalon fluide blanc", detail:"Blanc cassé, fluide, tombé parfait — tissu prestige" },
+    { x:52, y:76, label:"Sneakers cuir blanc", detail:"Cuir blanc premium, semelle crème — édition limitée" },
+  ],
+  [ // 12 — Smoking Doré
+    { x:50, y:19, label:"Smoking doré sur-mesure", detail:"Reflets bronze dorés, revers satin, coupe soirée gala" },
+    { x:55, y:28, label:"Nœud papillon doré", detail:"Soie tissée dorée sur-mesure, nœud papillon à nouer" },
+    { x:50, y:38, label:"Chemise plastron blanc", detail:"Col cassé, plastron piqué, boutons de nacre sur-mesure" },
+    { x:50, y:69, label:"Souliers de soirée", detail:"Vernis noir, bout en amande — finition miroir absolue" },
+  ],
+  [ // 13 — Veste Navy Soirée
+    { x:50, y:21, label:"Veste tuxedo navy", detail:"Tuxedo navy sur-mesure, revers satin, coupe soirée" },
+    { x:54, y:30, label:"Nœud papillon navy", detail:"Soie navy coordonnée, à nouer sur-mesure" },
+    { x:50, y:42, label:"Chemise col cassé", detail:"Blanc, col cassé, plastron discret — sur-mesure" },
+    { x:52, y:69, label:"Oxford vernis noir", detail:"Oxford vernis, finition miroir — élégance absolue" },
+  ],
+  [ // 14 — Costume Carreaux Rose
+    { x:50, y:19, label:"Costume carreaux rose", detail:"Rose poudré, carreaux fin sur-mesure, coupe moderne cintrée" },
+    { x:50, y:34, label:"Chemise blanche sur-mesure", detail:"Col classique, coupe slim, blanc pur sur-mesure" },
+    { x:55, y:43, label:"Ceinture cuir boucle dorée", detail:"Cuir lisse, boucle dorée ciselée — accessoire signature" },
+    { x:50, y:71, label:"Derby rose poudré", detail:"Cuir rose poudré sur-mesure — pièce assortie unique" },
+  ],
+];
+
 /* ── GALLERY MOBILE — scroll horizontal ─────────────────────────── */
 const GalleryMobile = ({ refEl }) => {
   const t = useTr();
-  const items = [
+  const baseItems = [
     { src: `${import.meta.env.BASE_URL}images/costume-creme.jpg`, label: t("gal_1") },
     { src: `${import.meta.env.BASE_URL}images/elegance-blanche.jpg`, label: t("gal_2") },
     { src: `${import.meta.env.BASE_URL}images/veste-rayee.jpg`, label: t("gal_3") },
@@ -1387,14 +1473,14 @@ const GalleryMobile = ({ refEl }) => {
     { src: `${import.meta.env.BASE_URL}images/veste-navy-soiree.jpg`, label: t("gal_14") },
     { src: `${import.meta.env.BASE_URL}images/costume-carreaux-rose.jpg`, label: t("gal_15") },
   ];
+  const items = baseItems.map((it, i) => ({ ...it, hotspots: _STL_SPOTS[i] || [] }));
 
   const n = items.length;
   const [cur, setCur] = useState(0);
+  const [activeSpot, setActiveSpot] = useState(null); // { iIdx, sIdx }
   const timerRef = useRef(null);
 
-  const go = (dir) => {
-    setCur(c => (c + dir + n) % n);
-  };
+  const go = (dir) => { setCur(c => (c + dir + n) % n); };
 
   const resetTimer = () => {
     clearInterval(timerRef.current);
@@ -1406,6 +1492,22 @@ const GalleryMobile = ({ refEl }) => {
     timerRef.current = setInterval(() => setCur(c => (c + 1) % n), 4000);
     return () => clearInterval(timerRef.current);
   }, [n]);
+
+  useEffect(() => {
+    if (activeSpot) clearInterval(timerRef.current);
+    else resetTimer();
+  }, [activeSpot]);
+
+  const curSpot = activeSpot ? items[activeSpot.iIdx]?.hotspots?.[activeSpot.sIdx] : null;
+  const curItem = activeSpot ? items[activeSpot.iIdx] : null;
+
+  const handleWA = () => {
+    if (!curSpot || !curItem) return;
+    const msg = encodeURIComponent(
+      `Bonjour Gaspard ! J'ai découvert votre look "${curItem.label}" sur gaspardnz.com et je suis très intéressé(e) par "${curSpot.label}" — ${curSpot.detail}. Pourriez-vous me donner plus d'informations et le tarif pour une création sur-mesure ? Merci 🙏`
+    );
+    window.open(`https://wa.me/${_WA_STL}?text=${msg}`, "_blank");
+  };
 
   return (
     <section ref={refEl} style={{ background: "#f5f0e8", paddingBottom: "4rem" }}>
@@ -1421,7 +1523,7 @@ const GalleryMobile = ({ refEl }) => {
           transition: "transform 0.7s cubic-bezier(0.16,1,0.3,1)",
           willChange: "transform",
         }}>
-          {items.map(({ src, label }, i) => (
+          {items.map(({ src, label, hotspots }, i) => (
             <div key={i} style={{ flex: "0 0 100%", width: "100%", position: "relative" }}>
               <img src={src} alt={label} loading="lazy"
                 style={{ width: "100%", aspectRatio: "3/4", objectFit: "cover", objectPosition: "top", filter: "brightness(0.94) contrast(1.02) saturate(0.9)", display: "block" }} />
@@ -1430,6 +1532,45 @@ const GalleryMobile = ({ refEl }) => {
                   <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.4em", color: "rgba(255,255,255,0.85)", textTransform: "uppercase" }}>{label}</p>
                 </div>
               )}
+              {/* Shop the Look indicator */}
+              {i === cur && hotspots.length > 0 && (
+                <div style={{ position: "absolute", bottom: "1rem", right: "1rem", display: "flex", alignItems: "center", gap: "6px" }}>
+                  <div style={{ width: "6px", height: "6px", borderRadius: "50%", background: GOLD }} />
+                  <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "6px", letterSpacing: "0.35em", color: "rgba(255,255,255,0.75)", textTransform: "uppercase" }}>Shop the Look</p>
+                </div>
+              )}
+              {/* Hotspot dots */}
+              {i === cur && hotspots.map((spot, si) => (
+                <motion.button
+                  key={si}
+                  onClick={() => setActiveSpot({ iIdx: i, sIdx: si })}
+                  animate={{ scale: [1, 1.25, 1], opacity: [0.85, 1, 0.85] }}
+                  transition={{ duration: 2.2, repeat: Infinity, delay: si * 0.5, ease: "easeInOut" }}
+                  style={{
+                    position: "absolute",
+                    left: `${spot.x}%`,
+                    top: `${spot.y}%`,
+                    transform: "translate(-50%, -50%)",
+                    width: "26px",
+                    height: "26px",
+                    borderRadius: "50%",
+                    background: "rgba(184,151,62,0.88)",
+                    border: "2px solid rgba(255,255,255,0.9)",
+                    boxShadow: "0 0 0 4px rgba(184,151,62,0.25)",
+                    cursor: "pointer",
+                    zIndex: 10,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    padding: 0,
+                  }}
+                >
+                  <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                    <line x1="5" y1="1" x2="5" y2="9" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
+                    <line x1="1" y1="5" x2="9" y2="5" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
+                  </svg>
+                </motion.button>
+              ))}
             </div>
           ))}
         </div>
@@ -1450,6 +1591,96 @@ const GalleryMobile = ({ refEl }) => {
           <div key={i} style={{ width: i === cur ? "20px" : "6px", height: "2px", background: i === cur ? GOLD : "rgba(28,18,8,0.2)", borderRadius: "1px", transition: "all 0.3s", cursor: "pointer" }} onClick={() => { setCur(i); resetTimer(); }} />
         ))}
       </div>
+
+      {/* Shop the Look panel */}
+      <AnimatePresence>
+        {activeSpot && curSpot && curItem && (
+          <>
+            <motion.div
+              key="stl-backdrop"
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              onClick={() => setActiveSpot(null)}
+              style={{ position: "fixed", inset: 0, background: "rgba(28,18,8,0.55)", zIndex: 200, backdropFilter: "blur(2px)", WebkitBackdropFilter: "blur(2px)" }}
+            />
+            <motion.div
+              key="stl-panel"
+              initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }}
+              transition={{ type: "spring", damping: 28, stiffness: 320 }}
+              style={{
+                position: "fixed", bottom: 0, left: 0, right: 0,
+                background: "#faf7f2",
+                zIndex: 201,
+                borderRadius: "18px 18px 0 0",
+                paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 1.4rem)",
+                maxHeight: "82vh",
+                overflow: "auto",
+              }}
+            >
+              {/* Handle */}
+              <div style={{ display: "flex", justifyContent: "center", paddingTop: "12px", paddingBottom: "6px" }}>
+                <div style={{ width: "36px", height: "3px", background: "rgba(28,18,8,0.18)", borderRadius: "2px" }} />
+              </div>
+
+              {/* Header */}
+              <div style={{ padding: "0.6rem 1.4rem 1rem", borderBottom: `1px solid rgba(184,151,62,0.2)`, display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                <div>
+                  <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "6.5px", letterSpacing: "0.55em", color: GOLD, textTransform: "uppercase", marginBottom: "5px" }}>SHOP THE LOOK</p>
+                  <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "22px", fontWeight: 300, color: TEXT, letterSpacing: "0.02em" }}>{curItem.label}</p>
+                </div>
+                <button onClick={() => setActiveSpot(null)} style={{ background: "none", border: "none", padding: "4px", cursor: "pointer", color: "rgba(28,18,8,0.45)", fontSize: "18px", lineHeight: 1, marginTop: "2px" }}>×</button>
+              </div>
+
+              {/* Selected piece */}
+              <div style={{ padding: "1.1rem 1.4rem", borderBottom: "1px solid rgba(28,18,8,0.06)" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "7px" }}>
+                  <div style={{ width: "7px", height: "7px", borderRadius: "50%", background: GOLD, flexShrink: 0 }} />
+                  <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "18px", fontWeight: 400, color: TEXT }}>{curSpot.label}</p>
+                </div>
+                <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10.5px", color: "rgba(28,18,8,0.58)", lineHeight: 1.65, paddingLeft: "17px" }}>{curSpot.detail}</p>
+              </div>
+
+              {/* Other pieces */}
+              {curItem.hotspots.length > 1 && (
+                <div style={{ padding: "1rem 1.4rem", borderBottom: "1px solid rgba(28,18,8,0.06)" }}>
+                  <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "6.5px", letterSpacing: "0.45em", color: "rgba(28,18,8,0.38)", textTransform: "uppercase", marginBottom: "10px" }}>AUTRES PIÈCES DU LOOK</p>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                    {curItem.hotspots.map((sp, si) => si !== activeSpot.sIdx && (
+                      <button key={si} onClick={() => setActiveSpot({ iIdx: activeSpot.iIdx, sIdx: si })}
+                        style={{ display: "flex", alignItems: "center", gap: "10px", background: "none", border: "none", padding: "8px 10px", cursor: "pointer", borderRadius: "4px", textAlign: "left", transition: "background 0.2s" }}
+                        onTouchStart={e => e.currentTarget.style.background = "rgba(184,151,62,0.07)"}
+                        onTouchEnd={e => e.currentTarget.style.background = "none"}
+                      >
+                        <div style={{ width: "5px", height: "5px", borderRadius: "50%", background: "rgba(184,151,62,0.5)", flexShrink: 0 }} />
+                        <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10.5px", color: "rgba(28,18,8,0.65)" }}>{sp.label}</p>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* WhatsApp CTA */}
+              <div style={{ padding: "1.2rem 1.4rem 0" }}>
+                <motion.button
+                  onClick={handleWA}
+                  whileTap={{ scale: 0.97 }}
+                  style={{
+                    width: "100%", background: "#1c1208", border: "none",
+                    padding: "16px 20px",
+                    display: "flex", alignItems: "center", justifyContent: "center", gap: "10px",
+                    cursor: "pointer", borderRadius: "2px",
+                  }}
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="#25D366">
+                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                  </svg>
+                  <span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.2em", color: "#faf7f2", textTransform: "uppercase", fontWeight: 500 }}>Demander ce look sur WhatsApp</span>
+                </motion.button>
+                <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "9px", color: "rgba(28,18,8,0.38)", textAlign: "center", marginTop: "10px", letterSpacing: "0.05em" }}>Sur-mesure · Création unique · Réponse sous 24h</p>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </section>
   );
 };
