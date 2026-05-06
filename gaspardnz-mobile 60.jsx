@@ -1828,7 +1828,17 @@ const SplashScreen = ({ onDone }) => {
 export default function App() {
   const [splashDone, setSplashDone] = useState(false);
   const [modal, setModal] = useState(null);
-  const [lang, setLang] = useState(() => { try { return localStorage.getItem("gnz-lang") || "FR"; } catch { return "FR"; } });
+  const [lang, setLang] = useState(() => {
+    try {
+      const saved = localStorage.getItem("gnz-lang");
+      if (saved) return saved;
+      const bl = (navigator.language || navigator.userLanguage || "en").toLowerCase();
+      if (bl.startsWith("fr")) return "FR";
+      if (bl.startsWith("es")) return "ES";
+      if (bl.startsWith("zh") || bl.startsWith("cn")) return "ZH";
+      return "EN";
+    } catch { return "FR"; }
+  });
   const tr = k => T[lang]?.[k] ?? T.FR[k] ?? k;;
   const [sensorHC, setSensorHC] = useState(false);
   const [manualHC, setManualHC] = useState(() => {
