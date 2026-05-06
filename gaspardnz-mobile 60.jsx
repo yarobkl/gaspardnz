@@ -1729,6 +1729,54 @@ const GalleryMobile = ({ refEl }) => {
 
 
 /* ── INSTAGRAM SECTION ───────────────────────────────────────────── */
+/* ── TIKTOK VIRAL SECTION ────────────────────────────────────────── */
+const TikTokViralSection = () => {
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true, margin: "-6% 0px" });
+  return (
+    <section ref={ref} style={{ background: "#0a0602", padding: "4.5rem 0 5rem" }}>
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={inView ? { opacity: 1, y: 0 } : {}}
+        transition={{ duration: 0.7 }}
+        style={{ textAlign: "center", marginBottom: "2rem", padding: "0 1.4rem" }}>
+        <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.55em", color: GOLD, textTransform: "uppercase", marginBottom: "10px" }}>TIKTOK · @GASPARDNZ</p>
+        <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "28px", fontWeight: 300, color: "#faf7f2", letterSpacing: "0.02em", lineHeight: 1.2, marginBottom: "14px" }}>La vidéo qui a tout<br/>changé</p>
+        <div style={{ display: "inline-flex", gap: "20px", justifyContent: "center" }}>
+          {[["37,2M", "Vues"], ["449,5K", "Followers"], ["3,7M", "J'aime"]].map(([n, l]) => (
+            <div key={l} style={{ textAlign: "center" }}>
+              <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "22px", fontWeight: 400, color: GOLD, lineHeight: 1 }}>{n}</p>
+              <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "8px", color: "rgba(250,247,242,0.4)", letterSpacing: "0.1em", marginTop: "3px" }}>{l}</p>
+            </div>
+          ))}
+        </div>
+      </motion.div>
+
+      <motion.div initial={{ opacity: 0, scale: 0.97 }} animate={inView ? { opacity: 1, scale: 1 } : {}}
+        transition={{ duration: 0.6, delay: 0.2 }}
+        style={{ display: "flex", justifyContent: "center", padding: "0 1.4rem" }}>
+        <div style={{ width: "100%", maxWidth: "340px", borderRadius: "16px", overflow: "hidden", border: "1px solid rgba(184,151,62,0.2)", boxShadow: "0 8px 40px rgba(0,0,0,0.5)" }}>
+          <iframe
+            src="https://www.tiktok.com/embed/v2/7387058056833551648"
+            style={{ width: "100%", height: "600px", border: "none", display: "block" }}
+            allowFullScreen
+            allow="encrypted-media"
+            title="Gaspardnz TikTok 37M vues"
+          />
+        </div>
+      </motion.div>
+
+      <motion.div initial={{ opacity: 0 }} animate={inView ? { opacity: 1 } : {}} transition={{ delay: 0.6 }}
+        style={{ textAlign: "center", marginTop: "2rem" }}>
+        <motion.a href="https://www.tiktok.com/@gaspardnz" target="_blank" rel="noopener noreferrer"
+          whileTap={{ scale: 0.97 }}
+          style={{ display: "inline-flex", alignItems: "center", gap: "8px", background: "#010101", padding: "12px 22px", borderRadius: "24px", textDecoration: "none", border: "1px solid rgba(255,255,255,0.12)" }}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.34 6.34 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.82a8.27 8.27 0 004.84 1.54V6.91a4.85 4.85 0 01-1.07-.22z"/></svg>
+          <span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.15em", color: "white", textTransform: "uppercase" }}>Suivre @gaspardnz</span>
+        </motion.a>
+      </motion.div>
+    </section>
+  );
+};
+
 const InstagramSection = () => {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-6% 0px" });
@@ -2547,6 +2595,7 @@ export default function App() {
       <HeroMobile onScrollDown={() => scrollTo(heritageRef)} />
       <HeritageMobile refEl={heritageRef} />
       <GalleryMobile refEl={galleryRef} />
+      <TikTokViralSection />
       <InstagramSection />
       <VIPClientsSection />
       <TestimonialsSection />
