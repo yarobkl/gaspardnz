@@ -1902,6 +1902,7 @@ const InstagramSection = () => {
 const VIPClientsSection = () => {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-6% 0px" });
+  const [cur, setCur] = useState(0);
   const clients = [
     { initials: "R.B", name: "Rodrin B. Moengue", city: "Paris", event: "Mariage", gradient: "linear-gradient(135deg,#1e3a5f,#2d6a9f)" },
     { initials: "C.M", name: "Cédric M.", city: "Monaco", event: "Gala de prestige", gradient: "linear-gradient(135deg,#4a1942,#8b2fc9)" },
@@ -1910,6 +1911,7 @@ const VIPClientsSection = () => {
     { initials: "D.K", name: "Diarietou K.", city: "Abidjan", event: "Cérémonie", gradient: "linear-gradient(135deg,#1a1a3d,#3d3d8b)" },
     { initials: "T.R", name: "Théo R.", city: "Paris", event: "Shooting pro", gradient: "linear-gradient(135deg,#3d001a,#8b0030)" },
   ];
+  const CARD_W = 68; // % of viewport shown for active card
   return (
     <section ref={ref} style={{ background: "#0a0602", padding: "4.5rem 0 5rem", overflow: "hidden" }}>
       <motion.div initial={{ opacity: 0, y: 20 }} animate={inView ? { opacity: 1, y: 0 } : {}}
@@ -1919,21 +1921,45 @@ const VIPClientsSection = () => {
         <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "28px", fontWeight: 300, color: "#faf7f2", letterSpacing: "0.02em", lineHeight: 1.2 }}>Ils ont fait confiance<br/>à Gaspardnz</p>
       </motion.div>
 
-      <div style={{ display: "flex", gap: "14px", overflowX: "auto", paddingLeft: "1.4rem", paddingRight: "1.4rem", scrollSnapType: "x mandatory", scrollbarWidth: "none", msOverflowStyle: "none", WebkitOverflowScrolling: "touch" }}>
-        {clients.map((c, i) => (
-          <motion.div key={i} initial={{ opacity: 0, y: 24 }} animate={inView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.5, delay: 0.1 + i * 0.09 }}
-            style={{ flexShrink: 0, width: "160px", scrollSnapAlign: "start" }}>
-            <div style={{ width: "160px", height: "210px", borderRadius: "10px", background: c.gradient, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", marginBottom: "10px", border: "1px solid rgba(184,151,62,0.2)", position: "relative", overflow: "hidden" }}>
-              <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at 50% 30%, rgba(184,151,62,0.12), transparent 70%)" }} />
-              <div style={{ width: "56px", height: "56px", borderRadius: "50%", border: `1.5px solid rgba(184,151,62,0.5)`, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "10px", background: "rgba(0,0,0,0.3)" }}>
-                <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "18px", fontWeight: 500, color: GOLD }}>{c.initials}</span>
-              </div>
-              <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "9px", letterSpacing: "0.12em", color: "rgba(250,247,242,0.5)", textTransform: "uppercase" }}>{c.event}</p>
-            </div>
-            <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "15px", fontWeight: 400, color: "#faf7f2", marginBottom: "2px" }}>{c.name}</p>
-            <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "9px", color: "rgba(250,247,242,0.4)", letterSpacing: "0.05em" }}>{c.city}</p>
-          </motion.div>
+      {/* Carousel avec effet zoom */}
+      <div style={{ position: "relative", overflow: "hidden" }}>
+        <motion.div
+          style={{ display: "flex", alignItems: "center" }}
+          animate={{ x: `calc(${(100 - CARD_W) / 2}vw - ${cur * CARD_W}vw)` }}
+          transition={{ type: "spring", stiffness: 300, damping: 32 }}>
+          {clients.map((c, i) => {
+            const isActive = i === cur;
+            const dist = Math.abs(i - cur);
+            return (
+              <motion.div key={i}
+                onClick={() => setCur(i)}
+                animate={{ scale: isActive ? 1 : 0.80, opacity: dist === 0 ? 1 : dist === 1 ? 0.55 : 0.3 }}
+                transition={{ type: "spring", stiffness: 280, damping: 28 }}
+                style={{ flexShrink: 0, width: `${CARD_W}vw`, paddingLeft: "6px", paddingRight: "6px", cursor: isActive ? "default" : "pointer", transformOrigin: "center center" }}>
+                <div style={{ borderRadius: "16px", background: c.gradient, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", border: isActive ? `1px solid rgba(184,151,62,0.5)` : "1px solid rgba(184,151,62,0.15)", position: "relative", overflow: "hidden", aspectRatio: "3/4", boxShadow: isActive ? "0 20px 60px rgba(0,0,0,0.7)" : "none", transition: "border 0.4s, box-shadow 0.4s" }}>
+                  <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at 50% 30%, rgba(184,151,62,0.15), transparent 70%)" }} />
+                  {isActive && <motion.div layoutId="activeGlow" style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at 50% 10%, rgba(184,151,62,0.18), transparent 60%)" }} />}
+                  <div style={{ width: "68px", height: "68px", borderRadius: "50%", border: `1.5px solid ${isActive ? GOLD : "rgba(184,151,62,0.35)"}`, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "14px", background: "rgba(0,0,0,0.3)", transition: "border 0.4s" }}>
+                    <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "22px", fontWeight: 500, color: GOLD }}>{c.initials}</span>
+                  </div>
+                  <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "9px", letterSpacing: "0.15em", color: isActive ? "rgba(250,247,242,0.7)" : "rgba(250,247,242,0.4)", textTransform: "uppercase", transition: "color 0.4s" }}>{c.event}</p>
+                </div>
+                <motion.div animate={{ opacity: isActive ? 1 : 0, y: isActive ? 0 : 6 }} transition={{ duration: 0.35 }}
+                  style={{ paddingTop: "12px", paddingLeft: "4px" }}>
+                  <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "17px", fontWeight: 400, color: "#faf7f2", marginBottom: "3px" }}>{c.name}</p>
+                  <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "9px", color: "rgba(250,247,242,0.4)", letterSpacing: "0.05em" }}>{c.city}</p>
+                </motion.div>
+              </motion.div>
+            );
+          })}
+        </motion.div>
+      </div>
+
+      {/* Dots */}
+      <div style={{ display: "flex", justifyContent: "center", gap: "7px", marginTop: "1.6rem" }}>
+        {clients.map((_, i) => (
+          <button key={i} onClick={() => setCur(i)}
+            style={{ width: i === cur ? "22px" : "6px", height: "6px", borderRadius: "3px", background: i === cur ? GOLD : "rgba(184,151,62,0.25)", border: "none", cursor: "pointer", transition: "all 0.35s", padding: 0 }} />
         ))}
       </div>
 
