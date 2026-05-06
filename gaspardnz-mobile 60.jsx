@@ -954,17 +954,15 @@ const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules, 
           </motion.div>
           <span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "5px", letterSpacing: "0.3em", color: highContrast ? GOLD : "transparent", textTransform: "uppercase", userSelect: "none" }}>MODE</span>
         </motion.button>
-        {/* Mode nuit / mode jour */}
-        <motion.button onClick={onToggleDark} whileTap={{ scale: 0.88 }}
-          title={lightMode ? "Mode nuit" : "Mode jour"}
-          style={{ background: "none", border: "none", cursor: "pointer", color: lightMode ? GOLD : navTextColor, transition: "color 0.4s", flexShrink: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "2px", padding: "4px", minWidth: "32px", minHeight: "36px" }}>
-          <motion.div animate={{ rotate: lightMode ? 360 : 0 }} transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}>
-            {lightMode
-              ? <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={GOLD} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="4.5"/><line x1="12" y1="2" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="6.34" y2="17.66"/><line x1="17.66" y1="6.34" x2="19.07" y2="4.93"/></svg>
-              : <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-            }
-          </motion.div>
-          <span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "5px", letterSpacing: "0.3em", color: lightMode ? GOLD : "rgba(184,151,62,0.5)", textTransform: "uppercase", userSelect: "none" }}>{lightMode ? "JOUR" : "NUIT"}</span>
+        {/* Mode nuit / mode jour — pill toggle */}
+        <motion.button onClick={onToggleDark} whileTap={{ scale: 0.95 }}
+          title={lightMode ? "Passer en mode nuit" : "Passer en mode jour"}
+          style={{ background: "none", border: "none", cursor: "pointer", padding: "4px 2px", display: "flex", alignItems: "center" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "5px", background: lightMode ? "#faf7f2" : "rgba(255,255,255,0.12)", border: `1px solid ${lightMode ? GOLD : "rgba(255,255,255,0.25)"}`, borderRadius: "20px", padding: "4px 8px", transition: "all 0.35s" }}>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={lightMode ? "#333" : "rgba(255,255,255,0.5)"} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ transition: "stroke 0.3s" }}><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            <div style={{ width: "1px", height: "12px", background: lightMode ? "rgba(0,0,0,0.15)" : "rgba(255,255,255,0.2)" }} />
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={lightMode ? GOLD : "rgba(255,255,255,0.35)"} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ transition: "stroke 0.3s" }}><circle cx="12" cy="12" r="4.5"/><line x1="12" y1="2" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="6.34" y2="17.66"/><line x1="17.66" y1="6.34" x2="19.07" y2="4.93"/></svg>
+          </div>
         </motion.button>
         {/* Sélecteur de langue — globe */}
         {(() => {
