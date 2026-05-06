@@ -1750,19 +1750,27 @@ const TikTokViralSection = () => {
         </div>
       </motion.div>
 
-      <motion.div initial={{ opacity: 0, scale: 0.97 }} animate={inView ? { opacity: 1, scale: 1 } : {}}
-        transition={{ duration: 0.6, delay: 0.2 }}
-        style={{ display: "flex", justifyContent: "center", padding: "0 1.4rem" }}>
-        <div style={{ width: "100%", maxWidth: "340px", borderRadius: "16px", overflow: "hidden", border: "1px solid rgba(184,151,62,0.2)", boxShadow: "0 8px 40px rgba(0,0,0,0.5)" }}>
-          <iframe
-            src="https://www.tiktok.com/embed/v2/7387058056833551648"
-            style={{ width: "100%", height: "600px", border: "none", display: "block" }}
-            allowFullScreen
-            allow="encrypted-media"
-            title="Gaspardnz TikTok 37M vues"
-          />
-        </div>
-      </motion.div>
+      <div style={{ display: "flex", gap: "14px", overflowX: "auto", paddingLeft: "1.4rem", paddingRight: "1.4rem", scrollSnapType: "x mandatory", scrollbarWidth: "none", msOverflowStyle: "none", WebkitOverflowScrolling: "touch" }}>
+        {[
+          { id: "7387058056833551648", label: "37,2M vues", delay: 0.2 },
+          { id: "7197495722046983429", label: "Aussi viral 🔥", delay: 0.35 },
+        ].map((v) => (
+          <motion.div key={v.id} initial={{ opacity: 0, scale: 0.97 }} animate={inView ? { opacity: 1, scale: 1 } : {}}
+            transition={{ duration: 0.6, delay: v.delay }}
+            style={{ flexShrink: 0, width: "80vw", maxWidth: "320px", scrollSnapAlign: "start" }}>
+            <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.4em", color: GOLD, textTransform: "uppercase", textAlign: "center", marginBottom: "10px" }}>{v.label}</p>
+            <div style={{ borderRadius: "16px", overflow: "hidden", border: "1px solid rgba(184,151,62,0.2)", boxShadow: "0 8px 40px rgba(0,0,0,0.5)" }}>
+              <iframe
+                src={`https://www.tiktok.com/embed/v2/${v.id}`}
+                style={{ width: "100%", height: "580px", border: "none", display: "block" }}
+                allowFullScreen
+                allow="encrypted-media"
+                title={`Gaspardnz TikTok ${v.label}`}
+              />
+            </div>
+          </motion.div>
+        ))}
+      </div>
 
       {/* Commentaire Fally Ipupa */}
       <motion.div initial={{ opacity: 0, y: 16 }} animate={inView ? { opacity: 1, y: 0 } : {}}
