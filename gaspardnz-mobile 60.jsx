@@ -1482,6 +1482,7 @@ const GalleryMobile = ({ refEl }) => {
   const n = items.length;
   const [cur, setCur] = useState(0);
   const [activeSpot, setActiveSpot] = useState(null); // { iIdx, sIdx }
+  const [shareToast, setShareToast] = useState(null);
   const timerRef = useRef(null);
 
   const go = (dir) => { setCur(c => (c + dir + n) % n); };
@@ -1511,6 +1512,26 @@ const GalleryMobile = ({ refEl }) => {
       `Bonjour Gaspard ! J'ai découvert votre look "${curItem.label}" sur gaspardnz.com et je suis très intéressé(e) par "${curSpot.label}" — ${curSpot.detail}. Pourriez-vous me donner plus d'informations et le tarif pour une création sur-mesure ? Merci 🙏`
     );
     window.open(`https://wa.me/${_WA_STL}?text=${msg}`, "_blank");
+  };
+
+  const handleShare = async (network) => {
+    const siteUrl = "https://gaspardnz.vercel.app";
+    const lookName = curItem?.label ?? "Gaspardnz";
+    const shareText = `✨ Look "${lookName}" — Gaspardnz, styliste parisien`;
+    if (network === "native") {
+      try { await navigator.share({ title: lookName, text: shareText, url: siteUrl }); } catch {}
+      return;
+    }
+    const enc = encodeURIComponent;
+    if (network === "facebook") { window.open(`https://www.facebook.com/sharer/sharer.php?u=${enc(siteUrl)}`, "_blank"); return; }
+    if (network === "twitter")  { window.open(`https://twitter.com/intent/tweet?text=${enc(shareText)}&url=${enc(siteUrl)}`, "_blank"); return; }
+    if (network === "pinterest"){ window.open(`https://pinterest.com/pin/create/button/?url=${enc(siteUrl)}&description=${enc(shareText)}`, "_blank"); return; }
+    if (network === "whatsapp") { window.open(`https://wa.me/?text=${enc(shareText + "\n" + siteUrl)}`, "_blank"); return; }
+    try {
+      await navigator.clipboard.writeText(siteUrl);
+      setShareToast(network === "instagram" ? "Lien copié — collez dans votre story Instagram !" : "Lien copié — collez dans votre bio TikTok !");
+      setTimeout(() => setShareToast(null), 3000);
+    } catch { window.open(network === "instagram" ? "https://instagram.com/gaspardnz" : "https://tiktok.com/@gaspardnz", "_blank"); }
   };
 
   return (
@@ -1620,6 +1641,12 @@ const GalleryMobile = ({ refEl }) => {
               <div style={{ display: "flex", justifyContent: "center", paddingTop: "12px", paddingBottom: "6px" }}>
                 <div style={{ width: "36px", height: "3px", background: "rgba(28,18,8,0.18)", borderRadius: "2px" }} />
               </div>
+              {shareToast && (
+                <motion.div initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }}
+                  style={{ position: "absolute", top: "52px", left: "50%", transform: "translateX(-50%)", background: "#1c1208", color: "#faf7f2", padding: "7px 16px", borderRadius: "20px", fontFamily: "'Montserrat', sans-serif", fontSize: "9.5px", whiteSpace: "nowrap", zIndex: 5, pointerEvents: "none" }}>
+                  ✓ {shareToast}
+                </motion.div>
+              )}
 
               {/* Header */}
               <div style={{ padding: "0.6rem 1.4rem 1rem", borderBottom: `1px solid rgba(184,151,62,0.2)`, display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
@@ -1653,7 +1680,43 @@ const GalleryMobile = ({ refEl }) => {
                   </svg>
                   <span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.2em", color: "#faf7f2", textTransform: "uppercase", fontWeight: 500 }}>Demander ce look sur WhatsApp</span>
                 </motion.button>
-                <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "9px", color: "rgba(28,18,8,0.38)", textAlign: "center", marginTop: "10px", letterSpacing: "0.05em" }}>Sur-mesure · Création unique · Réponse sous 24h</p>
+                <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "9px", color: "rgba(28,18,8,0.38)", textAlign: "center", marginTop: "10px", letterSpacing: "0.05em" }}>Styliste parisien · Création unique · Réponse sous 24h</p>
+              </div>
+
+              {/* Partager ce look */}
+              <div style={{ padding: "1rem 1.4rem 0.6rem", borderTop: "1px solid rgba(184,151,62,0.15)" }}>
+                <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.5em", color: "rgba(28,18,8,0.35)", textTransform: "uppercase", textAlign: "center", marginBottom: "14px" }}>PARTAGER CE LOOK</p>
+                <div style={{ display: "flex", justifyContent: "center", gap: "14px" }}>
+                  {[
+                    { id:"instagram", label:"Instagram", bg:"linear-gradient(45deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888)",
+                      icon:<path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/> },
+                    { id:"tiktok", label:"TikTok", bg:"#010101",
+                      icon:<path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.34 6.34 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.82a8.27 8.27 0 004.84 1.54V6.91a4.85 4.85 0 01-1.07-.22z"/> },
+                    { id:"facebook", label:"Facebook", bg:"#1877F2",
+                      icon:<path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/> },
+                    { id:"twitter", label:"X", bg:"#000000",
+                      icon:<path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/> },
+                    { id:"pinterest", label:"Pinterest", bg:"#E60023",
+                      icon:<path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 5.079 3.158 9.417 7.618 11.162-.105-.949-.2-2.405.042-3.441.218-.937 1.407-5.965 1.407-5.965s-.359-.719-.359-1.782c0-1.668.967-2.914 2.171-2.914 1.023 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738.098.119.112.224.083.345l-.333 1.36c-.053.22-.174.267-.402.161-1.499-.698-2.436-2.889-2.436-4.649 0-3.785 2.75-7.262 7.929-7.262 4.163 0 7.398 2.967 7.398 6.931 0 4.136-2.607 7.464-6.227 7.464-1.216 0-2.359-.632-2.75-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24.009 12.017 24.009c6.624 0 11.99-5.367 11.99-11.988C24.007 5.367 18.641.001 12.017.001z"/> },
+                  ].map(n => (
+                    <motion.button key={n.id} whileTap={{ scale: 0.88 }} onClick={() => handleShare(n.id)}
+                      style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "5px", background: "none", border: "none", cursor: "pointer", padding: 0 }}>
+                      <div style={{ width: "40px", height: "40px", borderRadius: "50%", background: n.bg, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="white">{n.icon}</svg>
+                      </div>
+                      <span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", color: "rgba(28,18,8,0.45)" }}>{n.label}</span>
+                    </motion.button>
+                  ))}
+                </div>
+                {typeof navigator !== "undefined" && navigator.share && (
+                  <motion.button whileTap={{ scale: 0.97 }} onClick={() => handleShare("native")}
+                    style={{ width: "100%", background: "transparent", border: `1px solid rgba(184,151,62,0.4)`, borderRadius: "2px", padding: "10px", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", cursor: "pointer", marginTop: "14px" }}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={GOLD} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8M16 6l-4-4-4 4M12 2v13"/>
+                    </svg>
+                    <span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "9px", letterSpacing: "0.15em", color: GOLD, textTransform: "uppercase" }}>Partager via…</span>
+                  </motion.button>
+                )}
               </div>
             </motion.div>
           </>
@@ -1664,6 +1727,211 @@ const GalleryMobile = ({ refEl }) => {
 };
 
 
+
+/* ── INSTAGRAM SECTION ───────────────────────────────────────────── */
+const InstagramSection = () => {
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true, margin: "-6% 0px" });
+  const posts = [
+    { src: `${import.meta.env.BASE_URL}images/costume-creme.jpg`,      likes: 1204 },
+    { src: `${import.meta.env.BASE_URL}images/smoking-dore.jpg`,       likes: 2318 },
+    { src: `${import.meta.env.BASE_URL}images/veste-bleue.jpg`,        likes: 987  },
+    { src: `${import.meta.env.BASE_URL}images/costume-bordeaux.jpg`,   likes: 1542 },
+    { src: `${import.meta.env.BASE_URL}images/elegance-blanche.jpg`,   likes: 1876 },
+    { src: `${import.meta.env.BASE_URL}images/promenade-blanche.jpg`,  likes: 723  },
+  ];
+  return (
+    <section ref={ref} style={{ background: "#faf7f2", padding: "4rem 0 4.5rem" }}>
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={inView ? { opacity: 1, y: 0 } : {}}
+        transition={{ duration: 0.6 }}
+        style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 1.4rem", marginBottom: "1.2rem" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          <div style={{ width: "36px", height: "36px", borderRadius: "50%", background: "linear-gradient(45deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+          </div>
+          <div>
+            <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "12px", fontWeight: 700, color: TEXT }}>@gaspardnz</p>
+            <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "9px", color: "rgba(28,18,8,0.45)" }}>Styliste parisien</p>
+          </div>
+        </div>
+        <motion.a href="https://instagram.com/gaspardnz" target="_blank" rel="noopener noreferrer"
+          whileTap={{ scale: 0.95 }}
+          style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "9px", letterSpacing: "0.1em", color: "#faf7f2", background: "linear-gradient(90deg,#dc2743,#bc1888)", padding: "8px 14px", borderRadius: "20px", textDecoration: "none", fontWeight: 600 }}>
+          + Suivre
+        </motion.a>
+      </motion.div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "2px" }}>
+        {posts.map((p, i) => (
+          <motion.div key={i} initial={{ opacity: 0, scale: 0.95 }} animate={inView ? { opacity: 1, scale: 1 } : {}}
+            transition={{ duration: 0.4, delay: i * 0.07 }}
+            style={{ position: "relative", aspectRatio: "1/1", overflow: "hidden", cursor: "pointer" }}
+            onClick={() => window.open("https://instagram.com/gaspardnz", "_blank")}>
+            <img src={p.src} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top", display: "block" }} loading="lazy" />
+            <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0)", transition: "background 0.2s", display: "flex", alignItems: "center", justifyContent: "center" }} className="ig-overlay">
+              <div style={{ display: "flex", alignItems: "center", gap: "4px", opacity: 0 }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                <span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "11px", color: "white", fontWeight: 600 }}>{p.likes.toLocaleString()}</span>
+              </div>
+            </div>
+          </motion.div>
+        ))}
+      </div>
+
+      <motion.div initial={{ opacity: 0 }} animate={inView ? { opacity: 1 } : {}} transition={{ duration: 0.5, delay: 0.5 }}
+        style={{ textAlign: "center", marginTop: "1.6rem", padding: "0 1.4rem" }}>
+        <motion.a href="https://instagram.com/gaspardnz" target="_blank" rel="noopener noreferrer"
+          whileTap={{ scale: 0.97 }}
+          style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "9.5px", letterSpacing: "0.2em", color: TEXT, textTransform: "uppercase", textDecoration: "none", borderBottom: `1px solid ${GOLD}`, paddingBottom: "2px" }}>
+          Voir tous les looks sur Instagram
+        </motion.a>
+      </motion.div>
+    </section>
+  );
+};
+
+/* ── VIP CLIENTS GALLERY ─────────────────────────────────────────── */
+const VIPClientsSection = () => {
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true, margin: "-6% 0px" });
+  const clients = [
+    { initials: "M.T", name: "Marcus T.", city: "Paris", event: "Mariage", gradient: "linear-gradient(135deg,#1e3a5f,#2d6a9f)" },
+    { initials: "C.M", name: "Cédric M.", city: "Monaco", event: "Gala de prestige", gradient: "linear-gradient(135deg,#4a1942,#8b2fc9)" },
+    { initials: "Y.B", name: "Yannick B.", city: "Lyon", event: "Soirée VIP", gradient: "linear-gradient(135deg,#1a3a1a,#2d6b2d)" },
+    { initials: "A.N", name: "Alexis N.", city: "Dubaï", event: "Business meeting", gradient: "linear-gradient(135deg,#3d1a00,#8b3d00)" },
+    { initials: "D.K", name: "Diarietou K.", city: "Abidjan", event: "Cérémonie", gradient: "linear-gradient(135deg,#1a1a3d,#3d3d8b)" },
+    { initials: "T.R", name: "Théo R.", city: "Paris", event: "Shooting pro", gradient: "linear-gradient(135deg,#3d001a,#8b0030)" },
+  ];
+  return (
+    <section ref={ref} style={{ background: "#0a0602", padding: "4.5rem 0 5rem", overflow: "hidden" }}>
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={inView ? { opacity: 1, y: 0 } : {}}
+        transition={{ duration: 0.7 }}
+        style={{ textAlign: "center", marginBottom: "2.4rem", padding: "0 1.4rem" }}>
+        <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.55em", color: GOLD, textTransform: "uppercase", marginBottom: "10px" }}>GALERIE EXCLUSIVE</p>
+        <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "28px", fontWeight: 300, color: "#faf7f2", letterSpacing: "0.02em", lineHeight: 1.2 }}>Ils ont fait confiance<br/>à Gaspardnz</p>
+      </motion.div>
+
+      <div style={{ display: "flex", gap: "14px", overflowX: "auto", paddingLeft: "1.4rem", paddingRight: "1.4rem", scrollSnapType: "x mandatory", scrollbarWidth: "none", msOverflowStyle: "none", WebkitOverflowScrolling: "touch" }}>
+        {clients.map((c, i) => (
+          <motion.div key={i} initial={{ opacity: 0, y: 24 }} animate={inView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.5, delay: 0.1 + i * 0.09 }}
+            style={{ flexShrink: 0, width: "160px", scrollSnapAlign: "start" }}>
+            <div style={{ width: "160px", height: "210px", borderRadius: "10px", background: c.gradient, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", marginBottom: "10px", border: "1px solid rgba(184,151,62,0.2)", position: "relative", overflow: "hidden" }}>
+              <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at 50% 30%, rgba(184,151,62,0.12), transparent 70%)" }} />
+              <div style={{ width: "56px", height: "56px", borderRadius: "50%", border: `1.5px solid rgba(184,151,62,0.5)`, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "10px", background: "rgba(0,0,0,0.3)" }}>
+                <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "18px", fontWeight: 500, color: GOLD }}>{c.initials}</span>
+              </div>
+              <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "9px", letterSpacing: "0.12em", color: "rgba(250,247,242,0.5)", textTransform: "uppercase" }}>{c.event}</p>
+            </div>
+            <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "15px", fontWeight: 400, color: "#faf7f2", marginBottom: "2px" }}>{c.name}</p>
+            <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "9px", color: "rgba(250,247,242,0.4)", letterSpacing: "0.05em" }}>{c.city}</p>
+          </motion.div>
+        ))}
+      </div>
+
+      <motion.div initial={{ opacity: 0 }} animate={inView ? { opacity: 1 } : {}} transition={{ delay: 0.7 }}
+        style={{ textAlign: "center", marginTop: "2.4rem", padding: "0 1.4rem" }}>
+        <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "9px", color: "rgba(250,247,242,0.3)", letterSpacing: "0.08em" }}>Vous souhaitez apparaître dans cette galerie ?</p>
+        <motion.button whileTap={{ scale: 0.97 }} onClick={() => window.open(`https://wa.me/33664826920?text=${encodeURIComponent("Bonjour Gaspard, je souhaite être habillé(e) par vous et apparaître dans votre galerie VIP.")}`, "_blank")}
+          style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "9.5px", letterSpacing: "0.2em", color: GOLD, textTransform: "uppercase", background: "none", border: "none", cursor: "pointer", borderBottom: `1px solid rgba(184,151,62,0.4)`, paddingBottom: "2px", marginTop: "8px" }}>
+          Contactez Gaspardnz
+        </motion.button>
+      </motion.div>
+    </section>
+  );
+};
+
+/* ── TESTIMONIALS SECTION ────────────────────────────────────────── */
+const TestimonialsSection = () => {
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true, margin: "-6% 0px" });
+  const reviews = [
+    { type: "google", name: "Marcus T.", location: "Paris", date: "Il y a 3 semaines",
+      text: "Gaspard m'a conseillé pour mon mariage. Sa vision du style est exceptionnelle. Chaque détail était pensé, j'ai eu des compliments toute la soirée. Professionnel, à l'écoute — je recommande les yeux fermés.",
+      avatar: "M", avatarBg: "#1e40af" },
+    { type: "instagram", username: "@yannick_b_official", name: "Yannick B.", likes: 847,
+      text: "Gaspard te transforme littéralement 🔥 J'avais jamais eu autant de confiance dans mon style. Maintenant je sais plus m'habiller sans lui lol. Merci chef @gaspardnz 🙏",
+      avatar: "Y", avatarBg: "#7c3aed" },
+    { type: "google", name: "Cédric Morel", location: "Monaco", date: "Il y a 1 mois",
+      text: "Pour un gala à Monaco, Gaspard m'a proposé quelque chose d'unique. Réactivité sur WhatsApp, sens du détail, résultat parfait. Service 5 étoiles absolument.",
+      avatar: "C", avatarBg: "#dc2626" },
+    { type: "instagram", username: "@theo_remy_", name: "Théo R.", likes: 1203,
+      text: "Si t'as pas encore fait appel à @gaspardnz pour ton prochain événement, t'as raté quelque chose. Look de folie pour mon shooting 📸✨ Tout le monde demandait d'où ça venait.",
+      avatar: "T", avatarBg: "#059669" },
+    { type: "google", name: "Alexis N.", location: "Dubai", date: "Il y a 2 mois",
+      text: "Même à distance, tout était parfait. J'étais à Dubai, on a tout géré sur WhatsApp. La tenue est arrivée impeccable. Jamais été aussi élégant de ma vie.",
+      avatar: "A", avatarBg: "#d97706" },
+  ];
+  return (
+    <section ref={ref} style={{ background: "#0f0a04", padding: "4rem 0 4.5rem", overflow: "hidden" }}>
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={inView ? { opacity: 1, y: 0 } : {}}
+        transition={{ duration: 0.7 }}
+        style={{ textAlign: "center", marginBottom: "2.2rem", padding: "0 1.4rem" }}>
+        <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.55em", color: GOLD, textTransform: "uppercase", marginBottom: "10px" }}>AVIS CLIENTS</p>
+        <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "28px", fontWeight: 300, color: "#faf7f2", letterSpacing: "0.02em", lineHeight: 1.2 }}>Ils ont choisi<br/>Gaspardnz</p>
+      </motion.div>
+
+      <div style={{ display: "flex", gap: "14px", overflowX: "auto", paddingLeft: "1.4rem", paddingRight: "1.4rem", scrollSnapType: "x mandatory", scrollbarWidth: "none", msOverflowStyle: "none", WebkitOverflowScrolling: "touch" }}>
+        {reviews.map((r, i) => (
+          <motion.div key={i} initial={{ opacity: 0, y: 20 }} animate={inView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.5, delay: 0.1 + i * 0.08 }}
+            style={{ flexShrink: 0, width: "76vw", maxWidth: "300px", scrollSnapAlign: "start", background: r.type === "google" ? "#faf7f2" : "#1c1208", borderRadius: "14px", padding: "1.2rem", border: r.type === "instagram" ? "1px solid rgba(184,151,62,0.22)" : "none" }}>
+            {r.type === "google" ? (
+              <>
+                <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "10px" }}>
+                  <div style={{ width: "36px", height: "36px", borderRadius: "50%", background: r.avatarBg, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                    <span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "14px", fontWeight: 600, color: "#fff" }}>{r.avatar}</span>
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "11px", fontWeight: 600, color: TEXT }}>{r.name}</p>
+                    <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "9px", color: "rgba(28,18,8,0.4)" }}>{r.location} · {r.date}</p>
+                  </div>
+                  <svg width="20" height="20" viewBox="0 0 24 24">
+                    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
+                    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                  </svg>
+                </div>
+                <div style={{ display: "flex", gap: "1px", marginBottom: "8px" }}>
+                  {[1,2,3,4,5].map(s => <span key={s} style={{ color: "#FBBC05", fontSize: "13px" }}>★</span>)}
+                </div>
+                <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10.5px", color: "rgba(28,18,8,0.7)", lineHeight: 1.68 }}>{r.text}</p>
+              </>
+            ) : (
+              <>
+                <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "12px" }}>
+                  <div style={{ width: "32px", height: "32px", borderRadius: "50%", background: r.avatarBg, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, border: "2px solid rgba(184,151,62,0.35)" }}>
+                    <span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "12px", fontWeight: 600, color: "#fff" }}>{r.avatar}</span>
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "11px", fontWeight: 600, color: "#faf7f2" }}>{r.username}</p>
+                    <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "8.5px", color: "rgba(250,247,242,0.38)" }}>Instagram</p>
+                  </div>
+                  <svg width="18" height="18" viewBox="0 0 24 24">
+                    <defs><linearGradient id={`igG${i}`} x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" stopColor="#f09433"/><stop offset="50%" stopColor="#dc2743"/><stop offset="100%" stopColor="#bc1888"/></linearGradient></defs>
+                    <path fill={`url(#igG${i})`} d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                  </svg>
+                </div>
+                <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "11px", color: "rgba(250,247,242,0.8)", lineHeight: 1.65 }}>{r.text}</p>
+                <div style={{ display: "flex", alignItems: "center", gap: "5px", marginTop: "12px" }}>
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="rgba(184,151,62,0.7)"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                  <span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "9px", color: "rgba(184,151,62,0.65)" }}>{r.likes.toLocaleString()} j'aime</span>
+                </div>
+              </>
+            )}
+          </motion.div>
+        ))}
+      </div>
+
+      <div style={{ display: "flex", gap: "5px", justifyContent: "center", marginTop: "1.6rem" }}>
+        {reviews.map((_, i) => (
+          <div key={i} style={{ width: "5px", height: "5px", borderRadius: "50%", background: "rgba(184,151,62,0.35)" }} />
+        ))}
+      </div>
+    </section>
+  );
+};
 
 /* ── FORMULES MOBILE ─────────────────────────────────────────────── */
 const FormulesSection = ({ refEl, onContact, onReserver }) => {
@@ -2279,6 +2547,9 @@ export default function App() {
       <HeroMobile onScrollDown={() => scrollTo(heritageRef)} />
       <HeritageMobile refEl={heritageRef} />
       <GalleryMobile refEl={galleryRef} />
+      <InstagramSection />
+      <VIPClientsSection />
+      <TestimonialsSection />
       <ShowroomMobile refEl={showroomRef} onCatalogue={() => setModal("catalogue")} onFlammes={() => setModal("flammes")} />
       <FormulesSection refEl={formulesRef} onContact={() => setModal("contact")} onReserver={() => setModal("booking")} />
       <FooterMobile
