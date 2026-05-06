@@ -1927,12 +1927,23 @@ const VIPClientsSection = () => {
         <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "28px", fontWeight: 300, color: "#faf7f2", letterSpacing: "0.02em", lineHeight: 1.2 }}>Ils ont fait confiance<br/>à Gaspardnz</p>
       </motion.div>
 
-      {/* Carousel avec effet zoom */}
-      <div style={{ position: "relative", overflow: "hidden" }}>
+      {/* Carousel avec effet zoom + swipe */}
+      <div style={{ position: "relative", overflow: "hidden", cursor: "grab" }}>
         <motion.div
+          drag="x"
+          dragMomentum={false}
+          dragElastic={0.12}
+          dragConstraints={{ left: 0, right: 0 }}
+          onDragEnd={(_, { offset, velocity }) => {
+            const swipe = Math.abs(offset.x) > 40 || Math.abs(velocity.x) > 400;
+            if (swipe) {
+              if (offset.x < 0) setCur(c => Math.min(c + 1, clients.length - 1));
+              else setCur(c => Math.max(c - 1, 0));
+            }
+          }}
           style={{ display: "flex", alignItems: "center" }}
           animate={{ x: ((100 - CARD_W) / 2 - cur * CARD_W) * vw }}
-          transition={{ type: "spring", stiffness: 300, damping: 32 }}>
+          transition={{ type: "spring", stiffness: 320, damping: 35 }}>
           {clients.map((c, i) => {
             const isActive = i === cur;
             const dist = Math.abs(i - cur);
@@ -1941,7 +1952,7 @@ const VIPClientsSection = () => {
                 onClick={() => setCur(i)}
                 animate={{ scale: isActive ? 1 : 0.80, opacity: dist === 0 ? 1 : dist === 1 ? 0.55 : 0.3 }}
                 transition={{ type: "spring", stiffness: 280, damping: 28 }}
-                style={{ flexShrink: 0, width: `${CARD_W}vw`, paddingLeft: "6px", paddingRight: "6px", cursor: isActive ? "default" : "pointer", transformOrigin: "center center" }}>
+                style={{ flexShrink: 0, width: `${CARD_W}vw`, paddingLeft: "6px", paddingRight: "6px", cursor: isActive ? "grab" : "pointer", transformOrigin: "center center" }}>
                 <div style={{ borderRadius: "16px", background: c.gradient, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", border: isActive ? `1px solid rgba(184,151,62,0.5)` : "1px solid rgba(184,151,62,0.15)", position: "relative", overflow: "hidden", aspectRatio: "3/4", boxShadow: isActive ? "0 20px 60px rgba(0,0,0,0.7)" : "none", transition: "border 0.4s, box-shadow 0.4s" }}>
                   <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at 50% 30%, rgba(184,151,62,0.15), transparent 70%)" }} />
                   {isActive && <motion.div layoutId="activeGlow" style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at 50% 10%, rgba(184,151,62,0.18), transparent 60%)" }} />}
