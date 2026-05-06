@@ -1766,7 +1766,7 @@ const TikTokViralSection = () => {
             <div key={v.id} style={{ minWidth: "100%", padding: "0 1.4rem", boxSizing: "border-box" }}>
               <div style={{ position: "relative", width: "100%", maxWidth: "340px", margin: "0 auto", borderRadius: "16px", overflow: "hidden", border: "1px solid rgba(184,151,62,0.2)", boxShadow: "0 12px 48px rgba(0,0,0,0.6)", aspectRatio: "9/16", maxHeight: "68vh" }}>
                 <iframe
-                  src={`https://www.tiktok.com/embed/v2/${v.id}`}
+                  src={`https://www.tiktok.com/embed/v2/${v.id}?autoplay=0`}
                   style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "118%", border: "none" }}
                   allowFullScreen allow="encrypted-media"
                   loading={i === cur ? "eager" : "lazy"}
@@ -1954,6 +1954,8 @@ const TestimonialsSection = () => {
       text: "J'aime le style raffiné et le boss cartonne", avatar: "S", avatarBg: "#4a148c" },
     { type: "tiktok", username: "Immaculée conception", likes: 38,
       text: "Le tonton es trop classe 😍", avatar: "I", avatarBg: "#880e4f" },
+    { type: "tiktok", username: "TONTON D TV 🇨🇩", likes: 91,
+      text: "Je ferai la même chose avec ma fille 🥰🥰🥰🥰 source d'inspiration", avatar: "T", avatarBg: "#b71c1c" },
   ];
   return (
     <section ref={ref} style={{ background: "#0f0a04", padding: "4rem 0 4.5rem", overflow: "hidden" }}>
