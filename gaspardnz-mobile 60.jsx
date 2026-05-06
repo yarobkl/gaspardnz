@@ -934,12 +934,12 @@ const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules, 
           <div style={{ fontSize: "7px", letterSpacing: "0.5em", color: GOLD, textTransform: "uppercase", fontFamily: "'Montserrat', sans-serif", marginTop: "3px" }}>Paris</div>
         </button>
 
-        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
         {/* Mode soleil */}
         {/* Mode soleil */}
         <motion.button onClick={onToggleContrast} whileTap={{ scale: 0.88 }}
           title={highContrast ? t("nav_mode_normal") : t("nav_mode_jour")}
-          style={{ background: "none", border: "none", cursor: "pointer", color: highContrast ? GOLD : navTextColor, transition: "color 0.4s", flexShrink: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "2px", padding: "4px", minWidth: "32px", minHeight: "36px" }}>
+          style={{ background: "none", border: "none", cursor: "pointer", color: highContrast ? GOLD : navTextColor, transition: "color 0.4s", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", padding: "0 4px", height: "36px", minWidth: "28px" }}>
           <motion.div
             animate={{ rotate: highContrast ? 180 : 0, scale: highContrast ? 1.15 : 1 }}
             transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
@@ -952,12 +952,11 @@ const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules, 
               <line x1="4.93" y1="19.07" x2="6.34" y2="17.66"/><line x1="17.66" y1="6.34" x2="19.07" y2="4.93"/>
             </svg>
           </motion.div>
-          <span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "5px", letterSpacing: "0.3em", color: highContrast ? GOLD : "transparent", textTransform: "uppercase", userSelect: "none" }}>MODE</span>
         </motion.button>
         {/* Mode nuit / mode jour — pill toggle */}
         <motion.button onClick={onToggleDark} whileTap={{ scale: 0.95 }}
           title={lightMode ? "Passer en mode nuit" : "Passer en mode jour"}
-          style={{ background: "none", border: "none", cursor: "pointer", padding: "4px 2px", display: "flex", alignItems: "center" }}>
+          style={{ background: "none", border: "none", cursor: "pointer", padding: "0 2px", display: "flex", alignItems: "center", justifyContent: "center", height: "36px" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "5px", background: lightMode ? "#faf7f2" : "rgba(255,255,255,0.12)", border: `1px solid ${lightMode ? GOLD : "rgba(255,255,255,0.25)"}`, borderRadius: "20px", padding: "4px 8px", transition: "all 0.35s" }}>
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={lightMode ? "#333" : "rgba(255,255,255,0.5)"} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ transition: "stroke 0.3s" }}><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
             <div style={{ width: "1px", height: "12px", background: lightMode ? "rgba(0,0,0,0.15)" : "rgba(255,255,255,0.2)" }} />
@@ -970,7 +969,7 @@ const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules, 
           const next = () => { const i = (LANGS.indexOf(lang) + 1) % LANGS.length; const l = LANGS[i]; setLang(l); try { localStorage.setItem("gnz-lang", l); } catch {} };
           return (
             <motion.button onClick={next} whileTap={{ scale: 0.88 }}
-              style={{ background: "none", border: "none", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "2px", padding: "4px", color: navTextColor, transition: "color 0.4s", minWidth: "32px", minHeight: "36px" }}>
+              style={{ background: "none", border: "none", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "2px", padding: "0 4px", color: navTextColor, transition: "color 0.4s", height: "36px", minWidth: "28px" }}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/>
                 <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
@@ -981,7 +980,7 @@ const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules, 
         })()}
         {/* Boutique — sac avec point de notification */}
         <motion.button onClick={onCatalogue} whileTap={{ scale: 0.88 }}
-          style={{ background: "none", border: "none", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "2px", padding: "4px", color: navTextColor, transition: "color 0.4s", minWidth: "32px", minHeight: "36px", position: "relative" }}>
+          style={{ background: "none", border: "none", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "2px", padding: "0 4px", color: navTextColor, transition: "color 0.4s", height: "36px", minWidth: "28px", position: "relative" }}>
           <div style={{ position: "relative", display: "flex", alignItems: "center", justifyContent: "center" }}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>
