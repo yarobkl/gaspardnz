@@ -2126,6 +2126,18 @@ const styleJournalPhotos = [
   },
 ];
 
+/* ── SECTION DIVIDER ─────────────────────────────────────────────── */
+const SectionDivider = ({ from, to }) => (
+  <div style={{ position: "relative", height: "56px", background: `linear-gradient(to bottom, ${from}, ${to})`, display: "flex", alignItems: "center", justifyContent: "center" }}>
+    <div style={{ position: "absolute", left: "2.5rem", right: "2.5rem", height: "1px", background: `linear-gradient(90deg, transparent, rgba(184,151,62,0.25), rgba(184,151,62,0.55), rgba(184,151,62,0.25), transparent)` }} />
+    <motion.div
+      initial={{ opacity: 0, rotate: 0 }} whileInView={{ opacity: 1, rotate: 45 }} viewport={{ once: true }}
+      transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+      style={{ width: "6px", height: "6px", background: GOLD, position: "relative", zIndex: 1, boxShadow: `0 0 6px rgba(184,151,62,0.6)` }}
+    />
+  </div>
+);
+
 const StyleDot = ({ dot }) => {
   const [active, setActive] = useState(false);
   const waMsg = encodeURIComponent(`Bonjour Gaspard, je suis intéressé(e) par : ${dot.label}. Pouvez-vous m'en dire plus ?`);
@@ -2902,15 +2914,21 @@ export default function App() {
       />
 
       <HeroMobile onScrollDown={() => scrollTo(heritageRef)} />
+      <SectionDivider from="#1c1208" to="#f5f0e8" />
       <HeritageMobile refEl={heritageRef} />
+      <SectionDivider from="#f5f0e8" to="#0a0602" />
       <StyleJournalSection />
+      <SectionDivider from="#0a0602" to="#f5f0e8" />
       <GalleryMobile refEl={galleryRef} />
+      <SectionDivider from="#f5f0e8" to="#0a0602" />
       <ActualitesSection />
       <TikTokViralSection />
       <VIPClientsSection />
       <TestimonialsSection />
+      <SectionDivider from="#0f0a04" to="#f5f0e8" />
       <ShowroomMobile refEl={showroomRef} onCatalogue={() => setModal("catalogue")} onFlammes={() => setModal("flammes")} />
       <InstagramSection />
+      <SectionDivider from="#faf7f2" to="#0d1b3e" />
       <FormulesSection refEl={formulesRef} onContact={() => setModal("contact")} onReserver={() => setModal("booking")} />
       <FooterMobile
         onShowroom={() => scrollTo(showroomRef)}
