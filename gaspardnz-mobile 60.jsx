@@ -2026,8 +2026,17 @@ const VIPClientsSection = () => {
 /* ── ACTUALITÉS SECTION ──────────────────────────────────────────── */
 const actualites = [
   {
+    id: 2,
+    photos: ["/images/actualites/akwaba-1.jpg", "/images/actualites/akwaba-2.jpg"],
+    location: "Abidjan, Côte d'Ivoire",
+    date: "Mai 2025",
+    tag: "Voyage",
+    title: "Akwaba Gaspard NZ !",
+    text: "Il y a des destinations qui vous attendent, et d'autres qui vous appellent.\n\nAbidjan vient de me réserver le plus beau des accueils — Akwaba, comme ils savent si bien le dire ici.\n\nLa Côte d'Ivoire, terre de couleurs, d'élégance naturelle et de fierté culturelle. Un pays où le style ne se commande pas, il se vit.\n\nRencontres humaines, énergies créatives, échanges sincères… ce voyage est bien plus qu'un déplacement. C'est une inspiration nouvelle qui commence.\n\nGaspard NZ à Abidjan — la suite ne fait que commencer. 🌍✦",
+  },
+  {
     id: 1,
-    photo: "/images/actualites/patheo-abidjan.jpg",
+    photos: ["/images/actualites/patheo-abidjan.jpg"],
     location: "Abidjan",
     date: "Mai 2025",
     tag: "Rencontre",
@@ -2038,20 +2047,50 @@ const actualites = [
 
 const ActuCard = ({ item }) => {
   const [expanded, setExpanded] = useState(false);
+  const [photoCur, setPhotoCur] = useState(0);
+  const photos = item.photos || [];
   const preview = item.text.split("\n\n")[0];
+  const multi = photos.length > 1;
   return (
     <motion.article
       initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-8% 0px" }}
       transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
       style={{ background: "#111009", borderRadius: "16px", overflow: "hidden", border: "1px solid rgba(184,151,62,0.15)" }}>
-      <div style={{ position: "relative" }}>
-        <img src={item.photo} alt={item.title} style={{ width: "100%", aspectRatio: "4/3", objectFit: "cover", objectPosition: "center top", display: "block" }} />
-        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 55%, rgba(17,16,9,0.85) 100%)" }} />
+      {/* Photo(s) */}
+      <div style={{ position: "relative", overflow: "hidden" }}>
+        {multi ? (
+          <div style={{ display: "flex", transition: "transform 0.6s cubic-bezier(0.16,1,0.3,1)", transform: `translateX(${-photoCur * 100}%)` }}>
+            {photos.map((src, i) => (
+              <img key={i} src={src} alt={item.title} style={{ flexShrink: 0, width: "100%", aspectRatio: "4/3", objectFit: "cover", objectPosition: "center top", display: "block" }} />
+            ))}
+          </div>
+        ) : (
+          <img src={photos[0]} alt={item.title} style={{ width: "100%", aspectRatio: "4/3", objectFit: "cover", objectPosition: "center top", display: "block" }} />
+        )}
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 55%, rgba(17,16,9,0.9) 100%)", pointerEvents: "none" }} />
         <div style={{ position: "absolute", top: "12px", left: "12px", background: "rgba(184,151,62,0.15)", backdropFilter: "blur(6px)", border: "1px solid rgba(184,151,62,0.3)", borderRadius: "4px", padding: "4px 10px" }}>
           <span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.35em", color: GOLD, textTransform: "uppercase" }}>{item.tag}</span>
         </div>
-        <div style={{ position: "absolute", bottom: "12px", right: "12px", textAlign: "right" }}>
-          <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.25em", color: "rgba(245,240,232,0.5)", margin: 0, textTransform: "uppercase" }}>{item.location} · {item.date}</p>
+        {multi && (
+          <div style={{ position: "absolute", bottom: "12px", left: "50%", transform: "translateX(-50%)", display: "flex", gap: "5px" }}>
+            {photos.map((_, i) => (
+              <button key={i} onClick={() => setPhotoCur(i)}
+                style={{ width: i === photoCur ? 18 : 5, height: 2, borderRadius: 1, background: i === photoCur ? GOLD : "rgba(184,151,62,0.35)", border: "none", padding: 0, cursor: "pointer", transition: "width 0.35s" }} />
+            ))}
+          </div>
+        )}
+        {multi && (
+          <>
+            <button onClick={() => setPhotoCur(c => Math.max(c-1,0))} style={{ position: "absolute", left: "8px", top: "50%", transform: "translateY(-50%)", background: "rgba(0,0,0,0.35)", border: "none", borderRadius: "50%", width: 28, height: 28, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", opacity: photoCur === 0 ? 0.3 : 1 }}>
+              <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M6.5 2L3.5 5l3 3" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            </button>
+            <button onClick={() => setPhotoCur(c => Math.min(c+1,photos.length-1))} style={{ position: "absolute", right: "8px", top: "50%", transform: "translateY(-50%)", background: "rgba(0,0,0,0.35)", border: "none", borderRadius: "50%", width: 28, height: 28, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", opacity: photoCur === photos.length-1 ? 0.3 : 1 }}>
+              <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M3.5 2L6.5 5l-3 3" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            </button>
+          </>
+        )}
+        <div style={{ position: "absolute", bottom: multi ? "28px" : "12px", right: "12px", textAlign: "right" }}>
+          <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.2em", color: "rgba(245,240,232,0.5)", margin: 0, textTransform: "uppercase" }}>{item.location} · {item.date}</p>
         </div>
       </div>
       <div style={{ padding: "1.4rem 1.2rem 1.6rem" }}>
@@ -2059,9 +2098,7 @@ const ActuCard = ({ item }) => {
         <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(0.95rem,4vw,1.1rem)", color: "rgba(245,240,232,0.72)", lineHeight: 1.75, fontStyle: "italic", whiteSpace: "pre-line" }}>
           {expanded ? item.text : preview}
         </div>
-        <motion.button
-          whileTap={{ scale: 0.97 }}
-          onClick={() => setExpanded(e => !e)}
+        <motion.button whileTap={{ scale: 0.97 }} onClick={() => setExpanded(e => !e)}
           style={{ marginTop: "1.1rem", background: "none", border: "none", padding: 0, cursor: "pointer", display: "flex", alignItems: "center", gap: "6px" }}>
           <span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "8px", letterSpacing: "0.3em", color: GOLD, textTransform: "uppercase" }}>
             {expanded ? "Réduire" : "Lire la suite"}
