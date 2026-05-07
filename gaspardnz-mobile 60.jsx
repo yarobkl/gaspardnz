@@ -2160,21 +2160,7 @@ const StyleDot = ({ dot }) => {
 const StyleJournalSection = () => {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-8% 0px" });
-  const [p0, p1, p2, p3] = styleJournalPhotos;
-  const PhotoTile = ({ photo, ratio, delay }) => (
-    <motion.div
-      initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true, margin: "-6% 0px" }}
-      transition={{ duration: 0.8, delay, ease: [0.16, 1, 0.3, 1] }}
-      style={{ position: "relative", overflow: "hidden", flex: 1 }}>
-      <img src={photo.src} alt={photo.caption}
-        style={{ width: "100%", aspectRatio: ratio, objectFit: "cover", objectPosition: "center top", display: "block" }} />
-      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 55%, rgba(10,6,2,0.7) 100%)", pointerEvents: "none" }} />
-      {photo.dots.map((dot, di) => <StyleDot key={di} dot={dot} />)}
-      <div style={{ position: "absolute", bottom: "10px", left: "10px", right: "10px" }}>
-        <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(0.75rem,3.5vw,1.1rem)", letterSpacing: "0.08em", color: "#faf7f2", margin: 0, textShadow: "0 1px 8px rgba(0,0,0,0.8)", lineHeight: 1.1 }}>{photo.caption}</p>
-      </div>
-    </motion.div>
-  );
+  const ratios = ["4/3", "4/3", "4/3", "3/4"];
   return (
     <section ref={ref} style={{ background: "#0a0602", paddingTop: "4.5rem" }}>
       <motion.div initial={{ opacity: 0, y: 16 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.7 }}
@@ -2185,17 +2171,21 @@ const StyleJournalSection = () => {
         <p style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: "italic", fontSize: "12px", color: "rgba(245,240,232,0.4)", marginTop: "8px" }}>Touchez les points dorés pour découvrir chaque pièce</p>
       </motion.div>
 
-      {/* Album grid : grande | duo | grande */}
-      <div style={{ display: "flex", flexDirection: "column", gap: "3px" }}>
-        {/* Photo 1 — pleine largeur */}
-        <PhotoTile photo={p0} ratio="4/3" delay={0.05} />
-        {/* Photos 2 & 3 — côte à côte */}
-        <div style={{ display: "flex", gap: "3px" }}>
-          <PhotoTile photo={p1} ratio="3/4" delay={0.1} />
-          <PhotoTile photo={p2} ratio="3/4" delay={0.15} />
-        </div>
-        {/* Photo 4 — pleine largeur */}
-        <PhotoTile photo={p3} ratio="3/4" delay={0.2} />
+      <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
+        {styleJournalPhotos.map((photo, i) => (
+          <motion.div key={i}
+            initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-6% 0px" }}
+            transition={{ duration: 0.8, delay: i * 0.08, ease: [0.16, 1, 0.3, 1] }}
+            style={{ position: "relative", overflow: "hidden" }}>
+            <img src={photo.src} alt={photo.caption}
+              style={{ width: "100%", aspectRatio: ratios[i], objectFit: "cover", objectPosition: "center top", display: "block" }} />
+            <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 55%, rgba(10,6,2,0.75) 100%)", pointerEvents: "none" }} />
+            {photo.dots.map((dot, di) => <StyleDot key={di} dot={dot} />)}
+            <div style={{ position: "absolute", bottom: "14px", left: "14px", right: "14px" }}>
+              <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1rem", letterSpacing: "0.1em", color: "#faf7f2", margin: 0, textShadow: "0 1px 8px rgba(0,0,0,0.8)" }}>{photo.caption}</p>
+            </div>
+          </motion.div>
+        ))}
       </div>
     </section>
   );
