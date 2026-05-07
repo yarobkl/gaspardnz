@@ -2904,8 +2904,8 @@ export default function App() {
 
       <HeroMobile onScrollDown={() => scrollTo(heritageRef)} />
       <HeritageMobile refEl={heritageRef} />
-      <GalleryMobile refEl={galleryRef} />
       <StyleJournalSection />
+      <GalleryMobile refEl={galleryRef} />
       <TikTokViralSection />
       <VIPClientsSection />
       <TestimonialsSection />
