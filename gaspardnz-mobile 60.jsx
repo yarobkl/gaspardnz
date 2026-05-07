@@ -2130,6 +2130,115 @@ const ActualitesSection = () => {
   );
 };
 
+/* ── STYLE JOURNAL ───────────────────────────────────────────────── */
+const styleJournalPhotos = [
+  {
+    src: "/images/stylejournal/paris-cafe-1.jpg",
+    caption: "Paris · Terrasse Dior",
+    look: "Veste cargo noir · Pantalon tailleur · Mocassins à glands",
+    dots: [
+      { top: "30%", left: "38%", label: "Veste cargo noir GNZ" },
+      { top: "60%", left: "54%", label: "Montre & chevalière" },
+      { top: "87%", left: "36%", label: "Mocassins à glands noirs" },
+    ],
+  },
+  {
+    src: "/images/stylejournal/paris-cafe-2.jpg",
+    caption: "Paris · Bar Cocktails",
+    look: "Total look noir · Lunettes fumées · Cuir verni",
+    dots: [
+      { top: "28%", left: "35%", label: "Veste cargo noir GNZ" },
+      { top: "55%", left: "48%", label: "Pochette cuir noire" },
+      { top: "86%", left: "38%", label: "Mocassins à glands noirs" },
+    ],
+  },
+  {
+    src: "/images/stylejournal/detail-chaussures.jpg",
+    caption: "Le détail fait la différence",
+    look: "Mocassins · Chaussettes monogrammées · Montre · Chevalière dorée",
+    dots: [
+      { top: "22%", left: "60%", label: "Montre dorée" },
+      { top: "28%", left: "78%", label: "Chevalière dorée" },
+      { top: "52%", left: "42%", label: "Chaussettes GNZ monogrammées" },
+      { top: "75%", left: "45%", label: "Mocassins à glands noirs" },
+    ],
+  },
+  {
+    src: "/images/stylejournal/costume-navy.jpg",
+    caption: "Paris · Studio",
+    look: "Costume double boutonnage navy · Cravate bordeaux · Chapeau fedora · Richelieu noirs",
+    dots: [
+      { top: "9%", left: "48%", label: "Chapeau fedora navy" },
+      { top: "24%", left: "55%", label: "Cravate bordeaux & pochette blanche" },
+      { top: "32%", left: "47%", label: "Costume double boutonnage navy" },
+      { top: "91%", left: "46%", label: "Richelieu noirs" },
+    ],
+  },
+];
+
+const StyleDot = ({ dot }) => {
+  const [active, setActive] = useState(false);
+  const waMsg = encodeURIComponent(`Bonjour Gaspard, je suis intéressé(e) par : ${dot.label}. Pouvez-vous m'en dire plus ?`);
+  return (
+    <div style={{ position: "absolute", top: dot.top, left: dot.left, zIndex: 10 }}>
+      <motion.button
+        onClick={() => setActive(a => !a)}
+        animate={{ scale: [1, 1.15, 1] }}
+        transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+        style={{ width: "22px", height: "22px", borderRadius: "50%", background: "rgba(184,151,62,0.25)", border: `1.5px solid ${GOLD}`, backdropFilter: "blur(4px)", cursor: "pointer", padding: 0, display: "flex", alignItems: "center", justifyContent: "center", position: "relative" }}>
+        <div style={{ width: "7px", height: "7px", borderRadius: "50%", background: GOLD }} />
+        <motion.div animate={{ scale: [1, 1.8, 1], opacity: [0.6, 0, 0.6] }} transition={{ duration: 1.8, repeat: Infinity }}
+          style={{ position: "absolute", inset: -3, borderRadius: "50%", border: `1px solid ${GOLD}`, pointerEvents: "none" }} />
+      </motion.button>
+      <AnimatePresence>
+        {active && (
+          <motion.div initial={{ opacity: 0, scale: 0.85, y: 4 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.85 }}
+            style={{ position: "absolute", bottom: "calc(100% + 8px)", left: "50%", transform: "translateX(-50%)", background: "rgba(17,16,9,0.95)", backdropFilter: "blur(8px)", border: `1px solid rgba(184,151,62,0.35)`, borderRadius: "8px", padding: "8px 10px", minWidth: "160px", maxWidth: "200px", zIndex: 20 }}>
+            <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "8px", letterSpacing: "0.08em", color: "#faf7f2", margin: "0 0 7px", lineHeight: 1.4 }}>{dot.label}</p>
+            <a href={`https://wa.me/33664826920?text=${waMsg}`} target="_blank" rel="noopener noreferrer"
+              style={{ display: "flex", alignItems: "center", gap: "5px", textDecoration: "none" }}>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.122 1.532 5.852L.057 23.032a.75.75 0 0 0 .921.921l5.18-1.475A11.943 11.943 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.75a9.713 9.713 0 0 1-4.953-1.355l-.355-.212-3.676 1.047 1.047-3.608-.23-.372A9.718 9.718 0 0 1 2.25 12C2.25 6.615 6.615 2.25 12 2.25S21.75 6.615 21.75 12 17.385 21.75 12 21.75z"/></svg>
+              <span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.25em", color: "#25D366", textTransform: "uppercase" }}>Demander sur WhatsApp</span>
+            </a>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
+
+const StyleJournalSection = () => {
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true, margin: "-8% 0px" });
+  return (
+    <section ref={ref} style={{ background: "#f5f0e8", padding: "4.5rem 0 5rem" }}>
+      <motion.div initial={{ opacity: 0, y: 16 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.7 }}
+        style={{ padding: "0 1.4rem", marginBottom: "2.4rem" }}>
+        <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.55em", color: GOLD, textTransform: "uppercase", marginBottom: "10px" }}>GASPARDNZ</p>
+        <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "28px", fontWeight: 300, color: "#1c1208", letterSpacing: "0.02em", lineHeight: 1.2, margin: 0 }}>Style Journal</p>
+        <div style={{ width: "48px", height: "1px", background: `linear-gradient(90deg, ${GOLD}, transparent)`, marginTop: "14px" }} />
+        <p style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: "italic", fontSize: "13px", color: "rgba(28,18,8,0.5)", marginTop: "10px", lineHeight: 1.5 }}>Touchez les points dorés pour découvrir chaque pièce</p>
+      </motion.div>
+      <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
+        {styleJournalPhotos.map((photo, idx) => (
+          <motion.div key={idx}
+            initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-8% 0px" }}
+            transition={{ duration: 0.7, delay: idx * 0.08, ease: [0.16, 1, 0.3, 1] }}
+            style={{ position: "relative" }}>
+            <img src={photo.src} alt={photo.caption} style={{ width: "100%", aspectRatio: "4/5", objectFit: "cover", objectPosition: "center top", display: "block" }} />
+            <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 60%, rgba(28,18,8,0.65) 100%)", pointerEvents: "none" }} />
+            {photo.dots.map((dot, di) => <StyleDot key={di} dot={dot} />)}
+            <div style={{ position: "absolute", bottom: "14px", left: "1.2rem", right: "1.2rem" }}>
+              <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(1rem,5vw,1.3rem)", letterSpacing: "0.1em", color: "#faf7f2", margin: "0 0 4px", textShadow: "0 1px 8px rgba(0,0,0,0.6)" }}>{photo.caption}</p>
+              <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.12em", color: "rgba(245,240,232,0.6)", textTransform: "uppercase", margin: 0 }}>{photo.look}</p>
+            </div>
+          </motion.div>
+        ))}
+      </div>
+    </section>
+  );
+};
+
 /* ── TESTIMONIALS SECTION ────────────────────────────────────────── */
 const TestimonialsSection = () => {
   const ref = useRef(null);
@@ -2846,6 +2955,7 @@ export default function App() {
       <GalleryMobile refEl={galleryRef} />
       <TikTokViralSection />
       <InstagramSection />
+      <StyleJournalSection />
       <VIPClientsSection />
       <TestimonialsSection />
       <ActualitesSection />
