@@ -2023,6 +2023,76 @@ const VIPClientsSection = () => {
   );
 };
 
+/* ── ACTUALITÉS SECTION ──────────────────────────────────────────── */
+const actualites = [
+  {
+    id: 1,
+    photo: "/images/actualites/patheo-abidjan.jpg",
+    location: "Abidjan",
+    date: "Mai 2025",
+    tag: "Rencontre",
+    title: "Rencontre avec une légende",
+    text: "À Abidjan, j'ai eu l'honneur d'être reçu par le grand maître Pathé'O, une référence incontournable du style africain, celui qui a habillé tant de figures majeures du continent.\n\nDans ses ateliers, entre héritage, savoir-faire et créativité, j'ai découvert bien plus que des vêtements : une vision, une histoire, une identité.\n\nPorter une chemise signée Pathé'O, c'est porter une part de cette excellence. Respect au sage.\n\nDe Gaspard NZ à @maison.patheo — quand deux univers se croisent, c'est toute une culture qui s'exprime.\n\nAbidjan, source d'inspiration infinie ✦",
+  },
+];
+
+const ActuCard = ({ item }) => {
+  const [expanded, setExpanded] = useState(false);
+  const preview = item.text.split("\n\n")[0];
+  return (
+    <motion.article
+      initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-8% 0px" }}
+      transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+      style={{ background: "#111009", borderRadius: "16px", overflow: "hidden", border: "1px solid rgba(184,151,62,0.15)" }}>
+      <div style={{ position: "relative" }}>
+        <img src={item.photo} alt={item.title} style={{ width: "100%", aspectRatio: "4/3", objectFit: "cover", objectPosition: "center top", display: "block" }} />
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 55%, rgba(17,16,9,0.85) 100%)" }} />
+        <div style={{ position: "absolute", top: "12px", left: "12px", background: "rgba(184,151,62,0.15)", backdropFilter: "blur(6px)", border: "1px solid rgba(184,151,62,0.3)", borderRadius: "4px", padding: "4px 10px" }}>
+          <span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.35em", color: GOLD, textTransform: "uppercase" }}>{item.tag}</span>
+        </div>
+        <div style={{ position: "absolute", bottom: "12px", right: "12px", textAlign: "right" }}>
+          <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.25em", color: "rgba(245,240,232,0.5)", margin: 0, textTransform: "uppercase" }}>{item.location} · {item.date}</p>
+        </div>
+      </div>
+      <div style={{ padding: "1.4rem 1.2rem 1.6rem" }}>
+        <h3 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(1.5rem,7vw,2rem)", letterSpacing: "0.06em", color: "#faf7f2", margin: "0 0 1rem", lineHeight: 1 }}>{item.title}</h3>
+        <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(0.95rem,4vw,1.1rem)", color: "rgba(245,240,232,0.72)", lineHeight: 1.75, fontStyle: "italic", whiteSpace: "pre-line" }}>
+          {expanded ? item.text : preview}
+        </div>
+        <motion.button
+          whileTap={{ scale: 0.97 }}
+          onClick={() => setExpanded(e => !e)}
+          style={{ marginTop: "1.1rem", background: "none", border: "none", padding: 0, cursor: "pointer", display: "flex", alignItems: "center", gap: "6px" }}>
+          <span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "8px", letterSpacing: "0.3em", color: GOLD, textTransform: "uppercase" }}>
+            {expanded ? "Réduire" : "Lire la suite"}
+          </span>
+          <motion.svg animate={{ rotate: expanded ? 180 : 0 }} transition={{ duration: 0.3 }} width="10" height="10" viewBox="0 0 10 10" fill="none">
+            <path d="M2 3.5l3 3 3-3" stroke={GOLD} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          </motion.svg>
+        </motion.button>
+      </div>
+    </motion.article>
+  );
+};
+
+const ActualitesSection = () => {
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true, margin: "-8% 0px" });
+  return (
+    <section ref={ref} style={{ background: "#0a0602", padding: "4.5rem 0 5rem" }}>
+      <motion.div initial={{ opacity: 0, y: 16 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.7 }}
+        style={{ padding: "0 1.4rem", marginBottom: "2.4rem" }}>
+        <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.55em", color: GOLD, textTransform: "uppercase", marginBottom: "10px" }}>GASPARDNZ</p>
+        <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "28px", fontWeight: 300, color: "#faf7f2", letterSpacing: "0.02em", lineHeight: 1.2, margin: 0 }}>Actualités</p>
+        <div style={{ width: "48px", height: "1px", background: `linear-gradient(90deg, ${GOLD}, transparent)`, marginTop: "14px" }} />
+      </motion.div>
+      <div style={{ padding: "0 1.4rem", display: "flex", flexDirection: "column", gap: "1.4rem" }}>
+        {actualites.map(item => <ActuCard key={item.id} item={item} />)}
+      </div>
+    </section>
+  );
+};
+
 /* ── TESTIMONIALS SECTION ────────────────────────────────────────── */
 const TestimonialsSection = () => {
   const ref = useRef(null);
@@ -2741,6 +2811,7 @@ export default function App() {
       <InstagramSection />
       <VIPClientsSection />
       <TestimonialsSection />
+      <ActualitesSection />
       <ShowroomMobile refEl={showroomRef} onCatalogue={() => setModal("catalogue")} onFlammes={() => setModal("flammes")} />
       <FormulesSection refEl={formulesRef} onContact={() => setModal("contact")} onReserver={() => setModal("booking")} />
       <FooterMobile
