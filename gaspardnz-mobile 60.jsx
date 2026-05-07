@@ -2135,8 +2135,8 @@ const StyleDot = ({ dot }) => {
         onClick={() => setActive(a => !a)}
         animate={{ scale: [1, 1.15, 1] }}
         transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-        style={{ width: "22px", height: "22px", borderRadius: "50%", background: "rgba(184,151,62,0.25)", border: `1.5px solid ${GOLD}`, backdropFilter: "blur(4px)", cursor: "pointer", padding: 0, display: "flex", alignItems: "center", justifyContent: "center", position: "relative" }}>
-        <div style={{ width: "7px", height: "7px", borderRadius: "50%", background: GOLD }} />
+        style={{ width: "14px", height: "14px", borderRadius: "50%", background: "rgba(184,151,62,0.25)", border: `1px solid ${GOLD}`, backdropFilter: "blur(4px)", cursor: "pointer", padding: 0, display: "flex", alignItems: "center", justifyContent: "center", position: "relative" }}>
+        <div style={{ width: "4px", height: "4px", borderRadius: "50%", background: GOLD }} />
         <motion.div animate={{ scale: [1, 1.8, 1], opacity: [0.6, 0, 0.6] }} transition={{ duration: 1.8, repeat: Infinity }}
           style={{ position: "absolute", inset: -3, borderRadius: "50%", border: `1px solid ${GOLD}`, pointerEvents: "none" }} />
       </motion.button>
@@ -2905,10 +2905,10 @@ export default function App() {
       <HeritageMobile refEl={heritageRef} />
       <StyleJournalSection />
       <GalleryMobile refEl={galleryRef} />
+      <ActualitesSection />
       <TikTokViralSection />
       <VIPClientsSection />
       <TestimonialsSection />
-      <ActualitesSection />
       <ShowroomMobile refEl={showroomRef} onCatalogue={() => setModal("catalogue")} onFlammes={() => setModal("flammes")} />
       <InstagramSection />
       <FormulesSection refEl={formulesRef} onContact={() => setModal("contact")} onReserver={() => setModal("booking")} />
