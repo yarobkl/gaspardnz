@@ -2087,9 +2087,9 @@ const styleJournalPhotos = [
     caption: "Paris · Terrasse Dior",
     look: "Veste cargo noir · Pantalon tailleur · Mocassins à glands",
     dots: [
-      { top: "30%", left: "38%", label: "Veste cargo noir GNZ" },
-      { top: "60%", left: "54%", label: "Montre & chevalière" },
-      { top: "87%", left: "36%", label: "Mocassins à glands noirs" },
+      { top: "36%", left: "16%", label: "Veste cargo noir GNZ" },
+      { top: "52%", left: "52%", label: "Montre & chevalière" },
+      { top: "83%", left: "36%", label: "Mocassins à glands noirs" },
     ],
   },
   {
@@ -2097,9 +2097,9 @@ const styleJournalPhotos = [
     caption: "Paris · Bar Cocktails",
     look: "Total look noir · Lunettes fumées · Cuir verni",
     dots: [
-      { top: "28%", left: "35%", label: "Veste cargo noir GNZ" },
-      { top: "55%", left: "48%", label: "Pochette cuir noire" },
-      { top: "86%", left: "38%", label: "Mocassins à glands noirs" },
+      { top: "35%", left: "36%", label: "Veste cargo noir GNZ" },
+      { top: "53%", left: "63%", label: "Pochette cuir noire" },
+      { top: "75%", left: "39%", label: "Mocassins à glands noirs" },
     ],
   },
   {
@@ -2107,10 +2107,10 @@ const styleJournalPhotos = [
     caption: "Le détail fait la différence",
     look: "Mocassins · Chaussettes monogrammées · Montre · Chevalière dorée",
     dots: [
-      { top: "22%", left: "60%", label: "Montre dorée" },
-      { top: "28%", left: "78%", label: "Chevalière dorée" },
-      { top: "52%", left: "42%", label: "Chaussettes GNZ monogrammées" },
-      { top: "75%", left: "45%", label: "Mocassins à glands noirs" },
+      { top: "23%", left: "37%", label: "Montre dorée" },
+      { top: "17%", left: "70%", label: "Chevalière dorée" },
+      { top: "56%", left: "34%", label: "Chaussettes GNZ monogrammées" },
+      { top: "80%", left: "28%", label: "Mocassins à glands noirs" },
     ],
   },
   {
@@ -2118,10 +2118,10 @@ const styleJournalPhotos = [
     caption: "Paris · Studio",
     look: "Costume double boutonnage navy · Cravate bordeaux · Chapeau fedora · Richelieu noirs",
     dots: [
-      { top: "9%", left: "48%", label: "Chapeau fedora navy" },
-      { top: "24%", left: "55%", label: "Cravate bordeaux & pochette blanche" },
-      { top: "32%", left: "47%", label: "Costume double boutonnage navy" },
-      { top: "91%", left: "46%", label: "Richelieu noirs" },
+      { top: "5%", left: "63%", label: "Chapeau fedora navy" },
+      { top: "26%", left: "57%", label: "Cravate bordeaux & pochette blanche" },
+      { top: "40%", left: "25%", label: "Costume double boutonnage navy" },
+      { top: "91%", left: "55%", label: "Richelieu noirs" },
     ],
   },
 ];
