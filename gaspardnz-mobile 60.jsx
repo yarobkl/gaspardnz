@@ -1764,97 +1764,65 @@ const GalleryMobile = ({ refEl }) => {
 const TikTokViralSection = () => {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-6% 0px" });
-  const [cur, setCur] = useState(0);
-  const videos = [
-    { id: "7387058056833551648", label: "37,2M vues" },
-    { id: "7197495722046983429", label: "Aussi viral 🔥" },
-  ];
   return (
     <section ref={ref} style={{ background: "#0a0602", padding: "4.5rem 0 5rem" }}>
+
+      {/* Header stats */}
       <motion.div initial={{ opacity: 0, y: 20 }} animate={inView ? { opacity: 1, y: 0 } : {}}
         transition={{ duration: 0.7 }}
-        style={{ textAlign: "center", marginBottom: "2rem", padding: "0 1.4rem" }}>
-        <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.55em", color: GOLD, textTransform: "uppercase", marginBottom: "10px" }}>TIKTOK · @GASPARDNZ</p>
-        <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "28px", fontWeight: 300, color: "#faf7f2", letterSpacing: "0.02em", lineHeight: 1.2, marginBottom: "14px" }}>La vidéo qui a tout<br/>changé</p>
-        <div style={{ display: "inline-flex", gap: "20px", justifyContent: "center" }}>
+        style={{ textAlign: "center", marginBottom: "3rem", padding: "0 1.4rem" }}>
+        <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.55em", color: GOLD, textTransform: "uppercase", marginBottom: "12px" }}>TIKTOK · @GASPARDNZ</p>
+        <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "28px", fontWeight: 300, color: "#faf7f2", letterSpacing: "0.02em", lineHeight: 1.2, marginBottom: "2rem" }}>La vidéo qui a tout<br/>changé</p>
+        {/* Ligne déco */}
+        <div style={{ width: "1px", height: "32px", background: `linear-gradient(to bottom, transparent, ${GOLD}, transparent)`, margin: "0 auto 2rem" }} />
+        <div style={{ display: "inline-flex", gap: "28px", justifyContent: "center" }}>
           {[["37,2M", "Vues"], ["449,5K", "Followers"], ["3,7M", "J'aime"]].map(([n, l]) => (
             <div key={l} style={{ textAlign: "center" }}>
-              <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "22px", fontWeight: 400, color: GOLD, lineHeight: 1 }}>{n}</p>
-              <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "8px", color: "rgba(250,247,242,0.4)", letterSpacing: "0.1em", marginTop: "3px" }}>{l}</p>
+              <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "26px", fontWeight: 400, color: GOLD, lineHeight: 1, margin: 0 }}>{n}</p>
+              <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", color: "rgba(250,247,242,0.35)", letterSpacing: "0.2em", marginTop: "5px", textTransform: "uppercase" }}>{l}</p>
             </div>
           ))}
         </div>
       </motion.div>
-
-      {/* Label vidéo active */}
-      <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.4em", color: GOLD, textTransform: "uppercase", textAlign: "center", marginBottom: "14px" }}>{videos[cur].label}</p>
-
-      {/* Carousel — une seule vidéo visible */}
-      <motion.div initial={{ opacity: 0 }} animate={inView ? { opacity: 1 } : {}} transition={{ duration: 0.6, delay: 0.2 }}
-        style={{ overflow: "hidden" }}>
-        <div style={{ display: "flex", transform: `translateX(${-cur * 100}%)`, transition: "transform 0.45s cubic-bezier(0.4, 0, 0.2, 1)" }}>
-          {videos.map((v, i) => (
-            <div key={v.id} style={{ minWidth: "100%", padding: "0 1.4rem", boxSizing: "border-box" }}>
-              <div style={{ position: "relative", width: "100%", maxWidth: "340px", margin: "0 auto", borderRadius: "16px", overflow: "hidden", border: "1px solid rgba(184,151,62,0.2)", boxShadow: "0 12px 48px rgba(0,0,0,0.6)", aspectRatio: "9/16", maxHeight: "68vh" }}>
-                <iframe
-                  src={`https://www.tiktok.com/embed/v2/${v.id}?autoplay=0`}
-                  style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "118%", border: "none" }}
-                  allowFullScreen allow="encrypted-media"
-                  loading={i === cur ? "eager" : "lazy"}
-                  title={`Gaspardnz TikTok ${v.label}`}
-                />
-                {/* Masque bas pour cacher suggestions TikTok */}
-                <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "56px", background: "linear-gradient(transparent, #0a0602)", pointerEvents: "none" }} />
-              </div>
-            </div>
-          ))}
-        </div>
-      </motion.div>
-
-      {/* Dots navigation */}
-      <div style={{ display: "flex", justifyContent: "center", gap: "8px", marginTop: "1.2rem" }}>
-        {videos.map((_, i) => (
-          <button key={i} onClick={() => setCur(i)}
-            style={{ width: i === cur ? "20px" : "6px", height: "6px", borderRadius: "3px", background: i === cur ? GOLD : "rgba(184,151,62,0.3)", border: "none", cursor: "pointer", transition: "all 0.3s", padding: 0 }} />
-        ))}
-      </div>
 
       {/* Commentaire Fally Ipupa */}
       <motion.div initial={{ opacity: 0, y: 16 }} animate={inView ? { opacity: 1, y: 0 } : {}}
-        transition={{ duration: 0.6, delay: 0.45 }}
-        style={{ padding: "1.8rem 1.4rem 0" }}>
-        <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.45em", color: "rgba(250,247,242,0.3)", textTransform: "uppercase", textAlign: "center", marginBottom: "14px" }}>2 797 commentaires · commentaire épinglé</p>
-        <div style={{ background: "#161210", borderRadius: "14px", padding: "1rem 1.1rem", border: "1px solid rgba(184,151,62,0.2)", maxWidth: "340px", margin: "0 auto" }}>
+        transition={{ duration: 0.6, delay: 0.3 }}
+        style={{ padding: "0 1.4rem" }}>
+        <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.45em", color: "rgba(250,247,242,0.25)", textTransform: "uppercase", textAlign: "center", marginBottom: "16px" }}>2 797 commentaires · commentaire épinglé</p>
+        <div style={{ background: "#161210", borderRadius: "14px", padding: "1.1rem 1.2rem", border: "1px solid rgba(184,151,62,0.18)", maxWidth: "340px", margin: "0 auto" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "10px" }}>
             <div style={{ width: "38px", height: "38px", borderRadius: "50%", background: "linear-gradient(135deg,#1a237e,#283593)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, border: "2px solid rgba(184,151,62,0.3)" }}>
               <span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "12px", fontWeight: 700, color: "#faf7f2" }}>FI</span>
             </div>
             <div style={{ flex: 1 }}>
               <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
-                <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "12px", fontWeight: 700, color: "#faf7f2" }}>fallyipupa</p>
+                <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "12px", fontWeight: 700, color: "#faf7f2", margin: 0 }}>fallyipupa</p>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="#20d5ec"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
               </div>
-              <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "9px", color: "rgba(250,247,242,0.38)" }}>Artiste certifié · 2023-02-22</p>
+              <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "9px", color: "rgba(250,247,242,0.35)", margin: "2px 0 0" }}>Artiste certifié · 2023-02-22</p>
             </div>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.34 6.34 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.82a8.27 8.27 0 004.84 1.54V6.91a4.85 4.85 0 01-1.07-.22z"/></svg>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="white" style={{ opacity: 0.6 }}><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.34 6.34 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.82a8.27 8.27 0 004.84 1.54V6.91a4.85 4.85 0 01-1.07-.22z"/></svg>
           </div>
-          <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "14px", color: "#faf7f2", lineHeight: 1.5, marginBottom: "10px" }}>😂😂😂chic 👌</p>
+          <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "15px", color: "#faf7f2", lineHeight: 1.5, margin: "0 0 10px" }}>😂😂😂chic 👌</p>
           <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
             <svg width="13" height="13" viewBox="0 0 24 24" fill="rgba(254,44,85,0.8)"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-            <span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", color: "rgba(250,247,242,0.5)" }}>607</span>
+            <span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", color: "rgba(250,247,242,0.4)" }}>607</span>
           </div>
         </div>
       </motion.div>
 
-      <motion.div initial={{ opacity: 0 }} animate={inView ? { opacity: 1 } : {}} transition={{ delay: 0.7 }}
-        style={{ textAlign: "center", marginTop: "2rem" }}>
+      {/* CTA */}
+      <motion.div initial={{ opacity: 0 }} animate={inView ? { opacity: 1 } : {}} transition={{ delay: 0.55 }}
+        style={{ textAlign: "center", marginTop: "2.4rem" }}>
         <motion.a href="https://www.tiktok.com/@gaspardnz?_r=1&_t=ZS-95wB65ZWhvB" target="_blank" rel="noopener noreferrer"
           whileTap={{ scale: 0.97 }}
-          style={{ display: "inline-flex", alignItems: "center", gap: "8px", background: "#010101", padding: "12px 22px", borderRadius: "24px", textDecoration: "none", border: "1px solid rgba(255,255,255,0.12)" }}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.34 6.34 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.82a8.27 8.27 0 004.84 1.54V6.91a4.85 4.85 0 01-1.07-.22z"/></svg>
-          <span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.15em", color: "white", textTransform: "uppercase" }}>Suivre @gaspardnz</span>
+          style={{ display: "inline-flex", alignItems: "center", gap: "9px", border: `1px solid rgba(184,151,62,0.35)`, padding: "11px 24px", borderRadius: "24px", textDecoration: "none" }}>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill={GOLD}><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.34 6.34 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.82a8.27 8.27 0 004.84 1.54V6.91a4.85 4.85 0 01-1.07-.22z"/></svg>
+          <span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "9px", letterSpacing: "0.3em", color: GOLD, textTransform: "uppercase" }}>Suivre @gaspardnz</span>
         </motion.a>
       </motion.div>
+
     </section>
   );
 };
