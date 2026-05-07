@@ -1142,6 +1142,25 @@ const HeroMobile = ({ onScrollDown }) => {
       {/* Grain overlay */}
       <div style={{ position: "absolute", inset: 0, opacity: 0.03, backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`, backgroundSize: "200px" }} />
 
+      {/* Scroll indicator */}
+      <motion.div
+        onClick={onScrollDown}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 2.5, duration: 1 }}
+        style={{ position: "absolute", bottom: "118px", left: 0, right: 0, zIndex: 10, display: "flex", flexDirection: "column", alignItems: "center", gap: "5px", cursor: "pointer", pointerEvents: "auto" }}>
+        <motion.span
+          animate={{ opacity: [0.5, 1, 0.5] }}
+          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+          style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.5em", color: "rgba(245,240,232,0.65)", textTransform: "uppercase" }}>Découvrir</motion.span>
+        <motion.svg
+          animate={{ y: [0, 6, 0] }}
+          transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
+          width="18" height="18" viewBox="0 0 18 18" fill="none">
+          <path d="M9 3v12M3.5 10l5.5 5.5 5.5-5.5" stroke="rgba(184,151,62,0.85)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        </motion.svg>
+      </motion.div>
+
       {/* Contenu texte — bottom */}
       <motion.div style={{ position: "relative", zIndex: 10, width: "100%", padding: "0 1.4rem 5.5rem", opacity }}>
         <motion.p
@@ -2444,6 +2463,9 @@ const SplashScreen = ({ onDone }) => {
 export default function App() {
   const [splashDone, setSplashDone] = useState(false);
   const [modal, setModal] = useState(null);
+  const [contactSent, setContactSent] = useState(false);
+  const [contactName, setContactName] = useState("");
+  const [contactMsg, setContactMsg] = useState("");
   const [lang, setLang] = useState(() => {
     try {
       const saved = localStorage.getItem("gnz-lang");
@@ -2769,19 +2791,60 @@ export default function App() {
       </Modal>
 
       {/* Modal contact */}
-      <Modal isOpen={modal === "contact"} onClose={() => setModal(null)} title={lang === "FR" ? "Prendre Contact" : lang === "EN" ? "Get in Touch" : lang === "ES" ? "Contactar" : "联系我们"}>
-        <div style={{ textAlign: "center", padding: "2rem 0" }}>
-          <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(1rem, 4.5vw, 1.4rem)", fontStyle: "italic", color: "rgba(28,18,8,0.82)", lineHeight: 1.6, marginBottom: "2rem" }}>
-            {T[lang]?.contact_desc ?? T.FR.contact_desc}
-          </p>
-          <div style={{ width: "60px", height: "1px", background: `linear-gradient(90deg, transparent, ${GOLD}, transparent)`, margin: "0 auto 2rem" }} />
-          <a href="https://wa.me/33664826920" target="_blank" rel="noopener noreferrer"
-            style={{ display: "inline-flex", alignItems: "center", gap: "0.8rem", color: "#25D366", textDecoration: "none", fontFamily: "'Montserrat', sans-serif", fontSize: "9px", letterSpacing: "0.35em", textTransform: "uppercase" }}
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.122 1.532 5.852L.057 23.032a.75.75 0 0 0 .921.921l5.18-1.475A11.943 11.943 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.75a9.713 9.713 0 0 1-4.953-1.355l-.355-.212-3.676 1.047 1.047-3.608-.23-.372A9.718 9.718 0 0 1 2.25 12C2.25 6.615 6.615 2.25 12 2.25S21.75 6.615 21.75 12 17.385 21.75 12 21.75z"/></svg>
-            <span>+33 6 64 82 69 20</span>
-          </a>
-        </div>
+      <Modal isOpen={modal === "contact"} onClose={() => { setModal(null); setContactSent(false); setContactName(""); setContactMsg(""); }} title={lang === "FR" ? "Prendre Contact" : lang === "EN" ? "Get in Touch" : lang === "ES" ? "Contactar" : "联系我们"}>
+        <AnimatePresence mode="wait">
+          {contactSent ? (
+            <motion.div key="sent" initial={{ opacity: 0, scale: 0.92 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }}
+              style={{ textAlign: "center", padding: "2.5rem 1rem" }}>
+              <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", stiffness: 260, damping: 20, delay: 0.1 }}
+                style={{ width: "64px", height: "64px", borderRadius: "50%", border: `1.5px solid ${GOLD}`, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 1.4rem" }}>
+                <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+                  <path d="M6 14l6 6L22 8" stroke={GOLD} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </motion.div>
+              <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "22px", fontWeight: 400, color: "#1c1208", marginBottom: "0.7rem" }}>
+                Merci{contactName ? ` ${contactName}` : ""} !
+              </p>
+              <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.05em", color: "rgba(28,18,8,0.55)", lineHeight: 1.7 }}>
+                Votre message a été envoyé via WhatsApp.<br/>Gaspard vous répondra rapidement.
+              </p>
+              <div style={{ width: "40px", height: "1px", background: `linear-gradient(90deg, transparent, ${GOLD}, transparent)`, margin: "1.6rem auto 0" }} />
+            </motion.div>
+          ) : (
+            <motion.div key="form" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              style={{ padding: "1.5rem 0.2rem 1rem" }}>
+              <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(1rem, 4.5vw, 1.2rem)", fontStyle: "italic", color: "rgba(28,18,8,0.72)", lineHeight: 1.6, marginBottom: "1.6rem", textAlign: "center" }}>
+                {T[lang]?.contact_desc ?? T.FR.contact_desc}
+              </p>
+              <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                <input
+                  value={contactName}
+                  onChange={e => setContactName(e.target.value)}
+                  placeholder="Votre prénom"
+                  style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "12px", padding: "12px 14px", border: `1px solid rgba(184,151,62,0.35)`, borderRadius: "4px", background: "#faf7f2", color: "#1c1208", outline: "none", letterSpacing: "0.03em" }} />
+                <textarea
+                  value={contactMsg}
+                  onChange={e => setContactMsg(e.target.value)}
+                  placeholder="Votre message (occasion, date, ville…)"
+                  rows={4}
+                  style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "12px", padding: "12px 14px", border: `1px solid rgba(184,151,62,0.35)`, borderRadius: "4px", background: "#faf7f2", color: "#1c1208", outline: "none", resize: "none", letterSpacing: "0.03em", lineHeight: 1.6 }} />
+                <motion.button
+                  whileTap={{ scale: 0.97 }}
+                  onClick={() => {
+                    const name = contactName.trim() || "un visiteur";
+                    const msg = contactMsg.trim() || "";
+                    const text = `Bonjour Gaspard, je suis ${name}.${msg ? " " + msg : ""}`;
+                    window.open(`https://wa.me/33664826920?text=${encodeURIComponent(text)}`, "_blank");
+                    setContactSent(true);
+                  }}
+                  style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px", background: "#1c1208", color: GOLD, border: "none", borderRadius: "4px", padding: "14px", fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.3em", textTransform: "uppercase", cursor: "pointer", marginTop: "4px" }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.122 1.532 5.852L.057 23.032a.75.75 0 0 0 .921.921l5.18-1.475A11.943 11.943 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.75a9.713 9.713 0 0 1-4.953-1.355l-.355-.212-3.676 1.047 1.047-3.608-.23-.372A9.718 9.718 0 0 1 2.25 12C2.25 6.615 6.615 2.25 12 2.25S21.75 6.615 21.75 12 17.385 21.75 12 21.75z"/></svg>
+                  Envoyer via WhatsApp
+                </motion.button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </Modal>
       {/* Modal Mentions Légales */}
       <Modal isOpen={modal === "mentions"} onClose={() => setModal(null)} title="Mentions Légales">
