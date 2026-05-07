@@ -1298,44 +1298,40 @@ const HeritageMobile = ({ refEl }) => {
 
 /* ── SHOWROOM MOBILE ─────────────────────────────────────────────── */
 
-/* ── FLAMMES CAROUSEL ─────────────────────────────────────────── */
-const FlammesCarousel = ({ onClick }) => {
-  const t = useTr();
+/* ── DÉCONTRACTÉ ALBUM ───────────────────────────────────────────── */
+const DecontracteAlbum = ({ onClick }) => {
   const [cur, setCur] = useState(0);
-  const N = 5;
+  const photos = [
+    { src: "/images/decontracte/look-jaune.jpg", label: "Style estival" },
+    { src: "/images/decontracte/look-navy.jpg", label: "Casual chic" },
+    { src: "/images/decontracte/showroom.jpg", label: "Au showroom GNZ" },
+  ];
   useEffect(() => {
-    const id = setInterval(() => setCur(c => (c + 1) % N), 3000);
+    const id = setInterval(() => setCur(c => (c + 1) % photos.length), 4000);
     return () => clearInterval(id);
   }, []);
   return (
     <div onClick={onClick} style={{ position: "relative", height: "85vw", minHeight: "340px", maxHeight: "520px", overflow: "hidden", cursor: "pointer" }}>
       <div style={{ display: "flex", height: "100%", transform: `translateX(${-cur * 100}%)`, transition: "transform 0.8s cubic-bezier(0.16,1,0.3,1)", willChange: "transform" }}>
-        {Array.from({ length: N }).map((_, i) => (
-          <div key={i} style={{ flexShrink: 0, width: "100%", height: "100%", background: `hsl(30,${12+i*3}%,${7+i*3}%)`, display: "flex", alignItems: "center", justifyContent: "center", position: "relative", overflow: "hidden" }}>
-            {/* Ligne déco gauche */}
-            <div style={{ position: "absolute", left: "1.8rem", top: 0, bottom: 0, width: "1px", background: `linear-gradient(to bottom, transparent, rgba(184,151,62,0.4), transparent)` }} />
-            {/* Ligne déco droite */}
-            <div style={{ position: "absolute", right: "1.8rem", top: 0, bottom: 0, width: "1px", background: `linear-gradient(to bottom, transparent, rgba(184,151,62,0.4), transparent)` }} />
-            <div style={{ textAlign: "center", padding: "2rem 3rem" }}>
-              <div style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.55em", color: `rgba(184,151,62,0.6)`, textTransform: "uppercase", marginBottom: "1.4rem" }}>{t("flammes_presente")}</div>
-              <div style={{ width: "40px", height: "1px", background: GOLD, margin: "0 auto 1.4rem", opacity: 0.5 }} />
-              <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(2.8rem,13vw,4.5rem)", color: "rgba(245,240,232,0.92)", letterSpacing: "0.08em", lineHeight: 0.95 }}>LES<br/>FLAMMES</div>
-              <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(1.1rem,5vw,1.5rem)", color: GOLD, fontStyle: "italic", fontWeight: 300, marginTop: "0.6rem", letterSpacing: "0.05em" }}>2026</div>
-              <div style={{ width: "40px", height: "1px", background: GOLD, margin: "1.4rem auto", opacity: 0.5 }} />
-              <div style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.4em", color: "rgba(245,240,232,0.75)", textTransform: "uppercase" }}>{t("flammes_lieu")}</div>
-            </div>
+        {photos.map((p, i) => (
+          <div key={i} style={{ flexShrink: 0, width: "100%", height: "100%", position: "relative", overflow: "hidden" }}>
+            <img src={p.src} alt={p.label} style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center top", display: "block" }} />
+            <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 40%, rgba(0,0,0,0.55) 100%)" }} />
           </div>
         ))}
       </div>
-      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 50%, rgba(245,240,232,0.95) 100%)", pointerEvents: "none" }} />
-      <div style={{ position: "absolute", bottom: "1.2rem", left: "1.2rem", border: "1px solid rgba(184,151,62,0.3)", padding: "0.8rem 1.2rem" }}>
-        <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.5em", color: GOLD, textTransform: "uppercase", margin: 0 }}>Gaspardnz · Les Flammes 2026</p>
+      <div style={{ position: "absolute", top: "1rem", left: "1.2rem", background: "rgba(28,18,8,0.5)", padding: "0.45rem 1rem", backdropFilter: "blur(4px)" }}>
+        <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.55em", color: GOLD, textTransform: "uppercase", margin: 0 }}>GASPARDNZ · ALBUM</p>
       </div>
-      <div style={{ position: "absolute", top: "1rem", right: "1rem", background: "rgba(28,18,8,0.55)", padding: "0.5rem 0.9rem", backdropFilter: "blur(4px)" }}>
-        <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.3em", color: GOLD, textTransform: "uppercase", margin: 0 }}>{t("voir_galerie_btn")}</p>
+      <div style={{ position: "absolute", top: "1rem", right: "1.2rem", background: "rgba(28,18,8,0.55)", padding: "0.45rem 0.9rem", backdropFilter: "blur(4px)" }}>
+        <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.3em", color: GOLD, textTransform: "uppercase", margin: 0 }}>Voir l'album →</p>
       </div>
-      <div style={{ position: "absolute", bottom: "1.15rem", right: "1.2rem", display: "flex", gap: "5px", alignItems: "center" }}>
-        {Array.from({ length: N }).map((_, i) => (
+      <div style={{ position: "absolute", bottom: "2.6rem", left: "1.2rem" }}>
+        <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(2.2rem,11vw,3.5rem)", color: "rgba(245,240,232,0.95)", letterSpacing: "0.08em", lineHeight: 0.9, margin: 0, textShadow: "0 2px 20px rgba(0,0,0,0.7)" }}>DÉCONTRACTÉ</p>
+        <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "0.95rem", color: GOLD, fontStyle: "italic", margin: "0.4rem 0 0", letterSpacing: "0.06em" }}>Collection lifestyle</p>
+      </div>
+      <div style={{ position: "absolute", bottom: "1.1rem", right: "1.2rem", display: "flex", gap: "5px", alignItems: "center" }}>
+        {photos.map((_, i) => (
           <div key={i} style={{ width: i === cur ? 18 : 5, height: 2, background: i === cur ? GOLD : "rgba(184,151,62,0.3)", transition: "width 0.4s", borderRadius: 1 }} />
         ))}
       </div>
@@ -1350,7 +1346,7 @@ const ShowroomMobile = ({ refEl, onCatalogue, onFlammes }) => {
 
   return (
     <section ref={refEl} style={{ background: "#f5f0e8", overflow: "hidden" }}>
-      <FlammesCarousel onClick={onFlammes} />
+      <DecontracteAlbum onClick={onFlammes} />
 
       {/* Texte */}
       <div ref={ref} style={{ padding: "3rem 1.4rem 4rem" }}>
@@ -2961,20 +2957,25 @@ export default function App() {
         </div>
       </Modal>
 
-      {/* Modal Flammes */}
-      <Modal isOpen={modal === "flammes"} onClose={() => setModal(null)} title={T[lang]?.flammes_title??T.FR.flammes_title}>
+      {/* Modal Décontracté */}
+      <Modal isOpen={modal === "flammes"} onClose={() => setModal(null)} title="Décontracté">
         <div style={{ display: "flex", flexDirection: "column", gap: "1.2rem" }}>
-          <p style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: "italic", fontSize: "1rem", color: "rgba(28,18,8,0.82)", textAlign: "center", lineHeight: 1.7 }}>
-            {T[lang]?.flammes_desc??T.FR.flammes_desc}
+          <p style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: "italic", fontSize: "1rem", color: "rgba(28,18,8,0.72)", textAlign: "center", lineHeight: 1.7 }}>
+            Le Gaspardnz du quotidien — posé, libre et toujours élégant.
           </p>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.8rem" }}>
-            {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} style={{ aspectRatio: "3/4", border: "1px dashed rgba(184,151,62,0.3)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "0.5rem", background: "rgba(28,18,8,0.03)" }}>
-                <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.5rem", color: "rgba(184,151,62,0.3)", letterSpacing: "0.1em" }}>FLAMMES 2026</div>
-                <div style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.3em", color: "rgba(184,151,62,0.4)", textTransform: "uppercase" }}>{i+1} / 6</div>
+          {[
+            { src: "/images/decontracte/look-jaune.jpg", label: "Style estival", desc: "Chemise lin jaune · Short vert · Baskets blanches", ratio: "4/3" },
+            { src: "/images/decontracte/look-navy.jpg", label: "Casual chic", desc: "Blazer navy · Chemise cyan · Jean destroy · Sneakers blue", ratio: "3/4" },
+            { src: "/images/decontracte/showroom.jpg", label: "Au showroom GNZ", desc: "Polo navy · Cargo sable · GNZ Paris", ratio: "4/3" },
+          ].map((p, i) => (
+            <div key={i} style={{ borderRadius: "12px", overflow: "hidden", border: "1px solid rgba(184,151,62,0.15)" }}>
+              <img src={p.src} alt={p.label} style={{ width: "100%", aspectRatio: p.ratio, objectFit: "cover", objectPosition: "center top", display: "block" }} />
+              <div style={{ padding: "0.75rem 1rem 0.9rem", background: "#faf7f2" }}>
+                <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.05rem", letterSpacing: "0.08em", color: "#1c1208", margin: "0 0 3px" }}>{p.label}</p>
+                <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7.5px", letterSpacing: "0.06em", color: "rgba(28,18,8,0.45)", textTransform: "uppercase", margin: 0 }}>{p.desc}</p>
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
         </div>
       </Modal>
 
