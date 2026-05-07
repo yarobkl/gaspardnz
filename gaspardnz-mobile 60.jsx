@@ -2919,15 +2919,15 @@ export default function App() {
       />
 
       <HeroMobile onScrollDown={() => scrollTo(heritageRef)} />
-      <HeritageMobile refEl={heritageRef} />
-      <GalleryMobile refEl={galleryRef} />
       <TikTokViralSection />
-      <InstagramSection />
       <StyleJournalSection />
+      <GalleryMobile refEl={galleryRef} />
       <VIPClientsSection />
       <TestimonialsSection />
       <ActualitesSection />
       <ShowroomMobile refEl={showroomRef} onCatalogue={() => setModal("catalogue")} onFlammes={() => setModal("flammes")} />
+      <HeritageMobile refEl={heritageRef} />
+      <InstagramSection />
       <FormulesSection refEl={formulesRef} onContact={() => setModal("contact")} onReserver={() => setModal("booking")} />
       <FooterMobile
         onShowroom={() => scrollTo(showroomRef)}
