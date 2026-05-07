@@ -478,6 +478,7 @@ const ChatBot = ({ onReserver, onGalerie, onShowroom, onFormules }) => {
   const [input, setInput] = useState("");
   const [typing, setTyping] = useState(false);
   const [greeted, setGreeted] = useState(false);
+  const fabDragging = useRef(false);
   const [showBubble, setShowBubble] = useState(false);
   const [showAvatar, setShowAvatar] = useState(false);
   const bottomRef = useRef(null);
@@ -559,11 +560,17 @@ const ChatBot = ({ onReserver, onGalerie, onShowroom, onFormules }) => {
 
   return (
     <>
-      {/* Bouton flottant */}
+      {/* Bouton flottant — amovible */}
       <motion.button
-        onClick={() => { setOpen(o => !o); setShowBubble(false); }}
+        drag
+        dragMomentum={false}
+        dragElastic={0}
+        dragConstraints={{ top: -700, bottom: 0, left: -350, right: 0 }}
+        onDragStart={() => { fabDragging.current = true; }}
+        onDragEnd={() => { setTimeout(() => { fabDragging.current = false; }, 80); }}
+        onClick={() => { if (fabDragging.current) return; setOpen(o => !o); setShowBubble(false); }}
         whileTap={{ scale: 0.93 }}
-        style={{ position: "fixed", bottom: "1.5rem", right: "1.2rem", zIndex: 600, width: "56px", height: "56px", borderRadius: "50%", background: open ? GOLD : "transparent", border: open ? "none" : `2px solid ${GOLD}`, padding: 0, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 24px rgba(184,151,62,0.45)", overflow: "hidden" }}>
+        style={{ position: "fixed", bottom: "1.5rem", right: "1.2rem", zIndex: 600, width: "56px", height: "56px", borderRadius: "50%", background: open ? GOLD : "transparent", border: open ? "none" : `2px solid ${GOLD}`, padding: 0, cursor: "grab", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 24px rgba(184,151,62,0.45)", overflow: "hidden", touchAction: "none" }}>
         <AnimatePresence mode="wait">
           {open
             ? <motion.span key="x" initial={{ rotate: -90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: 90, opacity: 0 }} style={{ color: "#1c1208", fontSize: "22px", fontWeight: 300, lineHeight: 1 }}>×</motion.span>
