@@ -2160,7 +2160,6 @@ const StyleDot = ({ dot }) => {
 const StyleJournalSection = () => {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-8% 0px" });
-  const ratios = ["4/3", "4/3", "4/3", "3/4"];
   return (
     <section ref={ref} style={{ background: "#0a0602", paddingTop: "4.5rem" }}>
       <motion.div initial={{ opacity: 0, y: 16 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.7 }}
@@ -2178,7 +2177,7 @@ const StyleJournalSection = () => {
             transition={{ duration: 0.8, delay: i * 0.08, ease: [0.16, 1, 0.3, 1] }}
             style={{ position: "relative", overflow: "hidden" }}>
             <img src={photo.src} alt={photo.caption}
-              style={{ width: "100%", aspectRatio: ratios[i], objectFit: "cover", objectPosition: "center top", display: "block" }} />
+              style={{ width: "100%", height: "auto", display: "block" }} />
             <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 55%, rgba(10,6,2,0.75) 100%)", pointerEvents: "none" }} />
             {photo.dots.map((dot, di) => <StyleDot key={di} dot={dot} />)}
             <div style={{ position: "absolute", bottom: "14px", left: "14px", right: "14px" }}>
