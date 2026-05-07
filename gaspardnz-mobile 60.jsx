@@ -1767,24 +1767,6 @@ const TikTokViralSection = () => {
   return (
     <section ref={ref} style={{ background: "#0a0602", padding: "4.5rem 0 5rem" }}>
 
-      {/* Header stats */}
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={inView ? { opacity: 1, y: 0 } : {}}
-        transition={{ duration: 0.7 }}
-        style={{ textAlign: "center", marginBottom: "3rem", padding: "0 1.4rem" }}>
-        <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.55em", color: GOLD, textTransform: "uppercase", marginBottom: "12px" }}>TIKTOK · @GASPARDNZ</p>
-        <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "28px", fontWeight: 300, color: "#faf7f2", letterSpacing: "0.02em", lineHeight: 1.2, marginBottom: "2rem" }}>La vidéo qui a tout<br/>changé</p>
-        {/* Ligne déco */}
-        <div style={{ width: "1px", height: "32px", background: `linear-gradient(to bottom, transparent, ${GOLD}, transparent)`, margin: "0 auto 2rem" }} />
-        <div style={{ display: "inline-flex", gap: "28px", justifyContent: "center" }}>
-          {[["37,2M", "Vues"], ["449,5K", "Followers"], ["3,7M", "J'aime"]].map(([n, l]) => (
-            <div key={l} style={{ textAlign: "center" }}>
-              <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "26px", fontWeight: 400, color: GOLD, lineHeight: 1, margin: 0 }}>{n}</p>
-              <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", color: "rgba(250,247,242,0.35)", letterSpacing: "0.2em", marginTop: "5px", textTransform: "uppercase" }}>{l}</p>
-            </div>
-          ))}
-        </div>
-      </motion.div>
-
       {/* Commentaire Fally Ipupa */}
       <motion.div initial={{ opacity: 0, y: 16 }} animate={inView ? { opacity: 1, y: 0 } : {}}
         transition={{ duration: 0.6, delay: 0.3 }}
@@ -2178,30 +2160,42 @@ const StyleDot = ({ dot }) => {
 const StyleJournalSection = () => {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-8% 0px" });
+  const [p0, p1, p2, p3] = styleJournalPhotos;
+  const PhotoTile = ({ photo, ratio, delay }) => (
+    <motion.div
+      initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true, margin: "-6% 0px" }}
+      transition={{ duration: 0.8, delay, ease: [0.16, 1, 0.3, 1] }}
+      style={{ position: "relative", overflow: "hidden", flex: 1 }}>
+      <img src={photo.src} alt={photo.caption}
+        style={{ width: "100%", aspectRatio: ratio, objectFit: "cover", objectPosition: "center top", display: "block" }} />
+      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 55%, rgba(10,6,2,0.7) 100%)", pointerEvents: "none" }} />
+      {photo.dots.map((dot, di) => <StyleDot key={di} dot={dot} />)}
+      <div style={{ position: "absolute", bottom: "10px", left: "10px", right: "10px" }}>
+        <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(0.75rem,3.5vw,1.1rem)", letterSpacing: "0.08em", color: "#faf7f2", margin: 0, textShadow: "0 1px 8px rgba(0,0,0,0.8)", lineHeight: 1.1 }}>{photo.caption}</p>
+      </div>
+    </motion.div>
+  );
   return (
-    <section ref={ref} style={{ background: "#f5f0e8", padding: "4.5rem 0 5rem" }}>
+    <section ref={ref} style={{ background: "#0a0602", paddingTop: "4.5rem" }}>
       <motion.div initial={{ opacity: 0, y: 16 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.7 }}
-        style={{ padding: "0 1.4rem", marginBottom: "2.4rem" }}>
+        style={{ padding: "0 1.4rem", marginBottom: "2rem" }}>
         <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.55em", color: GOLD, textTransform: "uppercase", marginBottom: "10px" }}>GASPARDNZ</p>
-        <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "28px", fontWeight: 300, color: "#1c1208", letterSpacing: "0.02em", lineHeight: 1.2, margin: 0 }}>Style Journal</p>
+        <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "28px", fontWeight: 300, color: "#faf7f2", letterSpacing: "0.02em", lineHeight: 1.2, margin: 0 }}>Style Journal</p>
         <div style={{ width: "48px", height: "1px", background: `linear-gradient(90deg, ${GOLD}, transparent)`, marginTop: "14px" }} />
-        <p style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: "italic", fontSize: "13px", color: "rgba(28,18,8,0.5)", marginTop: "10px", lineHeight: 1.5 }}>Touchez les points dorés pour découvrir chaque pièce</p>
+        <p style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: "italic", fontSize: "12px", color: "rgba(245,240,232,0.4)", marginTop: "8px" }}>Touchez les points dorés pour découvrir chaque pièce</p>
       </motion.div>
-      <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
-        {styleJournalPhotos.map((photo, idx) => (
-          <motion.div key={idx}
-            initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-8% 0px" }}
-            transition={{ duration: 0.7, delay: idx * 0.08, ease: [0.16, 1, 0.3, 1] }}
-            style={{ position: "relative" }}>
-            <img src={photo.src} alt={photo.caption} style={{ width: "100%", aspectRatio: "4/5", objectFit: "cover", objectPosition: "center top", display: "block" }} />
-            <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 60%, rgba(28,18,8,0.65) 100%)", pointerEvents: "none" }} />
-            {photo.dots.map((dot, di) => <StyleDot key={di} dot={dot} />)}
-            <div style={{ position: "absolute", bottom: "14px", left: "1.2rem", right: "1.2rem" }}>
-              <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(1rem,5vw,1.3rem)", letterSpacing: "0.1em", color: "#faf7f2", margin: "0 0 4px", textShadow: "0 1px 8px rgba(0,0,0,0.6)" }}>{photo.caption}</p>
-              <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.12em", color: "rgba(245,240,232,0.6)", textTransform: "uppercase", margin: 0 }}>{photo.look}</p>
-            </div>
-          </motion.div>
-        ))}
+
+      {/* Album grid : grande | duo | grande */}
+      <div style={{ display: "flex", flexDirection: "column", gap: "3px" }}>
+        {/* Photo 1 — pleine largeur */}
+        <PhotoTile photo={p0} ratio="4/3" delay={0.05} />
+        {/* Photos 2 & 3 — côte à côte */}
+        <div style={{ display: "flex", gap: "3px" }}>
+          <PhotoTile photo={p1} ratio="3/4" delay={0.1} />
+          <PhotoTile photo={p2} ratio="3/4" delay={0.15} />
+        </div>
+        {/* Photo 4 — pleine largeur */}
+        <PhotoTile photo={p3} ratio="3/4" delay={0.2} />
       </div>
     </section>
   );
