@@ -112,6 +112,7 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="manifest" href="/gaspardnz/manifest.json" />
     <script type="module" crossorigin src="/gaspardnz/assets/index-CrdUrVEB.js"></script>
     <link rel="modulepreload" crossorigin href="/gaspardnz/assets/framer-motion-CfjNKlzz.js">
     <link rel="modulepreload" crossorigin href="/gaspardnz/assets/react-vendor-DDF4dJAb.js">
@@ -125,5 +126,12 @@
       <source src="/gaspardnz/hero.mp4" type="video/mp4" />
     </video>
     <div id="root" style="position:relative;z-index:1;"></div>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js').catch(() => {});
+        });
+      }
+    </script>
   </body>
 </html>
