@@ -31,7 +31,7 @@ const T = {
     bk_back:"Modifier mes informations",
     bk_wa:(n,p,b)=>`Salut Gaspard ! Je suis ${n}. Je viens de voir ton site et je souhaite discuter de mon projet de ${p}. Mon besoin est le suivant : ${b}.`,
     contact_title:"Prendre Contact",
-    contact_desc:"Disponible sur WhatsApp pour toute commande sur-mesure ou demande de renseignement.",
+    contact_desc:"Disponible sur WhatsApp pour tout habillage sur-mesure ou demande de conseil.",
     footer_mentions:"Mentions légales", footer_conf:"Confidentialité", footer_cgv:"CGV",
     heritage_desc:"Chaque silhouette est un dialogue entre la coupe classique et l'audace moderne — une signature portée par ceux qui osent se distinguer.",
     showroom_desc:"Chaque vêtement est une œuvre. Chaque coupe, une signature indélébile portée par ceux qui osent se distinguer.",
@@ -57,7 +57,7 @@ const T = {
     gal_11:"Costume Bordeaux", gal_12:"Promenade Blanche", gal_13:"Smoking Doré", gal_14:"Veste Navy Soirée", gal_15:"Costume Carreaux Rose",
     bio_quote:"\"S'habiller, c'est choisir qui l'on est avant même d'avoir parlé.\"",
     bio_s1_title:"Origines", bio_s1:"Né et forgé entre deux cultures, Gaspardnz grandit avec une sensibilité aiguë pour l'élégance, la matière et le détail. C'est à Paris qu'il pose ses valises et décide de faire de la mode son langage.",
-    bio_s2_title:"Vision", bio_s2:"Depuis plus de 7 ans, il façonne des pièces sur-mesure pour des hommes qui refusent l'ordinaire. Costumes sculptés, chemises brodées, accessoires pensés jusqu'au dernier fil — chaque création est une déclaration.",
+    bio_s2_title:"Vision", bio_s2:"Depuis plus de 7 ans, il habille des hommes qui refusent l'ordinaire. Looks sculptés, silhouettes pensées jusqu'au dernier détail — chaque tenue composée est une déclaration.",
     bio_s3_title:"Engagement", bio_s3:"Gaspardnz ne vend pas des vêtements. Il construit des identités. Chaque client devient une silhouette unique, pensée, portée avec intention. De la salle de mariage aux tapis rouges, l'excellence est la seule constante.",
     bio_s4_title:"Paris", bio_s4:"Basé à Paris, disponible sur WhatsApp pour un premier échange. Chaque aventure commence par une conversation.",
     boutique_soon_badge:"Bientôt disponible",
@@ -2449,6 +2449,21 @@ const FormulesSection = ({ refEl, onContact, onReserver }) => {
             </motion.div>
           ))}
         </div>
+
+        {/* Lookbook CTA */}
+        <motion.div initial={{ opacity: 0, y: 16 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ delay: 0.5, duration: 0.7 }}
+          style={{ margin: "2.5rem 1.4rem 0", textAlign: "center", padding: "1.8rem 1.4rem", border: "1px solid rgba(184,151,62,0.2)", background: "rgba(184,151,62,0.04)" }}>
+          <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.5em", color: GOLD, textTransform: "uppercase", marginBottom: "10px" }}>GASPARDNZ · 2025</p>
+          <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "20px", fontWeight: 300, color: "#faf7f2", marginBottom: "6px" }}>Téléchargez le Lookbook</p>
+          <p style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: "italic", fontSize: "11px", color: "rgba(245,240,232,0.45)", marginBottom: "1.4rem" }}>4 pages · Looks signature · Tarifs · Contact</p>
+          <motion.a href="/lookbook-gaspardnz.pdf" download="Lookbook-GaspardNZ-2025.pdf"
+            whileTap={{ scale: 0.97 }}
+            style={{ display: "inline-flex", alignItems: "center", gap: "9px", background: GOLD, padding: "11px 28px", textDecoration: "none" }}>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#0a0602" strokeWidth="2.5" strokeLinecap="round"><path d="M12 15V3M7 10l5 5 5-5M20 21H4"/></svg>
+            <span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "8px", letterSpacing: "0.4em", color: "#0a0602", textTransform: "uppercase", fontWeight: 600 }}>Télécharger</span>
+          </motion.a>
+        </motion.div>
+
       </div>
     </section>
   );
