@@ -2273,6 +2273,200 @@ const TestimonialsSection = () => {
   );
 };
 
+/* ── STYLE DU MOIS ───────────────────────────────────────────────── */
+const STYLE_DU_MOIS = {
+  titre: "Ensemble Structuré Marine",
+  sousTitre: "Sélection du mois · Assemblage exclusif",
+  description: "Pièces choisies et stylisées par Gaspard. Chaque article peut être porté seul ou assemblé en look complet.",
+  disponibleJusquau: "31 mai 2026",
+  pieces: [
+    {
+      id: "veste",
+      nom: "Veste marine cintrée",
+      detail: "Coupe structurée, boutons dorés",
+      tailles: ["46", "48", "50", "52"],
+      photo: "/sdm-veste.jpg",
+    },
+    {
+      id: "pantalon",
+      nom: "Pantalon taille haute",
+      detail: "Drap laine, pli central marqué",
+      tailles: ["40", "42", "44"],
+      photo: "/sdm-pantalon.jpg",
+    },
+    {
+      id: "gilet",
+      nom: "Gilet croisé marine",
+      detail: "Doublure soie, 6 boutons",
+      tailles: ["46", "48", "50"],
+      photo: "/sdm-gilet.jpg",
+    },
+    {
+      id: "chemise",
+      nom: "Chemise col français",
+      detail: "Coton peigné, broderie discrète",
+      tailles: ["S", "M", "L", "XL"],
+      photo: "/sdm-chemise.jpg",
+    },
+  ],
+};
+
+const WA_GNZ = "33664826920";
+
+const StyleDuMoisModal = ({ piece, onClose }) => {
+  const [prenom, setPrenom] = useState("");
+  const [taille, setTaille] = useState(piece.tailles[0]);
+  const [ville, setVille] = useState("");
+  const [note, setNote] = useState("");
+  const inputStyle = {
+    width: "100%", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.12)",
+    borderRadius: "10px", padding: "12px 14px", color: "#faf7f2", fontSize: "14px",
+    fontFamily: "'Montserrat', sans-serif", outline: "none", marginBottom: "12px",
+  };
+  const labelStyle = {
+    fontFamily: "'Montserrat', sans-serif", fontSize: "8px", letterSpacing: "0.2em",
+    color: GOLD, textTransform: "uppercase", display: "block", marginBottom: "6px",
+  };
+  const envoyerWA = () => {
+    const msg =
+      `Bonjour Gaspard 👋\n\nJe suis intéressé(e) par le *Style du Mois* :\n` +
+      `🧥 Pièce : ${piece.nom}\n📏 Taille souhaitée : ${taille}\n` +
+      `👤 Prénom : ${prenom}\n📍 Ville : ${ville}` +
+      (note ? `\n\n💬 ${note}` : "") +
+      `\n\nPourriez-vous m'indiquer le prix et la disponibilité ? Merci 🙏`;
+    window.open(`https://wa.me/${WA_GNZ}?text=${encodeURIComponent(msg)}`, "_blank");
+  };
+  const valid = prenom.trim().length > 0 && ville.trim().length > 0;
+  return (
+    <motion.div
+      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+      style={{ position: "fixed", inset: 0, zIndex: 200, background: "rgba(0,0,0,0.88)", display: "flex", alignItems: "flex-end" }}
+      onClick={onClose}>
+      <motion.div
+        initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }}
+        transition={{ type: "spring", stiffness: 260, damping: 28 }}
+        style={{ width: "100%", background: "#0f0a04", borderRadius: "24px 24px 0 0", padding: "12px 24px 44px", maxHeight: "90vh", overflowY: "auto" }}
+        onClick={e => e.stopPropagation()}>
+        <div style={{ width: "36px", height: "3px", background: "rgba(255,255,255,0.15)", borderRadius: "2px", margin: "0 auto 20px" }} />
+        <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "22px", fontWeight: 400, color: "#faf7f2", marginBottom: "4px" }}>{piece.nom}</h3>
+        <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "9px", letterSpacing: "0.15em", color: GOLD, marginBottom: "6px" }}>PRIX À LA DEMANDE</p>
+        <p style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: "italic", fontSize: "12px", color: "rgba(245,240,232,0.4)", marginBottom: "24px" }}>{piece.detail}</p>
+
+        <label style={labelStyle}>Taille souhaitée</label>
+        <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginBottom: "18px" }}>
+          {piece.tailles.map(t => (
+            <button key={t} onClick={() => setTaille(t)}
+              style={{ padding: "7px 16px", borderRadius: "20px", border: `1px solid ${taille === t ? GOLD : "rgba(255,255,255,0.15)"}`,
+                background: taille === t ? `rgba(184,151,62,0.15)` : "transparent",
+                color: taille === t ? GOLD : "rgba(245,240,232,0.5)", fontSize: "12px",
+                fontFamily: "'Montserrat', sans-serif", cursor: "pointer" }}>
+              {t}
+            </button>
+          ))}
+        </div>
+
+        <label style={labelStyle}>Votre prénom *</label>
+        <input value={prenom} onChange={e => setPrenom(e.target.value)} placeholder="Jean" style={inputStyle} />
+
+        <label style={labelStyle}>Votre ville *</label>
+        <input value={ville} onChange={e => setVille(e.target.value)} placeholder="Paris" style={inputStyle} />
+
+        <label style={labelStyle}>Message (optionnel)</label>
+        <textarea value={note} onChange={e => setNote(e.target.value)} placeholder="Ex : je cherche la veste uniquement, disponible en semaine..." rows={3}
+          style={{ ...inputStyle, resize: "none", marginBottom: "24px" }} />
+
+        <motion.button whileTap={{ scale: 0.96 }} onClick={envoyerWA} disabled={!valid}
+          style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: "10px",
+            background: valid ? "#25D366" : "rgba(255,255,255,0.08)", border: "none", borderRadius: "32px",
+            padding: "16px", cursor: valid ? "pointer" : "not-allowed", transition: "background 0.3s" }}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.122 1.532 5.852L.057 23.032a.75.75 0 0 0 .921.921l5.18-1.475A11.943 11.943 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.75a9.713 9.713 0 0 1-4.953-1.355l-.355-.212-3.676 1.047 1.047-3.608-.23-.372A9.718 9.718 0 0 1 2.25 12C2.25 6.615 6.615 2.25 12 2.25S21.75 6.615 21.75 12 17.385 21.75 12 21.75z"/></svg>
+          <span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.25em", color: valid ? "white" : "rgba(255,255,255,0.3)", fontWeight: 600, textTransform: "uppercase" }}>
+            Envoyer sur WhatsApp
+          </span>
+        </motion.button>
+        {!valid && <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "9px", color: "rgba(245,240,232,0.3)", textAlign: "center", marginTop: "8px" }}>Prénom et ville requis</p>}
+      </motion.div>
+    </motion.div>
+  );
+};
+
+const StyleDuMoisSection = () => {
+  const [selectedPiece, setSelectedPiece] = useState(null);
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true, margin: "-8% 0px" });
+  const sdm = STYLE_DU_MOIS;
+  return (
+    <section ref={ref} style={{ background: "#0a0602", paddingBottom: "5rem" }}>
+      {/* Header */}
+      <div style={{ padding: "4.5rem 1.6rem 2rem", textAlign: "center" }}>
+        <motion.p initial={{ opacity: 0, y: 10 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.6 }}
+          style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.55em", color: GOLD, textTransform: "uppercase", marginBottom: "14px" }}>
+          STYLE DU MOIS · DISPONIBLE JUSQU'AU {sdm.disponibleJusquau.toUpperCase()}
+        </motion.p>
+        <motion.h2 initial={{ opacity: 0, y: 16 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.7, delay: 0.08 }}
+          style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(2rem, 9vw, 3rem)", fontWeight: 300, color: "#faf7f2", lineHeight: 1.15, marginBottom: "1rem" }}>
+          {sdm.titre}
+        </motion.h2>
+        <motion.div initial={{ scaleX: 0 }} animate={inView ? { scaleX: 1 } : {}} transition={{ duration: 0.6, delay: 0.18 }}
+          style={{ width: "48px", height: "1px", background: `linear-gradient(90deg, transparent, ${GOLD}, transparent)`, margin: "0 auto 1.2rem" }} />
+        <motion.p initial={{ opacity: 0 }} animate={inView ? { opacity: 1 } : {}} transition={{ duration: 0.6, delay: 0.25 }}
+          style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: "italic", fontSize: "13px", color: "rgba(245,240,232,0.5)", lineHeight: 1.8, maxWidth: "300px", margin: "0 auto" }}>
+          {sdm.description}
+        </motion.p>
+      </div>
+
+      {/* Pièces */}
+      <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
+        {sdm.pieces.map((piece, i) => (
+          <motion.div key={piece.id}
+            initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+            transition={{ duration: 0.7, delay: i * 0.07 }}
+            onClick={() => setSelectedPiece(piece)}
+            style={{ position: "relative", cursor: "pointer", overflow: "hidden" }}>
+            {/* Photo */}
+            <div style={{ width: "100%", aspectRatio: "4/3", background: "rgba(255,255,255,0.04)", position: "relative", overflow: "hidden" }}>
+              <img src={piece.photo} alt={piece.nom}
+                onError={e => { e.currentTarget.style.display = "none"; }}
+                style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center top", display: "block" }} />
+              {/* Placeholder si pas de photo */}
+              <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(184,151,62,0.04)" }}>
+                <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "40px", color: "rgba(184,151,62,0.15)" }}>✦</span>
+              </div>
+              {/* Overlay gradient */}
+              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 45%, rgba(10,6,2,0.92) 100%)", pointerEvents: "none" }} />
+              {/* Infos en bas */}
+              <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "16px 16px 20px" }}>
+                <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "18px", fontWeight: 400, color: "#faf7f2", marginBottom: "4px" }}>{piece.nom}</p>
+                <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "9px", color: "rgba(245,240,232,0.45)", letterSpacing: "0.05em", marginBottom: "8px" }}>{piece.detail}</p>
+                {/* Tailles */}
+                <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
+                  {piece.tailles.map(t => (
+                    <span key={t} style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "8px", padding: "3px 8px",
+                      border: `1px solid rgba(184,151,62,0.4)`, borderRadius: "10px", color: GOLD, letterSpacing: "0.05em" }}>
+                      {t}
+                    </span>
+                  ))}
+                </div>
+              </div>
+              {/* CTA tap */}
+              <div style={{ position: "absolute", top: "14px", right: "14px", background: "rgba(10,6,2,0.7)", borderRadius: "20px", padding: "6px 12px", display: "flex", alignItems: "center", gap: "5px" }}>
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="white" opacity="0.7"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.122 1.532 5.852L.057 23.032a.75.75 0 0 0 .921.921l5.18-1.475A11.943 11.943 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.75a9.713 9.713 0 0 1-4.953-1.355l-.355-.212-3.676 1.047 1.047-3.608-.23-.372A9.718 9.718 0 0 1 2.25 12C2.25 6.615 6.615 2.25 12 2.25S21.75 6.615 21.75 12 17.385 21.75 12 21.75z"/></svg>
+                <span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", color: "rgba(255,255,255,0.7)", letterSpacing: "0.1em" }}>DEMANDER</span>
+              </div>
+            </div>
+          </motion.div>
+        ))}
+      </div>
+
+      <AnimatePresence>
+        {selectedPiece && (
+          <StyleDuMoisModal piece={selectedPiece} onClose={() => setSelectedPiece(null)} />
+        )}
+      </AnimatePresence>
+    </section>
+  );
+};
+
 /* ── FORMULES MOBILE ─────────────────────────────────────────────── */
 /* ── COMMUNAUTÉ WHATSAPP ─────────────────────────────────────────── */
 const WA_CHANNEL_URL = "https://whatsapp.com/channel/LIEN_A_REMPLACER";
@@ -3005,6 +3199,7 @@ export default function App() {
       <ShowroomMobile refEl={showroomRef} onCatalogue={() => setModal("catalogue")} onFlammes={() => setModal("flammes")} />
       <InstagramSection />
       <SectionDivider from="#faf7f2" to="#0a0602" />
+      <StyleDuMoisSection />
       <CommunauteSection />
       <SectionDivider from="#0a0602" to="#0d1b3e" />
       <FormulesSection refEl={formulesRef} onContact={() => setModal("contact")} onReserver={() => setModal("booking")} />
