@@ -2,7 +2,7 @@ name: Build & Deploy
 
 on:
   push:
-    branches: [main]
+    branches: [main, claude/compile-le-plus-PUg5Q]
 
 permissions:
   contents: write
