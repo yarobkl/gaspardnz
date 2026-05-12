@@ -885,7 +885,7 @@ const BookingModal = ({ isOpen, onClose, boutiqueMode = false }) => {
   );
 };
 
-const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules, highContrast, onToggleContrast, onBiographie, onReserver, lightMode, onToggleDark }) => {
+const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules, highContrast, onToggleContrast, onBiographie, onReserver, lightMode, onToggleDark, onStyleDuMois }) => {
   const { lang, setLang } = useContext(LangCtx);
   const t = useTr();
   const [open, setOpen] = useState(false);
@@ -1035,15 +1035,16 @@ const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules, 
               [t("nav_showroom"), onShowroom],
               [t("nav_formules"), onFormules],
               [t("nav_galerie"), onGalerie],
+              ["Style du Mois", onStyleDuMois],
               ["Lookbook", () => { const a = document.createElement("a"); a.href = "/lookbook-gaspardnz.pdf"; a.download = "Lookbook-GaspardNZ-2025.pdf"; a.click(); }],
             ].map(([label, fn], i) => (
               <motion.button key={label}
                 initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: i * 0.06, duration: 0.4 }}
                 onClick={() => close(fn)}
-                style={{ display: "block", width: "100%", background: "none", border: "none", textAlign: "left", cursor: "pointer", padding: "1.1rem 0", fontFamily: "'Cormorant Garamond', serif", fontSize: "1.8rem", letterSpacing: "0.08em", color: label === "Lookbook" ? GOLD : TEXT, borderBottom: "1px solid rgba(28,18,8,0.07)" }}
+                style={{ display: "block", width: "100%", background: "none", border: "none", textAlign: "left", cursor: "pointer", padding: "1.1rem 0", fontFamily: "'Cormorant Garamond', serif", fontSize: "1.8rem", letterSpacing: "0.08em", color: (label === "Lookbook" || label === "Style du Mois") ? GOLD : TEXT, borderBottom: "1px solid rgba(28,18,8,0.07)" }}
               >
-                {label}{label === "Lookbook" && <span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "9px", letterSpacing: "0.3em", marginLeft: "10px", opacity: 0.7 }}>↓ PDF</span>}
+                {label}{label === "Lookbook" && <span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "9px", letterSpacing: "0.3em", marginLeft: "10px", opacity: 0.7 }}>↓ PDF</span>}{label === "Style du Mois" && <span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "9px", letterSpacing: "0.3em", marginLeft: "10px", opacity: 0.7 }}>✦</span>}
               </motion.button>
             ))}
 
@@ -2390,13 +2391,13 @@ const StyleDuMoisModal = ({ piece, onClose }) => {
   );
 };
 
-const StyleDuMoisSection = () => {
+const StyleDuMoisSection = ({ refEl }) => {
   const [selectedPiece, setSelectedPiece] = useState(null);
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-8% 0px" });
   const sdm = STYLE_DU_MOIS;
   return (
-    <section ref={ref} style={{ background: "#0a0602", paddingBottom: "5rem" }}>
+    <section ref={el => { ref.current = el; if (refEl) refEl.current = el; }} style={{ background: "#0a0602", paddingBottom: "5rem" }}>
       {/* Header */}
       <div style={{ padding: "4.5rem 1.6rem 2rem", textAlign: "center" }}>
         <motion.p initial={{ opacity: 0, y: 10 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.6 }}
@@ -3021,6 +3022,7 @@ export default function App() {
   const heritageRef = useRef(null);
   const galleryRef = useRef(null);
   const formulesRef = useRef(null);
+  const styleDuMoisRef = useRef(null);
 
   const scrollTo = r => r.current?.scrollIntoView({ behavior: "smooth" });
 
@@ -3181,6 +3183,7 @@ export default function App() {
         onFormules={() => scrollTo(formulesRef)}
         onContact={() => setModal("contact")}
         onCatalogue={() => setModal("catalogue")}
+        onStyleDuMois={() => scrollTo(styleDuMoisRef)}
       />
 
       <HeroMobile onScrollDown={() => scrollTo(heritageRef)} />
@@ -3199,7 +3202,7 @@ export default function App() {
       <ShowroomMobile refEl={showroomRef} onCatalogue={() => setModal("catalogue")} onFlammes={() => setModal("flammes")} />
       <InstagramSection />
       <SectionDivider from="#faf7f2" to="#0a0602" />
-      <StyleDuMoisSection />
+      <StyleDuMoisSection refEl={styleDuMoisRef} />
       <CommunauteSection />
       <SectionDivider from="#0a0602" to="#0d1b3e" />
       <FormulesSection refEl={formulesRef} onContact={() => setModal("contact")} onReserver={() => setModal("booking")} />
