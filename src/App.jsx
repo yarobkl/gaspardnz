@@ -11,7 +11,7 @@ import GalleryMobile from "./components/GalleryMobile.jsx";
 import BookingModal from "./components/BookingModal.jsx";
 import ChatBot from "./components/ChatBot.jsx";
 
-import { SectionDivider } from "./components/ui/SectionDivider.jsx";
+import SectionDivider from "./components/ui/SectionDivider.jsx";
 import FormulesSection from "./components/sections/FormulesSection.jsx";
 import ActualitesSection from "./components/sections/ActualitesSection.jsx";
 import StyleJournalSection from "./components/sections/StyleJournalSection.jsx";
