@@ -1,7 +1,7 @@
 import { useRef } from "react";
 import { motion, useInView } from "framer-motion";
 import { GOLD } from "../../constants.js";
-import { STYLE_DU_MOIS, WA_GNZ, WA_CHANNEL_URL } from "../../data/styleDuMoisData.js";
+import { STYLE_DU_MOIS } from "../../data/styleDuMoisData.js";
 
 const StyleDuMoisSection = ({ refEl }) => {
   const ref = useRef(null);

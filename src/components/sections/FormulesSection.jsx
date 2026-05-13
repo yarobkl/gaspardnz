@@ -56,7 +56,11 @@ const FormulaCard = ({ formula, defaultOpen = false }) => {
                   <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", padding: "7px 0", borderBottom: "1px solid rgba(184,151,62,0.07)" }}>
                     <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1rem", color: "rgba(245,240,232,0.72)", flex: 1, paddingRight: "8px" }}>{item.label}</span>
                     {item.price && <span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "8px", color: GOLD, letterSpacing: "0.1em", flexShrink: 0 }}>{item.price}</span>}
-                    {item.included && <svg width="12" height="12" viewBox="0 0 24 24" fill={GOLD}><path d="M20 6L9 17l-5-5"/></svg>}
+                    {item.included && (
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={GOLD} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M20 6L9 17l-5-5"/>
+                      </svg>
+                    )}
                   </div>
                 ))}
                 {formula.subtotal && (

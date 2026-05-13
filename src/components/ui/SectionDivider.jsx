@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { GOLD } from "../../constants.js";
 
-const SectionDivider = ({ from, to }) => (
+const SectionDivider = ({ from = "#0a0602", to = "#f5f0e8" }) => (
   <div style={{ position: "relative", height: "56px", background: `linear-gradient(to bottom, ${from}, ${to})`, display: "flex", alignItems: "center", justifyContent: "center" }}>
     <div style={{ position: "absolute", left: "2.5rem", right: "2.5rem", height: "1px", background: `linear-gradient(90deg, transparent, rgba(184,151,62,0.25), rgba(184,151,62,0.55), rgba(184,151,62,0.25), transparent)` }} />
     <motion.div

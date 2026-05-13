@@ -23,10 +23,8 @@ import CommunauteSection from "./components/sections/CommunauteSection.jsx";
 import StyleDuMoisSection from "./components/sections/StyleDuMoisSection.jsx";
 import FooterMobile from "./components/FooterMobile.jsx";
 
-/* ── Google Fonts injection ──────────────────────────────────────── */
 const FONTS_CSS = `@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Bebas+Neue&family=Montserrat:wght@200;300;400;500&display=swap');`;
 
-/* ── Splash Screen ────────────────────────────────────────── */
 const SplashScreen = ({ onDone }) => {
   const [progress, setProgress] = useState(0);
 
@@ -65,7 +63,6 @@ const SplashScreen = ({ onDone }) => {
   );
 };
 
-/* ── Main App ─────────────────────────────────────────────── */
 export default function App() {
   const [splashDone, setSplashDone] = useState(false);
   const [bookingOpen, setBookingOpen] = useState(false);
@@ -125,7 +122,7 @@ export default function App() {
           body { filter: contrast(1.25) brightness(1.08); }
         ` : ""}
         ${lightMode ? `
-          section[data-dark="1"] { background: #1a1510 !important; }
+          [data-gnz-mode="light"] section { filter: brightness(1.18) saturate(0.82); }
         ` : ""}
       `}</style>
 
@@ -134,7 +131,7 @@ export default function App() {
       </AnimatePresence>
 
       {splashDone && (
-        <div style={{ minHeight: "100dvh", overflowX: "hidden" }}>
+        <div data-gnz-mode={lightMode ? "light" : "dark"} style={{ minHeight: "100dvh", overflowX: "hidden" }}>
           <NavMobile
             onShowroom={() => scrollTo(showroomRef)}
             onGalerie={() => scrollTo(galleryRef)}
@@ -152,11 +149,11 @@ export default function App() {
 
           <HeroMobile onScrollDown={() => scrollTo(heritageRef)} />
           <HeritageMobile refEl={heritageRef} />
-          <SectionDivider />
-          <ShowroomMobile refEl={showroomRef} onCatalogue={() => openBooking(true)} onGalerie={() => scrollTo(galleryRef)} />
-          <SectionDivider />
+          <SectionDivider from="#1c1208" to="#f5f0e8" />
+          <ShowroomMobile refEl={showroomRef} onCatalogue={() => openBooking(true)} onGalerie={() => scrollTo(galleryRef)} onFlammes={() => scrollTo(galleryRef)} />
+          <SectionDivider from="#f5f0e8" to="#0a0602" />
           <FormulesSection refEl={formulesRef} />
-          <SectionDivider />
+          <SectionDivider from="#0a0602" to="#f5f0e8" />
           <GalleryMobile refEl={galleryRef} />
           <ActualitesSection />
           <StyleJournalSection />
