@@ -23,10 +23,10 @@ import CommunauteSection from "./components/sections/CommunauteSection.jsx";
 import StyleDuMoisSection from "./components/sections/StyleDuMoisSection.jsx";
 import FooterMobile from "./components/FooterMobile.jsx";
 
-/* ── Google Fonts injection ─────────────────────────────────────── */
+/* ── Google Fonts injection ──────────────────────────────────────── */
 const FONTS_CSS = `@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Bebas+Neue&family=Montserrat:wght@200;300;400;500&display=swap');`;
 
-/* ── Splash Screen ──────────────────────────────────────────────── */
+/* ── Splash Screen ────────────────────────────────────────── */
 const SplashScreen = ({ onDone }) => {
   const [progress, setProgress] = useState(0);
 
@@ -65,7 +65,7 @@ const SplashScreen = ({ onDone }) => {
   );
 };
 
-/* ── Main App ───────────────────────────────────────────────────── */
+/* ── Main App ─────────────────────────────────────────────── */
 export default function App() {
   const [splashDone, setSplashDone] = useState(false);
   const [bookingOpen, setBookingOpen] = useState(false);
@@ -76,10 +76,11 @@ export default function App() {
     try { return localStorage.getItem("gnz-lang") || "FR"; } catch { return "FR"; }
   });
 
-  const showroomRef = useRef(null);
-  const heritageRef = useRef(null);
-  const galleryRef  = useRef(null);
-  const formulesRef = useRef(null);
+  const showroomRef    = useRef(null);
+  const heritageRef    = useRef(null);
+  const galleryRef     = useRef(null);
+  const formulesRef    = useRef(null);
+  const styleDuMoisRef = useRef(null);
 
   useEffect(() => {
     if (!document.querySelector("style[data-gnz-fonts]")) {
@@ -142,6 +143,7 @@ export default function App() {
             onFormules={() => scrollTo(formulesRef)}
             onBiographie={() => scrollTo(heritageRef)}
             onReserver={() => openBooking(false)}
+            onStyleDuMois={() => scrollTo(styleDuMoisRef)}
             highContrast={highContrast}
             onToggleContrast={() => setHighContrast(v => !v)}
             lightMode={lightMode}
@@ -162,7 +164,7 @@ export default function App() {
           <InstagramSection />
           <VIPClientsSection />
           <TestimonialsSection />
-          <StyleDuMoisSection />
+          <StyleDuMoisSection refEl={styleDuMoisRef} />
           <CommunauteSection />
           <FooterMobile onFormules={() => scrollTo(formulesRef)} onGalerie={() => scrollTo(galleryRef)} onShowroom={() => scrollTo(showroomRef)} />
           <BookingModal isOpen={bookingOpen} onClose={() => setBookingOpen(false)} boutiqueMode={boutiqueMode} />
