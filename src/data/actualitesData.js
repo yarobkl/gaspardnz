@@ -1,7 +1,7 @@
 export const actualites = [
   {
     id: 2,
-    photos: ["/images/actualites/akwaba-1.jpg", "/images/actualites/akwaba-2.jpg"],
+    photos: [`${import.meta.env.BASE_URL}images/actualites/akwaba-1.jpg`, `${import.meta.env.BASE_URL}images/actualites/akwaba-2.jpg`],
     location: "Abidjan, Côte d'Ivoire",
     date: "Mai 2025",
     tag: "Voyage",
@@ -10,7 +10,7 @@ export const actualites = [
   },
   {
     id: 1,
-    photos: ["/images/actualites/patheo-abidjan.jpg"],
+    photos: [`${import.meta.env.BASE_URL}images/actualites/patheo-abidjan.jpg`],
     location: "Abidjan",
     date: "Mai 2025",
     tag: "Rencontre",
