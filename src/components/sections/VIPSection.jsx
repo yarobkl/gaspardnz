@@ -10,7 +10,7 @@ const VIPClientsSection = () => {
   const curRef = useRef(0);
   useEffect(() => { curRef.current = cur; });
   const clients = [
-    { initials: "R.B", name: "Rodrin Bakala Mouengue", city: "Paris", event: "Mariage · 1er client", gradient: "linear-gradient(135deg,#1e3a5f,#2d6a9f)", photo: "/rodrin-bakala.jpg" },
+    { initials: "R.B", name: "Rodrin Bakala Mouengue", city: "Paris", event: "Mariage · 1er client", gradient: "linear-gradient(135deg,#1e3a5f,#2d6a9f)", photo: "/rodrin-bakala.jpg.JPG" },
     { initials: "C.M", name: "Cédric M.", city: "Monaco", event: "Gala de prestige", gradient: "linear-gradient(135deg,#4a1942,#8b2fc9)" },
     { initials: "Y.B", name: "Yannick B.", city: "Lyon", event: "Soirée VIP", gradient: "linear-gradient(135deg,#1a3a1a,#2d6b2d)" },
     { initials: "A.N", name: "Alexis N.", city: "Dubaï", event: "Business meeting", gradient: "linear-gradient(135deg,#3d1a00,#8b3d00)" },
