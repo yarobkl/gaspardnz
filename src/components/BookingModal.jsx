@@ -4,6 +4,56 @@ import { GOLD, TEXT } from "../constants.js";
 import { useTr } from "../context.jsx";
 import { SvgCalendar, SvgWA, SvgArrow } from "../icons.jsx";
 
+const BoutiqueModal = ({ onClose }) => {
+  const t = useTr();
+  const waUrl = "https://wa.me/33664826920?text=Bonjour%20Gaspard%2C%20je%20souhaite%20en%20savoir%20plus%20sur%20la%20boutique.";
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 32, scale: 0.97 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, y: 20, scale: 0.97 }}
+      transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+      onClick={e => e.stopPropagation()}
+      style={{ width: "100%", maxWidth: "480px", background: "#faf7f2", position: "relative" }}>
+
+      <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "2px", background: GOLD }} />
+
+      <div style={{ padding: "1.6rem 1.8rem 1.2rem", borderBottom: "1px solid rgba(184,151,62,0.1)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.4rem", letterSpacing: "0.1em", color: TEXT, margin: 0 }}>BOUTIQUE</p>
+        <button onClick={onClose} style={{ background: "none", border: "none", cursor: "pointer", padding: "4px 8px", color: "rgba(28,18,8,0.62)", fontSize: "22px", lineHeight: 1 }}>×</button>
+      </div>
+
+      <div style={{ padding: "2.4rem 1.8rem", textAlign: "center" }}>
+        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15, duration: 0.5 }}
+          style={{ display: "inline-block", border: `1px solid rgba(184,151,62,0.4)`, padding: "0.3rem 1rem", marginBottom: "1.4rem" }}>
+          <span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.45em", color: GOLD, textTransform: "uppercase" }}>
+            {t("boutique_soon_badge")}
+          </span>
+        </motion.div>
+
+        <motion.p initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25, duration: 0.5 }}
+          style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(1.2rem, 5vw, 1.5rem)", fontWeight: 300, fontStyle: "italic", color: "rgba(28,18,8,0.75)", lineHeight: 1.6, marginBottom: "1.2rem" }}>
+          {t("boutique_soon_title")}
+        </motion.p>
+
+        <motion.p initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35, duration: 0.5 }}
+          style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", fontWeight: 300, color: "rgba(28,18,8,0.45)", lineHeight: 1.9, letterSpacing: "0.02em", marginBottom: "2rem" }}>
+          {t("boutique_soon_desc")}
+        </motion.p>
+
+        <div style={{ width: "40px", height: "1px", background: `linear-gradient(90deg, transparent, ${GOLD}, transparent)`, margin: "0 auto 2rem" }} />
+
+        <motion.a initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45, duration: 0.5 }}
+          href={waUrl} target="_blank" rel="noopener noreferrer"
+          style={{ display: "inline-flex", alignItems: "center", gap: "10px", background: GOLD, color: "#1c1208", padding: "0.95rem 2rem", textDecoration: "none", fontFamily: "'Montserrat', sans-serif", fontSize: "8px", letterSpacing: "0.4em", textTransform: "uppercase", fontWeight: 700 }}>
+          <SvgWA />
+          {t("boutique_wa_cta")}
+        </motion.a>
+      </div>
+    </motion.div>
+  );
+};
+
 const BookingModal = ({ isOpen, onClose, boutiqueMode = false }) => {
   const t = useTr();
   const [step, setStep] = useState(1);
@@ -34,6 +84,10 @@ const BookingModal = ({ isOpen, onClose, boutiqueMode = false }) => {
           transition={{ duration: 0.3 }}
           onClick={reset}
           style={{ position: "fixed", inset: 0, zIndex: 500, background: "rgba(0,0,0,0.92)", display: "flex", alignItems: "flex-start", justifyContent: "center", padding: "1rem", paddingTop: "calc(env(safe-area-inset-top) + 3.5rem)", overflowY: "auto" }}>
+
+          {boutiqueMode ? (
+            <BoutiqueModal onClose={reset} />
+          ) : (
           <motion.div
             initial={{ opacity: 0, y: 32, scale: 0.97 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -115,20 +169,18 @@ const BookingModal = ({ isOpen, onClose, boutiqueMode = false }) => {
                     </p>
 
                     <div style={{ display: "flex", flexDirection: "column", gap: "0.9rem" }}>
-                      {!boutiqueMode && (
-                        <a href="https://calendly.com/gaspardnz" target="_blank" rel="noopener noreferrer"
-                          style={{ display: "flex", alignItems: "center", gap: "1.1rem", border: "1px solid rgba(184,151,62,0.22)", padding: "1.3rem 1.4rem", textDecoration: "none", transition: "border-color 0.3s, background 0.3s" }}
-                          onTouchStart={e => { e.currentTarget.style.borderColor = GOLD; e.currentTarget.style.background = "rgba(184,151,62,0.04)"; }}
-                          onTouchEnd={e => { e.currentTarget.style.borderColor = "rgba(184,151,62,0.22)"; e.currentTarget.style.background = "none"; }}>
-                          <div style={{ width: "38px", height: "38px", border: `1px solid rgba(184,151,62,0.35)`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                            <SvgCalendar />
-                          </div>
-                          <div>
-                            <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.15rem", letterSpacing: "0.07em", color: TEXT, marginBottom: "0.15rem" }}>{t("bk_cal_title")}</p>
-                            <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.2em", color: "rgba(28,18,8,0.68)", textTransform: "uppercase" }}>{t("bk_cal_sub")}</p>
-                          </div>
-                        </a>
-                      )}
+                      <a href="https://calendly.com/gaspardnz" target="_blank" rel="noopener noreferrer"
+                        style={{ display: "flex", alignItems: "center", gap: "1.1rem", border: "1px solid rgba(184,151,62,0.22)", padding: "1.3rem 1.4rem", textDecoration: "none", transition: "border-color 0.3s, background 0.3s" }}
+                        onTouchStart={e => { e.currentTarget.style.borderColor = GOLD; e.currentTarget.style.background = "rgba(184,151,62,0.04)"; }}
+                        onTouchEnd={e => { e.currentTarget.style.borderColor = "rgba(184,151,62,0.22)"; e.currentTarget.style.background = "none"; }}>
+                        <div style={{ width: "38px", height: "38px", border: `1px solid rgba(184,151,62,0.35)`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                          <SvgCalendar />
+                        </div>
+                        <div>
+                          <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.15rem", letterSpacing: "0.07em", color: TEXT, marginBottom: "0.15rem" }}>{t("bk_cal_title")}</p>
+                          <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.2em", color: "rgba(28,18,8,0.68)", textTransform: "uppercase" }}>{t("bk_cal_sub")}</p>
+                        </div>
+                      </a>
 
                       <a href={waUrl} target="_blank" rel="noopener noreferrer"
                         style={{ display: "flex", alignItems: "center", gap: "1.1rem", border: `1px solid ${GOLD}`, background: "rgba(184,151,62,0.04)", padding: "1.3rem 1.4rem", textDecoration: "none", transition: "background 0.3s" }}
@@ -157,6 +209,7 @@ const BookingModal = ({ isOpen, onClose, boutiqueMode = false }) => {
               </AnimatePresence>
             </div>
           </motion.div>
+          )}
         </motion.div>
       )}
     </AnimatePresence>
