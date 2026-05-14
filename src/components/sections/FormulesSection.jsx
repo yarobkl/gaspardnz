@@ -12,66 +12,60 @@ const FormulesSection = ({ refEl, onContact }) => {
     {
       id: "prestige",
       titre: "Formule Prestige",
-      prix: "1447€",
       tag: "Premium",
       tagline: "Une allure complète, élégante et inoubliable pour le jour J.",
       looks: [
         {
           nom: "Look Mairie",
           items: [
-            { label: "Costume coupe droite, croisé ou trois pièces", prix: "449€" },
-            { label: "Chemise", prix: "69€" },
-            { label: "Cravate", prix: "35€" },
-            { label: "Boutons de manchettes", prix: "29€" },
-            { label: "Chaussettes fil d'Écosse", prix: "19€" },
-            { label: "Chaussures (option)", prix: "à partir de 315€" },
+            { label: "Costume coupe droite, croisé ou trois pièces" },
+            { label: "Chemise" },
+            { label: "Cravate" },
+            { label: "Boutons de manchettes" },
+            { label: "Chaussettes fil d'Écosse" },
+            { label: "Chaussures (option)" },
           ],
-          sous_total: "601€",
         },
         {
           nom: "Look Soirée",
           tag: "Smoking",
           items: [
-            { label: "Ensemble smoking", prix: "600€" },
-            { label: "Nœud papillon", prix: "49€" },
-            { label: "Chemise plastron col cassé", prix: "149€" },
-            { label: "Boutons de manchettes", prix: "29€" },
-            { label: "Chaussettes fil d'Écosse", prix: "19€" },
+            { label: "Ensemble smoking" },
+            { label: "Nœud papillon" },
+            { label: "Chemise plastron col cassé" },
+            { label: "Boutons de manchettes" },
+            { label: "Chaussettes fil d'Écosse" },
           ],
-          sous_total: "846€",
         },
       ],
     },
     {
       id: "gnz",
       titre: "Formule Gaspard NZ",
-      prix: "1086€",
       tag: "Signature",
       tagline: "L'élégance accessible pour un mariage parfaitement maîtrisé.",
       looks: [
         {
           nom: "Look Mairie",
           items: [
-            { label: "Costume coupe droite, croisé ou trois pièces", prix: "349€" },
-            { label: "Chemise", prix: "60€" },
-            { label: "Cravate", prix: "30€" },
-            { label: "Boutons de manchettes", prix: "20€" },
-            { label: "Chaussettes fil d'Écosse", prix: "19€" },
-            { label: "Chaussures (option)", prix: "à partir de 315€" },
+            { label: "Costume coupe droite, croisé ou trois pièces" },
+            { label: "Chemise" },
+            { label: "Cravate" },
+            { label: "Boutons de manchettes" },
+            { label: "Chaussettes fil d'Écosse" },
+            { label: "Chaussures (option)" },
           ],
-          sous_total: "474€",
         },
         {
           nom: "Look Soirée",
           tag: "Smoking",
           items: [
-            { label: "Ensemble smoking", prix: "449€" },
-            { label: "Nœud papillon", prix: "29€" },
-            { label: "Chemise plastron col cassé", prix: "99€" },
-            { label: "Boutons de manchettes", prix: "20€" },
-            { label: "Chaussettes fil d'Écosse", prix: "15€" },
+            { label: "Ensemble smoking" },
+            { label: "Nœud papillon" },
+            { label: "Chemise plastron col cassé" },
+            { label: "Boutons de manchettes" },
+            { label: "Chaussettes fil d'Écosse" },
           ],
-          sous_total: "612€",
         },
       ],
     },
@@ -114,7 +108,6 @@ const FormulesSection = ({ refEl, onContact }) => {
                     <span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.4em", color: GOLD, textTransform: "uppercase", border: `1px solid rgba(184,151,62,0.3)`, padding: "3px 8px" }}>{f.tag}</span>
                   </div>
                   <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(1.3rem, 5.5vw, 1.7rem)", color: "#f5f0e8", fontWeight: 400, letterSpacing: "0.02em", margin: 0 }}>{f.titre}</p>
-                  <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(1.6rem, 7vw, 2.2rem)", color: GOLD, letterSpacing: "0.05em", marginTop: "0.3rem" }}>{f.prix} <span style={{ fontSize: "0.5em", color: "rgba(184,151,62,0.5)", fontFamily: "'Montserrat', sans-serif", letterSpacing: "0.1em" }}>hors chaussures</span></p>
                 </div>
                 <motion.div animate={{ rotate: selected === f.id ? 45 : 0 }} transition={{ duration: 0.3 }}
                   style={{ color: GOLD, marginTop: "0.5rem", flexShrink: 0 }}
@@ -137,22 +130,15 @@ const FormulesSection = ({ refEl, onContact }) => {
                             </p>
                           </div>
                           {look.items.map((item, ii) => (
-                            <div key={ii} style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", padding: "0.45rem 0", borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
-                              <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", color: "rgba(245,240,232,0.6)", fontWeight: 300, paddingRight: "1rem", flex: 1 }}>{item.label}</p>
-                              <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", color: "#f5f0e8", fontWeight: 500, whiteSpace: "nowrap" }}>{item.prix}</p>
+                            <div key={ii} style={{ padding: "0.45rem 0", borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
+                              <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", color: "rgba(245,240,232,0.6)", fontWeight: 300, margin: 0 }}>{item.label}</p>
                             </div>
                           ))}
-                          <div style={{ display: "flex", justifyContent: "space-between", marginTop: "0.8rem", padding: "0.6rem 0", borderTop: `1px solid rgba(184,151,62,0.2)` }}>
-                            <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "8px", letterSpacing: "0.2em", color: "rgba(245,240,232,0.4)", textTransform: "uppercase" }}>Sous-total {look.nom}</p>
-                            <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "11px", color: GOLD, fontWeight: 600 }}>{look.sous_total}</p>
-                          </div>
                         </div>
                       ))}
 
                       <div style={{ marginTop: "1.4rem", padding: "1.2rem", background: "rgba(184,151,62,0.08)", border: `1px solid rgba(184,151,62,0.25)`, textAlign: "center" }}>
-                        <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.4em", color: "rgba(245,240,232,0.5)", textTransform: "uppercase", marginBottom: "0.4rem" }}>Total {f.titre}</p>
-                        <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "2rem", color: GOLD, letterSpacing: "0.05em" }}>{f.prix}</p>
-                        <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "0.85rem", color: "rgba(245,240,232,0.45)", fontStyle: "italic", marginTop: "0.5rem", marginBottom: "1.2rem" }}>{f.tagline}</p>
+                        <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "0.85rem", color: "rgba(245,240,232,0.45)", fontStyle: "italic", marginBottom: "1.2rem" }}>{f.tagline}</p>
                         <button onClick={onContact}
                           style={{ width: "100%", background: "none", border: `1px solid rgba(184,151,62,0.5)`, color: GOLD, padding: "0.9rem", fontFamily: "'Montserrat', sans-serif", fontSize: "8px", letterSpacing: "0.4em", textTransform: "uppercase", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}
                         >Réserver cette formule <SvgArrow size={13} /></button>
