@@ -23,43 +23,51 @@ import FooterMobile from "./components/FooterMobile.jsx";
 
 const FONTS_CSS = `@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Bebas+Neue&family=Montserrat:wght@200;300;400;500&display=swap');`;
 
-const SplashScreen = ({ onDone }) => {
-  const [progress, setProgress] = useState(0);
+const SplashScreen = ({ onDone }) => (
+  <motion.div
+    exit={{ opacity: 0 }}
+    transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+    style={{ position: "fixed", inset: 0, zIndex: 9999, background: "#070400", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "2.4rem" }}>
 
-  useEffect(() => {
-    let p = 0;
-    const id = setInterval(() => {
-      p += Math.random() * 18 + 4;
-      if (p >= 100) { p = 100; clearInterval(id); setTimeout(onDone, 400); }
-      setProgress(p);
-    }, 80);
-    return () => clearInterval(id);
-  }, [onDone]);
-
-  return (
     <motion.div
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-      style={{ position: "fixed", inset: 0, zIndex: 9999, background: "#070400", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "2rem" }}>
-      <motion.div
-        initial={{ opacity: 0, scale: 0.85 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}>
-        <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "3.5rem", letterSpacing: "0.35em", color: "#faf7f2", margin: 0, lineHeight: 1 }}>GASPARDNZ</p>
-        <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.6em", color: GOLD, textTransform: "uppercase", textAlign: "center", marginTop: "8px" }}>Paris</p>
-      </motion.div>
-      <div style={{ width: "140px", height: "1px", background: "rgba(184,151,62,0.2)", position: "relative" }}>
-        <motion.div style={{ position: "absolute", inset: 0, background: GOLD, transformOrigin: "left", scaleX: progress / 100 }} transition={{ ease: "linear" }} />
-      </div>
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 1.4, ease: [0.16, 1, 0.3, 1] }}
+      style={{ textAlign: "center" }}>
       <motion.p
-        animate={{ opacity: [0.3, 0.7, 0.3] }}
-        transition={{ duration: 1.8, repeat: Infinity }}
-        style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.5em", color: "rgba(245,240,232,0.4)", textTransform: "uppercase" }}>
-        Chargement…
+        initial={{ letterSpacing: "0.12em", opacity: 0 }}
+        animate={{ letterSpacing: "0.38em", opacity: 1 }}
+        transition={{ duration: 1.8, ease: [0.16, 1, 0.3, 1] }}
+        style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "3.5rem", color: "#faf7f2", margin: 0, lineHeight: 1 }}>
+        GASPARDNZ
+      </motion.p>
+      <motion.p
+        initial={{ opacity: 0, letterSpacing: "0.3em" }}
+        animate={{ opacity: 1, letterSpacing: "0.6em" }}
+        transition={{ duration: 1.2, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
+        style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", color: GOLD, textTransform: "uppercase", marginTop: "10px" }}>
+        Paris
       </motion.p>
     </motion.div>
-  );
-};
+
+    <div style={{ width: "140px", height: "1px", background: "rgba(184,151,62,0.15)", position: "relative", overflow: "hidden" }}>
+      <motion.div
+        initial={{ scaleX: 0 }}
+        animate={{ scaleX: 1 }}
+        transition={{ duration: 2.2, delay: 0.4, ease: [0.4, 0, 0.2, 1] }}
+        onAnimationComplete={onDone}
+        style={{ position: "absolute", inset: 0, background: `linear-gradient(90deg, ${GOLD}, #d4ae5a)`, transformOrigin: "left" }} />
+    </div>
+
+    <motion.p
+      initial={{ opacity: 0 }}
+      animate={{ opacity: [0, 0.45, 0.25, 0.45] }}
+      transition={{ duration: 2.4, delay: 0.6, times: [0, 0.3, 0.6, 1] }}
+      style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "6px", letterSpacing: "0.55em", color: "rgba(245,240,232,0.35)", textTransform: "uppercase" }}>
+      Chargement…
+    </motion.p>
+  </motion.div>
+);
 
 export default function App() {
   const [splashDone, setSplashDone] = useState(false);
