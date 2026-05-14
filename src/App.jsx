@@ -95,7 +95,7 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    document.title = "Gaspardnz — L'Inspirateur de la Haute Allure · Paris";
+    document.title = "Gaspardnz — L'Inspirateur de la Haute Allère · Paris";
     const meta = (name, content, prop = false) => {
       const sel = prop ? `meta[property="${name}"]` : `meta[name="${name}"]`;
       let el = document.querySelector(sel);
@@ -103,7 +103,7 @@ export default function App() {
       el.setAttribute("content", content);
     };
     meta("description", "Gaspardnz — Styliste parisien spécialisé dans l'habillage sur-mesure pour mariages, galas et événements. Découvrez nos formules et prenez rendez-vous.");
-    meta("og:title", "Gaspardnz — L'Inspirateur de la Haute Allure", true);
+    meta("og:title", "Gaspardnz — L'Inspirateur de la Haute Allère", true);
     meta("og:description", "Costumes sur-mesure, looks événementiels et conseils style. Paris.", true);
     meta("og:type", "website", true);
     meta("theme-color", highContrast ? "#fff9e6" : "#0a0602");
@@ -136,46 +136,51 @@ export default function App() {
         {!splashDone && <SplashScreen key="splash" onDone={() => setSplashDone(true)} />}
       </AnimatePresence>
 
-      {splashDone && (
-        <div data-gnz-mode={lightMode ? "light" : "dark"} style={{ minHeight: "100dvh", overflowX: "hidden" }}>
-          <NavMobile
-            onShowroom={() => scrollTo(showroomRef)}
-            onGalerie={() => scrollTo(galleryRef)}
-            onContact={() => window.open("https://wa.me/33664826920?text=Bonjour%20Gaspard%2C%20je%20souhaite%20vous%20contacter.", "_blank")}
-            onCatalogue={() => openBooking(true)}
-            onFormules={() => scrollTo(formulesRef)}
-            onBiographie={() => scrollTo(heritageRef)}
-            onReserver={() => openBooking(false)}
-            onStyleDuMois={() => scrollTo(styleDuMoisRef)}
-            highContrast={highContrast}
-            onToggleContrast={() => setHighContrast(v => !v)}
-            lightMode={lightMode}
-            onToggleDark={() => setLightMode(v => !v)}
-          />
+      <div
+        data-gnz-mode={lightMode ? "light" : "dark"}
+        style={{
+          minHeight: "100dvh", overflowX: "hidden",
+          opacity: splashDone ? 1 : 0,
+          pointerEvents: splashDone ? "auto" : "none",
+          transition: splashDone ? "opacity 0.4s ease" : "none",
+        }}>
+        <NavMobile
+          onShowroom={() => scrollTo(showroomRef)}
+          onGalerie={() => scrollTo(galleryRef)}
+          onContact={() => window.open("https://wa.me/33664826920?text=Bonjour%20Gaspard%2C%20je%20souhaite%20vous%20contacter.", "_blank")}
+          onCatalogue={() => openBooking(true)}
+          onFormules={() => scrollTo(formulesRef)}
+          onBiographie={() => scrollTo(heritageRef)}
+          onReserver={() => openBooking(false)}
+          onStyleDuMois={() => scrollTo(styleDuMoisRef)}
+          highContrast={highContrast}
+          onToggleContrast={() => setHighContrast(v => !v)}
+          lightMode={lightMode}
+          onToggleDark={() => setLightMode(v => !v)}
+        />
 
-          <HeroMobile onScrollDown={() => scrollTo(heritageRef)} />
-          <SectionDivider from="#1c1208" to="#f5f0e8" />
-          <HeritageMobile refEl={heritageRef} />
-          <SectionDivider from="#f5f0e8" to="#0a0602" />
-          <StyleJournalSection />
-          <SectionDivider from="#0a0602" to="#f5f0e8" />
-          <GalleryMobile refEl={galleryRef} />
-          <SectionDivider from="#f5f0e8" to="#0d1b3e" />
-          <FormulesSection refEl={formulesRef} onContact={() => window.open(`https://wa.me/33664826920?text=${encodeURIComponent("Bonjour Gaspard, je souhaite réserver une formule. Pouvez-vous me recontacter ?")}`, "_blank")} />
-          <SectionDivider from="#0d1b3e" to="#0a0602" />
-          <ActualitesSection />
-          <VIPClientsSection />
-          <SectionDivider from="#0f0a04" to="#f5f0e8" />
-          <ShowroomMobile refEl={showroomRef} onCatalogue={() => openBooking(true)} onGalerie={() => scrollTo(galleryRef)} onFlammes={() => scrollTo(galleryRef)} />
-          <InstagramSection />
-          <SectionDivider from="#faf7f2" to="#0a0602" />
-          <StyleDuMoisSection refEl={styleDuMoisRef} />
-          <CommunauteSection />
-          <FooterMobile onFormules={() => scrollTo(formulesRef)} onGalerie={() => scrollTo(galleryRef)} onShowroom={() => scrollTo(showroomRef)} />
-          <BookingModal isOpen={bookingOpen} onClose={() => setBookingOpen(false)} boutiqueMode={boutiqueMode} onSwitchToBooking={() => setBoutiqueMode(false)} />
-          <ChatBot onReserver={() => openBooking(false)} onGalerie={() => scrollTo(galleryRef)} onShowroom={() => scrollTo(showroomRef)} onFormules={() => scrollTo(formulesRef)} />
-        </div>
-      )}
+        <HeroMobile onScrollDown={() => scrollTo(heritageRef)} />
+        <SectionDivider from="#1c1208" to="#f5f0e8" />
+        <HeritageMobile refEl={heritageRef} />
+        <SectionDivider from="#f5f0e8" to="#0a0602" />
+        <StyleJournalSection />
+        <SectionDivider from="#0a0602" to="#f5f0e8" />
+        <GalleryMobile refEl={galleryRef} />
+        <SectionDivider from="#f5f0e8" to="#0d1b3e" />
+        <FormulesSection refEl={formulesRef} onContact={() => window.open(`https://wa.me/33664826920?text=${encodeURIComponent("Bonjour Gaspard, je souhaite réserver une formule. Pouvez-vous me recontacter ?")}`, "_blank")} />
+        <SectionDivider from="#0d1b3e" to="#0a0602" />
+        <ActualitesSection />
+        <VIPClientsSection />
+        <SectionDivider from="#0f0a04" to="#f5f0e8" />
+        <ShowroomMobile refEl={showroomRef} onCatalogue={() => openBooking(true)} onGalerie={() => scrollTo(galleryRef)} onFlammes={() => scrollTo(galleryRef)} />
+        <InstagramSection />
+        <SectionDivider from="#faf7f2" to="#0a0602" />
+        <StyleDuMoisSection refEl={styleDuMoisRef} />
+        <CommunauteSection />
+        <FooterMobile onFormules={() => scrollTo(formulesRef)} onGalerie={() => scrollTo(galleryRef)} onShowroom={() => scrollTo(showroomRef)} />
+        <BookingModal isOpen={bookingOpen} onClose={() => setBookingOpen(false)} boutiqueMode={boutiqueMode} onSwitchToBooking={() => setBoutiqueMode(false)} />
+        <ChatBot onReserver={() => openBooking(false)} onGalerie={() => scrollTo(galleryRef)} onShowroom={() => scrollTo(showroomRef)} onFormules={() => scrollTo(formulesRef)} />
+      </div>
     </LangCtx.Provider>
   );
 }
