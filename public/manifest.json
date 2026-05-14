@@ -2,7 +2,7 @@
   "name": "Gaspardnz — Habilleur Paris",
   "short_name": "Gaspardnz",
   "description": "Habilleur & Styliste parisien. Looks sur-mesure, mariage, événements.",
-  "start_url": "/",
+  "start_url": "/gaspardnz/",
   "display": "standalone",
   "background_color": "#0a0602",
   "theme_color": "#b8973e",
