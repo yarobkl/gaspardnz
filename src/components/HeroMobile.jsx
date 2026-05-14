@@ -6,21 +6,29 @@ import { useTr } from "../context.jsx";
 const _HERO_SRC = (typeof import.meta !== "undefined" ? (import.meta.env.BASE_URL || "/") : "/") + "hero.mp4";
 const _VIDEO_STYLE = { position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 20%", filter: "brightness(0.82) contrast(1.05) saturate(1.0)" };
 
-const HeroVideoLoop = ({ onPlaying }) => {
+const HeroVideoLoop = () => {
   const ref = useRef(null);
   useEffect(() => {
     const v = ref.current;
     if (!v) return;
-    const play = () => v.play().then(() => onPlaying && onPlaying()).catch(() => {});
+    const play    = () => v.play().catch(() => {});
+    const onPause = () => { if (!document.hidden) setTimeout(play, 300); };
+    const onStall = () => setTimeout(play, 500);
+    const onVis   = () => { if (!document.hidden) play(); };
     play();
-    v.addEventListener("canplay",    play, { once: true });
-    v.addEventListener("loadeddata", play, { once: true });
-    document.addEventListener("touchstart", play, { once: true });
-    document.addEventListener("visibilitychange", () => { if (!document.hidden) play(); });
+    v.addEventListener("canplay",    play);
+    v.addEventListener("loadeddata", play);
+    v.addEventListener("pause",      onPause);
+    v.addEventListener("stalled",    onStall);
+    document.addEventListener("touchstart",        play,  { once: true });
+    document.addEventListener("visibilitychange",  onVis);
     return () => {
       v.removeEventListener("canplay",    play);
       v.removeEventListener("loadeddata", play);
-      document.removeEventListener("touchstart", play);
+      v.removeEventListener("pause",      onPause);
+      v.removeEventListener("stalled",    onStall);
+      document.removeEventListener("touchstart",       play);
+      document.removeEventListener("visibilitychange", onVis);
     };
   }, []);
   return (
