@@ -4,9 +4,8 @@ import { GOLD, TEXT } from "../constants.js";
 import { useTr } from "../context.jsx";
 import { SvgCalendar, SvgWA, SvgArrow } from "../icons.jsx";
 
-const BoutiqueModal = ({ onClose }) => {
+const BoutiqueModal = ({ onClose, onReserver }) => {
   const t = useTr();
-  const waUrl = "https://wa.me/33664826920?text=Bonjour%20Gaspard%2C%20je%20souhaite%20en%20savoir%20plus%20sur%20la%20boutique.";
   return (
     <motion.div
       initial={{ opacity: 0, y: 32, scale: 0.97 }}
@@ -19,7 +18,10 @@ const BoutiqueModal = ({ onClose }) => {
       <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "2px", background: GOLD }} />
 
       <div style={{ padding: "1.6rem 1.8rem 1.2rem", borderBottom: "1px solid rgba(184,151,62,0.1)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.4rem", letterSpacing: "0.1em", color: TEXT, margin: 0 }}>BOUTIQUE</p>
+        <div>
+          <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.45em", color: GOLD, textTransform: "uppercase", marginBottom: "0.3rem" }}>{t("boutique_soon_badge")}</p>
+          <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.4rem", letterSpacing: "0.1em", color: TEXT, margin: 0, lineHeight: 1 }}>BOUTIQUE</p>
+        </div>
         <button onClick={onClose} style={{ background: "none", border: "none", cursor: "pointer", padding: "4px 8px", color: "rgba(28,18,8,0.62)", fontSize: "22px", lineHeight: 1 }}>×</button>
       </div>
 
@@ -43,18 +45,18 @@ const BoutiqueModal = ({ onClose }) => {
 
         <div style={{ width: "40px", height: "1px", background: `linear-gradient(90deg, transparent, ${GOLD}, transparent)`, margin: "0 auto 2rem" }} />
 
-        <motion.a initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45, duration: 0.5 }}
-          href={waUrl} target="_blank" rel="noopener noreferrer"
-          style={{ display: "inline-flex", alignItems: "center", gap: "10px", background: GOLD, color: "#1c1208", padding: "0.95rem 2rem", textDecoration: "none", fontFamily: "'Montserrat', sans-serif", fontSize: "8px", letterSpacing: "0.4em", textTransform: "uppercase", fontWeight: 700 }}>
+        <motion.button initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45, duration: 0.5 }}
+          onClick={onReserver}
+          style={{ display: "inline-flex", alignItems: "center", gap: "10px", background: GOLD, color: "#1c1208", padding: "0.95rem 2rem", border: "none", cursor: "pointer", fontFamily: "'Montserrat', sans-serif", fontSize: "8px", letterSpacing: "0.4em", textTransform: "uppercase", fontWeight: 700 }}>
           <SvgWA />
           {t("boutique_wa_cta")}
-        </motion.a>
+        </motion.button>
       </div>
     </motion.div>
   );
 };
 
-const BookingModal = ({ isOpen, onClose, boutiqueMode = false }) => {
+const BookingModal = ({ isOpen, onClose, boutiqueMode = false, onSwitchToBooking }) => {
   const t = useTr();
   const [step, setStep] = useState(1);
   const [form, setForm] = useState({ nom: "", projet: "", besoin: "" });
@@ -86,7 +88,7 @@ const BookingModal = ({ isOpen, onClose, boutiqueMode = false }) => {
           style={{ position: "fixed", inset: 0, zIndex: 500, background: "rgba(0,0,0,0.92)", display: "flex", alignItems: "flex-start", justifyContent: "center", padding: "1rem", paddingTop: "calc(env(safe-area-inset-top) + 3.5rem)", overflowY: "auto" }}>
 
           {boutiqueMode ? (
-            <BoutiqueModal onClose={reset} />
+            <BoutiqueModal onClose={reset} onReserver={onSwitchToBooking} />
           ) : (
           <motion.div
             initial={{ opacity: 0, y: 32, scale: 0.97 }}
