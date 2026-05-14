@@ -151,6 +151,30 @@ const FormulesSection = ({ refEl, onContact }) => {
             </motion.div>
           ))}
         </div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }} animate={inView ? { opacity: 1, y: 0 } : {}}
+          transition={{ delay: 0.7, duration: 0.7 }}
+          style={{ margin: "2.5rem 0 0", padding: "2rem 1.4rem", border: "1px solid rgba(184,151,62,0.3)", background: "rgba(184,151,62,0.05)", textAlign: "center" }}
+        >
+          <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.5em", color: GOLD, textTransform: "uppercase", marginBottom: "1rem" }}>GASPARDNZ · 2025</p>
+          <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(1.6rem, 7vw, 2.2rem)", fontWeight: 300, color: "#f5f0e8", letterSpacing: "0.02em", margin: "0 0 0.6rem" }}>
+            Téléchargez le Lookbook
+          </h3>
+          <p style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: "italic", fontSize: "0.9rem", color: "rgba(245,240,232,0.4)", marginBottom: "1.6rem" }}>
+            4 pages · Looks signature · Tarifs · Contact
+          </p>
+          <a
+            href={`${import.meta.env.BASE_URL}lookbook-gaspardnz.pdf`}
+            download="Lookbook-GaspardNZ-2025.pdf"
+            style={{ display: "inline-flex", alignItems: "center", gap: "10px", background: GOLD, color: "#0d1b3e", padding: "1rem 2.2rem", textDecoration: "none", fontFamily: "'Montserrat', sans-serif", fontSize: "8px", letterSpacing: "0.4em", textTransform: "uppercase", fontWeight: 700 }}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+            TÉLÉCHARGER
+          </a>
+        </motion.div>
       </div>
     </section>
   );

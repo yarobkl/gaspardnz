@@ -15,10 +15,8 @@ import SectionDivider from "./components/ui/SectionDivider.jsx";
 import FormulesSection from "./components/sections/FormulesSection.jsx";
 import ActualitesSection from "./components/sections/ActualitesSection.jsx";
 import StyleJournalSection from "./components/sections/StyleJournalSection.jsx";
-import TikTokViralSection from "./components/sections/TikTokSection.jsx";
 import InstagramSection from "./components/sections/InstagramSection.jsx";
 import VIPClientsSection from "./components/sections/VIPSection.jsx";
-import TestimonialsSection from "./components/sections/TestimonialsSection.jsx";
 import CommunauteSection from "./components/sections/CommunauteSection.jsx";
 import StyleDuMoisSection from "./components/sections/StyleDuMoisSection.jsx";
 import FooterMobile from "./components/FooterMobile.jsx";
@@ -154,15 +152,13 @@ export default function App() {
           <StyleJournalSection />
           <SectionDivider from="#0a0602" to="#f5f0e8" />
           <GalleryMobile refEl={galleryRef} />
-          <SectionDivider from="#f5f0e8" to="#0a0602" />
-          <ActualitesSection />
-          <TikTokViralSection />
-          <VIPClientsSection />
-          <TestimonialsSection />
-          <SectionDivider from="#0f0a04" to="#f5f0e8" />
-          <ShowroomMobile refEl={showroomRef} onCatalogue={() => openBooking(true)} onGalerie={() => scrollTo(galleryRef)} onFlammes={() => scrollTo(galleryRef)} />
           <SectionDivider from="#f5f0e8" to="#0d1b3e" />
           <FormulesSection refEl={formulesRef} onContact={() => window.open(`https://wa.me/33664826920?text=${encodeURIComponent("Bonjour Gaspard, je souhaite réserver une formule. Pouvez-vous me recontacter ?")}`, "_blank")} />
+          <SectionDivider from="#0d1b3e" to="#0a0602" />
+          <ActualitesSection />
+          <VIPClientsSection />
+          <SectionDivider from="#0f0a04" to="#f5f0e8" />
+          <ShowroomMobile refEl={showroomRef} onCatalogue={() => openBooking(true)} onGalerie={() => scrollTo(galleryRef)} onFlammes={() => scrollTo(galleryRef)} />
           <InstagramSection />
           <SectionDivider from="#faf7f2" to="#0a0602" />
           <StyleDuMoisSection refEl={styleDuMoisRef} />
