@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useRef, useContext } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { GOLD, TEXT } from "../constants.js";
 import { LangCtx, useTr } from "../context.jsx";
@@ -9,6 +9,7 @@ const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules, 
   const t = useTr();
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const navigating = useRef(false);
 
   useEffect(() => {
     const fn = () => setScrolled(window.scrollY > 50);
@@ -27,7 +28,7 @@ const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules, 
       document.body.style.position = "";
       document.body.style.top = "";
       document.body.style.width = "";
-      window.scrollTo(0, y);
+      if (!navigating.current) window.scrollTo(0, y);
     }
     return () => {
       document.body.style.position = "";
@@ -36,7 +37,11 @@ const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules, 
     };
   }, [open]);
 
-  const close = (fn) => { setOpen(false); fn && fn(); };
+  const close = (fn) => {
+    if (fn) navigating.current = true;
+    setOpen(false);
+    if (fn) setTimeout(() => { navigating.current = false; fn(); }, 60);
+  };
 
   const navLight = !scrolled && !open;
   const navTextColor = navLight ? "#f5f0e8" : TEXT;
@@ -154,7 +159,7 @@ const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules, 
               [t("nav_formules"), onFormules],
               [t("nav_galerie"), onGalerie],
               ["Style du Mois", onStyleDuMois],
-              ["Lookbook", () => { const a = document.createElement("a"); a.href = "/lookbook-gaspardnz.pdf"; a.download = "Lookbook-GaspardNZ-2025.pdf"; a.click(); }],
+              ["Lookbook", () => { const a = document.createElement("a"); a.href = `${import.meta.env.BASE_URL}lookbook-gaspardnz.pdf`; a.download = "Lookbook-GaspardNZ-2025.pdf"; a.click(); }],
             ].map(([label, fn], i) => (
               <motion.button key={label}
                 initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }}
