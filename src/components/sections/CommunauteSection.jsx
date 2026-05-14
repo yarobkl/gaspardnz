@@ -31,7 +31,39 @@ const CommunauteSection = () => (
         Rejoins la<br />Communauté
       </h2>
 
-      <div style={{ width: "48px", height: "1px", background: "rgba(184,151,62,0.5)", margin: "0 auto 1.8rem" }} />
+      <div style={{ margin: "0 auto 1.8rem", width: "160px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <svg width="160" height="28" viewBox="0 0 160 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <motion.path
+            d="M0 14 L52 14 L58 14 L62 4 L66 24 L70 8 L74 18 L78 14 L82 14 L86 14 L90 14 L94 14 L98 14 L102 14 L108 14 L160 14"
+            stroke="#b8973e"
+            strokeWidth="1.2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            initial={{ pathLength: 0, opacity: 0 }}
+            whileInView={{ pathLength: 1, opacity: 1 }}
+            viewport={{ once: false }}
+            transition={{ duration: 1.6, ease: "easeInOut" }}
+          />
+          <motion.path
+            d="M0 14 L52 14 L58 14 L62 4 L66 24 L70 8 L74 18 L78 14 L82 14 L86 14 L90 14 L94 14 L98 14 L102 14 L108 14 L160 14"
+            stroke="rgba(184,151,62,0.3)"
+            strokeWidth="4"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            filter="url(#glow)"
+            initial={{ pathLength: 0, opacity: 0 }}
+            whileInView={{ pathLength: 1, opacity: 1 }}
+            viewport={{ once: false }}
+            transition={{ duration: 1.6, ease: "easeInOut", delay: 0.05 }}
+          />
+          <defs>
+            <filter id="glow">
+              <feGaussianBlur stdDeviation="2.5" result="coloredBlur"/>
+              <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+          </defs>
+        </svg>
+      </div>
 
       <p style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: "italic", fontSize: "clamp(1rem, 4vw, 1.15rem)", color: "rgba(245,240,232,0.5)", lineHeight: 1.75, marginBottom: "2.4rem" }}>
         Nouveaux looks, arrivages exclusifs, coulisses — reçois tout en avant-première directement sur WhatsApp.
