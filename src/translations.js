@@ -31,7 +31,7 @@ export const T = {
     formule1_tagline:"Une allure complète, élégante et inoubliable pour le jour J.",
     formule2_tagline:"L'élégance accessible pour un mariage parfaitement maîtrisé.",
     look_mairie:"Look Mairie", look_soiree:"Look Soirée",
-    hero_subtitle:"L'Inspirateur de la Haute Allure",
+    hero_subtitle:"S'habiller autrement",
     footer_subtitle:"L'Inspirateur — Paris",
     cat_item1:"Collections Vestes", cat_item2:"Costumes Sur-Mesure", cat_item3:"Chemises Brodées", cat_item4:"Accessoires Premium",
     flammes_title:"Gaspardnz aux Flammes 2026",
