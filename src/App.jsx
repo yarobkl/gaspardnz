@@ -23,22 +23,35 @@ import FooterMobile from "./components/FooterMobile.jsx";
 
 const FONTS_CSS = `@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Bebas+Neue&family=Montserrat:wght@200;300;400;500&display=swap');`;
 
+const _SPLASH_IMG = (typeof import.meta !== "undefined" ? (import.meta.env.BASE_URL || "/") : "/") + "images/style-parisien.jpg";
+
 const SplashScreen = ({ onDone }) => (
   <motion.div
     exit={{ opacity: 0 }}
     transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-    style={{ position: "fixed", inset: 0, zIndex: 9999, background: "#070400", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "2.4rem" }}>
+    style={{ position: "fixed", inset: 0, zIndex: 9999, background: "#070400", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "2.4rem", overflow: "hidden" }}>
+
+    {/* Photo de fond */}
+    <motion.img
+      src={_SPLASH_IMG}
+      initial={{ opacity: 0, scale: 1.06 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 2, ease: [0.16, 1, 0.3, 1] }}
+      style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center top" }}
+    />
+    {/* Overlay sombre */}
+    <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(4,2,0,0.62) 0%, rgba(4,2,0,0.45) 40%, rgba(4,2,0,0.72) 100%)" }} />
 
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 1.4, ease: [0.16, 1, 0.3, 1] }}
-      style={{ textAlign: "center" }}>
+      style={{ textAlign: "center", position: "relative", zIndex: 1 }}>
       <motion.p
         initial={{ letterSpacing: "0.12em", opacity: 0 }}
         animate={{ letterSpacing: "0.38em", opacity: 1 }}
         transition={{ duration: 1.8, ease: [0.16, 1, 0.3, 1] }}
-        style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "3.5rem", color: "#faf7f2", margin: 0, lineHeight: 1 }}>
+        style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "3.5rem", color: "#faf7f2", margin: 0, lineHeight: 1, textShadow: "0 2px 20px rgba(0,0,0,0.6)" }}>
         GASPARDNZ
       </motion.p>
       <motion.p
@@ -50,7 +63,7 @@ const SplashScreen = ({ onDone }) => (
       </motion.p>
     </motion.div>
 
-    <div style={{ width: "140px", height: "1px", background: "rgba(184,151,62,0.15)", position: "relative", overflow: "hidden" }}>
+    <div style={{ width: "140px", height: "1px", background: "rgba(184,151,62,0.15)", position: "relative", overflow: "hidden", zIndex: 1 }}>
       <motion.div
         initial={{ scaleX: 0 }}
         animate={{ scaleX: 1 }}
@@ -63,7 +76,7 @@ const SplashScreen = ({ onDone }) => (
       initial={{ opacity: 0 }}
       animate={{ opacity: [0, 0.45, 0.25, 0.45] }}
       transition={{ duration: 2.4, delay: 0.6, times: [0, 0.3, 0.6, 1] }}
-      style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "6px", letterSpacing: "0.55em", color: "rgba(245,240,232,0.35)", textTransform: "uppercase" }}>
+      style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "6px", letterSpacing: "0.55em", color: "rgba(245,240,232,0.35)", textTransform: "uppercase", position: "relative", zIndex: 1 }}>
       Chargement…
     </motion.p>
   </motion.div>
