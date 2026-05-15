@@ -2,7 +2,7 @@ User-agent: *
 Allow: /
 
 # Sitemaps
-Sitemap: https://gaspardnz-style.fr/sitemap.xml
+Sitemap: https://gaspardnz.style/sitemap.xml
 
 # LLM crawlers
 User-agent: GPTBot
