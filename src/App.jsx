@@ -3,6 +3,10 @@ import { motion, AnimatePresence } from "framer-motion";
 import { GOLD, CREAM } from "./constants.js";
 import { LangCtx } from "./context.jsx";
 
+import NotificationPrompt from "./components/NotificationPrompt.jsx";
+import CookieBanner from "./components/CookieBanner.jsx";
+import { initGAIfConsented } from "./services/analytics.js";
+import { requestNotificationPermission } from "./services/notifications.js";
 import NavMobile from "./components/NavMobile.jsx";
 import HeroMobile from "./components/HeroMobile.jsx";
 import HeritageMobile from "./components/HeritageMobile.jsx";
@@ -31,7 +35,6 @@ const SplashScreen = ({ onDone }) => (
     transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
     style={{ position: "fixed", inset: 0, zIndex: 9999, background: "#070400", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "2.4rem", overflow: "hidden" }}>
 
-    {/* Photo de fond */}
     <motion.img
       src={_SPLASH_IMG}
       initial={{ opacity: 0, scale: 1.06 }}
@@ -39,7 +42,6 @@ const SplashScreen = ({ onDone }) => (
       transition={{ duration: 2, ease: [0.16, 1, 0.3, 1] }}
       style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center top" }}
     />
-    {/* Overlay sombre */}
     <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(4,2,0,0.5) 0%, rgba(4,2,0,0.3) 40%, rgba(4,2,0,0.6) 100%)" }} />
 
     <motion.div
@@ -84,6 +86,7 @@ const SplashScreen = ({ onDone }) => (
 
 export default function App() {
   const [splashDone, setSplashDone] = useState(false);
+  const [notifPrompt, setNotifPrompt] = useState(false);
   const [bookingOpen, setBookingOpen] = useState(false);
   const [boutiqueMode, setBoutiqueMode] = useState(false);
   const [highContrast, setHighContrast] = useState(false);
@@ -126,10 +129,29 @@ export default function App() {
     document.body.style.background = "#0a0602";
     document.body.style.margin = "0";
     document.body.style.overflowX = "hidden";
+    initGAIfConsented();
   }, []);
+
+  useEffect(() => {
+    if (!splashDone) return;
+    const already = localStorage.getItem("gnz-notif-asked");
+    if (already) return;
+    const t = setTimeout(() => setNotifPrompt(true), 3500);
+    return () => clearTimeout(t);
+  }, [splashDone]);
 
   const scrollTo = (ref) => { ref?.current?.scrollIntoView({ behavior: "smooth", block: "start" }); };
   const openBooking = (boutique = false) => { setBoutiqueMode(boutique); setBookingOpen(true); };
+
+  const handleNotifAccept = async () => {
+    setNotifPrompt(false);
+    localStorage.setItem("gnz-notif-asked", "1");
+    await requestNotificationPermission();
+  };
+  const handleNotifDecline = () => {
+    setNotifPrompt(false);
+    localStorage.setItem("gnz-notif-asked", "1");
+  };
 
   return (
     <LangCtx.Provider value={{ lang, setLang }}>
@@ -149,7 +171,6 @@ export default function App() {
         {!splashDone && <SplashScreen key="splash" onDone={() => setSplashDone(true)} />}
       </AnimatePresence>
 
-      {/* Toujours rendu pour que la vidéo charge pendant le splash */}
       <div
         data-gnz-mode={lightMode ? "light" : "dark"}
         style={{
@@ -195,6 +216,8 @@ export default function App() {
         <BookingModal isOpen={bookingOpen} onClose={() => setBookingOpen(false)} boutiqueMode={boutiqueMode} onSwitchToBooking={() => setBoutiqueMode(false)} />
         <ChatBot onReserver={() => openBooking(false)} onGalerie={() => scrollTo(galleryRef)} onShowroom={() => scrollTo(showroomRef)} onFormules={() => scrollTo(formulesRef)} />
       </div>
+      <NotificationPrompt visible={notifPrompt} onAccept={handleNotifAccept} onDecline={handleNotifDecline} />
+      <CookieBanner />
     </LangCtx.Provider>
   );
 }

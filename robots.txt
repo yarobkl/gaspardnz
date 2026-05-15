@@ -22,4 +22,4 @@ Allow: /
 User-agent: Googlebot
 Allow: /
 
-Sitemap: https://gaspardnz.fr/sitemap.xml
+Sitemap: https://gaspardnz-style.fr/sitemap.xml
