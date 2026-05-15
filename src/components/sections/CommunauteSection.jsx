@@ -59,8 +59,6 @@ const HeartbeatLine = () => {
 const CommunauteSection = () => (
   <section style={{ background: "#0a0602", minHeight: "100dvh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "5rem 2rem", position: "relative", overflow: "hidden" }}>
 
-    <div style={{ position: "absolute", width: "420px", height: "420px", borderRadius: "50%", border: "1px solid rgba(255,255,255,0.04)", top: "50%", left: "50%", transform: "translate(-50%,-50%)", pointerEvents: "none" }} />
-    <div style={{ position: "absolute", width: "620px", height: "620px", borderRadius: "50%", border: "1px solid rgba(255,255,255,0.025)", top: "50%", left: "50%", transform: "translate(-50%,-50%)", pointerEvents: "none" }} />
     <div style={{ position: "absolute", top: "1.4rem", left: "50%", transform: "translateX(-50%) rotate(45deg)", width: "8px", height: "8px", border: "1px solid rgba(184,151,62,0.5)", background: "rgba(184,151,62,0.15)" }} />
     <div style={{ position: "absolute", bottom: "1.4rem", left: "50%", transform: "translateX(-50%) rotate(45deg)", width: "8px", height: "8px", border: "1px solid rgba(184,151,62,0.5)", background: "rgba(184,151,62,0.15)" }} />
 
