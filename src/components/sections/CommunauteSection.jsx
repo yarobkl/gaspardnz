@@ -59,8 +59,14 @@ const HeartbeatLine = () => {
 const CommunauteSection = () => (
   <section style={{ background: "#0a0602", minHeight: "100dvh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "5rem 2rem", position: "relative", overflow: "hidden" }}>
 
-    <div style={{ position: "absolute", top: "1.4rem", left: "50%", transform: "translateX(-50%) rotate(45deg)", width: "8px", height: "8px", border: "1px solid rgba(184,151,62,0.5)", background: "rgba(184,151,62,0.15)" }} />
-    <div style={{ position: "absolute", bottom: "1.4rem", left: "50%", transform: "translateX(-50%) rotate(45deg)", width: "8px", height: "8px", border: "1px solid rgba(184,151,62,0.5)", background: "rgba(184,151,62,0.15)" }} />
+    <motion.div
+      animate={{ boxShadow: ["0 0 4px 1px rgba(184,151,62,0.2)", "0 0 12px 4px rgba(184,151,62,0.7)", "0 0 4px 1px rgba(184,151,62,0.2)"] }}
+      transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
+      style={{ position: "absolute", top: "1.4rem", left: "50%", transform: "translateX(-50%) rotate(45deg)", width: "8px", height: "8px", border: "1px solid rgba(184,151,62,0.8)", background: "rgba(184,151,62,0.3)" }} />
+    <motion.div
+      animate={{ boxShadow: ["0 0 4px 1px rgba(184,151,62,0.2)", "0 0 12px 4px rgba(184,151,62,0.7)", "0 0 4px 1px rgba(184,151,62,0.2)"] }}
+      transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut", delay: 1.1 }}
+      style={{ position: "absolute", bottom: "1.4rem", left: "50%", transform: "translateX(-50%) rotate(45deg)", width: "8px", height: "8px", border: "1px solid rgba(184,151,62,0.8)", background: "rgba(184,151,62,0.3)" }} />
 
     <motion.div
       initial={{ opacity: 0, y: 24 }}
