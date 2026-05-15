@@ -155,6 +155,14 @@ const VIPClientsSection = () => {
                   style={{ paddingTop: "12px", paddingLeft: "4px" }}>
                   <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "17px", fontWeight: 400, color: "#faf7f2", marginBottom: "3px" }}>{c.name}</p>
                   <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "9px", color: "rgba(250,247,242,0.4)", letterSpacing: "0.05em" }}>{c.city}</p>
+                  {isActive && c.album && (
+                    <motion.button
+                      onPointerUp={e => { e.stopPropagation(); setAlbum({ photos: c.album, name: c.name }); }}
+                      whileTap={{ scale: 0.95 }}
+                      style={{ marginTop: "10px", display: "flex", alignItems: "center", gap: "8px", background: "rgba(184,151,62,0.12)", border: `1px solid rgba(184,151,62,0.45)`, borderRadius: "30px", padding: "0.5rem 1rem", cursor: "pointer", fontFamily: "'Montserrat', sans-serif", fontSize: "8px", letterSpacing: "0.3em", color: GOLD, textTransform: "uppercase" }}>
+                      <span>◻</span> Voir l'album
+                    </motion.button>
+                  )}
                 </motion.div>
               </motion.div>
             );
