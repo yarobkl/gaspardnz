@@ -3,6 +3,33 @@ import { motion, useInView } from "framer-motion";
 import { GOLD } from "../../constants.js";
 import { WA_CHANNEL_URL } from "../../data/styleDuMoisData.js";
 
+const HeartbeatLine = () => {
+  const beat = (x) =>
+    `L${x},15 L${x+3},13 L${x+6},2 L${x+9},28 L${x+12},12 L${x+15},15`;
+  const d = `M0,15 ${beat(12)} L70,15 ${beat(82)} L140,15 ${beat(152)} L210,15 ${beat(222)} L280,15`;
+
+  return (
+    <div style={{
+      margin: "1.4rem auto",
+      WebkitMaskImage: "linear-gradient(90deg, transparent, #000 22%, #000 78%, transparent)",
+      maskImage: "linear-gradient(90deg, transparent, #000 22%, #000 78%, transparent)",
+    }}>
+      <svg viewBox="0 0 280 30" style={{ width: "100%", maxWidth: "260px", height: "30px", display: "block", margin: "0 auto", overflow: "visible" }}>
+        <motion.path
+          d={d}
+          fill="none"
+          stroke={GOLD}
+          strokeWidth="1.5"
+          style={{ filter: `drop-shadow(0 0 4px ${GOLD}) drop-shadow(0 0 10px rgba(184,151,62,0.35))` }}
+          initial={{ pathLength: 0.25, pathOffset: 0 }}
+          animate={{ pathOffset: [0, 0.25] }}
+          transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+        />
+      </svg>
+    </div>
+  );
+};
+
 const CommunauteSection = () => {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-6% 0px" });
@@ -24,7 +51,10 @@ const CommunauteSection = () => {
         </motion.div>
 
         <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.55em", color: GOLD, textTransform: "uppercase", marginBottom: "10px" }}>COMMUNAUTÉ</p>
-        <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "26px", fontWeight: 300, color: "#faf7f2", letterSpacing: "0.02em", lineHeight: 1.2, marginBottom: "0.8rem" }}>Rejoignez la communauté</p>
+        <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "26px", fontWeight: 300, color: "#faf7f2", letterSpacing: "0.02em", lineHeight: 1.2, marginBottom: 0 }}>Rejoignez la communauté</p>
+
+        <HeartbeatLine />
+
         <p style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: "italic", fontSize: "1rem", color: "rgba(245,240,232,0.5)", lineHeight: 1.65, marginBottom: "1.8rem" }}>
           Conseils style exclusifs, avant-premières, looks de la semaine et coulisses des shootings — uniquement sur WhatsApp.
         </p>
