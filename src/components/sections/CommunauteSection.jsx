@@ -8,38 +8,39 @@ const SvgWA = () => (
   </svg>
 );
 
+// Bord gauche → bord droit → boucle infinie
 const HeartbeatLine = () => {
-  // 4 cycles identiques de 100px → 400px total, seamless loop
   const beat = (x) =>
-    `L${x},14 L${x+4},11 L${x+8},1 L${x+12},27 L${x+16},9 L${x+20},14`;
-  const d = `M0,14 ${beat(20)} L100,14 ${beat(120)} L200,14 ${beat(220)} L300,14 ${beat(320)} L400,14`;
+    `L${x},14 L${x+5},10 L${x+10},1 L${x+14},27 L${x+18},9 L${x+22},14`;
+  // 5 cycles identiques de 80px = 400px → pathOffset [0, 0.2] = seamless
+  const d = `M0,14 ${beat(28)} L80,14 ${beat(108)} L160,14 ${beat(188)} L240,14 ${beat(268)} L320,14 ${beat(348)} L400,14`;
 
   return (
     <div style={{
-      width: "100%",
-      display: "flex",
-      justifyContent: "center",
-      alignItems: "center",
-      padding: "1.8rem 0",
-      WebkitMaskImage: "linear-gradient(90deg, transparent, #000 16%, #000 84%, transparent)",
-      maskImage: "linear-gradient(90deg, transparent, #000 16%, #000 84%, transparent)",
+      // Casse le maxWidth du parent pour aller bord à bord
+      width: "100vw",
+      marginLeft: "calc(-50vw + 50%)",
+      padding: "2.2rem 0",
+      position: "relative",
+      zIndex: 1,
     }}>
       <svg
         viewBox="0 0 400 28"
-        preserveAspectRatio="xMidYMid meet"
-        style={{ width: "100%", maxWidth: "340px", height: "28px", display: "block" }}
+        preserveAspectRatio="none"
+        style={{ width: "100%", height: "40px", display: "block" }}
       >
         <motion.path
           d={d}
           fill="none"
           stroke={GOLD}
-          strokeWidth="1.5"
+          strokeWidth="1.8"
           strokeLinecap="round"
           strokeLinejoin="round"
-          style={{ filter: `drop-shadow(0 0 4px ${GOLD}) drop-shadow(0 0 10px rgba(184,151,62,0.4))` }}
-          initial={{ pathLength: 0.25, pathOffset: 0 }}
-          animate={{ pathOffset: [0, 0.25] }}
-          transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+          vectorEffect="non-scaling-stroke"
+          style={{ filter: `drop-shadow(0 0 5px ${GOLD}) drop-shadow(0 0 14px rgba(184,151,62,0.5))` }}
+          initial={{ pathLength: 0.2, pathOffset: 0 }}
+          animate={{ pathOffset: [0, 0.2] }}
+          transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
         />
       </svg>
     </div>
@@ -51,7 +52,6 @@ const CommunauteSection = () => (
 
     <div style={{ position: "absolute", width: "420px", height: "420px", borderRadius: "50%", border: "1px solid rgba(255,255,255,0.04)", top: "50%", left: "50%", transform: "translate(-50%,-50%)", pointerEvents: "none" }} />
     <div style={{ position: "absolute", width: "620px", height: "620px", borderRadius: "50%", border: "1px solid rgba(255,255,255,0.025)", top: "50%", left: "50%", transform: "translate(-50%,-50%)", pointerEvents: "none" }} />
-
     <div style={{ position: "absolute", top: "1.4rem", left: "50%", transform: "translateX(-50%) rotate(45deg)", width: "8px", height: "8px", border: "1px solid rgba(184,151,62,0.5)", background: "rgba(184,151,62,0.15)" }} />
     <div style={{ position: "absolute", bottom: "1.4rem", left: "50%", transform: "translateX(-50%) rotate(45deg)", width: "8px", height: "8px", border: "1px solid rgba(184,151,62,0.5)", background: "rgba(184,151,62,0.15)" }} />
 
