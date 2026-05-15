@@ -1,32 +1,10 @@
 name: Build & Deploy
 
 on:
-  push:
-    branches: [main, claude/compile-le-plus-PUg5Q]
-
-permissions:
-  contents: write
+  workflow_dispatch:
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: npm
-
-      - run: npm ci
-
-      - name: Inject SW version
-        run: sed -i "s/gnz-v[0-9]*/gnz-v$(date +%Y%m%d)-${GITHUB_SHA::7}/" public/sw.js
-
-      - run: npx vite build --base=/gaspardnz/
-
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./dist
+      - run: echo "Déploiement géré par Vercel"
