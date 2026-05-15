@@ -9,19 +9,26 @@ const SvgWA = () => (
 );
 
 const HeartbeatLine = () => {
+  // 4 cycles identiques de 100px → 400px total, seamless loop
   const beat = (x) =>
-    `L${x},14 L${x+3},11 L${x+7},2 L${x+11},26 L${x+15},9 L${x+18},14`;
-  const d = `M0,14 ${beat(16)} L80,14 ${beat(96)} L160,14 ${beat(176)} L240,14 ${beat(256)} L320,14`;
+    `L${x},14 L${x+4},11 L${x+8},1 L${x+12},27 L${x+16},9 L${x+20},14`;
+  const d = `M0,14 ${beat(20)} L100,14 ${beat(120)} L200,14 ${beat(220)} L300,14 ${beat(320)} L400,14`;
 
   return (
     <div style={{
-      margin: "0 auto 1.8rem",
       width: "100%",
-      maxWidth: "280px",
-      WebkitMaskImage: "linear-gradient(90deg, transparent, #000 20%, #000 80%, transparent)",
-      maskImage: "linear-gradient(90deg, transparent, #000 20%, #000 80%, transparent)",
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      padding: "1.8rem 0",
+      WebkitMaskImage: "linear-gradient(90deg, transparent, #000 16%, #000 84%, transparent)",
+      maskImage: "linear-gradient(90deg, transparent, #000 16%, #000 84%, transparent)",
     }}>
-      <svg viewBox="0 0 320 28" style={{ width: "100%", height: "28px", display: "block", overflow: "visible" }}>
+      <svg
+        viewBox="0 0 400 28"
+        preserveAspectRatio="xMidYMid meet"
+        style={{ width: "100%", maxWidth: "340px", height: "28px", display: "block" }}
+      >
         <motion.path
           d={d}
           fill="none"
@@ -29,7 +36,7 @@ const HeartbeatLine = () => {
           strokeWidth="1.5"
           strokeLinecap="round"
           strokeLinejoin="round"
-          style={{ filter: `drop-shadow(0 0 4px ${GOLD}) drop-shadow(0 0 8px rgba(184,151,62,0.4))` }}
+          style={{ filter: `drop-shadow(0 0 4px ${GOLD}) drop-shadow(0 0 10px rgba(184,151,62,0.4))` }}
           initial={{ pathLength: 0.25, pathOffset: 0 }}
           animate={{ pathOffset: [0, 0.25] }}
           transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
@@ -59,7 +66,7 @@ const CommunauteSection = () => (
         CANAL WHATSAPP · GASPARDNZ
       </p>
 
-      <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(2.8rem, 12vw, 4rem)", fontWeight: 300, color: "#faf7f2", letterSpacing: "0.01em", lineHeight: 1.1, margin: "0 0 1.4rem" }}>
+      <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(2.8rem, 12vw, 4rem)", fontWeight: 300, color: "#faf7f2", letterSpacing: "0.01em", lineHeight: 1.1, margin: "0 0 0.2rem" }}>
         Rejoins la<br />Communauté
       </h2>
 
