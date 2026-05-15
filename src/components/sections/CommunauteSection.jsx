@@ -39,7 +39,7 @@ const HeartbeatLine = () => {
         style={{ display: "flex", width: "200%" }}
         initial={{ x: "0%" }}
         animate={{ x: "-50%" }}
-        transition={{ duration: 4, repeat: Infinity, ease: "linear", repeatType: "loop" }}
+        transition={{ duration: 8, repeat: Infinity, ease: "linear", repeatType: "loop" }}
       >
         {[0, 1].map(i => (
           <svg
