@@ -70,7 +70,7 @@ const SplashScreen = ({ onDone }) => (
         initial={{ opacity: 0, y: 6 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 1.2, delay: 0.5 }}
-        style={{ fontFamily: "'Dancing Script', cursive", fontWeight: 700, fontSize: "1.5rem", color: GOLD, textAlign: "center", margin: "0 0 0.8rem", textShadow: "0 2px 20px rgba(0,0,0,0.8)" }}>
+        style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: "italic", fontWeight: 300, fontSize: "1.45rem", color: "rgba(245,240,232,0.55)", textAlign: "center", margin: "0 0 0.8rem", letterSpacing: "0.08em" }}>
         S'habiller autrement
       </motion.p>
       <div style={{ width: "100vw", height: "1px", background: "rgba(184,151,62,0.15)", position: "relative", overflow: "hidden" }}>
