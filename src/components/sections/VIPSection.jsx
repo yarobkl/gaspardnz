@@ -1,17 +1,76 @@
 import { useState, useEffect, useRef } from "react";
-import { motion, useInView, useMotionValue, animate } from "framer-motion";
+import { motion, useInView, useMotionValue, animate, AnimatePresence } from "framer-motion";
 import { GOLD } from "../../constants.js";
+
+const AlbumModal = ({ photos, name, onClose }) => {
+  const [idx, setIdx] = useState(0);
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key === "Escape") onClose();
+      if (e.key === "ArrowRight") setIdx(i => Math.min(i + 1, photos.length - 1));
+      if (e.key === "ArrowLeft") setIdx(i => Math.max(i - 1, 0));
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [photos.length, onClose]);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+      onClick={onClose}
+      style={{ position: "fixed", inset: 0, zIndex: 9999, background: "rgba(0,0,0,0.95)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+
+      <button onClick={onClose} style={{ position: "absolute", top: "1.2rem", right: "1.2rem", background: "none", border: "none", color: "rgba(245,240,232,0.6)", fontSize: "1.8rem", cursor: "pointer", zIndex: 1 }}>✕</button>
+
+      <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.5em", color: GOLD, textTransform: "uppercase", marginBottom: "1.2rem", zIndex: 1 }}>ALBUM · {name.toUpperCase()}</p>
+
+      <motion.div onClick={e => e.stopPropagation()} style={{ position: "relative", width: "90vw", maxWidth: "420px", zIndex: 1 }}>
+        <AnimatePresence mode="wait">
+          <motion.img
+            key={idx}
+            src={photos[idx]}
+            initial={{ opacity: 0, scale: 0.96 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.96 }}
+            transition={{ duration: 0.3 }}
+            style={{ width: "100%", borderRadius: "12px", objectFit: "cover", maxHeight: "70vh", display: "block" }}
+          />
+        </AnimatePresence>
+
+        {photos.length > 1 && (
+          <>
+            <button onClick={() => setIdx(i => Math.max(i - 1, 0))}
+              style={{ position: "absolute", left: "-1rem", top: "50%", transform: "translateY(-50%)", background: "rgba(0,0,0,0.5)", border: `1px solid rgba(184,151,62,0.4)`, color: GOLD, borderRadius: "50%", width: "36px", height: "36px", cursor: "pointer", fontSize: "1rem", display: "flex", alignItems: "center", justifyContent: "center", opacity: idx === 0 ? 0.3 : 1 }}>‹</button>
+            <button onClick={() => setIdx(i => Math.min(i + 1, photos.length - 1))}
+              style={{ position: "absolute", right: "-1rem", top: "50%", transform: "translateY(-50%)", background: "rgba(0,0,0,0.5)", border: `1px solid rgba(184,151,62,0.4)`, color: GOLD, borderRadius: "50%", width: "36px", height: "36px", cursor: "pointer", fontSize: "1rem", display: "flex", alignItems: "center", justifyContent: "center", opacity: idx === photos.length - 1 ? 0.3 : 1 }}>›</button>
+          </>
+        )}
+      </motion.div>
+
+      <div style={{ display: "flex", gap: "6px", marginTop: "1rem", zIndex: 1 }}>
+        {photos.map((_, i) => (
+          <button key={i} onClick={e => { e.stopPropagation(); setIdx(i); }}
+            style={{ width: i === idx ? "20px" : "6px", height: "6px", borderRadius: "3px", background: i === idx ? GOLD : "rgba(184,151,62,0.3)", border: "none", cursor: "pointer", transition: "all 0.3s", padding: 0 }} />
+        ))}
+      </div>
+
+      <p style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: "italic", fontSize: "0.85rem", color: "rgba(245,240,232,0.35)", marginTop: "0.8rem", zIndex: 1 }}>{idx + 1} / {photos.length}</p>
+    </motion.div>
+  );
+};
 
 const VIPClientsSection = () => {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-6% 0px" });
   const [cur, setCur] = useState(0);
+  const [album, setAlbum] = useState(null);
   const [vw, setVw] = useState(() => typeof window !== "undefined" ? window.innerWidth / 100 : 3.9);
   const curRef = useRef(0);
   useEffect(() => { curRef.current = cur; });
   const B = import.meta.env.BASE_URL;
   const clients = [
-    { initials: "R.B", name: "Rodrin Bakala Mouengue", city: "Paris", event: "Mariage", gradient: "linear-gradient(135deg,#1e3a5f,#2d6a9f)", photo: `${B}images/rodrin-bakala.jpg.JPG` },
+    { initials: "R.B", name: "Rodrin Bakala Mouengue", city: "Paris", event: "Mariage", gradient: "linear-gradient(135deg,#1e3a5f,#2d6a9f)", photo: `${B}images/rodrin-bakala.jpg.JPG`,
+      album: [`${B}images/rodrin-bakala.jpg.JPG`, `${B}images/mariage-smoking-dore.jpg`] },
     { initials: "C.M", name: "Cédric M.", city: "Monaco", event: "Gala de prestige", gradient: "linear-gradient(135deg,#4a1942,#8b2fc9)" },
     { initials: "Y.B", name: "Yannick B.", city: "Lyon", event: "Soirée VIP", gradient: "linear-gradient(135deg,#1a3a1a,#2d6b2d)" },
     { initials: "A.N", name: "Alexis N.", city: "Dubaï", event: "Business meeting", gradient: "linear-gradient(135deg,#3d1a00,#8b3d00)" },
@@ -34,8 +93,13 @@ const VIPClientsSection = () => {
   useEffect(() => {
     x.set(((100 - CARD_W) / 2 - curRef.current * CARD_W) * vw);
   }, [vw]);
+
   return (
     <section ref={ref} style={{ background: "#0a0602", padding: "4.5rem 0 5rem", overflow: "hidden" }}>
+      <AnimatePresence>
+        {album && <AlbumModal photos={album.photos} name={album.name} onClose={() => setAlbum(null)} />}
+      </AnimatePresence>
+
       <motion.div initial={{ opacity: 0, y: 20 }} animate={inView ? { opacity: 1, y: 0 } : {}}
         transition={{ duration: 0.7 }}
         style={{ textAlign: "center", marginBottom: "2.4rem", padding: "0 1.4rem" }}>
@@ -61,10 +125,13 @@ const VIPClientsSection = () => {
             const dist = Math.abs(i - cur);
             return (
               <motion.div key={i}
-                onClick={() => snapTo(i)}
+                onClick={() => {
+                  if (isActive && c.album) setAlbum({ photos: c.album, name: c.name });
+                  else snapTo(i);
+                }}
                 animate={{ scale: isActive ? 1 : 0.80, opacity: dist === 0 ? 1 : dist === 1 ? 0.55 : 0.3 }}
                 transition={{ type: "spring", stiffness: 280, damping: 28 }}
-                style={{ flexShrink: 0, width: `${CARD_W}vw`, paddingLeft: "6px", paddingRight: "6px", cursor: isActive ? "grab" : "pointer", transformOrigin: "center center" }}>
+                style={{ flexShrink: 0, width: `${CARD_W}vw`, paddingLeft: "6px", paddingRight: "6px", cursor: isActive ? (c.album ? "pointer" : "grab") : "pointer", transformOrigin: "center center" }}>
                 <div style={{ borderRadius: "16px", background: c.gradient, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", border: isActive ? `1px solid rgba(184,151,62,0.5)` : "1px solid rgba(184,151,62,0.15)", position: "relative", overflow: "hidden", aspectRatio: "3/4", boxShadow: isActive ? "0 20px 60px rgba(0,0,0,0.7)" : "none", transition: "border 0.4s, box-shadow 0.4s" }}>
                   {c.photo
                     ? <img src={c.photo} alt={c.name} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center top" }} />
@@ -76,7 +143,12 @@ const VIPClientsSection = () => {
                       <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "22px", fontWeight: 500, color: GOLD }}>{c.initials}</span>
                     </div>
                   )}
-                  <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "9px", letterSpacing: "0.15em", color: isActive ? "rgba(250,247,242,0.7)" : "rgba(250,247,242,0.4)", textTransform: "uppercase", transition: "color 0.4s", position: "absolute", bottom: "12px", zIndex: 1 }}>{c.event}</p>
+                  <div style={{ position: "absolute", bottom: "12px", zIndex: 1, textAlign: "center" }}>
+                    <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "9px", letterSpacing: "0.15em", color: isActive ? "rgba(250,247,242,0.7)" : "rgba(250,247,242,0.4)", textTransform: "uppercase", transition: "color 0.4s" }}>{c.event}</p>
+                    {isActive && c.album && (
+                      <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.2em", color: GOLD, textTransform: "uppercase", marginTop: "4px" }}>Voir l'album →</p>
+                    )}
+                  </div>
                 </div>
                 <motion.div animate={{ opacity: isActive ? 1 : 0, y: isActive ? 0 : 6 }} transition={{ duration: 0.35 }}
                   style={{ paddingTop: "12px", paddingLeft: "4px" }}>
