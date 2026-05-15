@@ -64,8 +64,8 @@ export const STL_SPOTS = [
     { x:50, y:90, label:"Chaussures — Loafers marron à pompons", detail:"Mocassins cuir marron, pompons tressés, semelle cuir — touche décontractée chic" },
   ],
   [ // 10 — Costume Bordeaux
-    { x:50, y:12, label:"Chapeau — Chapeau wax ethnique", detail:"Chapeau tissu wax africain marron & bordeaux sur-mesure — pièce artisanale unique et signature" },
-    { x:50, y:42, label:"Haut — Veste bordeaux col mao", detail:"Veste bordeaux col mao style africain sur-mesure, coupe ajustée, boutons assortis" },
+    { x:50, y:12, label:"Chapeau — Chapeau wax ethnique", detail:"Chapeau tissu wax africain bleu & sable sur-mesure — pièce artisanale unique et signature" },
+    { x:50, y:42, label:"Haut — Veste safari bordeaux", detail:"Veste safari bordeaux sur-mesure, 4 poches plaquées, col ouvert, chemise blanche dessous — allure africaine contemporaine" },
     { x:50, y:65, label:"Bas — Pantalon bordeaux coordonné", detail:"Pantalon bordeaux sur-mesure, coupe droite — ensemble 2 pièces total look bordeaux" },
     { x:48, y:90, label:"Chaussures — Loafers marine à pompons", detail:"Loafers cuir bleu marine, pompons caractéristiques, semelle cuir — contrepoint élégant" },
   ],
