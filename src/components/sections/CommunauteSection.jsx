@@ -8,41 +8,50 @@ const SvgWA = () => (
   </svg>
 );
 
-// Bord gauche → bord droit → boucle infinie
 const HeartbeatLine = () => {
   const beat = (x) =>
     `L${x},14 L${x+5},10 L${x+10},1 L${x+14},27 L${x+18},9 L${x+22},14`;
-  // 5 cycles identiques de 80px = 400px → pathOffset [0, 0.2] = seamless
   const d = `M0,14 ${beat(28)} L80,14 ${beat(108)} L160,14 ${beat(188)} L240,14 ${beat(268)} L320,14 ${beat(348)} L400,14`;
+
+  const svgPath = (
+    <path
+      d={d}
+      fill="none"
+      stroke={GOLD}
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      vectorEffect="non-scaling-stroke"
+      style={{ filter: `drop-shadow(0 0 5px ${GOLD}) drop-shadow(0 0 14px rgba(184,151,62,0.5))` }}
+    />
+  );
 
   return (
     <div style={{
-      // Casse le maxWidth du parent pour aller bord à bord
       width: "100vw",
       marginLeft: "calc(-50vw + 50%)",
+      overflow: "hidden",
       padding: "2.2rem 0",
       position: "relative",
       zIndex: 1,
     }}>
-      <svg
-        viewBox="0 0 400 28"
-        preserveAspectRatio="none"
-        style={{ width: "100%", height: "40px", display: "block" }}
+      <motion.div
+        style={{ display: "flex", width: "200%" }}
+        initial={{ x: "0%" }}
+        animate={{ x: "-50%" }}
+        transition={{ duration: 4, repeat: Infinity, ease: "linear", repeatType: "loop" }}
       >
-        <motion.path
-          d={d}
-          fill="none"
-          stroke={GOLD}
-          strokeWidth="1.8"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          vectorEffect="non-scaling-stroke"
-          style={{ filter: `drop-shadow(0 0 5px ${GOLD}) drop-shadow(0 0 14px rgba(184,151,62,0.5))` }}
-          initial={{ pathLength: 0.2, pathOffset: 0 }}
-          animate={{ pathOffset: [0, 0.2] }}
-          transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-        />
-      </svg>
+        {[0, 1].map(i => (
+          <svg
+            key={i}
+            viewBox="0 0 400 28"
+            preserveAspectRatio="none"
+            style={{ width: "50%", height: "40px", display: "block", flexShrink: 0 }}
+          >
+            {svgPath}
+          </svg>
+        ))}
+      </motion.div>
     </div>
   );
 };
