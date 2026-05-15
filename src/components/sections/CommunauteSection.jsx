@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { GOLD } from "../../constants.js";
 import { WA_CHANNEL_URL } from "../../data/styleDuMoisData.js";
+import { useTr } from "../../context.jsx";
 
 const SvgWA = () => (
   <svg width="22" height="22" viewBox="0 0 24 24" fill="white">
@@ -27,14 +28,7 @@ const HeartbeatLine = () => {
   );
 
   return (
-    <div style={{
-      width: "100vw",
-      marginLeft: "calc(-50vw + 50%)",
-      overflow: "hidden",
-      padding: "2.2rem 0",
-      position: "relative",
-      zIndex: 1,
-    }}>
+    <div style={{ width: "100vw", marginLeft: "calc(-50vw + 50%)", overflow: "hidden", padding: "2.2rem 0", position: "relative", zIndex: 1 }}>
       <motion.div
         style={{ display: "flex", width: "200%" }}
         initial={{ x: "0%" }}
@@ -42,12 +36,7 @@ const HeartbeatLine = () => {
         transition={{ duration: 8, repeat: Infinity, ease: "linear", repeatType: "loop" }}
       >
         {[0, 1].map(i => (
-          <svg
-            key={i}
-            viewBox="0 0 400 28"
-            preserveAspectRatio="none"
-            style={{ width: "50%", height: "40px", display: "block", flexShrink: 0 }}
-          >
+          <svg key={i} viewBox="0 0 400 28" preserveAspectRatio="none" style={{ width: "50%", height: "40px", display: "block", flexShrink: 0 }}>
             {svgPath}
           </svg>
         ))}
@@ -56,61 +45,63 @@ const HeartbeatLine = () => {
   );
 };
 
-const CommunauteSection = () => (
-  <section style={{ background: "#0a0602", minHeight: "100dvh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "5rem 2rem", position: "relative", overflow: "hidden" }}>
+const CommunauteSection = () => {
+  const t = useTr();
+  return (
+    <section style={{ background: "#0a0602", minHeight: "100dvh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "5rem 2rem", position: "relative", overflow: "hidden" }}>
 
+      <motion.div
+        animate={{ boxShadow: ["0 0 4px 1px rgba(184,151,62,0.2)", "0 0 12px 4px rgba(184,151,62,0.7)", "0 0 4px 1px rgba(184,151,62,0.2)"] }}
+        transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
+        style={{ position: "absolute", top: "1.4rem", left: "50%", transform: "translateX(-50%) rotate(45deg)", width: "8px", height: "8px", border: "1px solid rgba(184,151,62,0.8)", background: "rgba(184,151,62,0.3)" }} />
+      <motion.div
+        animate={{ boxShadow: ["0 0 4px 1px rgba(184,151,62,0.2)", "0 0 12px 4px rgba(184,151,62,0.7)", "0 0 4px 1px rgba(184,151,62,0.2)"] }}
+        transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut", delay: 1.1 }}
+        style={{ position: "absolute", bottom: "1.4rem", left: "50%", transform: "translateX(-50%) rotate(45deg)", width: "8px", height: "8px", border: "1px solid rgba(184,151,62,0.8)", background: "rgba(184,151,62,0.3)" }} />
 
-<motion.div
-      animate={{ boxShadow: ["0 0 4px 1px rgba(184,151,62,0.2)", "0 0 12px 4px rgba(184,151,62,0.7)", "0 0 4px 1px rgba(184,151,62,0.2)"] }}
-      transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
-      style={{ position: "absolute", top: "1.4rem", left: "50%", transform: "translateX(-50%) rotate(45deg)", width: "8px", height: "8px", border: "1px solid rgba(184,151,62,0.8)", background: "rgba(184,151,62,0.3)" }} />
-    <motion.div
-      animate={{ boxShadow: ["0 0 4px 1px rgba(184,151,62,0.2)", "0 0 12px 4px rgba(184,151,62,0.7)", "0 0 4px 1px rgba(184,151,62,0.2)"] }}
-      transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut", delay: 1.1 }}
-      style={{ position: "absolute", bottom: "1.4rem", left: "50%", transform: "translateX(-50%) rotate(45deg)", width: "8px", height: "8px", border: "1px solid rgba(184,151,62,0.8)", background: "rgba(184,151,62,0.3)" }} />
+      <motion.div
+        initial={{ opacity: 0, y: 24 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.8 }}
+        style={{ textAlign: "center", maxWidth: "420px", width: "100%", zIndex: 1 }}>
 
-    <motion.div
-      initial={{ opacity: 0, y: 24 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.8 }}
-      style={{ textAlign: "center", maxWidth: "420px", width: "100%", zIndex: 1 }}>
+        <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.5em", color: "rgba(184,151,62,0.8)", textTransform: "uppercase", marginBottom: "2rem" }}>
+          {t("comm_surtitle")}
+        </p>
 
-      <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.5em", color: "rgba(184,151,62,0.8)", textTransform: "uppercase", marginBottom: "2rem" }}>
-        CANAL WHATSAPP · GASPARDNZ
-      </p>
+        <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(2.8rem, 12vw, 4rem)", fontWeight: 300, color: "#faf7f2", letterSpacing: "0.01em", lineHeight: 1.1, margin: "0 0 0.2rem" }}>
+          {t("comm_title_l1")}<br />{t("comm_title_l2")}
+        </h2>
 
-      <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(2.8rem, 12vw, 4rem)", fontWeight: 300, color: "#faf7f2", letterSpacing: "0.01em", lineHeight: 1.1, margin: "0 0 0.2rem" }}>
-        Rejoins la<br />Communauté
-      </h2>
+        <HeartbeatLine />
 
-      <HeartbeatLine />
+        <p style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: "italic", fontSize: "clamp(1rem, 4vw, 1.15rem)", color: "rgba(245,240,232,0.5)", lineHeight: 1.75, marginBottom: "2.4rem" }}>
+          {t("comm_desc")}
+        </p>
 
-      <p style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: "italic", fontSize: "clamp(1rem, 4vw, 1.15rem)", color: "rgba(245,240,232,0.5)", lineHeight: 1.75, marginBottom: "2.4rem" }}>
-        Nouveaux looks, arrivages exclusifs, coulisses : reçois tout en avant-première directement sur WhatsApp.
-      </p>
-
-      <div style={{ display: "inline-flex", alignItems: "center", gap: "12px", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "40px", padding: "0.85rem 1.4rem", marginBottom: "2.4rem" }}>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="#b8973e">
-          <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/>
-        </svg>
-        <div style={{ textAlign: "left" }}>
-          <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "8px", letterSpacing: "0.25em", color: "#faf7f2", textTransform: "uppercase", margin: 0, fontWeight: 600 }}>AVANTAGES EXCLUSIFS</p>
-          <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", color: "rgba(245,240,232,0.4)", letterSpacing: "0.1em", margin: "3px 0 0" }}>réservés aux membres de la communauté</p>
+        <div style={{ display: "inline-flex", alignItems: "center", gap: "12px", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "40px", padding: "0.85rem 1.4rem", marginBottom: "2.4rem" }}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="#b8973e">
+            <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/>
+          </svg>
+          <div style={{ textAlign: "left" }}>
+            <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "8px", letterSpacing: "0.25em", color: "#faf7f2", textTransform: "uppercase", margin: 0, fontWeight: 600 }}>{t("comm_badge_title")}</p>
+            <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", color: "rgba(245,240,232,0.4)", letterSpacing: "0.1em", margin: "3px 0 0" }}>{t("comm_badge_sub")}</p>
+          </div>
         </div>
-      </div>
 
-      <motion.a
-        href={WA_CHANNEL_URL}
-        target="_blank"
-        rel="noopener noreferrer"
-        whileTap={{ scale: 0.97 }}
-        style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "12px", background: "#25D366", color: "white", padding: "1.1rem 2rem", borderRadius: "50px", textDecoration: "none", fontFamily: "'Montserrat', sans-serif", fontSize: "9px", letterSpacing: "0.3em", textTransform: "uppercase", fontWeight: 700 }}>
-        <SvgWA />
-        REJOINDRE LE CANAL
-      </motion.a>
-    </motion.div>
-  </section>
-);
+        <motion.a
+          href={WA_CHANNEL_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          whileTap={{ scale: 0.97 }}
+          style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "12px", background: "#25D366", color: "white", padding: "1.1rem 2rem", borderRadius: "50px", textDecoration: "none", fontFamily: "'Montserrat', sans-serif", fontSize: "9px", letterSpacing: "0.3em", textTransform: "uppercase", fontWeight: 700 }}>
+          <SvgWA />
+          {t("comm_cta")}
+        </motion.a>
+      </motion.div>
+    </section>
+  );
+};
 
 export default CommunauteSection;
