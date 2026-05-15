@@ -3,6 +3,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { GOLD, CREAM } from "./constants.js";
 import { LangCtx } from "./context.jsx";
 
+import NotificationPrompt from "./components/NotificationPrompt.jsx";
+import { requestNotificationPermission } from "./services/notifications.js";
 import NavMobile from "./components/NavMobile.jsx";
 import HeroMobile from "./components/HeroMobile.jsx";
 import HeritageMobile from "./components/HeritageMobile.jsx";
@@ -84,6 +86,7 @@ const SplashScreen = ({ onDone }) => (
 
 export default function App() {
   const [splashDone, setSplashDone] = useState(false);
+  const [notifPrompt, setNotifPrompt] = useState(false);
   const [bookingOpen, setBookingOpen] = useState(false);
   const [boutiqueMode, setBoutiqueMode] = useState(false);
   const [highContrast, setHighContrast] = useState(false);
@@ -128,8 +131,26 @@ export default function App() {
     document.body.style.overflowX = "hidden";
   }, []);
 
+  useEffect(() => {
+    if (!splashDone) return;
+    const already = localStorage.getItem("gnz-notif-asked");
+    if (already) return;
+    const t = setTimeout(() => setNotifPrompt(true), 3500);
+    return () => clearTimeout(t);
+  }, [splashDone]);
+
   const scrollTo = (ref) => { ref?.current?.scrollIntoView({ behavior: "smooth", block: "start" }); };
   const openBooking = (boutique = false) => { setBoutiqueMode(boutique); setBookingOpen(true); };
+
+  const handleNotifAccept = async () => {
+    setNotifPrompt(false);
+    localStorage.setItem("gnz-notif-asked", "1");
+    await requestNotificationPermission();
+  };
+  const handleNotifDecline = () => {
+    setNotifPrompt(false);
+    localStorage.setItem("gnz-notif-asked", "1");
+  };
 
   return (
     <LangCtx.Provider value={{ lang, setLang }}>
@@ -195,6 +216,7 @@ export default function App() {
         <BookingModal isOpen={bookingOpen} onClose={() => setBookingOpen(false)} boutiqueMode={boutiqueMode} onSwitchToBooking={() => setBoutiqueMode(false)} />
         <ChatBot onReserver={() => openBooking(false)} onGalerie={() => scrollTo(galleryRef)} onShowroom={() => scrollTo(showroomRef)} onFormules={() => scrollTo(formulesRef)} />
       </div>
+      <NotificationPrompt visible={notifPrompt} onAccept={handleNotifAccept} onDecline={handleNotifDecline} />
     </LangCtx.Provider>
   );
 }
