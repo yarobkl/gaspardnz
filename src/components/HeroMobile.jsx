@@ -11,7 +11,7 @@ const HeroVideoLoop = () => {
   useEffect(() => {
     const v = ref.current;
     if (!v) return;
-    const play   = () => v.play().catch(() => {});
+    const play    = () => v.play().catch(() => {});
     const onPause = () => { if (!document.hidden) setTimeout(play, 300); };
     const onStall = () => setTimeout(play, 500);
     const onVis   = () => { if (!document.hidden) play(); };
@@ -20,8 +20,8 @@ const HeroVideoLoop = () => {
     v.addEventListener("loadeddata", play);
     v.addEventListener("pause",      onPause);
     v.addEventListener("stalled",    onStall);
-    document.addEventListener("touchstart",       play,  { once: true });
-    document.addEventListener("visibilitychange", onVis);
+    document.addEventListener("touchstart",        play,  { once: true });
+    document.addEventListener("visibilitychange",  onVis);
     return () => {
       v.removeEventListener("canplay",    play);
       v.removeEventListener("loadeddata", play);
@@ -69,24 +69,6 @@ const HeroMobile = ({ onScrollDown }) => {
       <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "100px", background: "linear-gradient(to bottom, transparent 0%, #f5f0e8 100%)", zIndex: 8, pointerEvents: "none" }} />
 
       <div style={{ position: "absolute", inset: 0, opacity: 0.03, backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`, backgroundSize: "200px" }} />
-
-      <motion.div
-        onClick={onScrollDown}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 2.5, duration: 1 }}
-        style={{ position: "absolute", bottom: "118px", left: 0, right: 0, zIndex: 10, display: "flex", flexDirection: "column", alignItems: "center", gap: "5px", cursor: "pointer", pointerEvents: "auto" }}>
-        <motion.span
-          animate={{ opacity: [0.5, 1, 0.5] }}
-          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-          style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.5em", color: "rgba(245,240,232,0.65)", textTransform: "uppercase" }}>Découvrir</motion.span>
-        <motion.svg
-          animate={{ y: [0, 6, 0] }}
-          transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
-          width="18" height="18" viewBox="0 0 18 18" fill="none">
-          <path d="M9 3v12M3.5 10l5.5 5.5 5.5-5.5" stroke="rgba(184,151,62,0.85)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-        </motion.svg>
-      </motion.div>
 
       <motion.div style={{ position: "relative", zIndex: 10, width: "100%", padding: "0 1.4rem 5.5rem", opacity }}>
         <motion.p
