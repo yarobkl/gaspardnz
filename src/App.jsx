@@ -65,22 +65,23 @@ const SplashScreen = ({ onDone }) => (
       </motion.p>
     </motion.div>
 
-    <div style={{ width: "140px", height: "1px", background: "rgba(184,151,62,0.15)", position: "relative", overflow: "hidden", zIndex: 1 }}>
-      <motion.div
-        initial={{ scaleX: 0 }}
-        animate={{ scaleX: 1 }}
-        transition={{ duration: 2.2, delay: 0.4, ease: [0.4, 0, 0.2, 1] }}
-        onAnimationComplete={onDone}
-        style={{ position: "absolute", inset: 0, background: `linear-gradient(90deg, ${GOLD}, #d4ae5a)`, transformOrigin: "left" }} />
+    <div style={{ position: "absolute", bottom: "3.5rem", left: 0, right: 0, zIndex: 1 }}>
+      <motion.p
+        initial={{ opacity: 0, y: 6 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 1.2, delay: 0.5 }}
+        style={{ fontFamily: "'Great Vibes', cursive", fontSize: "1.9rem", color: "rgba(245,240,232,0.75)", textAlign: "center", margin: "0 0 1rem" }}>
+        S'habiller autrement
+      </motion.p>
+      <div style={{ width: "100vw", height: "1px", background: "rgba(184,151,62,0.15)", position: "relative", overflow: "hidden" }}>
+        <motion.div
+          initial={{ scaleX: 0 }}
+          animate={{ scaleX: 1 }}
+          transition={{ duration: 2.2, delay: 0.4, ease: [0.4, 0, 0.2, 1] }}
+          onAnimationComplete={onDone}
+          style={{ position: "absolute", inset: 0, background: `linear-gradient(90deg, ${GOLD}, #d4ae5a)`, transformOrigin: "left" }} />
+      </div>
     </div>
-
-    <motion.p
-      initial={{ opacity: 0 }}
-      animate={{ opacity: [0, 0.45, 0.25, 0.45] }}
-      transition={{ duration: 2.4, delay: 0.6, times: [0, 0.3, 0.6, 1] }}
-      style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "6px", letterSpacing: "0.55em", color: "rgba(245,240,232,0.35)", textTransform: "uppercase", position: "relative", zIndex: 1 }}>
-      Chargement…
-    </motion.p>
   </motion.div>
 );
 
