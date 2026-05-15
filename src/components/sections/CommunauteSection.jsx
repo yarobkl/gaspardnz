@@ -87,7 +87,7 @@ const CommunauteSection = () => (
       <HeartbeatLine />
 
       <p style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: "italic", fontSize: "clamp(1rem, 4vw, 1.15rem)", color: "rgba(245,240,232,0.5)", lineHeight: 1.75, marginBottom: "2.4rem" }}>
-        Nouveaux looks, arrivages exclusifs, coulisses — reçois tout en avant-première directement sur WhatsApp.
+        Nouveaux looks, arrivages exclusifs, coulisses : reçois tout en avant-première directement sur WhatsApp.
       </p>
 
       <div style={{ display: "inline-flex", alignItems: "center", gap: "12px", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "40px", padding: "0.85rem 1.4rem", marginBottom: "2.4rem" }}>
