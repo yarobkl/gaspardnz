@@ -4,6 +4,7 @@ import { GOLD, CREAM } from "./constants.js";
 import { LangCtx } from "./context.jsx";
 
 import NotificationPrompt from "./components/NotificationPrompt.jsx";
+import CookieBanner from "./components/CookieBanner.jsx";
 import { requestNotificationPermission } from "./services/notifications.js";
 import NavMobile from "./components/NavMobile.jsx";
 import HeroMobile from "./components/HeroMobile.jsx";
@@ -217,6 +218,7 @@ export default function App() {
         <ChatBot onReserver={() => openBooking(false)} onGalerie={() => scrollTo(galleryRef)} onShowroom={() => scrollTo(showroomRef)} onFormules={() => scrollTo(formulesRef)} />
       </div>
       <NotificationPrompt visible={notifPrompt} onAccept={handleNotifAccept} onDecline={handleNotifDecline} />
+      <CookieBanner />
     </LangCtx.Provider>
   );
 }

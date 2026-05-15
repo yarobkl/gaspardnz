@@ -65,6 +65,7 @@ export const T = {
     notif_title_l1:"Bons plans", notif_title_l2:"en avant-première",
     notif_desc:"Pièces uniques, promotions exclusives et arrivages : reçois les alertes avant tout le monde.",
     notif_accept:"ACTIVER LES ALERTES", notif_decline:"Plus tard",
+    cookie_text:"Ce site utilise des cookies pour améliorer votre expérience. Conformément au RGPD, votre consentement est requis.", cookie_accept:"Accepter", cookie_decline:"Refuser",
   },
   EN: {
     nav_reveler:"Reveal Myself", nav_bio:"Biography", nav_showroom:"Showroom",
@@ -132,6 +133,7 @@ export const T = {
     notif_title_l1:"Deals", notif_title_l2:"ahead of everyone",
     notif_desc:"Unique pieces, exclusive promotions and arrivals: get alerts before anyone else.",
     notif_accept:"ENABLE ALERTS", notif_decline:"Later",
+    cookie_text:"This site uses cookies to improve your experience. In accordance with GDPR, your consent is required.", cookie_accept:"Accept", cookie_decline:"Decline",
   },
   ES: {
     nav_reveler:"Revelarme", nav_bio:"Biografía", nav_showroom:"Showroom",
@@ -199,6 +201,7 @@ export const T = {
     notif_title_l1:"Ofertas", notif_title_l2:"en primicia",
     notif_desc:"Piezas únicas, promociones exclusivas y llegadas: recibe alertas antes que nadie.",
     notif_accept:"ACTIVAR ALERTAS", notif_decline:"Más tarde",
+    cookie_text:"Este sitio utiliza cookies para mejorar tu experiencia. De acuerdo con el RGPD, se requiere tu consentimiento.", cookie_accept:"Aceptar", cookie_decline:"Rechazar",
   },
   ZH: {
     nav_reveler:"展现自我", nav_bio:"简介", nav_showroom:"展厅",
@@ -266,5 +269,6 @@ export const T = {
     notif_title_l1:"优惠", notif_title_l2:"抢先获取",
     notif_desc:"独家单品、专属优惠和新品上架：比所有人更早收到提醒。",
     notif_accept:"开启提醒", notif_decline:"稍后再说",
+    cookie_text:"本网站使用Cookie以提升您的体验。根据GDPR规定，需要您的同意。", cookie_accept:"接受", cookie_decline:"拒绝",
   },
 };
