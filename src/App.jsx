@@ -35,12 +35,12 @@ const SplashScreen = ({ onDone }) => (
     <motion.img
       src={_SPLASH_IMG}
       initial={{ opacity: 0, scale: 1.06 }}
-      animate={{ opacity: 1, scale: 1 }}
+      animate={{ opacity: 0.45, scale: 1 }}
       transition={{ duration: 2, ease: [0.16, 1, 0.3, 1] }}
       style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center top" }}
     />
     {/* Overlay sombre */}
-    <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(4,2,0,0.62) 0%, rgba(4,2,0,0.45) 40%, rgba(4,2,0,0.72) 100%)" }} />
+    <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(4,2,0,0.5) 0%, rgba(4,2,0,0.3) 40%, rgba(4,2,0,0.6) 100%)" }} />
 
     <motion.div
       initial={{ opacity: 0, y: 20 }}
