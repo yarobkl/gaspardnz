@@ -65,12 +65,12 @@ const SplashScreen = ({ onDone }) => (
       </motion.p>
     </motion.div>
 
-    <div style={{ position: "absolute", bottom: "3.5rem", left: 0, right: 0, zIndex: 1 }}>
+    <div style={{ position: "absolute", bottom: "0.8rem", left: 0, right: 0, zIndex: 1 }}>
       <motion.p
         initial={{ opacity: 0, y: 6 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 1.2, delay: 0.5 }}
-        style={{ fontFamily: "'Great Vibes', cursive", fontSize: "1.9rem", color: "rgba(245,240,232,0.75)", textAlign: "center", margin: "0 0 1rem" }}>
+        style={{ fontFamily: "'Dancing Script', cursive", fontWeight: 700, fontSize: "2.3rem", color: "rgba(245,240,232,0.92)", textAlign: "center", margin: "0 0 0.8rem", textShadow: "0 2px 20px rgba(0,0,0,0.8)" }}>
         S'habiller autrement
       </motion.p>
       <div style={{ width: "100vw", height: "1px", background: "rgba(184,151,62,0.15)", position: "relative", overflow: "hidden" }}>
