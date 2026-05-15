@@ -71,7 +71,7 @@ const VIPClientsSection = () => {
   const B = import.meta.env.BASE_URL;
   const clients = [
     { initials: "R.B", name: "Rodrin Bakala Mouengue", city: "Paris", event: "Mariage", gradient: "linear-gradient(135deg,#1e3a5f,#2d6a9f)", photo: `${B}images/rodrin-bakala.jpg.JPG`,
-      album: [`${B}images/rodrin-bakala.jpg.JPG`, `${B}images/rodrin-mariage-1.jpg`, `${B}images/rodrin-mariage-2.jpg`, `${B}images/rodrin-mariage-3.jpg`, `${B}images/rodrin-mariage-4.jpg`, `${B}images/rodrin-mariage-5.jpg`] },
+      album: [`${B}images/rodrin-bakala.jpg.JPG`, `${B}images/rodrin-w1.jpg`, `${B}images/rodrin-w2.jpg`, `${B}images/rodrin-w3.jpg`, `${B}images/rodrin-w4.jpg`, `${B}images/rodrin-w5.jpg`] },
     { initials: "C.M", name: "Cédric M.", city: "Monaco", event: "Gala de prestige", gradient: "linear-gradient(135deg,#4a1942,#8b2fc9)" },
     { initials: "Y.B", name: "Yannick B.", city: "Lyon", event: "Soirée VIP", gradient: "linear-gradient(135deg,#1a3a1a,#2d6b2d)" },
     { initials: "A.N", name: "Alexis N.", city: "Dubaï", event: "Business meeting", gradient: "linear-gradient(135deg,#3d1a00,#8b3d00)" },
