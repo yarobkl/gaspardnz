@@ -26,15 +26,16 @@ const AlbumModal = ({ photos, name, onClose }) => {
 
       <motion.div onClick={e => e.stopPropagation()} style={{ position: "relative", width: "90vw", maxWidth: "420px", zIndex: 1 }}>
         <AnimatePresence mode="wait">
-          <motion.img
-            key={idx}
-            src={photos[idx]}
-            initial={{ opacity: 0, scale: 0.96 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.96 }}
-            transition={{ duration: 0.3 }}
-            style={{ width: "100%", borderRadius: "12px", objectFit: "cover", maxHeight: "70vh", display: "block" }}
-          />
+          <motion.div key={idx} initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.96 }} transition={{ duration: 0.3 }} style={{ position: "relative" }}>
+            <img
+              src={photos[idx]}
+              style={{ width: "100%", borderRadius: "12px", objectFit: "cover", maxHeight: "70vh", display: "block" }}
+            />
+            <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, borderRadius: "0 0 12px 12px", background: "linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 100%)", padding: "1.4rem 1rem 0.8rem", display: "flex", alignItems: "flex-end", justifyContent: "space-between" }}>
+              <p style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: "italic", fontWeight: 300, fontSize: "0.78rem", color: "rgba(245,240,232,0.6)", letterSpacing: "0.04em" }}>Habillé par</p>
+              <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.1rem", letterSpacing: "0.12em", color: GOLD }}>GASPARDNZ</p>
+            </div>
+          </motion.div>
         </AnimatePresence>
 
         {photos.length > 1 && (
