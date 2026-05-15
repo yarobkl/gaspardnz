@@ -5,6 +5,7 @@ import { LangCtx } from "./context.jsx";
 
 import NotificationPrompt from "./components/NotificationPrompt.jsx";
 import CookieBanner from "./components/CookieBanner.jsx";
+import { initGAIfConsented } from "./services/analytics.js";
 import { requestNotificationPermission } from "./services/notifications.js";
 import NavMobile from "./components/NavMobile.jsx";
 import HeroMobile from "./components/HeroMobile.jsx";
@@ -130,6 +131,7 @@ export default function App() {
     document.body.style.background = "#0a0602";
     document.body.style.margin = "0";
     document.body.style.overflowX = "hidden";
+    initGAIfConsented();
   }, []);
 
   useEffect(() => {

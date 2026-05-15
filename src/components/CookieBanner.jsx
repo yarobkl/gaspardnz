@@ -2,6 +2,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { GOLD } from "../constants.js";
 import { useTr } from "../context.jsx";
+import { initGA } from "../services/analytics.js";
 
 const CookieBanner = () => {
   const t = useTr();
@@ -9,6 +10,7 @@ const CookieBanner = () => {
 
   const handle = (v) => {
     localStorage.setItem("gnz-cookies", v);
+    if (v === "accepted") initGA();
     setVisible(false);
   };
 
