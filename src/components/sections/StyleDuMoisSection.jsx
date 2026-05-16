@@ -51,7 +51,7 @@ const StyleDuMoisSection = ({ refEl }) => {
                           <button
                             onClick={() => window.open(`${WA_GNZ}?text=${encodeURIComponent(`Bonjour Gaspard, je suis intéressé(e) par : ${spot.label}`)}`, "_blank")}
                             style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "6.5px", letterSpacing: "0.18em", color: GOLD, textTransform: "uppercase", background: "rgba(184,151,62,0.1)", border: `1px solid rgba(184,151,62,0.3)`, borderRadius: "20px", padding: "4px 8px", cursor: "pointer", width: "100%" }}>
-                            Demander le prix →
+                            Demander la disponibilité →
                           </button>
                         </motion.div>
                       )}
