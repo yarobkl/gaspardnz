@@ -37,21 +37,20 @@ const StyleDuMoisSection = ({ refEl }) => {
                   <div key={si} style={{ position: "absolute", left: `${spot.x}%`, top: `${spot.y}%`, transform: "translate(-50%,-50%)", zIndex: 2 }}>
                     <button
                       onClick={e => { e.stopPropagation(); setActiveSpot(activeSpot === `${i}-${si}` ? null : `${i}-${si}`); }}
-                      style={{ width: "28px", height: "28px", borderRadius: "50%", background: "rgba(184,151,62,0.25)", border: `1.5px solid ${GOLD}`, backdropFilter: "blur(4px)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", padding: 0 }}>
-                      <div style={{ width: "7px", height: "7px", borderRadius: "50%", background: GOLD }} />
+                      style={{ width: "20px", height: "20px", borderRadius: "50%", background: "rgba(184,151,62,0.2)", border: `1px solid ${GOLD}`, backdropFilter: "blur(4px)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", padding: 0 }}>
+                      <div style={{ width: "5px", height: "5px", borderRadius: "50%", background: GOLD }} />
                     </button>
                     <AnimatePresence>
                       {activeSpot === `${i}-${si}` && (
                         <motion.div
-                          initial={{ opacity: 0, y: 6, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
-                          transition={{ duration: 0.2 }}
+                          initial={{ opacity: 0, scale: 0.92 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.92 }}
+                          transition={{ duration: 0.15 }}
                           onClick={e => e.stopPropagation()}
-                          style={{ position: "absolute", left: spot.x > 60 ? "auto" : "36px", right: spot.x > 60 ? "36px" : "auto", top: "-10px", width: "180px", background: "rgba(12,10,6,0.97)", border: `1px solid rgba(184,151,62,0.4)`, borderRadius: "10px", padding: "10px 12px", zIndex: 10 }}>
-                          <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "8px", letterSpacing: "0.12em", color: GOLD, textTransform: "uppercase", marginBottom: "5px" }}>{spot.label}</p>
-                          <p style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: "italic", fontSize: "0.75rem", color: "rgba(245,240,232,0.7)", lineHeight: 1.4, marginBottom: "8px" }}>{spot.detail}</p>
+                          style={{ position: "absolute", left: spot.x > 55 ? "auto" : "26px", right: spot.x > 55 ? "26px" : "auto", top: spot.y > 60 ? "auto" : "26px", bottom: spot.y > 60 ? "26px" : "auto", width: "150px", background: "rgba(10,8,4,0.95)", border: `1px solid rgba(184,151,62,0.35)`, borderRadius: "8px", padding: "8px 10px", zIndex: 10 }}>
+                          <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7.5px", letterSpacing: "0.1em", color: GOLD, textTransform: "uppercase", marginBottom: "6px", lineHeight: 1.3 }}>{spot.label}</p>
                           <button
                             onClick={() => window.open(`${WA_GNZ}?text=${encodeURIComponent(`Bonjour Gaspard, je suis intéressé(e) par : ${spot.label}`)}`, "_blank")}
-                            style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.2em", color: GOLD, textTransform: "uppercase", background: "rgba(184,151,62,0.1)", border: `1px solid rgba(184,151,62,0.35)`, borderRadius: "20px", padding: "5px 10px", cursor: "pointer", width: "100%" }}>
+                            style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "6.5px", letterSpacing: "0.18em", color: GOLD, textTransform: "uppercase", background: "rgba(184,151,62,0.1)", border: `1px solid rgba(184,151,62,0.3)`, borderRadius: "20px", padding: "4px 8px", cursor: "pointer", width: "100%" }}>
                             Demander le prix →
                           </button>
                         </motion.div>
