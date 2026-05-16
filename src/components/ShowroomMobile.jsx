@@ -6,10 +6,11 @@ import { SvgArrow } from "../icons.jsx";
 
 const DecontracteAlbum = ({ onClick }) => {
   const [cur, setCur] = useState(0);
+  const B = import.meta.env.BASE_URL;
   const photos = [
-    { src: "/images/decontracte/look-jaune.jpg", label: "Style estival" },
-    { src: "/images/decontracte/look-navy.jpg", label: "Casual chic" },
-    { src: "/images/decontracte/showroom.jpg", label: "Au showroom GNZ" },
+    { src: `${B}images/decontracte/look-jaune.jpg`, label: "Style estival" },
+    { src: `${B}images/decontracte/look-navy.jpg`, label: "Casual chic" },
+    { src: `${B}images/decontracte/showroom.jpg`, label: "Au showroom GNZ" },
   ];
   useEffect(() => {
     const id = setInterval(() => setCur(c => (c + 1) % photos.length), 4000);

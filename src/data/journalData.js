@@ -1,6 +1,8 @@
+const B = import.meta.env.BASE_URL;
+
 export const styleJournalPhotos = [
   {
-    src: "/images/stylejournal/paris-cafe-1.jpg",
+    src: `${B}images/stylejournal/paris-cafe-1.jpg`,
     caption: "Paris · Terrasse Dior",
     look: "Veste cargo noir · Pantalon tailleur · Mocassins à glands",
     dots: [
@@ -10,7 +12,7 @@ export const styleJournalPhotos = [
     ],
   },
   {
-    src: "/images/stylejournal/paris-cafe-2.jpg",
+    src: `${B}images/stylejournal/paris-cafe-2.jpg`,
     caption: "Paris · Bar Cocktails",
     look: "Total look noir · Lunettes fumées · Cuir verni",
     dots: [
@@ -20,7 +22,7 @@ export const styleJournalPhotos = [
     ],
   },
   {
-    src: "/images/stylejournal/detail-chaussures.jpg",
+    src: `${B}images/stylejournal/detail-chaussures.jpg`,
     caption: "Le détail fait la différence",
     look: "Mocassins · Chaussettes monogrammées · Montre · Chevalière dorée",
     dots: [
@@ -31,7 +33,7 @@ export const styleJournalPhotos = [
     ],
   },
   {
-    src: "/images/stylejournal/costume-navy.jpg",
+    src: `${B}images/stylejournal/costume-navy.jpg`,
     caption: "Paris · Studio",
     look: "Costume double boutonnage navy · Cravate bordeaux · Chapeau fedora · Richelieu noirs",
     dots: [

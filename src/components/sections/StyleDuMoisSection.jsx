@@ -1,16 +1,17 @@
-import { useRef } from "react";
-import { motion, useInView } from "framer-motion";
+import { useRef, useState } from "react";
+import { motion, useInView, AnimatePresence } from "framer-motion";
 import { GOLD } from "../../constants.js";
-import { STYLE_DU_MOIS, WA_GNZ, WA_CHANNEL_URL } from "../../data/styleDuMoisData.js";
+import { STYLE_DU_MOIS, WA_GNZ } from "../../data/styleDuMoisData.js";
 
-const StyleDuMoisSection = () => {
+const StyleDuMoisSection = ({ refEl }) => {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-8% 0px" });
+  const [activeSpot, setActiveSpot] = useState(null);
 
   if (!STYLE_DU_MOIS || STYLE_DU_MOIS.length === 0) return null;
 
   return (
-    <section ref={ref} style={{ background: "#0a0602", padding: "4.5rem 0 5rem" }}>
+    <section ref={node => { ref.current = node; if (refEl) refEl.current = node; }} style={{ background: "#0a0602", padding: "4.5rem 0 5rem" }}>
       <motion.div
         initial={{ opacity: 0, y: 16 }} animate={inView ? { opacity: 1, y: 0 } : {}}
         transition={{ duration: 0.7 }}
@@ -28,7 +29,36 @@ const StyleDuMoisSection = () => {
             transition={{ duration: 0.7, delay: i * 0.08, ease: [0.16, 1, 0.3, 1] }}
             style={{ background: "#111009", borderRadius: "16px", overflow: "hidden", border: "1px solid rgba(184,151,62,0.15)" }}>
             {item.src && (
-              <img src={item.src} alt={item.title || "Style du mois"} style={{ width: "100%", aspectRatio: "4/3", objectFit: "cover", objectPosition: "top", display: "block" }} />
+              <div style={{ position: "relative", width: "100%", aspectRatio: "4/3" }}
+                onClick={() => setActiveSpot(null)}>
+                <img src={item.src} alt={item.title || "Style du mois"}
+                  style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top", display: "block" }} />
+                {(item.spots || []).map((spot, si) => (
+                  <div key={si} style={{ position: "absolute", left: `${spot.x}%`, top: `${spot.y}%`, transform: "translate(-50%,-50%)", zIndex: 2 }}>
+                    <button
+                      onClick={e => { e.stopPropagation(); setActiveSpot(activeSpot === `${i}-${si}` ? null : `${i}-${si}`); }}
+                      style={{ width: "20px", height: "20px", borderRadius: "50%", background: "rgba(184,151,62,0.2)", border: `1px solid ${GOLD}`, backdropFilter: "blur(4px)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", padding: 0 }}>
+                      <div style={{ width: "5px", height: "5px", borderRadius: "50%", background: GOLD }} />
+                    </button>
+                    <AnimatePresence>
+                      {activeSpot === `${i}-${si}` && (
+                        <motion.div
+                          initial={{ opacity: 0, scale: 0.92 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.92 }}
+                          transition={{ duration: 0.15 }}
+                          onClick={e => e.stopPropagation()}
+                          style={{ position: "absolute", left: spot.x > 55 ? "auto" : "26px", right: spot.x > 55 ? "26px" : "auto", top: spot.y > 60 ? "auto" : "26px", bottom: spot.y > 60 ? "26px" : "auto", width: "150px", background: "rgba(10,8,4,0.95)", border: `1px solid rgba(184,151,62,0.35)`, borderRadius: "8px", padding: "8px 10px", zIndex: 10 }}>
+                          <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7.5px", letterSpacing: "0.1em", color: GOLD, textTransform: "uppercase", marginBottom: "6px", lineHeight: 1.3 }}>{spot.label}</p>
+                          <button
+                            onClick={() => window.open(`${WA_GNZ}?text=${encodeURIComponent(`Bonjour Gaspard, je suis intéressé(e) par : ${spot.label}`)}`, "_blank")}
+                            style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "6.5px", letterSpacing: "0.18em", color: GOLD, textTransform: "uppercase", background: "rgba(184,151,62,0.1)", border: `1px solid rgba(184,151,62,0.3)`, borderRadius: "20px", padding: "4px 8px", cursor: "pointer", width: "100%" }}>
+                            Demander la disponibilité →
+                          </button>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                ))}
+              </div>
             )}
             <div style={{ padding: "1.2rem" }}>
               {item.title && <h3 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.5rem", letterSpacing: "0.06em", color: "#faf7f2", margin: "0 0 0.6rem" }}>{item.title}</h3>}
