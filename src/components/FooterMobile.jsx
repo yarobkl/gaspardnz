@@ -46,7 +46,6 @@ const FooterMobile = ({ onFormules, onGalerie, onShowroom }) => {
             [SvgInstagram, "https://www.instagram.com/gaspardnz_?igsh=YWgzb3Jua2NkeDdq"],
             [SvgTiktok, "https://www.tiktok.com/@gaspardnz?_r=1&_t=ZS-95wB65ZWhvB"],
             [SvgYoutube, "https://youtube.com/@gaspardnz?si=s4saxiuv7rt9iUmT"],
-            [SvgWhatsapp, `https://wa.me/${WA_NUM}`],
           ].map(([Icon, href], i) => (
             <motion.a key={i} href={href} target="_blank" rel="noopener noreferrer"
               whileTap={{ scale: 0.88 }}
