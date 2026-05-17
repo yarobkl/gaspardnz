@@ -5,7 +5,7 @@ import { GOLD } from "../constants.js";
 const EDITEUR = "BAKALA MOUENGUE RODRIN ELIEZER";
 const OWNER = "NZAOU KIMPOLO GASPARD";
 const SIRET = "803 422 294 00022";
-const ADRESSE = "France (disponible sur demande)";
+const ADRESSE = "19, Rue des Myrtes, 91540 Ormoy, France";
 const EMAIL = "gaspardnz.contact@gmail.com";
 const TEL = "06 64 82 69 20";
 const SITE = "https://gaspardnz.vercel.app";
@@ -48,7 +48,7 @@ function MentionsLegales() {
           Entrepreneur Individuel (auto-entrepreneur)<br />
           SIRET : {SIRET}<br />
           Activité : Vente à distance sur catalogue général (code APE 4791A)<br />
-          Adresse : disponible sur demande à {EMAIL}<br />
+          Adresse : {ADRESSE}<br />
           Téléphone : {TEL}<br />
           Email : {EMAIL}<br />
           TVA non applicable — article 293 B du CGI (franchise en base)
