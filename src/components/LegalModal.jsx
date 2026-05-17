@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { GOLD } from "../constants.js";
 
+const EDITEUR = "BAKALA MOUENGUE RODRIN ELIEZER";
 const OWNER = "NZAOU KIMPOLO GASPARD";
 const SIRET = "803 422 294 00022";
 const ADRESSE = "19, Rue des Myrtes, 91540 Ormoy, France";
@@ -34,6 +35,15 @@ function MentionsLegales() {
     <>
       <Block title="Éditeur du site">
         <P>Le site {SITE} est édité par :</P>
+        <P><strong style={{ color: "#faf7f2" }}>{EDITEUR}</strong><br />
+          Propriétaire et gestionnaire du site Gaspardnz<br />
+          Email : {EMAIL}
+        </P>
+      </Block>
+
+      <div style={s.divider} />
+
+      <Block title="Activité représentée">
         <P><strong style={{ color: "#faf7f2" }}>{OWNER}</strong><br />
           Entrepreneur Individuel (auto-entrepreneur)<br />
           SIRET : {SIRET}<br />
