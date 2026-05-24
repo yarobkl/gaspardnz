@@ -1,8 +1,10 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, useInView, useMotionValue, animate, AnimatePresence } from "framer-motion";
 import { GOLD } from "../../constants.js";
+import { useTr } from "../../context.jsx";
 
 const AlbumModal = ({ photos, name, onClose }) => {
+  const t = useTr();
   const [idx, setIdx] = useState(0);
   useEffect(() => {
     const onKey = (e) => {
@@ -32,7 +34,7 @@ const AlbumModal = ({ photos, name, onClose }) => {
               style={{ width: "100%", borderRadius: "12px", objectFit: "cover", maxHeight: "70vh", display: "block" }}
             />
             <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, borderRadius: "0 0 12px 12px", background: "linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 100%)", padding: "1.4rem 1rem 0.8rem", display: "flex", alignItems: "flex-end", justifyContent: "space-between" }}>
-              <p style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: "italic", fontWeight: 300, fontSize: "0.78rem", color: "rgba(245,240,232,0.6)", letterSpacing: "0.04em" }}>Habillé par</p>
+              <p style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: "italic", fontWeight: 300, fontSize: "0.78rem", color: "rgba(245,240,232,0.6)", letterSpacing: "0.04em" }}>{t("dressed_by")}</p>
               <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.1rem", letterSpacing: "0.12em", color: GOLD }}>GASPARDNZ</p>
             </div>
           </motion.div>
@@ -61,6 +63,7 @@ const AlbumModal = ({ photos, name, onClose }) => {
 };
 
 const VIPClientsSection = () => {
+  const t = useTr();
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-6% 0px" });
   const [cur, setCur] = useState(0);
@@ -70,13 +73,13 @@ const VIPClientsSection = () => {
   useEffect(() => { curRef.current = cur; });
   const B = import.meta.env.BASE_URL;
   const clients = [
-    { initials: "R.B", name: "Rodrin Bakala Mouengue", city: "Paris", event: "Mariage", gradient: "linear-gradient(135deg,#1e3a5f,#2d6a9f)", photo: `${B}images/rodrin-bakala.jpg.JPG`,
+    { initials: "R.B", name: "Rodrin Bakala Mouengue", city: "Paris", event: t("event_wedding"), gradient: "linear-gradient(135deg,#1e3a5f,#2d6a9f)", photo: `${B}images/rodrin-bakala.jpg.JPG`,
       album: [`${B}images/rodrin-bakala.jpg.JPG`, `${B}images/rodrin-w1.jpg`, `${B}images/rodrin-w2.jpg`, `${B}images/rodrin-w3.jpg`, `${B}images/rodrin-w4.jpg`, `${B}images/rodrin-w5.jpg`] },
-    { initials: "C.M", name: "Cédric M.", city: "Monaco", event: "Gala de prestige", gradient: "linear-gradient(135deg,#4a1942,#8b2fc9)" },
-    { initials: "Y.B", name: "Yannick B.", city: "Lyon", event: "Soirée VIP", gradient: "linear-gradient(135deg,#1a3a1a,#2d6b2d)" },
-    { initials: "A.N", name: "Alexis N.", city: "Dubaï", event: "Business meeting", gradient: "linear-gradient(135deg,#3d1a00,#8b3d00)" },
-    { initials: "D.K", name: "Diarietou K.", city: "Abidjan", event: "Cérémonie", gradient: "linear-gradient(135deg,#1a1a3d,#3d3d8b)" },
-    { initials: "T.R", name: "Théo R.", city: "Paris", event: "Shooting pro", gradient: "linear-gradient(135deg,#3d001a,#8b0030)" },
+    { initials: "C.M", name: "Cédric M.", city: "Monaco", event: t("event_prestige_gala"), gradient: "linear-gradient(135deg,#4a1942,#8b2fc9)" },
+    { initials: "Y.B", name: "Yannick B.", city: "Lyon", event: t("event_vip_evening"), gradient: "linear-gradient(135deg,#1a3a1a,#2d6b2d)" },
+    { initials: "A.N", name: "Alexis N.", city: "Dubaï", event: t("event_business"), gradient: "linear-gradient(135deg,#3d1a00,#8b3d00)" },
+    { initials: "D.K", name: "Diarietou K.", city: "Abidjan", event: t("event_ceremony"), gradient: "linear-gradient(135deg,#1a1a3d,#3d3d8b)" },
+    { initials: "T.R", name: "Théo R.", city: "Paris", event: t("event_shooting"), gradient: "linear-gradient(135deg,#3d001a,#8b0030)" },
   ];
   const CARD_W = 68;
   const getX = (idx) => ((100 - CARD_W) / 2 - idx * CARD_W) * vw;
@@ -104,8 +107,8 @@ const VIPClientsSection = () => {
       <motion.div initial={{ opacity: 0, y: 20 }} animate={inView ? { opacity: 1, y: 0 } : {}}
         transition={{ duration: 0.7 }}
         style={{ textAlign: "center", marginBottom: "2.4rem", padding: "0 1.4rem" }}>
-        <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.55em", color: GOLD, textTransform: "uppercase", marginBottom: "10px" }}>GALERIE EXCLUSIVE</p>
-        <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "28px", fontWeight: 300, color: "#faf7f2", letterSpacing: "0.02em", lineHeight: 1.2 }}>Ils ont fait confiance<br/>à Gaspardnz</p>
+        <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.55em", color: GOLD, textTransform: "uppercase", marginBottom: "10px" }}>{t("exclusive_gallery")}</p>
+        <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "28px", fontWeight: 300, color: "#faf7f2", letterSpacing: "0.02em", lineHeight: 1.2, whiteSpace: "pre-line" }}>{t("trusted_title")}</p>
       </motion.div>
 
       <div style={{ position: "relative", overflow: "hidden", cursor: "grab" }}>
@@ -147,7 +150,7 @@ const VIPClientsSection = () => {
                   <div style={{ position: "absolute", bottom: "12px", zIndex: 1, textAlign: "center" }}>
                     <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "9px", letterSpacing: "0.15em", color: isActive ? "rgba(250,247,242,0.7)" : "rgba(250,247,242,0.4)", textTransform: "uppercase", transition: "color 0.4s" }}>{c.event}</p>
                     {isActive && c.album && (
-                      <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.2em", color: GOLD, textTransform: "uppercase", marginTop: "4px" }}>Voir l'album →</p>
+                      <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.2em", color: GOLD, textTransform: "uppercase", marginTop: "4px" }}>{t("view_album")}</p>
                     )}
                   </div>
                 </div>
@@ -160,7 +163,7 @@ const VIPClientsSection = () => {
                       onPointerUp={e => { e.stopPropagation(); setAlbum({ photos: c.album, name: c.name }); }}
                       whileTap={{ scale: 0.95 }}
                       style={{ marginTop: "10px", display: "flex", alignItems: "center", gap: "8px", background: "rgba(184,151,62,0.12)", border: `1px solid rgba(184,151,62,0.45)`, borderRadius: "30px", padding: "0.5rem 1rem", cursor: "pointer", fontFamily: "'Montserrat', sans-serif", fontSize: "8px", letterSpacing: "0.3em", color: GOLD, textTransform: "uppercase" }}>
-                      <span>◻</span> Voir l'album
+                      <span>◻</span> {t("vip_album")}
                     </motion.button>
                   )}
                 </motion.div>
@@ -179,10 +182,10 @@ const VIPClientsSection = () => {
 
       <motion.div initial={{ opacity: 0 }} animate={inView ? { opacity: 1 } : {}} transition={{ delay: 0.7 }}
         style={{ textAlign: "center", marginTop: "2.4rem", padding: "0 1.4rem" }}>
-        <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "9px", color: "rgba(250,247,242,0.3)", letterSpacing: "0.08em" }}>Vous souhaitez apparaître dans cette galerie ?</p>
-        <motion.button whileTap={{ scale: 0.97 }} onClick={() => window.open(`https://wa.me/33664826920?text=${encodeURIComponent("Bonjour Gaspard, je souhaite être habillé(e) par vous et apparaître dans votre galerie VIP.")}`, "_blank")}
+        <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "9px", color: "rgba(250,247,242,0.3)", letterSpacing: "0.08em" }}>{t("vip_question")}</p>
+        <motion.button whileTap={{ scale: 0.97 }} onClick={() => window.open(`https://wa.me/33664826920?text=${encodeURIComponent(t("vip_question"))}`, "_blank")}
           style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "9.5px", letterSpacing: "0.2em", color: GOLD, textTransform: "uppercase", background: "none", border: "none", cursor: "pointer", borderBottom: `1px solid rgba(184,151,62,0.4)`, paddingBottom: "2px", marginTop: "8px" }}>
-          Contactez Gaspardnz
+          {t("vip_contact")}
         </motion.button>
       </motion.div>
     </section>

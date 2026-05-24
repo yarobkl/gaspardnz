@@ -1,11 +1,13 @@
-import { useState, useEffect, useRef } from "react";
+import { useContext, useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { GOLD, TEXT } from "../constants.js";
-import { useTr } from "../context.jsx";
-import { STL_SPOTS, WA_STL } from "../data/galleryData.js";
+import { LangCtx, useTr } from "../context.jsx";
+import { getGallerySpots, WA_STL } from "../data/galleryData.js";
 
 const GalleryMobile = ({ refEl }) => {
   const t = useTr();
+  const { lang } = useContext(LangCtx);
+  const gallerySpots = getGallerySpots(lang);
   const baseItems = [
     { src: `${import.meta.env.BASE_URL}images/costume-creme.jpg`, label: t("gal_1") },
     { src: `${import.meta.env.BASE_URL}images/elegance-blanche.jpg`, label: t("gal_2") },
@@ -23,7 +25,7 @@ const GalleryMobile = ({ refEl }) => {
     { src: `${import.meta.env.BASE_URL}images/veste-navy-soiree.jpg`, label: t("gal_14") },
     { src: `${import.meta.env.BASE_URL}images/costume-carreaux-rose.jpg`, label: t("gal_15") },
   ];
-  const items = baseItems.map((it, i) => ({ ...it, hotspots: STL_SPOTS[i] || [] }));
+  const items = baseItems.map((it, i) => ({ ...it, hotspots: gallerySpots[i] || [] }));
 
   const n = items.length;
   const [cur, setCur] = useState(0);
@@ -54,16 +56,26 @@ const GalleryMobile = ({ refEl }) => {
 
   const handleWA = () => {
     if (!curSpot || !curItem) return;
-    const msg = encodeURIComponent(
-      `Bonjour Gaspard ! J'ai découvert votre look "${curItem.label}" sur gaspardnz.com et je suis très intéressé(e) par "${curSpot.label}" — ${curSpot.detail}. Pourriez-vous me donner plus d'informations et le tarif pour une création sur-mesure ? Merci 🙏`
-    );
+    const messages = {
+      FR: `Bonjour Gaspard ! J'ai découvert votre look "${curItem.label}" sur gaspardnz.com et je suis très intéressé(e) par "${curSpot.label}" — ${curSpot.detail}. Pourriez-vous me donner plus d'informations et le tarif pour une création sur-mesure ? Merci`,
+      EN: `Hello Gaspard! I discovered your look "${curItem.label}" on gaspardnz.com and I am very interested in "${curSpot.label}" — ${curSpot.detail}. Could you send me more information and the price for a bespoke creation? Thank you`,
+      ES: `Hola Gaspard. Descubrí tu look "${curItem.label}" en gaspardnz.com y me interesa mucho "${curSpot.label}" — ${curSpot.detail}. ¿Podrías enviarme más información y el precio para una creación a medida? Gracias`,
+      ZH: `你好 Gaspard！我在 gaspardnz.com 看到了造型「${curItem.label}」，我对「${curSpot.label}」很感兴趣 — ${curSpot.detail}。可以告诉我更多信息和定制价格吗？谢谢`,
+    };
+    const msg = encodeURIComponent(messages[lang] || messages.FR);
     window.open(`https://wa.me/${WA_STL}?text=${msg}`, "_blank");
   };
 
   const handleShare = async (network) => {
     const siteUrl = "https://gaspardnz.style";
     const lookName = curItem?.label ?? "Gaspardnz";
-    const shareText = `✨ Look "${lookName}" — Gaspardnz, styliste parisien`;
+    const shareTextByLang = {
+      FR: `Look "${lookName}" — Gaspardnz, styliste parisien`,
+      EN: `Look "${lookName}" — Gaspardnz, Parisian stylist`,
+      ES: `Look "${lookName}" — Gaspardnz, estilista parisino`,
+      ZH: `造型「${lookName}」— Gaspardnz，巴黎造型师`,
+    };
+    const shareText = shareTextByLang[lang] || shareTextByLang.FR;
     if (network === "native") {
       try { await navigator.share({ title: lookName, text: shareText, url: siteUrl }); } catch {}
       return;
@@ -140,12 +152,12 @@ const GalleryMobile = ({ refEl }) => {
           ))}
         </div>
 
-        <button onClick={() => { go(-1); resetTimer(); }}
+        <button aria-label={t("previous_photo")} onClick={() => { go(-1); resetTimer(); }}
           style={{ position: "absolute", left: "0.8rem", top: "50%", transform: "translateY(-50%)", background: "rgba(255,255,255,0.18)", border: "none", borderRadius: "50%", width: "36px", height: "36px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", backdropFilter: "blur(4px)", WebkitBackdropFilter: "blur(4px)" }}>
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 3L5 8l5 5" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
         </button>
 
-        <button onClick={() => { go(1); resetTimer(); }}
+        <button aria-label={t("next_photo")} onClick={() => { go(1); resetTimer(); }}
           style={{ position: "absolute", right: "0.8rem", top: "50%", transform: "translateY(-50%)", background: "rgba(255,255,255,0.18)", border: "none", borderRadius: "50%", width: "36px", height: "36px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", backdropFilter: "blur(4px)", WebkitBackdropFilter: "blur(4px)" }}>
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 3l5 5-5 5" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
         </button>
@@ -195,7 +207,7 @@ const GalleryMobile = ({ refEl }) => {
                   <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "6.5px", letterSpacing: "0.55em", color: GOLD, textTransform: "uppercase", marginBottom: "5px" }}>{t("shop_the_look")}</p>
                   <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "22px", fontWeight: 300, color: TEXT, letterSpacing: "0.02em" }}>{curItem.label}</p>
                 </div>
-                <button onClick={() => setActiveSpot(null)} style={{ background: "none", border: "none", padding: "4px", cursor: "pointer", color: "rgba(28,18,8,0.45)", fontSize: "18px", lineHeight: 1, marginTop: "2px" }}>&times;</button>
+                <button aria-label={t("close")} onClick={() => setActiveSpot(null)} style={{ background: "none", border: "none", padding: "4px", cursor: "pointer", color: "rgba(28,18,8,0.45)", fontSize: "18px", lineHeight: 1, marginTop: "2px" }}>&times;</button>
               </div>
 
               <div style={{ padding: "1.2rem 1.4rem" }}>

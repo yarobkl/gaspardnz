@@ -29,7 +29,7 @@ const HeritageMobile = ({ refEl }) => {
           style={{ position: "absolute", top: "1.4rem", left: "1.4rem", display: "flex", alignItems: "center", gap: "8px" }}
         >
           <div style={{ width: "20px", height: "1px", background: GOLD }} />
-          <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.45em", color: GOLD, textTransform: "uppercase" }}>L'Inspirateur</p>
+          <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.45em", color: GOLD, textTransform: "uppercase" }}>{t("inspirateur")}</p>
         </motion.div>
       </motion.div>
 

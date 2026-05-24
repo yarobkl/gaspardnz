@@ -94,3 +94,82 @@ export const STL_SPOTS = [
     { x:50, y:89, label:"Chaussures — Oxford marron foncé", detail:"Oxford cuir marron foncé full brogue, semelle Goodyear, chaussettes grises fines" },
   ],
 ];
+
+const REPLACE = {
+  EN: [
+    ["Chapeau", "Hat"], ["Haut", "Upper piece"], ["Bas", "Lower piece"], ["Pochette", "Pocket square"],
+    ["Chaussures", "Shoes"], ["Cravate", "Tie"], ["Fedora", "Fedora"], ["large bord", "wide brim"],
+    ["bord médium", "medium brim"], ["bord court", "short brim"], ["crème", "cream"], ["noir", "black"],
+    ["noirs", "black"], ["noire", "black"], ["orange vif", "bright orange"], ["orange", "orange"],
+    ["blanche", "white"], ["blanc", "white"], ["bleue", "blue"], ["bleu", "blue"], ["navy", "navy"],
+    ["bordeaux", "burgundy"], ["doré", "gold"], ["dorée", "gold"], ["dorés", "gold"], ["marron", "brown"],
+    ["caramel", "caramel"], ["taupe", "taupe"], ["kaki", "khaki"], ["gris anthracite", "charcoal grey"],
+    ["gris perle", "pearl grey"], ["rayée", "striped"], ["rayé", "striped"], ["rayures", "stripes"],
+    ["carreaux", "checked"], ["double boutonnage", "double-breasted"], ["col mao", "mandarin collar"],
+    ["sur-mesure", "bespoke"], ["soie", "silk"], ["cuir", "leather"], ["pantalon", "trousers"],
+    ["Pantalon", "Trousers"], ["veste", "jacket"], ["Veste", "Jacket"], ["chemise", "shirt"],
+    ["Chemise", "Shirt"], ["mocassins", "loafers"], ["Mocassins", "Loafers"], ["loafers", "loafers"],
+    ["Loafers", "Loafers"], ["souliers", "shoes"], ["Oxford", "Oxford"], ["Richelieu", "Oxfords"],
+    ["boutons", "buttons"], ["poches plaquées", "patch pockets"], ["coupe droite", "straight cut"],
+    ["coupe slim", "slim cut"], ["ajustée", "tailored"], ["coordonné", "matching"], ["coordonnée", "matching"],
+    ["assorti", "matching"], ["assortie", "matching"], ["pièce signature", "signature piece"],
+    ["pliage signature", "signature fold"], ["finition artisanale", "handcrafted finish"],
+    ["semelle cuir", "leather sole"], ["style", "style"], ["élégant", "elegant"], ["élégante", "elegant"],
+    ["soirée", "evening"], ["total look", "full look"], ["touche", "touch"], ["contraste", "contrast"],
+    ["contemporain", "contemporary"], ["africaine", "African"], ["parisien", "Parisian"],
+  ],
+  ES: [
+    ["Chapeau", "Sombrero"], ["Haut", "Parte superior"], ["Bas", "Parte inferior"], ["Pochette", "Pañuelo"],
+    ["Chaussures", "Zapatos"], ["Cravate", "Corbata"], ["large bord", "ala ancha"], ["bord médium", "ala media"],
+    ["bord court", "ala corta"], ["crème", "crema"], ["noir", "negro"], ["noirs", "negros"], ["noire", "negra"],
+    ["orange vif", "naranja vivo"], ["blanche", "blanca"], ["blanc", "blanco"], ["bleue", "azul"],
+    ["bleu", "azul"], ["navy", "navy"], ["bordeaux", "burdeos"], ["doré", "dorado"], ["dorée", "dorada"],
+    ["dorés", "dorados"], ["marron", "marrón"], ["taupe", "topo"], ["kaki", "caqui"],
+    ["gris anthracite", "gris antracita"], ["rayée", "rayada"], ["rayé", "rayado"], ["rayures", "rayas"],
+    ["carreaux", "cuadros"], ["double boutonnage", "cruzado"], ["col mao", "cuello mao"],
+    ["sur-mesure", "a medida"], ["soie", "seda"], ["cuir", "cuero"], ["pantalon", "pantalón"],
+    ["Pantalon", "Pantalón"], ["veste", "chaqueta"], ["Veste", "Chaqueta"], ["chemise", "camisa"],
+    ["Chemise", "Camisa"], ["mocassins", "mocasines"], ["Mocassins", "Mocasines"], ["Loafers", "Mocasines"],
+    ["loafers", "mocasines"], ["souliers", "zapatos"], ["Richelieu", "Oxford"], ["boutons", "botones"],
+    ["poches plaquées", "bolsillos de parche"], ["coupe droite", "corte recto"], ["coupe slim", "corte slim"],
+    ["ajustée", "entallada"], ["coordonné", "coordinado"], ["coordonnée", "coordinada"],
+    ["assorti", "a juego"], ["assortie", "a juego"], ["pièce signature", "pieza signature"],
+    ["pliage signature", "plegado signature"], ["finition artisanale", "acabado artesanal"],
+    ["semelle cuir", "suela de cuero"], ["élégant", "elegante"], ["élégante", "elegante"],
+    ["soirée", "noche"], ["total look", "total look"], ["touche", "toque"], ["contraste", "contraste"],
+    ["contemporain", "contemporáneo"], ["africaine", "africana"], ["parisien", "parisino"],
+  ],
+  ZH: [
+    ["Chapeau", "礼帽"], ["Haut", "上装"], ["Bas", "下装"], ["Pochette", "口袋巾"], ["Chaussures", "鞋履"],
+    ["Cravate", "领带"], ["Fedora", "Fedora 礼帽"], ["large bord", "宽檐"], ["bord médium", "中檐"],
+    ["bord court", "短檐"], ["crème", "奶油色"], ["noir", "黑色"], ["noirs", "黑色"], ["noire", "黑色"],
+    ["orange vif", "亮橙色"], ["orange", "橙色"], ["blanche", "白色"], ["blanc", "白色"], ["bleue", "蓝色"],
+    ["bleu", "蓝色"], ["navy", "海军蓝"], ["bordeaux", "酒红色"], ["doré", "金色"], ["dorée", "金色"],
+    ["dorés", "金色"], ["marron", "棕色"], ["caramel", "焦糖色"], ["taupe", "灰褐色"], ["kaki", "卡其色"],
+    ["gris anthracite", "炭灰色"], ["gris perle", "珍珠灰"], ["rayée", "条纹"], ["rayé", "条纹"],
+    ["rayures", "条纹"], ["carreaux", "格纹"], ["double boutonnage", "双排扣"], ["col mao", "中式立领"],
+    ["sur-mesure", "定制"], ["soie", "真丝"], ["cuir", "皮革"], ["pantalon", "长裤"], ["Pantalon", "长裤"],
+    ["veste", "外套"], ["Veste", "外套"], ["chemise", "衬衫"], ["Chemise", "衬衫"], ["mocassins", "乐福鞋"],
+    ["Mocassins", "乐福鞋"], ["Loafers", "乐福鞋"], ["loafers", "乐福鞋"], ["souliers", "皮鞋"],
+    ["Richelieu", "牛津鞋"], ["Oxford", "牛津鞋"], ["boutons", "纽扣"], ["poches plaquées", "贴袋"],
+    ["coupe droite", "直筒剪裁"], ["coupe slim", "修身剪裁"], ["ajustée", "合身"], ["coordonné", "同色搭配"],
+    ["coordonnée", "同色搭配"], ["assorti", "配套"], ["assortie", "配套"], ["pièce signature", "标志单品"],
+    ["pliage signature", "标志折法"], ["finition artisanale", "手工收尾"], ["semelle cuir", "皮革鞋底"],
+    ["élégant", "优雅"], ["élégante", "优雅"], ["soirée", "晚宴"], ["total look", "全套造型"],
+    ["touche", "点缀"], ["contraste", "对比"], ["contemporain", "当代"], ["africaine", "非洲"],
+    ["parisien", "巴黎"],
+  ],
+};
+
+const localizeSpotText = (text, lang) => {
+  if (lang === "FR" || !REPLACE[lang]) return text;
+  return REPLACE[lang].reduce((value, [from, to]) => value.replaceAll(from, to), text);
+};
+
+export const getGallerySpots = (lang = "FR") => STL_SPOTS.map((group) =>
+  group.map((spot) => ({
+    ...spot,
+    label: localizeSpotText(spot.label, lang),
+    detail: localizeSpotText(spot.detail, lang),
+  }))
+);

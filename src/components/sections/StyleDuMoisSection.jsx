@@ -1,11 +1,13 @@
-import { useRef, useState } from "react";
+import { useContext, useRef, useState } from "react";
 import { motion, useInView, AnimatePresence } from "framer-motion";
 import { GOLD } from "../../constants.js";
-import { STYLE_DU_MOIS, WA_GNZ } from "../../data/styleDuMoisData.js";
-import { useTr } from "../../context.jsx";
+import { getStyleDuMois, WA_GNZ } from "../../data/styleDuMoisData.js";
+import { LangCtx, useTr } from "../../context.jsx";
 
 const StyleDuMoisSection = ({ refEl }) => {
   const t = useTr();
+  const { lang } = useContext(LangCtx);
+  const STYLE_DU_MOIS = getStyleDuMois(lang);
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-8% 0px" });
   const [activeSpot, setActiveSpot] = useState(null);
@@ -51,7 +53,15 @@ const StyleDuMoisSection = ({ refEl }) => {
                           style={{ position: "absolute", left: spot.x > 55 ? "auto" : "26px", right: spot.x > 55 ? "26px" : "auto", top: spot.y > 60 ? "auto" : "26px", bottom: spot.y > 60 ? "26px" : "auto", width: "150px", background: "rgba(10,8,4,0.95)", border: `1px solid rgba(184,151,62,0.35)`, borderRadius: "8px", padding: "8px 10px", zIndex: 10 }}>
                           <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7.5px", letterSpacing: "0.1em", color: GOLD, textTransform: "uppercase", marginBottom: "6px", lineHeight: 1.3 }}>{spot.label}</p>
                           <button
-                            onClick={() => window.open(`${WA_GNZ}?text=${encodeURIComponent(`Bonjour Gaspard, je suis intéressé(e) par : ${spot.label}`)}`, "_blank")}
+                            onClick={() => {
+                              const messages = {
+                                FR: `Bonjour Gaspard, je suis intéressé(e) par : ${spot.label}`,
+                                EN: `Hello Gaspard, I am interested in: ${spot.label}`,
+                                ES: `Hola Gaspard, me interesa: ${spot.label}`,
+                                ZH: `你好 Gaspard，我对这件单品感兴趣：${spot.label}`,
+                              };
+                              window.open(`${WA_GNZ}?text=${encodeURIComponent(messages[lang] || messages.FR)}`, "_blank");
+                            }}
                             style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "6.5px", letterSpacing: "0.18em", color: GOLD, textTransform: "uppercase", background: "rgba(184,151,62,0.1)", border: `1px solid rgba(184,151,62,0.3)`, borderRadius: "20px", padding: "4px 8px", cursor: "pointer", width: "100%" }}>
                             {t("ask_availability")}
                           </button>

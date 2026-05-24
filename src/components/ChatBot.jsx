@@ -1,20 +1,19 @@
-import { useState, useEffect, useRef } from "react";
+import { useContext, useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { GOLD, CREAM, TEXT } from "../constants.js";
-import { findReply, GREET } from "../data/chatbotData.js";
+import { LangCtx, useTr } from "../context.jsx";
+import { findReply, getChatLabels, getFallbackReply, getGreeting } from "../data/chatbotData.js";
 
 const AVATAR_SRC = (typeof import.meta !== "undefined" ? (import.meta.env.BASE_URL || "/") : "/") + "avatar.jpg";
-const FALLBACK_BOT_TEXT = "Je n'ai pas bien compris votre demande. Pouvez-vous reformuler ?";
-
 const cleanMessageText = (value) => {
   if (typeof value !== "string") return "";
   return value.replace(/\s+/g, " ").trim();
 };
 
-const cleanBotText = (value) => {
-  if (typeof value !== "string") return FALLBACK_BOT_TEXT;
+const cleanBotText = (value, fallback) => {
+  if (typeof value !== "string") return fallback;
   const text = value.trim();
-  return text || FALLBACK_BOT_TEXT;
+  return text || fallback;
 };
 
 const AvatarImg = ({ size, ring = true }) => {
@@ -30,6 +29,10 @@ const AvatarImg = ({ size, ring = true }) => {
 };
 
 const ChatBot = ({ onReserver, onGalerie, onShowroom, onFormules }) => {
+  const t = useTr();
+  const { lang } = useContext(LangCtx);
+  const labels = getChatLabels(lang);
+  const fallback = getFallbackReply(lang);
   const [open, setOpen] = useState(false);
   const [msgs, setMsgs] = useState([]);
   const [input, setInput] = useState("");
@@ -44,10 +47,11 @@ const ChatBot = ({ onReserver, onGalerie, onShowroom, onFormules }) => {
     if (open && !greeted) {
       setGreeted(true);
       setTimeout(() => {
-        setMsgs([{ from: "bot", text: GREET.rep, btns: GREET.btns, id: Date.now() }]);
+        const greet = getGreeting(lang);
+        setMsgs([{ from: "bot", text: greet.rep, btns: greet.btns, id: Date.now() }]);
       }, 400);
     }
-  }, [open, greeted]);
+  }, [open, greeted, lang]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -78,23 +82,27 @@ const ChatBot = ({ onReserver, onGalerie, onShowroom, onFormules }) => {
     setTimeout(() => {
       setTyping(false);
       const low = safeText.toLowerCase();
-      const entry = findReply(safeText);
-      if (safeText === "Prendre rendez-vous" || low.includes("rendez-vous") || low.includes("réserver")) {
-        setMsgs(m => [...m, { from: "bot", text: cleanBotText(entry.rep), btns: entry.btns || [], action: "booking", id: `${Date.now()}-${m.length}` }]);
-      } else if (safeText === "La galerie" || low.includes("galerie")) {
-        setMsgs(m => [...m, { from: "bot", text: "Je vous emmène dans la galerie ✦", btns: [], id: `${Date.now()}-${m.length}` }]);
+      const entry = findReply(safeText, lang);
+      if (safeText === labels.booking || low.includes("rendez-vous") || low.includes("appointment") || low.includes("cita") || low.includes("预约") || low.includes("réserver")) {
+        setMsgs(m => [...m, { from: "bot", text: cleanBotText(entry.rep, fallback.rep), btns: entry.btns || [], action: "booking", id: `${Date.now()}-${m.length}` }]);
+      } else if (safeText === labels.gallery || low.includes("galerie") || low.includes("gallery") || low.includes("galería") || low.includes("画廊")) {
+        const goGallery = { FR: "Je vous emmène dans la galerie.", EN: "Taking you to the gallery.", ES: "Te llevo a la galería.", ZH: "正在带你前往画廊。" };
+        setMsgs(m => [...m, { from: "bot", text: goGallery[lang] || goGallery.FR, btns: [], id: `${Date.now()}-${m.length}` }]);
         setTimeout(() => { setOpen(false); onGalerie?.(); }, 600);
-      } else if (safeText === "Le showroom" || low.includes("showroom")) {
-        setMsgs(m => [...m, { from: "bot", text: "Je vous emmène au showroom ✦", btns: [], id: `${Date.now()}-${m.length}` }]);
+      } else if (safeText === labels.showroom || low.includes("showroom") || low.includes("展厅")) {
+        const goShowroom = { FR: "Je vous emmène au showroom.", EN: "Taking you to the showroom.", ES: "Te llevo al showroom.", ZH: "正在带你前往展厅。" };
+        setMsgs(m => [...m, { from: "bot", text: goShowroom[lang] || goShowroom.FR, btns: [], id: `${Date.now()}-${m.length}` }]);
         setTimeout(() => { setOpen(false); onShowroom?.(); }, 600);
-      } else if (safeText === "Les formules" || low.includes("formule")) {
-        setMsgs(m => [...m, { from: "bot", text: "Je vous emmène vers les formules ✦", btns: [], id: `${Date.now()}-${m.length}` }]);
+      } else if (safeText === labels.packages || low.includes("formule") || low.includes("package") || low.includes("paquete") || low.includes("套餐")) {
+        const goPackages = { FR: "Je vous emmène vers les formules.", EN: "Taking you to the packages.", ES: "Te llevo a los paquetes.", ZH: "正在带你前往套餐。" };
+        setMsgs(m => [...m, { from: "bot", text: goPackages[lang] || goPackages.FR, btns: [], id: `${Date.now()}-${m.length}` }]);
         setTimeout(() => { setOpen(false); onFormules?.(); }, 600);
-      } else if (safeText === "Ouvrir WhatsApp") {
+      } else if (safeText === labels.whatsapp) {
         window.open("https://wa.me/33664826920", "_blank");
-        setMsgs(m => [...m, { from: "bot", text: "Je vous redirige vers WhatsApp. Gaspard vous répondra sous 24h ✦", btns: [], id: `${Date.now()}-${m.length}` }]);
+        const goWA = { FR: "Je vous redirige vers WhatsApp. Gaspard vous répondra sous 24h.", EN: "Redirecting you to WhatsApp. Gaspard replies within 24h.", ES: "Te redirijo a WhatsApp. Gaspard responde en 24h.", ZH: "正在打开 WhatsApp。Gaspard 会在24小时内回复。" };
+        setMsgs(m => [...m, { from: "bot", text: goWA[lang] || goWA.FR, btns: [], id: `${Date.now()}-${m.length}` }]);
       } else {
-        setMsgs(m => [...m, { from: "bot", text: cleanBotText(entry.rep), btns: entry.btns || [], id: `${Date.now()}-${m.length}` }]);
+        setMsgs(m => [...m, { from: "bot", text: cleanBotText(entry.rep, fallback.rep), btns: entry.btns || [], id: `${Date.now()}-${m.length}` }]);
       }
     }, 900 + Math.random() * 400);
   };
@@ -108,7 +116,7 @@ const ChatBot = ({ onReserver, onGalerie, onShowroom, onFormules }) => {
   };
 
   const formatText = (txt) => {
-    return cleanBotText(txt).split("\n").map((line, i) => {
+    return cleanBotText(txt, fallback.rep).split("\n").map((line, i) => {
       const parts = line.split(/(\*\*.*?\*\*)/g);
       return (
         <p key={i} style={{ margin: "0.15rem 0" }}>
@@ -153,7 +161,7 @@ const ChatBot = ({ onReserver, onGalerie, onShowroom, onFormules }) => {
             onClick={() => { setShowBubble(false); setOpen(true); }}
             style={{ position: "fixed", bottom: "5.2rem", right: "1.2rem", background: "transparent", padding: "0.5rem 1rem 0.5rem 0", maxWidth: "200px", cursor: "pointer", zIndex: 598, textAlign: "right" }}
           >
-            <p style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: "italic", fontSize: "0.92rem", color: GOLD, lineHeight: 1.45, margin: 0, textShadow: "0 1px 8px rgba(0,0,0,0.9), 0 0 20px rgba(0,0,0,0.8)" }}>Je suis là si vous avez des questions 💬</p>
+            <p style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: "italic", fontSize: "0.92rem", color: GOLD, lineHeight: 1.45, margin: 0, textShadow: "0 1px 8px rgba(0,0,0,0.9), 0 0 20px rgba(0,0,0,0.8)" }}>{t("chatbot_bubble")}</p>
             <button onClick={e => { e.stopPropagation(); setShowBubble(false); }} style={{ position: "absolute", top: "4px", right: "6px", background: "none", border: "none", cursor: "pointer", color: "rgba(245,240,232,0.35)", fontSize: "0.75rem", lineHeight: 1 }}>✕</button>
           </motion.div>
         )}
@@ -174,7 +182,7 @@ const ChatBot = ({ onReserver, onGalerie, onShowroom, onFormules }) => {
               </div>
               <div style={{ flex: 1 }}>
                 <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1rem", color: CREAM, letterSpacing: "0.12em", margin: 0, lineHeight: 1.2 }}>GASPARD NZ</p>
-                <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7.5px", color: "rgba(245,240,232,0.55)", letterSpacing: "0.2em", textTransform: "uppercase", margin: "3px 0 0" }}>Habilleur · En ligne</p>
+                <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7.5px", color: "rgba(245,240,232,0.55)", letterSpacing: "0.2em", textTransform: "uppercase", margin: "3px 0 0" }}>{t("chatbot_status")}</p>
               </div>
               <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "2px" }}>
                 <div style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#25D366" }} />
@@ -205,8 +213,8 @@ const ChatBot = ({ onReserver, onGalerie, onShowroom, onFormules }) => {
                     <img src={AVATAR_SRC} alt="Gaspard NZ" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center top" }} />
                   </div>
                   <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.4rem", letterSpacing: "0.2em", margin: 0, background: "linear-gradient(90deg, #9a7a2e 0%, #d4ae5a 25%, #f5e070 50%, #d4ae5a 75%, #9a7a2e 100%)", backgroundSize: "250% auto", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text", animation: "gnzShimmer 2.5s linear infinite" }}>GASPARD NZ</p>
-                  <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.4em", color: "rgba(184,151,62,0.55)", textTransform: "uppercase", marginTop: "8px" }}>Habilleur · Paris</p>
-                  <button onClick={() => setShowAvatar(false)} style={{ position: "absolute", bottom: "1.2rem", background: "none", border: "1px solid rgba(184,151,62,0.25)", color: "rgba(245,240,232,0.35)", fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.35em", textTransform: "uppercase", padding: "0.45rem 1.1rem", cursor: "pointer", borderRadius: "2px" }}>Passer</button>
+                  <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.4em", color: "rgba(184,151,62,0.55)", textTransform: "uppercase", marginTop: "8px" }}>{t("chatbot_role")}</p>
+                  <button onClick={() => setShowAvatar(false)} style={{ position: "absolute", bottom: "1.2rem", background: "none", border: "1px solid rgba(184,151,62,0.25)", color: "rgba(245,240,232,0.35)", fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.35em", textTransform: "uppercase", padding: "0.45rem 1.1rem", cursor: "pointer", borderRadius: "2px" }}>{t("chatbot_skip")}</button>
                 </motion.div>
               )}
             </AnimatePresence>
@@ -224,10 +232,10 @@ const ChatBot = ({ onReserver, onGalerie, onShowroom, onFormules }) => {
                     <div style={{ display: "flex", flexWrap: "wrap", gap: "0.4rem", maxWidth: "100%" }}>
                       {m.btns.map((btn, bi) => (
                         <button key={bi} onClick={() => {
-                          if (btn === "Prendre rendez-vous") { setOpen(false); onReserver?.(); }
-                          else if (btn === "Voir la galerie") { setOpen(false); onGalerie?.(); }
-                          else if (btn === "Le showroom") { setOpen(false); onShowroom?.(); }
-                          else if (btn === "Ouvrir WhatsApp") { window.open("https://wa.me/33664826920", "_blank"); }
+                          if (btn === labels.booking) { setOpen(false); onReserver?.(); }
+                          else if (btn === labels.gallery || btn === labels.details) { setOpen(false); onGalerie?.(); }
+                          else if (btn === labels.showroom) { setOpen(false); onShowroom?.(); }
+                          else if (btn === labels.whatsapp) { window.open("https://wa.me/33664826920", "_blank"); }
                           else if (btn === "Instagram") { window.open("https://www.instagram.com/gaspardnz_?igsh=YWgzb3Jua2NkeDdq", "_blank"); }
                           else if (btn === "TikTok") { window.open("https://www.tiktok.com/@gaspardnz?_r=1&_t=ZS-95wB65ZWhvB", "_blank"); }
                           else if (btn === "Facebook") { window.open("https://www.facebook.com/share/1JXsWJwpTW/?mibextid=wwXIfr", "_blank"); }
@@ -261,7 +269,7 @@ const ChatBot = ({ onReserver, onGalerie, onShowroom, onFormules }) => {
                 value={input}
                 onChange={e => setInput(e.target.value)}
                 onKeyDown={e => e.key === "Enter" && handleSend()}
-                placeholder="Posez votre question..."
+                placeholder={t("chatbot_placeholder")}
                 style={{ flex: 1, background: "#fff", border: "1px solid rgba(184,151,62,0.2)", padding: "0.6rem 0.9rem", fontFamily: "'Montserrat', sans-serif", fontSize: "12px", color: TEXT, outline: "none", borderRadius: "20px" }}
               />
               <button onClick={handleSend}

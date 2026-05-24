@@ -20,7 +20,7 @@ const BoutiqueModal = ({ onClose, onReserver }) => {
       <div style={{ padding: "1.6rem 1.8rem 1.2rem", borderBottom: "1px solid rgba(184,151,62,0.1)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <div>
           <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.45em", color: GOLD, textTransform: "uppercase", marginBottom: "0.3rem" }}>{t("boutique_soon_badge")}</p>
-          <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.4rem", letterSpacing: "0.1em", color: TEXT, margin: 0, lineHeight: 1 }}>BOUTIQUE</p>
+          <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.4rem", letterSpacing: "0.1em", color: TEXT, margin: 0, lineHeight: 1 }}>{t("nav_boutique")}</p>
         </div>
         <button onClick={onClose} style={{ background: "none", border: "none", cursor: "pointer", padding: "4px 8px", color: "rgba(28,18,8,0.62)", fontSize: "22px", lineHeight: 1 }}>×</button>
       </div>

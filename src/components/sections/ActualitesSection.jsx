@@ -1,8 +1,8 @@
-import { useState, useRef } from "react";
+import { useContext, useState, useRef } from "react";
 import { motion, useInView } from "framer-motion";
 import { GOLD } from "../../constants.js";
-import { actualites } from "../../data/actualitesData.js";
-import { useTr } from "../../context.jsx";
+import { getActualites } from "../../data/actualitesData.js";
+import { LangCtx, useTr } from "../../context.jsx";
 
 const ActuCard = ({ item }) => {
   const t = useTr();
@@ -41,10 +41,10 @@ const ActuCard = ({ item }) => {
           )}
           {multi && (
             <>
-              <button onClick={() => setPhotoCur(c => Math.max(c-1,0))} style={{ position: "absolute", left: "8px", top: "50%", transform: "translateY(-50%)", background: "rgba(0,0,0,0.35)", border: "none", borderRadius: "50%", width: 28, height: 28, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", opacity: photoCur === 0 ? 0.3 : 1 }} aria-label="Photo précédente">
+              <button onClick={() => setPhotoCur(c => Math.max(c-1,0))} style={{ position: "absolute", left: "8px", top: "50%", transform: "translateY(-50%)", background: "rgba(0,0,0,0.35)", border: "none", borderRadius: "50%", width: 28, height: 28, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", opacity: photoCur === 0 ? 0.3 : 1 }} aria-label={t("previous_photo")}>
                 <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M6.5 2L3.5 5l3 3" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
               </button>
-              <button onClick={() => setPhotoCur(c => Math.min(c+1,photos.length-1))} style={{ position: "absolute", right: "8px", top: "50%", transform: "translateY(-50%)", background: "rgba(0,0,0,0.35)", border: "none", borderRadius: "50%", width: 28, height: 28, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", opacity: photoCur === photos.length-1 ? 0.3 : 1 }} aria-label="Photo suivante">
+              <button onClick={() => setPhotoCur(c => Math.min(c+1,photos.length-1))} style={{ position: "absolute", right: "8px", top: "50%", transform: "translateY(-50%)", background: "rgba(0,0,0,0.35)", border: "none", borderRadius: "50%", width: 28, height: 28, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", opacity: photoCur === photos.length-1 ? 0.3 : 1 }} aria-label={t("next_photo")}>
                 <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M3.5 2L6.5 5l-3 3" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
               </button>
             </>
@@ -75,6 +75,8 @@ const ActuCard = ({ item }) => {
 
 const ActualitesSection = () => {
   const t = useTr();
+  const { lang } = useContext(LangCtx);
+  const actualites = getActualites(lang);
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-8% 0px" });
   return (

@@ -1,19 +1,21 @@
 import { useRef } from "react";
 import { motion, useInView } from "framer-motion";
 import { TEXT } from "../../constants.js";
+import { useTr } from "../../context.jsx";
 
 const IG_URL = "https://www.instagram.com/gaspardnz_?igsh=YWgzb3Jua2NkeDdq";
 
 const InstagramSection = () => {
+  const t = useTr();
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-6% 0px" });
   const posts = [
-    { src: `${import.meta.env.BASE_URL}images/costume-creme.jpg`,      label: "Costume crème" },
-    { src: `${import.meta.env.BASE_URL}images/smoking-dore.jpg`,       label: "Smoking doré" },
-    { src: `${import.meta.env.BASE_URL}images/veste-bleue.jpg`,        label: "Veste bleue" },
-    { src: `${import.meta.env.BASE_URL}images/costume-bordeaux.jpg`,   label: "Costume bordeaux" },
-    { src: `${import.meta.env.BASE_URL}images/elegance-blanche.jpg`,   label: "Elégance blanche" },
-    { src: `${import.meta.env.BASE_URL}images/promenade-blanche.jpg`,  label: "Promenade blanche" },
+    { src: `${import.meta.env.BASE_URL}images/costume-creme.jpg`,      label: t("gal_1") },
+    { src: `${import.meta.env.BASE_URL}images/smoking-dore.jpg`,       label: t("gal_13") },
+    { src: `${import.meta.env.BASE_URL}images/veste-bleue.jpg`,        label: t("gal_6") },
+    { src: `${import.meta.env.BASE_URL}images/costume-bordeaux.jpg`,   label: t("gal_11") },
+    { src: `${import.meta.env.BASE_URL}images/elegance-blanche.jpg`,   label: t("gal_2") },
+    { src: `${import.meta.env.BASE_URL}images/promenade-blanche.jpg`,  label: t("gal_12") },
   ];
   return (
     <section ref={ref} style={{ background: "#faf7f2", padding: "4rem 0 4.5rem" }}>
@@ -26,13 +28,13 @@ const InstagramSection = () => {
           </div>
           <div>
             <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "12px", fontWeight: 700, color: TEXT }}>@gaspardnz_</p>
-            <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "9px", color: "rgba(28,18,8,0.45)" }}>Styliste parisien</p>
+            <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "9px", color: "rgba(28,18,8,0.45)" }}>{t("ig_role")}</p>
           </div>
         </div>
         <motion.a href={IG_URL} target="_blank" rel="noopener noreferrer"
           whileTap={{ scale: 0.95 }}
           style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "9px", letterSpacing: "0.1em", color: "#faf7f2", background: "linear-gradient(90deg,#dc2743,#bc1888)", padding: "8px 14px", borderRadius: "20px", textDecoration: "none", fontWeight: 600 }}>
-          + Suivre
+          {t("ig_follow")}
         </motion.a>
       </motion.div>
 
@@ -52,7 +54,7 @@ const InstagramSection = () => {
         <motion.a href={IG_URL} target="_blank" rel="noopener noreferrer"
           whileTap={{ scale: 0.97 }}
           style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "9.5px", letterSpacing: "0.2em", color: TEXT, textTransform: "uppercase", textDecoration: "none", borderBottom: "1px solid #b8973e", paddingBottom: "2px" }}>
-          Voir tous les looks sur Instagram
+          {t("ig_all")}
         </motion.a>
       </motion.div>
     </section>

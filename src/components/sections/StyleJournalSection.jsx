@@ -1,13 +1,20 @@
-import { useState, useRef } from "react";
+import { useContext, useState, useRef } from "react";
 import { motion, AnimatePresence, useInView } from "framer-motion";
 import { GOLD } from "../../constants.js";
-import { styleJournalPhotos } from "../../data/journalData.js";
-import { useTr } from "../../context.jsx";
+import { getStyleJournalPhotos } from "../../data/journalData.js";
+import { LangCtx, useTr } from "../../context.jsx";
 
 const StyleDot = ({ dot }) => {
   const t = useTr();
+  const { lang } = useContext(LangCtx);
   const [active, setActive] = useState(false);
-  const waMsg = encodeURIComponent(`Bonjour Gaspard, je suis intéressé(e) par : ${dot.label}. Pouvez-vous m'en dire plus ?`);
+  const waIntro = {
+    FR: `Bonjour Gaspard, je suis intéressé(e) par : ${dot.label}. Pouvez-vous m'en dire plus ?`,
+    EN: `Hello Gaspard, I am interested in: ${dot.label}. Could you tell me more?`,
+    ES: `Hola Gaspard, me interesa: ${dot.label}. ¿Podrías contarme más?`,
+    ZH: `你好 Gaspard，我对这件单品感兴趣：${dot.label}。可以告诉我更多信息吗？`,
+  };
+  const waMsg = encodeURIComponent(waIntro[lang] || waIntro.FR);
   return (
     <div style={{ position: "absolute", top: dot.top, left: dot.left, zIndex: 10 }}>
       <motion.button
@@ -38,6 +45,8 @@ const StyleDot = ({ dot }) => {
 
 const StyleJournalSection = () => {
   const t = useTr();
+  const { lang } = useContext(LangCtx);
+  const styleJournalPhotos = getStyleJournalPhotos(lang);
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-8% 0px" });
   return (

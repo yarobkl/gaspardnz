@@ -30,8 +30,42 @@ const FONTS_CSS = `@import url('https://fonts.googleapis.com/css2?family=Cormora
 const _SPLASH_IMG = (typeof import.meta !== "undefined" ? (import.meta.env.BASE_URL || "/") : "/") + "images/style-parisien.jpg";
 const SUPPORTED_LANGS = ["FR", "EN", "ES", "ZH"];
 const HTML_LANG = { FR: "fr", EN: "en", ES: "es", ZH: "zh" };
+const APP_COPY = {
+  FR: {
+    loading: "Chargement...",
+    title: "Gaspardnz — L'Inspirateur de la Haute Allure · Paris",
+    description: "Gaspardnz — Styliste parisien spécialisé dans l'habillage sur-mesure pour mariages, galas et événements. Découvrez nos formules et prenez rendez-vous.",
+    ogDescription: "Costumes sur-mesure, looks événementiels et conseils style. Paris.",
+    waContact: "Bonjour Gaspard, je souhaite vous contacter.",
+    waFormula: "Bonjour Gaspard, je souhaite réserver une formule. Pouvez-vous me recontacter ?",
+  },
+  EN: {
+    loading: "Loading...",
+    title: "Gaspardnz — The Inspirer of High Style · Paris",
+    description: "Gaspardnz is a Parisian stylist specializing in bespoke dressing for weddings, galas and events. Discover the packages and book an appointment.",
+    ogDescription: "Bespoke suits, event looks and style advice. Paris.",
+    waContact: "Hello Gaspard, I would like to contact you.",
+    waFormula: "Hello Gaspard, I would like to book a package. Could you contact me back?",
+  },
+  ES: {
+    loading: "Cargando...",
+    title: "Gaspardnz — El Inspirador de la Alta Elegancia · París",
+    description: "Gaspardnz es un estilista parisino especializado en vestimenta a medida para bodas, galas y eventos. Descubre los paquetes y reserva una cita.",
+    ogDescription: "Trajes a medida, looks para eventos y asesoría de estilo. París.",
+    waContact: "Hola Gaspard, me gustaría contactarte.",
+    waFormula: "Hola Gaspard, me gustaría reservar un paquete. ¿Podrías contactarme?",
+  },
+  ZH: {
+    loading: "加载中...",
+    title: "Gaspardnz — 高级风格灵感缔造者 · 巴黎",
+    description: "Gaspardnz 是巴黎造型师，专注婚礼、晚会和活动的定制着装。探索套餐并预约。",
+    ogDescription: "定制西装、活动造型与风格建议。巴黎。",
+    waContact: "你好 Gaspard，我想联系你。",
+    waFormula: "你好 Gaspard，我想预约一个套餐。可以联系我吗？",
+  },
+};
 
-const SplashScreen = ({ onDone }) => (
+const SplashScreen = ({ onDone, loading }) => (
   <motion.div
     exit={{ opacity: 0 }}
     transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
@@ -83,7 +117,7 @@ const SplashScreen = ({ onDone }) => (
       animate={{ opacity: [0, 0.45, 0.25, 0.45] }}
       transition={{ duration: 2.4, delay: 0.6, times: [0, 0.3, 0.6, 1] }}
       style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "6px", letterSpacing: "0.55em", color: "rgba(245,240,232,0.35)", textTransform: "uppercase", position: "relative", zIndex: 1 }}>
-      Chargement…
+      {loading}
     </motion.p>
   </motion.div>
 );
@@ -125,19 +159,20 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    document.title = "Gaspardnz — L'Inspirateur de la Haute Allure · Paris";
+    const copy = APP_COPY[lang] || APP_COPY.FR;
+    document.title = copy.title;
     const meta = (name, content, prop = false) => {
       const sel = prop ? `meta[property="${name}"]` : `meta[name="${name}"]`;
       let el = document.querySelector(sel);
       if (!el) { el = document.createElement("meta"); prop ? el.setAttribute("property", name) : el.setAttribute("name", name); document.head.appendChild(el); }
       el.setAttribute("content", content);
     };
-    meta("description", "Gaspardnz — Styliste parisien spécialisé dans l'habillage sur-mesure pour mariages, galas et événements. Découvrez nos formules et prenez rendez-vous.");
-    meta("og:title", "Gaspardnz — L'Inspirateur de la Haute Allure", true);
-    meta("og:description", "Costumes sur-mesure, looks événementiels et conseils style. Paris.", true);
+    meta("description", copy.description);
+    meta("og:title", copy.title, true);
+    meta("og:description", copy.ogDescription, true);
     meta("og:type", "website", true);
     meta("theme-color", highContrast ? "#fff9e6" : "#0a0602");
-  }, [highContrast]);
+  }, [highContrast, lang]);
 
   useEffect(() => {
     document.body.style.background = "#0a0602";
@@ -186,7 +221,7 @@ export default function App() {
       `}</style>
 
       <AnimatePresence mode="wait">
-        {!splashDone && <SplashScreen key="splash" onDone={() => setSplashDone(true)} />}
+        {!splashDone && <SplashScreen key="splash" loading={(APP_COPY[lang] || APP_COPY.FR).loading} onDone={() => setSplashDone(true)} />}
       </AnimatePresence>
 
       {/* Toujours rendu pour que la vidéo charge pendant le splash */}
@@ -201,7 +236,7 @@ export default function App() {
         <NavMobile
           onShowroom={() => scrollTo(showroomRef)}
           onGalerie={() => scrollTo(galleryRef)}
-          onContact={() => window.open("https://wa.me/33664826920?text=Bonjour%20Gaspard%2C%20je%20souhaite%20vous%20contacter.", "_blank")}
+          onContact={() => window.open(`https://wa.me/33664826920?text=${encodeURIComponent((APP_COPY[lang] || APP_COPY.FR).waContact)}`, "_blank")}
           onCatalogue={() => openBooking(true)}
           onFormules={() => scrollTo(formulesRef)}
           onBiographie={() => scrollTo(heritageRef)}
@@ -221,7 +256,7 @@ export default function App() {
         <SectionDivider from="#0a0602" to="#f5f0e8" />
         <GalleryMobile refEl={galleryRef} />
         <SectionDivider from="#f5f0e8" to="#0d1b3e" />
-        <FormulesSection refEl={formulesRef} onContact={() => window.open(`https://wa.me/33664826920?text=${encodeURIComponent("Bonjour Gaspard, je souhaite réserver une formule. Pouvez-vous me recontacter ?")}`, "_blank")} />
+        <FormulesSection refEl={formulesRef} onContact={() => window.open(`https://wa.me/33664826920?text=${encodeURIComponent((APP_COPY[lang] || APP_COPY.FR).waFormula)}`, "_blank")} />
         <SectionDivider from="#0d1b3e" to="#0a0602" />
         <ActualitesSection />
         <VIPClientsSection />

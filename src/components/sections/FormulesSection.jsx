@@ -14,7 +14,7 @@ const FormulesSection = ({ refEl, onContact }) => {
     {
       id: "prestige",
       titre: t("formule_prestige_titre"),
-      tag: "Premium",
+      tag: t("tag_premium"),
       tagline: t("formule1_tagline"),
       looks: [
         {
@@ -30,7 +30,7 @@ const FormulesSection = ({ refEl, onContact }) => {
         },
         {
           nom: t("look_soiree"),
-          tag: "Smoking",
+          tag: t("tag_smoking"),
           items: [
             { label: t("item_smoking") },
             { label: t("item_noeud") },
@@ -44,7 +44,7 @@ const FormulesSection = ({ refEl, onContact }) => {
     {
       id: "gnz",
       titre: t("formule_gnz_titre"),
-      tag: "Signature",
+      tag: t("tag_signature"),
       tagline: t("formule2_tagline"),
       looks: [
         {
@@ -60,7 +60,7 @@ const FormulesSection = ({ refEl, onContact }) => {
         },
         {
           nom: t("look_soiree"),
-          tag: "Smoking",
+          tag: t("tag_smoking"),
           items: [
             { label: t("item_smoking") },
             { label: t("item_noeud") },
@@ -75,7 +75,7 @@ const FormulesSection = ({ refEl, onContact }) => {
 
   return (
     <section ref={node => { ref.current = node; if (refEl) refEl.current = node; }} style={{ background: "#0d1b3e", padding: "5rem 0 6rem", overflow: "hidden", position: "relative" }}>
-      <div style={{ position: "absolute", right: "-1rem", top: "50%", transform: "translateY(-50%)", fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(80px, 35vw, 220px)", color: "rgba(255,255,255,0.03)", lineHeight: 1, letterSpacing: "0.05em", whiteSpace: "nowrap", userSelect: "none", pointerEvents: "none" }}>FORMULES</div>
+      <div style={{ position: "absolute", right: "-1rem", top: "50%", transform: "translateY(-50%)", fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(80px, 35vw, 220px)", color: "rgba(255,255,255,0.03)", lineHeight: 1, letterSpacing: "0.05em", whiteSpace: "nowrap", userSelect: "none", pointerEvents: "none" }}>{t("formules_title")}</div>
 
       <div ref={ref} style={{ padding: "0 1.4rem", position: "relative" }}>
         <motion.p initial={{ opacity: 0 }} animate={inView ? { opacity: 1 } : {}} transition={{ duration: 0.7 }}
