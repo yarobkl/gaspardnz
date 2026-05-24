@@ -74,11 +74,11 @@ const FooterMobile = ({ onFormules, onGalerie, onShowroom }) => {
         </div>
 
         <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", color: "rgba(245,240,232,0.15)", textAlign: "center", letterSpacing: "0.1em" }}>
-          © {new Date().getFullYear()} Gaspardnz — Paris. Tous droits réservés.
+          © {new Date().getFullYear()} Gaspardnz — Paris. {t("rights")}
         </p>
 
         <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", color: "rgba(245,240,232,0.1)", textAlign: "center", letterSpacing: "0.1em", marginTop: "0.5rem" }}>
-          Développé par{" "}
+          {t("developed_by")}{" "}
           <a
             href="https://www.tiktok.com/@yaro_bkl?_r=1&_t=ZS-96Qu1bNUqk1"
             target="_blank"

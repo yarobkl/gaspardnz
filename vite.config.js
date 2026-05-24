@@ -10,9 +10,10 @@ export default defineConfig({
     outDir: "dist",
     rollupOptions: {
       output: {
-        manualChunks: {
-          "react-vendor": ["react", "react-dom"],
-          "framer-motion": ["framer-motion"],
+        manualChunks(id) {
+          if (!id.includes("node_modules")) return;
+          if (id.includes("framer-motion")) return "framer-motion";
+          if (id.includes("react")) return "react-vendor";
         },
       },
     },

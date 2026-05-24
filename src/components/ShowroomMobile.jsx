@@ -5,6 +5,7 @@ import { useTr } from "../context.jsx";
 import { SvgArrow } from "../icons.jsx";
 
 const DecontracteAlbum = ({ onClick }) => {
+  const t = useTr();
   const [cur, setCur] = useState(0);
   const B = import.meta.env.BASE_URL;
   const photos = [
@@ -27,14 +28,14 @@ const DecontracteAlbum = ({ onClick }) => {
         ))}
       </div>
       <div style={{ position: "absolute", top: "1rem", left: "1.2rem", background: "rgba(28,18,8,0.5)", padding: "0.45rem 1rem", backdropFilter: "blur(4px)" }}>
-        <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.55em", color: GOLD, textTransform: "uppercase", margin: 0 }}>GASPARDNZ · ALBUM</p>
+        <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.55em", color: GOLD, textTransform: "uppercase", margin: 0 }}>{t("album_label")}</p>
       </div>
       <div style={{ position: "absolute", top: "1rem", right: "1.2rem", background: "rgba(28,18,8,0.55)", padding: "0.45rem 0.9rem", backdropFilter: "blur(4px)" }}>
-        <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.3em", color: GOLD, textTransform: "uppercase", margin: 0 }}>Voir l'album →</p>
+        <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.3em", color: GOLD, textTransform: "uppercase", margin: 0 }}>{t("view_album")}</p>
       </div>
       <div style={{ position: "absolute", bottom: "2.6rem", left: "1.2rem" }}>
-        <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(2.2rem,11vw,3.5rem)", color: "rgba(245,240,232,0.95)", letterSpacing: "0.08em", lineHeight: 0.9, margin: 0, textShadow: "0 2px 20px rgba(0,0,0,0.7)" }}>DÉCONTRACTÉ</p>
-        <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "0.95rem", color: GOLD, fontStyle: "italic", margin: "0.4rem 0 0", letterSpacing: "0.06em" }}>Collection lifestyle</p>
+        <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(2.2rem,11vw,3.5rem)", color: "rgba(245,240,232,0.95)", letterSpacing: "0.08em", lineHeight: 0.9, margin: 0, textShadow: "0 2px 20px rgba(0,0,0,0.7)" }}>{t("relaxed")}</p>
+        <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "0.95rem", color: GOLD, fontStyle: "italic", margin: "0.4rem 0 0", letterSpacing: "0.06em" }}>{t("lifestyle_collection")}</p>
       </div>
       <div style={{ position: "absolute", bottom: "1.1rem", right: "1.2rem", display: "flex", gap: "5px", alignItems: "center" }}>
         {photos.map((_, i) => (
@@ -65,7 +66,7 @@ const ShowroomMobile = ({ refEl, onCatalogue, onFlammes }) => {
             initial={{ y: "105%" }} whileInView={{ y: 0 }} viewport={{ once: true }}
             transition={{ duration: 1, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
             style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(44px, 14vw, 76px)", lineHeight: 0.9, letterSpacing: "0.04em", color: TEXT, margin: 0 }}
-          >L'ART<br />DU SUR-MESURE</motion.h2>
+          >{t("custom_art_title").split("\n").map((line, i) => <span key={line}>{line}{i === 0 && <br />}</span>)}</motion.h2>
         </div>
 
         <motion.p

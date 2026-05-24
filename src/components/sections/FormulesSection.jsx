@@ -2,8 +2,10 @@ import { useState, useRef } from "react";
 import { motion, AnimatePresence, useInView } from "framer-motion";
 import { GOLD } from "../../constants.js";
 import { SvgArrow } from "../../icons.jsx";
+import { useTr } from "../../context.jsx";
 
 const FormulesSection = ({ refEl, onContact }) => {
+  const t = useTr();
   const [selected, setSelected] = useState(null);
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-8% 0px" });
@@ -11,60 +13,60 @@ const FormulesSection = ({ refEl, onContact }) => {
   const formules = [
     {
       id: "prestige",
-      titre: "Formule Prestige",
+      titre: t("formule_prestige_titre"),
       tag: "Premium",
-      tagline: "Une allure complète, élégante et inoubliable pour le jour J.",
+      tagline: t("formule1_tagline"),
       looks: [
         {
-          nom: "Look Mairie",
+          nom: t("look_mairie"),
           items: [
-            { label: "Costume coupe droite, croisé ou trois pièces" },
-            { label: "Chemise" },
-            { label: "Cravate" },
-            { label: "Boutons de manchettes" },
-            { label: "Chaussettes fil d'Écosse" },
-            { label: "Chaussures (option)" },
+            { label: t("item_costume") },
+            { label: t("item_chemise") },
+            { label: t("item_cravate") },
+            { label: t("item_boutons") },
+            { label: t("item_chaussettes") },
+            { label: t("item_chaussures_opt") },
           ],
         },
         {
-          nom: "Look Soirée",
+          nom: t("look_soiree"),
           tag: "Smoking",
           items: [
-            { label: "Ensemble smoking" },
-            { label: "Nœud papillon" },
-            { label: "Chemise plastron col cassé" },
-            { label: "Boutons de manchettes" },
-            { label: "Chaussettes fil d'Écosse" },
+            { label: t("item_smoking") },
+            { label: t("item_noeud") },
+            { label: t("item_plastron") },
+            { label: t("item_boutons") },
+            { label: t("item_chaussettes") },
           ],
         },
       ],
     },
     {
       id: "gnz",
-      titre: "Formule Gaspard NZ",
+      titre: t("formule_gnz_titre"),
       tag: "Signature",
-      tagline: "L'élégance accessible pour un mariage parfaitement maîtrisé.",
+      tagline: t("formule2_tagline"),
       looks: [
         {
-          nom: "Look Mairie",
+          nom: t("look_mairie"),
           items: [
-            { label: "Costume coupe droite, croisé ou trois pièces" },
-            { label: "Chemise" },
-            { label: "Cravate" },
-            { label: "Boutons de manchettes" },
-            { label: "Chaussettes fil d'Écosse" },
-            { label: "Chaussures (option)" },
+            { label: t("item_costume") },
+            { label: t("item_chemise") },
+            { label: t("item_cravate") },
+            { label: t("item_boutons") },
+            { label: t("item_chaussettes") },
+            { label: t("item_chaussures_opt") },
           ],
         },
         {
-          nom: "Look Soirée",
+          nom: t("look_soiree"),
           tag: "Smoking",
           items: [
-            { label: "Ensemble smoking" },
-            { label: "Nœud papillon" },
-            { label: "Chemise plastron col cassé" },
-            { label: "Boutons de manchettes" },
-            { label: "Chaussettes fil d'Écosse" },
+            { label: t("item_smoking") },
+            { label: t("item_noeud") },
+            { label: t("item_plastron") },
+            { label: t("item_boutons") },
+            { label: t("item_chaussettes") },
           ],
         },
       ],
@@ -78,19 +80,19 @@ const FormulesSection = ({ refEl, onContact }) => {
       <div ref={ref} style={{ padding: "0 1.4rem", position: "relative" }}>
         <motion.p initial={{ opacity: 0 }} animate={inView ? { opacity: 1 } : {}} transition={{ duration: 0.7 }}
           style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "8px", letterSpacing: "0.5em", color: GOLD, textTransform: "uppercase", marginBottom: "1rem" }}
-        >Mariage & Événements</motion.p>
+        >{t("formules_surtitle")}</motion.p>
 
         <div style={{ overflow: "hidden", marginBottom: "0.6rem" }}>
           <motion.h2 initial={{ y: "105%" }} animate={inView ? { y: 0 } : {}}
             transition={{ duration: 1, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
             style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(40px, 13vw, 72px)", lineHeight: 0.9, letterSpacing: "0.04em", color: "#f5f0e8", margin: 0 }}
-          >NOS FORMULES</motion.h2>
+          >{t("formules_title")}</motion.h2>
         </div>
 
         <motion.p initial={{ opacity: 0, y: 12 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ delay: 0.5 }}
           style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(0.95rem, 3.8vw, 1.1rem)", fontWeight: 300, color: "rgba(245,240,232,0.45)", lineHeight: 1.7, fontStyle: "italic", marginBottom: "3rem" }}
         >
-          Deux packages complets pour sublimer chaque moment de votre grand jour.
+          {t("formules_sub")}
         </motion.p>
 
         <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
@@ -108,7 +110,7 @@ const FormulesSection = ({ refEl, onContact }) => {
                     <span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.4em", color: GOLD, textTransform: "uppercase", border: `1px solid rgba(184,151,62,0.3)`, padding: "3px 8px" }}>{f.tag}</span>
                   </div>
                   <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(1.3rem, 5.5vw, 1.7rem)", color: "#f5f0e8", fontWeight: 400, letterSpacing: "0.02em", margin: 0 }}>{f.titre}</p>
-                  <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.3em", color: "rgba(184,151,62,0.6)", textTransform: "uppercase", marginTop: "6px" }}>Prix sur demande</p>
+                  <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.3em", color: "rgba(184,151,62,0.6)", textTransform: "uppercase", marginTop: "6px" }}>{t("prix_sur_demande")}</p>
                 </div>
                 <motion.div animate={{ rotate: selected === f.id ? 45 : 0 }} transition={{ duration: 0.3 }}
                   style={{ color: GOLD, marginTop: "0.5rem", flexShrink: 0 }}
@@ -142,7 +144,7 @@ const FormulesSection = ({ refEl, onContact }) => {
                         <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "0.85rem", color: "rgba(245,240,232,0.45)", fontStyle: "italic", marginBottom: "1.2rem" }}>{f.tagline}</p>
                         <button onClick={onContact}
                           style={{ width: "100%", background: "none", border: `1px solid rgba(184,151,62,0.5)`, color: GOLD, padding: "0.9rem", fontFamily: "'Montserrat', sans-serif", fontSize: "8px", letterSpacing: "0.4em", textTransform: "uppercase", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}
-                        >Réserver cette formule <SvgArrow size={13} /></button>
+                        >{t("btn_reveler")} <SvgArrow size={13} /></button>
                       </div>
                     </div>
                   </motion.div>
@@ -159,10 +161,10 @@ const FormulesSection = ({ refEl, onContact }) => {
         >
           <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.5em", color: GOLD, textTransform: "uppercase", marginBottom: "1rem" }}>GASPARDNZ · 2025</p>
           <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(1.6rem, 7vw, 2.2rem)", fontWeight: 300, color: "#f5f0e8", letterSpacing: "0.02em", margin: "0 0 0.6rem" }}>
-            Téléchargez le Lookbook
+            {t("lookbook_title")}
           </h3>
           <p style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: "italic", fontSize: "0.9rem", color: "rgba(245,240,232,0.4)", marginBottom: "1.6rem" }}>
-            4 pages · Looks signature · Tarifs · Contact
+            {t("lookbook_desc")}
           </p>
           <a
             href={`${import.meta.env.BASE_URL}lookbook-gaspardnz.pdf`}
@@ -172,7 +174,7 @@ const FormulesSection = ({ refEl, onContact }) => {
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
             </svg>
-            TÉLÉCHARGER
+            {t("download")}
           </a>
         </motion.div>
       </div>

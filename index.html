@@ -125,7 +125,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap" rel="stylesheet" />
-    <link rel="manifest" href="/manifest.json" />
+    <link rel="manifest" href="%BASE_URL%manifest.json" />
   </head>
   <body>
     <!-- Vidéo de fond — démarre avant React pour zéro blanc -->
@@ -133,16 +133,9 @@
       autoplay muted playsinline loop
       disablepictureinpicture
       style="position:fixed;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 20%;filter:brightness(0.82) contrast(1.05);z-index:0;pointer-events:none;">
-      <source src="/hero.mp4" type="video/mp4" />
+      <source src="%BASE_URL%hero.mp4" type="video/mp4" />
     </video>
     <div id="root" style="position:relative;z-index:1;"></div>
     <script type="module" src="/src/main.jsx"></script>
-    <script>
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/sw.js').catch(() => {});
-        });
-      }
-    </script>
   </body>
 </html>

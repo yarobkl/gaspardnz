@@ -2,8 +2,10 @@ import { useRef, useState } from "react";
 import { motion, useInView, AnimatePresence } from "framer-motion";
 import { GOLD } from "../../constants.js";
 import { STYLE_DU_MOIS, WA_GNZ } from "../../data/styleDuMoisData.js";
+import { useTr } from "../../context.jsx";
 
 const StyleDuMoisSection = ({ refEl }) => {
+  const t = useTr();
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-8% 0px" });
   const [activeSpot, setActiveSpot] = useState(null);
@@ -17,7 +19,7 @@ const StyleDuMoisSection = ({ refEl }) => {
         transition={{ duration: 0.7 }}
         style={{ padding: "0 1.4rem", marginBottom: "2rem" }}>
         <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.55em", color: GOLD, textTransform: "uppercase", marginBottom: "10px" }}>GASPARDNZ</p>
-        <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "28px", fontWeight: 300, color: "#faf7f2", letterSpacing: "0.02em", lineHeight: 1.2, margin: 0 }}>Style du Mois</p>
+        <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "28px", fontWeight: 300, color: "#faf7f2", letterSpacing: "0.02em", lineHeight: 1.2, margin: 0 }}>{t("style_month")}</p>
         <div style={{ width: "48px", height: "1px", background: `linear-gradient(90deg, ${GOLD}, transparent)`, marginTop: "14px" }} />
       </motion.div>
 
@@ -51,7 +53,7 @@ const StyleDuMoisSection = ({ refEl }) => {
                           <button
                             onClick={() => window.open(`${WA_GNZ}?text=${encodeURIComponent(`Bonjour Gaspard, je suis intéressé(e) par : ${spot.label}`)}`, "_blank")}
                             style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "6.5px", letterSpacing: "0.18em", color: GOLD, textTransform: "uppercase", background: "rgba(184,151,62,0.1)", border: `1px solid rgba(184,151,62,0.3)`, borderRadius: "20px", padding: "4px 8px", cursor: "pointer", width: "100%" }}>
-                            Demander la disponibilité →
+                            {t("ask_availability")}
                           </button>
                         </motion.div>
                       )}

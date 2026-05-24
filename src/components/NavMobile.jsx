@@ -8,6 +8,7 @@ const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules, 
   const { lang, setLang } = useContext(LangCtx);
   const t = useTr();
   const [open, setOpen] = useState(false);
+  const [langOpen, setLangOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const navigating = useRef(false);
 
@@ -39,8 +40,13 @@ const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules, 
 
   const close = (fn) => {
     if (fn) navigating.current = true;
+    setLangOpen(false);
     setOpen(false);
     if (fn) setTimeout(() => { navigating.current = false; fn(); }, 60);
+  };
+  const chooseLang = (nextLang) => {
+    setLang(nextLang);
+    setLangOpen(false);
   };
 
   const navLight = !scrolled && !open;
@@ -94,17 +100,36 @@ const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules, 
 
           {(() => {
             const LANGS = ["FR","EN","ES","ZH"];
-            const next = () => { const i = (LANGS.indexOf(lang) + 1) % LANGS.length; const l = LANGS[i]; setLang(l); try { localStorage.setItem("gnz-lang", l); } catch {} };
             return (
-              <motion.button onClick={next} whileTap={{ scale: 0.88 }}
-                aria-label={`Langue actuelle : ${lang}. Cliquer pour changer`}
-                style={{ background: "none", border: "none", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "2px", padding: "0 4px", color: navTextColor, transition: "color 0.4s", height: "36px", minWidth: "28px" }}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                  <circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/>
-                  <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
-                </svg>
-                <span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "5px", letterSpacing: "0.3em", color: GOLD }}>{lang}</span>
-              </motion.button>
+              <div style={{ position: "relative" }}>
+                <motion.button onClick={() => setLangOpen(v => !v)} whileTap={{ scale: 0.88 }}
+                  aria-label={`Langue actuelle : ${lang}. Ouvrir les langues`}
+                  aria-expanded={langOpen}
+                  style={{ background: "none", border: "none", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "2px", padding: "0 4px", color: navTextColor, transition: "color 0.4s", height: "36px", minWidth: "28px" }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/>
+                    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                  </svg>
+                  <span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "5px", letterSpacing: "0.3em", color: GOLD }}>{lang}</span>
+                </motion.button>
+                <AnimatePresence>
+                  {langOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -6, scale: 0.96 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: -6, scale: 0.96 }}
+                      transition={{ duration: 0.18 }}
+                      style={{ position: "absolute", top: "42px", right: 0, display: "grid", gap: "4px", background: "rgba(245,240,232,0.98)", border: `1px solid rgba(184,151,62,0.3)`, padding: "8px", zIndex: 720, boxShadow: "0 12px 32px rgba(0,0,0,0.16)" }}>
+                      {LANGS.map(l => (
+                        <button key={l} onClick={() => chooseLang(l)}
+                          style={{ background: lang === l ? "rgba(184,151,62,0.12)" : "transparent", border: "none", cursor: "pointer", fontFamily: "'Montserrat', sans-serif", fontSize: "9px", letterSpacing: "0.24em", color: lang === l ? GOLD : TEXT, padding: "7px 9px", textAlign: "center" }}>
+                          {l}
+                        </button>
+                      ))}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
             );
           })()}
 
@@ -158,16 +183,16 @@ const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules, 
               [t("nav_showroom"), onShowroom],
               [t("nav_formules"), onFormules],
               [t("nav_galerie"), onGalerie],
-              ["Style du Mois", onStyleDuMois],
-              ["Lookbook", () => { const a = document.createElement("a"); a.href = `${import.meta.env.BASE_URL}lookbook-gaspardnz.pdf`; a.download = "Lookbook-GaspardNZ-2025.pdf"; a.click(); }],
+              [t("style_month"), onStyleDuMois],
+              [t("lookbook"), () => { const a = document.createElement("a"); a.href = `${import.meta.env.BASE_URL}lookbook-gaspardnz.pdf`; a.download = "Lookbook-GaspardNZ-2025.pdf"; a.click(); }],
             ].map(([label, fn], i) => (
               <motion.button key={label}
                 initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: i * 0.06, duration: 0.4 }}
                 onClick={() => close(fn)}
-                style={{ display: "block", width: "100%", background: "none", border: "none", textAlign: "left", cursor: "pointer", padding: "1.1rem 0", fontFamily: "'Cormorant Garamond', serif", fontSize: "1.8rem", letterSpacing: "0.08em", color: label === "Lookbook" ? GOLD : TEXT, borderBottom: "1px solid rgba(28,18,8,0.07)" }}
+                style={{ display: "block", width: "100%", background: "none", border: "none", textAlign: "left", cursor: "pointer", padding: "1.1rem 0", fontFamily: "'Cormorant Garamond', serif", fontSize: "1.8rem", letterSpacing: "0.08em", color: label === t("lookbook") ? GOLD : TEXT, borderBottom: "1px solid rgba(28,18,8,0.07)" }}
               >
-                {label}{label === "Lookbook" && <span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "9px", letterSpacing: "0.3em", marginLeft: "10px", opacity: 0.7 }}>↓ PDF</span>}
+                {label}{label === t("lookbook") && <span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "9px", letterSpacing: "0.3em", marginLeft: "10px", opacity: 0.7 }}>↓ PDF</span>}
               </motion.button>
             ))}
 
@@ -192,7 +217,7 @@ const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules, 
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}
               style={{ display: "flex", gap: "0.6rem", justifyContent: "center", marginTop: "1.4rem" }}>
               {["FR", "EN", "ES", "ZH"].map(l => (
-                <button key={l} onClick={() => { setLang(l); try { localStorage.setItem("gnz-lang", l); } catch {} }}
+                <button key={l} onClick={() => chooseLang(l)}
                   aria-label={`Passer en ${l}`}
                   style={{ background: "none", border: "none", cursor: "pointer", fontFamily: "'Montserrat', sans-serif", fontSize: "8px", letterSpacing: "0.3em", padding: "4px 6px",
                     color: lang === l ? GOLD : "rgba(28,18,8,0.3)", borderBottom: lang === l ? `1px solid ${GOLD}` : "1px solid transparent", transition: "all 0.3s" }}>

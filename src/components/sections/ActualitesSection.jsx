@@ -2,8 +2,10 @@ import { useState, useRef } from "react";
 import { motion, useInView } from "framer-motion";
 import { GOLD } from "../../constants.js";
 import { actualites } from "../../data/actualitesData.js";
+import { useTr } from "../../context.jsx";
 
 const ActuCard = ({ item }) => {
+  const t = useTr();
   const [expanded, setExpanded] = useState(false);
   const [photoCur, setPhotoCur] = useState(0);
   const photos = item.photos || [];
@@ -60,7 +62,7 @@ const ActuCard = ({ item }) => {
         <motion.button whileTap={{ scale: 0.97 }} onClick={() => setExpanded(e => !e)}
           style={{ marginTop: "1.1rem", background: "none", border: "none", padding: 0, cursor: "pointer", display: "flex", alignItems: "center", gap: "6px" }}>
           <span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "8px", letterSpacing: "0.3em", color: GOLD, textTransform: "uppercase" }}>
-            {expanded ? "Réduire" : "Lire la suite"}
+            {expanded ? t("reduce") : t("read_more")}
           </span>
           <motion.svg animate={{ rotate: expanded ? 180 : 0 }} transition={{ duration: 0.3 }} width="10" height="10" viewBox="0 0 10 10" fill="none">
             <path d="M2 3.5l3 3 3-3" stroke={GOLD} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
@@ -72,6 +74,7 @@ const ActuCard = ({ item }) => {
 };
 
 const ActualitesSection = () => {
+  const t = useTr();
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-8% 0px" });
   return (
@@ -79,7 +82,7 @@ const ActualitesSection = () => {
       <motion.div initial={{ opacity: 0, y: 16 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.7 }}
         style={{ padding: "0 1.4rem", marginBottom: "2.4rem" }}>
         <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.55em", color: GOLD, textTransform: "uppercase", marginBottom: "10px" }}>GASPARDNZ</p>
-        <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "28px", fontWeight: 300, color: "#faf7f2", letterSpacing: "0.02em", lineHeight: 1.2, margin: 0 }}>Actualités</p>
+        <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "28px", fontWeight: 300, color: "#faf7f2", letterSpacing: "0.02em", lineHeight: 1.2, margin: 0 }}>{t("actualites_title")}</p>
         <div style={{ width: "48px", height: "1px", background: `linear-gradient(90deg, ${GOLD}, transparent)`, marginTop: "14px" }} />
       </motion.div>
       <div style={{ padding: "0 1.4rem", display: "flex", flexDirection: "column", gap: "1.4rem" }}>

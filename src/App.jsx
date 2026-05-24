@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { GOLD, CREAM } from "./constants.js";
 import { LangCtx } from "./context.jsx";
@@ -28,6 +28,8 @@ import FooterMobile from "./components/FooterMobile.jsx";
 const FONTS_CSS = `@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Bebas+Neue&family=Montserrat:wght@200;300;400;500&display=swap');`;
 
 const _SPLASH_IMG = (typeof import.meta !== "undefined" ? (import.meta.env.BASE_URL || "/") : "/") + "images/style-parisien.jpg";
+const SUPPORTED_LANGS = ["FR", "EN", "ES", "ZH"];
+const HTML_LANG = { FR: "fr", EN: "en", ES: "es", ZH: "zh" };
 
 const SplashScreen = ({ onDone }) => (
   <motion.div
@@ -94,8 +96,18 @@ export default function App() {
   const [highContrast, setHighContrast] = useState(false);
   const [lightMode, setLightMode] = useState(false);
   const [lang, setLang] = useState(() => {
-    try { return localStorage.getItem("gnz-lang") || "FR"; } catch { return "FR"; }
+    try {
+      const saved = localStorage.getItem("gnz-lang");
+      return SUPPORTED_LANGS.includes(saved) ? saved : "FR";
+    } catch {
+      return "FR";
+    }
   });
+  const changeLang = useCallback((nextLang) => {
+    if (!SUPPORTED_LANGS.includes(nextLang)) return;
+    setLang(nextLang);
+    try { localStorage.setItem("gnz-lang", nextLang); } catch {}
+  }, []);
 
   const showroomRef    = useRef(null);
   const heritageRef    = useRef(null);
@@ -135,6 +147,10 @@ export default function App() {
   }, []);
 
   useEffect(() => {
+    document.documentElement.lang = HTML_LANG[lang] || "fr";
+  }, [lang]);
+
+  useEffect(() => {
     if (!splashDone) return;
     const already = localStorage.getItem("gnz-notif-asked");
     if (already) return;
@@ -156,7 +172,7 @@ export default function App() {
   };
 
   return (
-    <LangCtx.Provider value={{ lang, setLang }}>
+    <LangCtx.Provider value={{ lang, setLang: changeLang }}>
       <style>{`
         *, *::before, *::after { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
