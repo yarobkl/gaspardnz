@@ -4,6 +4,18 @@ import { GOLD, CREAM, TEXT } from "../constants.js";
 import { findReply, GREET } from "../data/chatbotData.js";
 
 const AVATAR_SRC = (typeof import.meta !== "undefined" ? (import.meta.env.BASE_URL || "/") : "/") + "avatar.jpg";
+const FALLBACK_BOT_TEXT = "Je n'ai pas bien compris votre demande. Pouvez-vous reformuler ?";
+
+const cleanMessageText = (value) => {
+  if (typeof value !== "string") return "";
+  return value.replace(/\s+/g, " ").trim();
+};
+
+const cleanBotText = (value) => {
+  if (typeof value !== "string") return FALLBACK_BOT_TEXT;
+  const text = value.trim();
+  return text || FALLBACK_BOT_TEXT;
+};
 
 const AvatarImg = ({ size, ring = true }) => {
   const [err, setErr] = useState(false);
@@ -47,35 +59,42 @@ const ChatBot = ({ onReserver, onGalerie, onShowroom, onFormules }) => {
   }, []);
 
   const handleAction = (btn) => {
-    addUserMsg(btn);
-    triggerReply(btn);
+    const text = cleanMessageText(btn);
+    if (!text) return;
+    addUserMsg(text);
+    triggerReply(text);
   };
 
   const addUserMsg = (text) => {
-    setMsgs(m => [...m, { from: "user", text, id: Date.now() }]);
+    const safeText = cleanMessageText(text);
+    if (!safeText) return;
+    setMsgs(m => [...m, { from: "user", text: safeText, id: `${Date.now()}-${m.length}` }]);
   };
 
   const triggerReply = (text) => {
+    const safeText = cleanMessageText(text);
+    if (!safeText) return;
     setTyping(true);
     setTimeout(() => {
       setTyping(false);
-      const entry = findReply(text);
-      if (text === "Prendre rendez-vous" || text.toLowerCase().includes("rendez-vous") || text.toLowerCase().includes("réserver")) {
-        setMsgs(m => [...m, { from: "bot", text: entry.rep, btns: entry.btns, action: "booking", id: Date.now() }]);
-      } else if (text === "La galerie" || text.toLowerCase().includes("galerie")) {
-        setMsgs(m => [...m, { from: "bot", text: "Je vous emmène dans la galerie ✦", btns: [], id: Date.now() }]);
+      const low = safeText.toLowerCase();
+      const entry = findReply(safeText);
+      if (safeText === "Prendre rendez-vous" || low.includes("rendez-vous") || low.includes("réserver")) {
+        setMsgs(m => [...m, { from: "bot", text: cleanBotText(entry.rep), btns: entry.btns || [], action: "booking", id: `${Date.now()}-${m.length}` }]);
+      } else if (safeText === "La galerie" || low.includes("galerie")) {
+        setMsgs(m => [...m, { from: "bot", text: "Je vous emmène dans la galerie ✦", btns: [], id: `${Date.now()}-${m.length}` }]);
         setTimeout(() => { setOpen(false); onGalerie?.(); }, 600);
-      } else if (text === "Le showroom" || text.toLowerCase().includes("showroom")) {
-        setMsgs(m => [...m, { from: "bot", text: "Je vous emmène au showroom ✦", btns: [], id: Date.now() }]);
+      } else if (safeText === "Le showroom" || low.includes("showroom")) {
+        setMsgs(m => [...m, { from: "bot", text: "Je vous emmène au showroom ✦", btns: [], id: `${Date.now()}-${m.length}` }]);
         setTimeout(() => { setOpen(false); onShowroom?.(); }, 600);
-      } else if (text === "Les formules" || text.toLowerCase().includes("formule")) {
-        setMsgs(m => [...m, { from: "bot", text: "Je vous emmène vers les formules ✦", btns: [], id: Date.now() }]);
+      } else if (safeText === "Les formules" || low.includes("formule")) {
+        setMsgs(m => [...m, { from: "bot", text: "Je vous emmène vers les formules ✦", btns: [], id: `${Date.now()}-${m.length}` }]);
         setTimeout(() => { setOpen(false); onFormules?.(); }, 600);
-      } else if (text === "Ouvrir WhatsApp") {
+      } else if (safeText === "Ouvrir WhatsApp") {
         window.open("https://wa.me/33664826920", "_blank");
-        setMsgs(m => [...m, { from: "bot", text: "Je vous redirige vers WhatsApp. Gaspard vous répondra sous 24h ✦", btns: [], id: Date.now() }]);
+        setMsgs(m => [...m, { from: "bot", text: "Je vous redirige vers WhatsApp. Gaspard vous répondra sous 24h ✦", btns: [], id: `${Date.now()}-${m.length}` }]);
       } else {
-        setMsgs(m => [...m, { from: "bot", text: entry.rep, btns: entry.btns, id: Date.now() }]);
+        setMsgs(m => [...m, { from: "bot", text: cleanBotText(entry.rep), btns: entry.btns || [], id: `${Date.now()}-${m.length}` }]);
       }
     }, 900 + Math.random() * 400);
   };
@@ -89,7 +108,7 @@ const ChatBot = ({ onReserver, onGalerie, onShowroom, onFormules }) => {
   };
 
   const formatText = (txt) => {
-    return (txt || "").split("\n").map((line, i) => {
+    return cleanBotText(txt).split("\n").map((line, i) => {
       const parts = line.split(/(\*\*.*?\*\*)/g);
       return (
         <p key={i} style={{ margin: "0.15rem 0" }}>
@@ -246,6 +265,7 @@ const ChatBot = ({ onReserver, onGalerie, onShowroom, onFormules }) => {
                 style={{ flex: 1, background: "#fff", border: "1px solid rgba(184,151,62,0.2)", padding: "0.6rem 0.9rem", fontFamily: "'Montserrat', sans-serif", fontSize: "12px", color: TEXT, outline: "none", borderRadius: "20px" }}
               />
               <button onClick={handleSend}
+                disabled={!input.trim()}
                 style={{ width: "36px", height: "36px", borderRadius: "50%", background: GOLD, border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="#1c1208"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg>
               </button>
