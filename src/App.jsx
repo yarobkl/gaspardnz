@@ -23,6 +23,7 @@ import InstagramSection from "./components/sections/InstagramSection.jsx";
 import VIPClientsSection from "./components/sections/VIPSection.jsx";
 import CommunauteSection from "./components/sections/CommunauteSection.jsx";
 import StyleDuMoisSection from "./components/sections/StyleDuMoisSection.jsx";
+import VideoSection from "./components/sections/VideoSection.jsx";
 import FooterMobile from "./components/FooterMobile.jsx";
 
 const FONTS_CSS = `@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Bebas+Neue&family=Montserrat:wght@200;300;400;500&display=swap');`;
@@ -255,7 +256,9 @@ export default function App() {
         <StyleJournalSection />
         <SectionDivider from="#0a0602" to="#f5f0e8" />
         <GalleryMobile refEl={galleryRef} />
-        <SectionDivider from="#f5f0e8" to="#0d1b3e" />
+        <SectionDivider from="#f5f0e8" to="#0a0602" />
+        <VideoSection />
+        <SectionDivider from="#0a0602" to="#0d1b3e" />
         <FormulesSection refEl={formulesRef} onContact={() => window.open(`https://wa.me/33664826920?text=${encodeURIComponent((APP_COPY[lang] || APP_COPY.FR).waFormula)}`, "_blank")} />
         <SectionDivider from="#0d1b3e" to="#0a0602" />
         <ActualitesSection />
