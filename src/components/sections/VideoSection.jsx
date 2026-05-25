@@ -1,15 +1,28 @@
-import { useContext } from "react";
-import { motion } from "framer-motion";
+import { useContext, useRef, useEffect } from "react";
+import { motion, useInView } from "framer-motion";
 import { GOLD, TEXT } from "../../constants.js";
 import { useTr } from "../../context.jsx";
 
 const VideoSection = () => {
   const t = useTr();
+  const videoRef = useRef(null);
+  const sectionRef = useRef(null);
+  const isInView = useInView(sectionRef, { amount: 0.5 });
 
   const VIDEO_URL = "https://res.cloudinary.com/dtzhbeebz/video/upload/Looks_demi-saison_ou_demi-_Dakar_arefgg.mp4";
 
+  useEffect(() => {
+    if (!videoRef.current) return;
+
+    if (isInView) {
+      videoRef.current.play().catch(() => {});
+    } else {
+      videoRef.current.pause();
+    }
+  }, [isInView]);
+
   return (
-    <section style={{ background: "#0a0602", padding: "3rem 1.4rem" }}>
+    <section ref={sectionRef} style={{ background: "#0a0602", padding: "3rem 1.4rem" }}>
       <motion.p
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
@@ -43,6 +56,7 @@ const VideoSection = () => {
         }}
       >
         <video
+          ref={videoRef}
           src={VIDEO_URL}
           controls
           playsInline
