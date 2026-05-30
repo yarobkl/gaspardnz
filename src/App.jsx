@@ -7,7 +7,7 @@ import NotificationPrompt from "./components/NotificationPrompt.jsx";
 import CookieBanner from "./components/CookieBanner.jsx";
 import { initGAIfConsented } from "./services/analytics.js";
 import { requestNotificationPermission } from "./services/notifications.js";
-import { getSession, loginAdmin } from "./services/adminAuth.js";
+import { getSession } from "./services/adminAuth.js";
 import { trackPageView, trackEvent } from "./services/adminAnalytics.js";
 import AdminLogin from "./components/Admin/AdminLogin.jsx";
 import AdminLayout from "./components/Admin/AdminLayout.jsx";
