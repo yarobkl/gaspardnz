@@ -7,6 +7,15 @@ import NotificationPrompt from "./components/NotificationPrompt.jsx";
 import CookieBanner from "./components/CookieBanner.jsx";
 import { initGAIfConsented } from "./services/analytics.js";
 import { requestNotificationPermission } from "./services/notifications.js";
+import { getSession, loginAdmin } from "./services/adminAuth.js";
+import { trackPageView, trackEvent } from "./services/adminAnalytics.js";
+import AdminLogin from "./components/Admin/AdminLogin.jsx";
+import AdminLayout from "./components/Admin/AdminLayout.jsx";
+import AdminDashboard from "./components/Admin/AdminDashboard.jsx";
+import AdminAnalytics from "./components/Admin/AdminAnalytics.jsx";
+import AdminCRM from "./components/Admin/AdminCRM.jsx";
+import AdminUsers from "./components/Admin/AdminUsers.jsx";
+import AdminSettings from "./components/Admin/AdminSettings.jsx";
 import NavMobile from "./components/NavMobile.jsx";
 import HeroMobile from "./components/HeroMobile.jsx";
 import HeritageMobile from "./components/HeritageMobile.jsx";
@@ -130,6 +139,10 @@ export default function App() {
   const [boutiqueMode, setBoutiqueMode] = useState(false);
   const [highContrast, setHighContrast] = useState(false);
   const [lightMode, setLightMode] = useState(false);
+  const [isAdminPath, setIsAdminPath] = useState(false);
+  const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
+  const [adminUser, setAdminUser] = useState(null);
+  const [adminSection, setAdminSection] = useState("dashboard");
   const [lang, setLang] = useState(() => {
     try {
       const saved = localStorage.getItem("gnz-lang");
@@ -194,6 +207,54 @@ export default function App() {
     return () => clearTimeout(t);
   }, [splashDone]);
 
+  useEffect(() => {
+    const initializeAdmin = () => {
+      const USERS_KEY = "gaspardnz_users";
+      const SESSION_KEY = "gaspardnz_session";
+      const users = localStorage.getItem(USERS_KEY);
+      if (!users) {
+        const defaultUsers = [
+          {
+            id: "1",
+            email: "admin@gaspardnz.style",
+            password: "12345",
+            permission: "admin_full",
+            createdAt: new Date().toISOString(),
+            lastLogin: null,
+          },
+        ];
+        localStorage.setItem(USERS_KEY, JSON.stringify(defaultUsers));
+      }
+    };
+    initializeAdmin();
+  }, []);
+
+  useEffect(() => {
+    const checkAdminPath = () => {
+      const path = window.location.pathname;
+      setIsAdminPath(path.startsWith("/admin"));
+    };
+    checkAdminPath();
+    window.addEventListener("popstate", checkAdminPath);
+    return () => window.removeEventListener("popstate", checkAdminPath);
+  }, []);
+
+  useEffect(() => {
+    if (isAdminPath) {
+      const session = getSession();
+      if (session) {
+        setIsAdminLoggedIn(true);
+        setAdminUser(session);
+      }
+    }
+  }, [isAdminPath]);
+
+  useEffect(() => {
+    if (splashDone && !isAdminPath) {
+      trackPageView(window.location.pathname);
+    }
+  }, [splashDone, isAdminPath]);
+
   const scrollTo = (ref) => { ref?.current?.scrollIntoView({ behavior: "smooth", block: "start" }); };
   const openBooking = (boutique = false) => { setBoutiqueMode(boutique); setBookingOpen(true); };
 
@@ -206,6 +267,36 @@ export default function App() {
     setNotifPrompt(false);
     localStorage.setItem("gnz-notif-asked", "1");
   };
+
+  if (isAdminPath) {
+    if (!isAdminLoggedIn) {
+      return (
+        <AdminLogin
+          onLoginSuccess={(user) => {
+            setAdminUser(user);
+            setIsAdminLoggedIn(true);
+            setAdminSection("dashboard");
+            window.history.replaceState({}, "", "/admin/dashboard");
+          }}
+        />
+      );
+    }
+    return (
+      <AdminLayout
+        currentSection={adminSection}
+        onSectionChange={(section) => {
+          setAdminSection(section);
+          window.history.pushState({}, "", `/admin/${section}`);
+        }}
+        user={adminUser}>
+        {adminSection === "dashboard" && <AdminDashboard />}
+        {adminSection === "analytics" && <AdminAnalytics />}
+        {adminSection === "crm" && <AdminCRM />}
+        {adminSection === "users" && <AdminUsers />}
+        {adminSection === "settings" && <AdminSettings />}
+      </AdminLayout>
+    );
+  }
 
   return (
     <LangCtx.Provider value={{ lang, setLang: changeLang }}>
