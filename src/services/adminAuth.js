@@ -36,7 +36,7 @@ export const initAdminUsers = () => {
     const defaultAdmin = {
       id: "admin_" + Date.now(),
       email: "admin@gaspardnz.style",
-      passwordHash: hashPassword("gaspardnz2024"),
+      passwordHash: hashPassword("12345"),
       permission: PERMISSIONS.ADMIN_FULL,
       createdAt: new Date().toISOString(),
       lastLogin: null,

@@ -7,7 +7,7 @@ import NotificationPrompt from "./components/NotificationPrompt.jsx";
 import CookieBanner from "./components/CookieBanner.jsx";
 import { initGAIfConsented } from "./services/analytics.js";
 import { requestNotificationPermission } from "./services/notifications.js";
-import { getSession } from "./services/adminAuth.js";
+import { getSession, initAdminUsers } from "./services/adminAuth.js";
 import { trackPageView, trackEvent } from "./services/adminAnalytics.js";
 import AdminLogin from "./components/Admin/AdminLogin.jsx";
 import AdminLayout from "./components/Admin/AdminLayout.jsx";
@@ -208,25 +208,7 @@ export default function App() {
   }, [splashDone]);
 
   useEffect(() => {
-    const initializeAdmin = () => {
-      const USERS_KEY = "gaspardnz_users";
-      const SESSION_KEY = "gaspardnz_session";
-      const users = localStorage.getItem(USERS_KEY);
-      if (!users) {
-        const defaultUsers = [
-          {
-            id: "1",
-            email: "admin@gaspardnz.style",
-            password: "12345",
-            permission: "admin_full",
-            createdAt: new Date().toISOString(),
-            lastLogin: null,
-          },
-        ];
-        localStorage.setItem(USERS_KEY, JSON.stringify(defaultUsers));
-      }
-    };
-    initializeAdmin();
+    initAdminUsers();
   }, []);
 
   useEffect(() => {
