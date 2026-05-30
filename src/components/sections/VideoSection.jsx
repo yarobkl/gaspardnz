@@ -12,12 +12,16 @@ const VideoSection = () => {
   const VIDEO_URL = "https://res.cloudinary.com/dtzhbeebz/video/upload/Looks_demi-saison_ou_demi-_Dakar_arefgg.mp4";
 
   useEffect(() => {
-    if (!videoRef.current) return;
+    const video = videoRef.current;
+    if (!video) return;
 
     if (isInView) {
-      videoRef.current.play().catch(() => {});
+      const playPromise = video.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(() => {});
+      }
     } else {
-      videoRef.current.pause();
+      video.pause();
     }
   }, [isInView]);
 
