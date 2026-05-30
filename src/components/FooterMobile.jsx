@@ -4,11 +4,11 @@ import { GOLD } from "../constants.js";
 import { useTr } from "../context.jsx";
 import { SvgInstagram, SvgTiktok, SvgYoutube, SvgWhatsapp } from "../icons.jsx";
 import LegalModal from "./LegalModal.jsx";
-
-const WA_NUM = "33664826920";
+import { useSettings } from "../hooks/useSettings.js";
 
 const FooterMobile = ({ onFormules, onGalerie, onShowroom }) => {
   const t = useTr();
+  const settings = useSettings();
   const [legalPage, setLegalPage] = useState(null);
 
   return (
@@ -29,7 +29,7 @@ const FooterMobile = ({ onFormules, onGalerie, onShowroom }) => {
             [t("nav_showroom"), onShowroom],
             [t("nav_galerie"), onGalerie],
             [t("nav_formules"), onFormules],
-            ["Instagram", () => window.open("https://www.instagram.com/gaspardnz_?igsh=YWgzb3Jua2NkeDdq", "_blank")],
+            ["Instagram", () => window.open(settings.instagramUrl || "https://www.instagram.com/gaspardnz_?igsh=YWgzb3Jua2NkeDdq", "_blank")],
             ["TikTok", () => window.open("https://www.tiktok.com/@gaspardnz?_r=1&_t=ZS-95wB65ZWhvB", "_blank")],
           ].map(([label, fn]) => (
             <button key={label} onClick={fn}
@@ -43,7 +43,7 @@ const FooterMobile = ({ onFormules, onGalerie, onShowroom }) => {
         {/* Social icons */}
         <div style={{ display: "flex", justifyContent: "center", gap: "1.4rem", marginBottom: "2rem" }}>
           {[
-            [SvgInstagram, "https://www.instagram.com/gaspardnz_?igsh=YWgzb3Jua2NkeDdq"],
+            [SvgInstagram, settings.instagramUrl || "https://www.instagram.com/gaspardnz_?igsh=YWgzb3Jua2NkeDdq"],
             [SvgTiktok, "https://www.tiktok.com/@gaspardnz?_r=1&_t=ZS-95wB65ZWhvB"],
             [SvgYoutube, "https://youtube.com/@gaspardnz?si=s4saxiuv7rt9iUmT"],
           ].map(([Icon, href], i) => (

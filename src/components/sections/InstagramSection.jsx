@@ -2,13 +2,14 @@ import { useRef } from "react";
 import { motion, useInView } from "framer-motion";
 import { TEXT } from "../../constants.js";
 import { useTr } from "../../context.jsx";
-
-const IG_URL = "https://www.instagram.com/gaspardnz_?igsh=YWgzb3Jua2NkeDdq";
+import { useSettings } from "../../hooks/useSettings.js";
 
 const InstagramSection = () => {
   const t = useTr();
+  const settings = useSettings();
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-6% 0px" });
+  const igUrl = settings.instagramUrl || "https://www.instagram.com/gaspardnz_?igsh=YWgzb3Jua2NkeDdq";
   const posts = [
     { src: `${import.meta.env.BASE_URL}images/costume-creme.jpg`,      label: t("gal_1") },
     { src: `${import.meta.env.BASE_URL}images/smoking-dore.jpg`,       label: t("gal_13") },
@@ -31,7 +32,7 @@ const InstagramSection = () => {
             <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "9px", color: "rgba(28,18,8,0.45)" }}>{t("ig_role")}</p>
           </div>
         </div>
-        <motion.a href={IG_URL} target="_blank" rel="noopener noreferrer"
+        <motion.a href={igUrl} target="_blank" rel="noopener noreferrer"
           whileTap={{ scale: 0.95 }}
           style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "9px", letterSpacing: "0.1em", color: "#faf7f2", background: "linear-gradient(90deg,#dc2743,#bc1888)", padding: "8px 14px", borderRadius: "20px", textDecoration: "none", fontWeight: 600 }}>
           {t("ig_follow")}
@@ -43,7 +44,7 @@ const InstagramSection = () => {
           <motion.div key={i} initial={{ opacity: 0, scale: 0.95 }} animate={inView ? { opacity: 1, scale: 1 } : {}}
             transition={{ duration: 0.4, delay: i * 0.07 }}
             style={{ position: "relative", aspectRatio: "1/1", overflow: "hidden", cursor: "pointer" }}
-            onClick={() => window.open(IG_URL, "_blank")}>
+            onClick={() => window.open(igUrl, "_blank")}>
             <img src={p.src} alt={`Look Gaspardnz — ${p.label}`} style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top", display: "block" }} loading="lazy" />
           </motion.div>
         ))}
