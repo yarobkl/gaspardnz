@@ -4,11 +4,7 @@
   "framework": "vite",
   "rewrites": [
     {
-      "source": "/admin",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/admin/(.*)",
+      "source": "/admin(.*)",
       "destination": "/index.html"
     }
   ],
