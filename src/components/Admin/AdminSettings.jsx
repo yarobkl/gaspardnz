@@ -1,32 +1,20 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { getSettings, saveSettings, getDefaultSettings, subscribeToSettingsChanges } from "../../services/settingsService.js";
 import "../../styles/admin.css";
 
 const AdminSettings = () => {
-  const SETTINGS_KEY = "gaspardnz_settings";
-
-  const defaultSettings = {
-    siteTitle: "GASPARDNZ",
-    heroTitle: "Événements d'Exception",
-    heroSubtitle: "Création et organisation d'événements mémorables",
-    whatsappNumber: "+33612345678",
-    calendlyUrl: "https://calendly.com/gaspardnz",
-    instagramUrl: "https://instagram.com/gaspardnz",
-    maisonAddress: "Paris, France",
-    formulaPrices: {
-      formule1: 1500,
-      formule2: 2500,
-      formule3: 5000,
-    },
-  };
-
-  const [settings, setSettings] = useState(() => {
-    const saved = localStorage.getItem(SETTINGS_KEY);
-    return saved ? JSON.parse(saved) : defaultSettings;
-  });
-
+  const [settings, setSettings] = useState(() => getSettings());
   const [editMode, setEditMode] = useState(false);
   const [formData, setFormData] = useState(settings);
   const [saveMessage, setSaveMessage] = useState("");
+
+  useEffect(() => {
+    const unsubscribe = subscribeToSettingsChanges((newSettings) => {
+      setSettings(newSettings);
+      setFormData(newSettings);
+    });
+    return unsubscribe;
+  }, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -44,7 +32,7 @@ const AdminSettings = () => {
   };
 
   const handleSave = () => {
-    localStorage.setItem(SETTINGS_KEY, JSON.stringify(formData));
+    saveSettings(formData);
     setSettings(formData);
     setEditMode(false);
     setSaveMessage("Paramètres sauvegardés avec succès");
@@ -58,9 +46,10 @@ const AdminSettings = () => {
 
   const handleResetToDefaults = () => {
     if (window.confirm("Êtes-vous sûr de vouloir réinitialiser tous les paramètres par défaut ?")) {
-      localStorage.setItem(SETTINGS_KEY, JSON.stringify(defaultSettings));
-      setSettings(defaultSettings);
-      setFormData(defaultSettings);
+      const defaults = getDefaultSettings();
+      saveSettings(defaults);
+      setSettings(defaults);
+      setFormData(defaults);
       setEditMode(false);
       setSaveMessage("Paramètres réinitialisés par défaut");
       setTimeout(() => setSaveMessage(""), 3000);

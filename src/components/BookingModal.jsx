@@ -3,6 +3,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { GOLD, TEXT } from "../constants.js";
 import { useTr } from "../context.jsx";
 import { SvgCalendar, SvgWA, SvgArrow } from "../icons.jsx";
+import { useSettings } from "../hooks/useSettings.js";
+import { getWhatsappUrl } from "../utils/whatsappUtil.js";
 
 const BoutiqueModal = ({ onClose, onReserver }) => {
   const t = useTr();
@@ -58,6 +60,7 @@ const BoutiqueModal = ({ onClose, onReserver }) => {
 
 const BookingModal = ({ isOpen, onClose, boutiqueMode = false, onSwitchToBooking }) => {
   const t = useTr();
+  const settings = useSettings();
   const [step, setStep] = useState(1);
   const [form, setForm] = useState({ nom: "", projet: "", besoin: "" });
 
@@ -67,7 +70,7 @@ const BookingModal = ({ isOpen, onClose, boutiqueMode = false, onSwitchToBooking
   const projet = form.projet.trim();
   const besoin = form.besoin.trim();
   const waMsg = t("bk_wa", nom, projet, besoin);
-  const waUrl = `https://wa.me/33664826920?text=${encodeURIComponent(waMsg).replace(/%3A/g, ':')}`;
+  const waUrl = getWhatsappUrl(settings.whatsappNumber, waMsg);
 
   const reset = () => { setStep(1); setForm({ nom: "", projet: "", besoin: "" }); onClose(); };
 
@@ -171,7 +174,7 @@ const BookingModal = ({ isOpen, onClose, boutiqueMode = false, onSwitchToBooking
                     </p>
 
                     <div style={{ display: "flex", flexDirection: "column", gap: "0.9rem" }}>
-                      <a href="https://calendly.com/gaspardnz" target="_blank" rel="noopener noreferrer"
+                      <a href={settings.calendlyUrl || "https://calendly.com/gaspardnz"} target="_blank" rel="noopener noreferrer"
                         style={{ display: "flex", alignItems: "center", gap: "1.1rem", border: "1px solid rgba(184,151,62,0.22)", padding: "1.3rem 1.4rem", textDecoration: "none", transition: "border-color 0.3s, background 0.3s" }}
                         onTouchStart={e => { e.currentTarget.style.borderColor = GOLD; e.currentTarget.style.background = "rgba(184,151,62,0.04)"; }}
                         onTouchEnd={e => { e.currentTarget.style.borderColor = "rgba(184,151,62,0.22)"; e.currentTarget.style.background = "none"; }}>

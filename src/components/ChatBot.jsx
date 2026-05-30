@@ -3,6 +3,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { GOLD, CREAM, TEXT } from "../constants.js";
 import { LangCtx, useTr } from "../context.jsx";
 import { findReply, getChatLabels, getFallbackReply, getGreeting } from "../data/chatbotData.js";
+import { useSettings } from "../hooks/useSettings.js";
+import { getWhatsappUrl } from "../utils/whatsappUtil.js";
 
 const AVATAR_SRC = (typeof import.meta !== "undefined" ? (import.meta.env.BASE_URL || "/") : "/") + "avatar.jpg";
 const cleanMessageText = (value) => {
@@ -31,6 +33,7 @@ const AvatarImg = ({ size, ring = true }) => {
 const ChatBot = ({ onReserver, onGalerie, onShowroom, onFormules }) => {
   const t = useTr();
   const { lang } = useContext(LangCtx);
+  const settings = useSettings();
   const labels = getChatLabels(lang);
   const fallback = getFallbackReply(lang);
   const [open, setOpen] = useState(false);
@@ -98,7 +101,7 @@ const ChatBot = ({ onReserver, onGalerie, onShowroom, onFormules }) => {
         setMsgs(m => [...m, { from: "bot", text: goPackages[lang] || goPackages.FR, btns: [], id: `${Date.now()}-${m.length}` }]);
         setTimeout(() => { setOpen(false); onFormules?.(); }, 600);
       } else if (safeText === labels.whatsapp) {
-        window.open("https://wa.me/33664826920", "_blank");
+        window.open(getWhatsappUrl(settings.whatsappNumber), "_blank");
         const goWA = { FR: "Je vous redirige vers WhatsApp. Gaspard vous répondra sous 24h.", EN: "Redirecting you to WhatsApp. Gaspard replies within 24h.", ES: "Te redirijo a WhatsApp. Gaspard responde en 24h.", ZH: "正在打开 WhatsApp。Gaspard 会在24小时内回复。" };
         setMsgs(m => [...m, { from: "bot", text: goWA[lang] || goWA.FR, btns: [], id: `${Date.now()}-${m.length}` }]);
       } else {
@@ -235,8 +238,8 @@ const ChatBot = ({ onReserver, onGalerie, onShowroom, onFormules }) => {
                           if (btn === labels.booking) { setOpen(false); onReserver?.(); }
                           else if (btn === labels.gallery || btn === labels.details) { setOpen(false); onGalerie?.(); }
                           else if (btn === labels.showroom) { setOpen(false); onShowroom?.(); }
-                          else if (btn === labels.whatsapp) { window.open("https://wa.me/33664826920", "_blank"); }
-                          else if (btn === "Instagram") { window.open("https://www.instagram.com/gaspardnz_?igsh=YWgzb3Jua2NkeDdq", "_blank"); }
+                          else if (btn === labels.whatsapp) { window.open(getWhatsappUrl(settings.whatsappNumber), "_blank"); }
+                          else if (btn === "Instagram") { window.open(settings.instagramUrl || "https://www.instagram.com/gaspardnz_?igsh=YWgzb3Jua2NkeDdq", "_blank"); }
                           else if (btn === "TikTok") { window.open("https://www.tiktok.com/@gaspardnz?_r=1&_t=ZS-95wB65ZWhvB", "_blank"); }
                           else if (btn === "Facebook") { window.open("https://www.facebook.com/share/1JXsWJwpTW/?mibextid=wwXIfr", "_blank"); }
                           else if (btn === "YouTube") { window.open("https://youtube.com/@gaspardnz?si=s4saxiuv7rt9iUmT", "_blank"); }

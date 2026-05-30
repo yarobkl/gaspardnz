@@ -3,9 +3,9 @@ import { motion, useInView } from "framer-motion";
 import { GOLD } from "../../constants.js";
 
 const reviews = [
-  { id: 1, platform: "tiktok", handle: "@rodrin_b", initials: "RB", gradient: "linear-gradient(135deg,#1e3a5f,#2d6a9f)", text: "Franchement Gaspard m'a transformé pour mon mariage. Le costume était parfait, la coupe impeccable. Tous mes invités ont demandé qui m'avait habillé 🔥", stars: 5 },
+  { id: 1, platform: "tiktok", handle: "@rodrin_b", initials: "RB", gradient: "linear-gradient(135deg,#1e3a5f,#2d6a9f)", text: "Franchement Gaspard m'a transformé pour mon mariage. Le costume était parfait, la coupe impeccable. Tous mes invités ont demandé qui m'avait habillé.", stars: 5 },
   { id: 2, platform: "instagram", handle: "@cedric.monaco", initials: "CM", gradient: "linear-gradient(135deg,#4a1942,#8b2fc9)", text: "Service VIP de bout en bout. Gaspard a une vraie vision artistique. Il ne fait pas que vêtir, il construit une identité.", stars: 5 },
-  { id: 3, platform: "tiktok", handle: "@yannick.b", initials: "YB", gradient: "linear-gradient(135deg,#1a3a1a,#2d6b2d)", text: "Pour mon gala à Lyon, j'avais besoin d'un look qui claque. Résultat : 200+ commentaires sur ma photo. Merci Gaspard ✨", stars: 5 },
+  { id: 3, platform: "tiktok", handle: "@yannick.b", initials: "YB", gradient: "linear-gradient(135deg,#1a3a1a,#2d6b2d)", text: "Pour mon gala à Lyon, j'avais besoin d'un look qui claque. Résultat : 200+ commentaires sur ma photo. Un vrai professionnel.", stars: 5 },
   { id: 4, platform: "whatsapp", handle: "Alexis N.", initials: "AN", gradient: "linear-gradient(135deg,#3d1a00,#8b3d00)", text: "Disponible, à l'écoute et ultra professionnel. Le costume livré à Dubaï était exactement ce que je voulais. Je recommande les yeux fermés.", stars: 5 },
 ];
 

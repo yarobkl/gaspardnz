@@ -2,6 +2,8 @@ import { useState, useEffect, useRef } from "react";
 import { motion, useInView, useMotionValue, animate, AnimatePresence } from "framer-motion";
 import { GOLD } from "../../constants.js";
 import { useTr } from "../../context.jsx";
+import { useSettings } from "../../hooks/useSettings.js";
+import { getWhatsappUrl } from "../../utils/whatsappUtil.js";
 
 const AlbumModal = ({ photos, name, onClose }) => {
   const t = useTr();
@@ -64,6 +66,7 @@ const AlbumModal = ({ photos, name, onClose }) => {
 
 const VIPClientsSection = () => {
   const t = useTr();
+  const settings = useSettings();
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-6% 0px" });
   const [cur, setCur] = useState(0);
@@ -183,7 +186,7 @@ const VIPClientsSection = () => {
       <motion.div initial={{ opacity: 0 }} animate={inView ? { opacity: 1 } : {}} transition={{ delay: 0.7 }}
         style={{ textAlign: "center", marginTop: "2.4rem", padding: "0 1.4rem" }}>
         <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "9px", color: "rgba(250,247,242,0.3)", letterSpacing: "0.08em" }}>{t("vip_question")}</p>
-        <motion.button whileTap={{ scale: 0.97 }} onClick={() => window.open(`https://wa.me/33664826920?text=${encodeURIComponent(t("vip_question"))}`, "_blank")}
+        <motion.button whileTap={{ scale: 0.97 }} onClick={() => window.open(getWhatsappUrl(settings.whatsappNumber, t("vip_question")), "_blank")}
           style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "9.5px", letterSpacing: "0.2em", color: GOLD, textTransform: "uppercase", background: "none", border: "none", cursor: "pointer", borderBottom: `1px solid rgba(184,151,62,0.4)`, paddingBottom: "2px", marginTop: "8px" }}>
           {t("vip_contact")}
         </motion.button>

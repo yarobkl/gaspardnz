@@ -2,11 +2,14 @@ import { useContext, useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { GOLD, TEXT } from "../constants.js";
 import { LangCtx, useTr } from "../context.jsx";
-import { getGallerySpots, WA_STL } from "../data/galleryData.js";
+import { getGallerySpots } from "../data/galleryData.js";
+import { useSettings } from "../hooks/useSettings.js";
+import { getWhatsappUrl } from "../utils/whatsappUtil.js";
 
 const GalleryMobile = ({ refEl }) => {
   const t = useTr();
   const { lang } = useContext(LangCtx);
+  const settings = useSettings();
   const gallerySpots = getGallerySpots(lang);
   const baseItems = [
     { src: `${import.meta.env.BASE_URL}images/costume-creme.jpg`, label: t("gal_1") },
@@ -62,8 +65,8 @@ const GalleryMobile = ({ refEl }) => {
       ES: `Hola Gaspard. Descubrí tu look "${curItem.label}" en gaspardnz.com y me interesa mucho "${curSpot.label}" — ${curSpot.detail}. ¿Podrías enviarme más información y el precio para una creación a medida? Gracias`,
       ZH: `你好 Gaspard！我在 gaspardnz.com 看到了造型「${curItem.label}」，我对「${curSpot.label}」很感兴趣 — ${curSpot.detail}。可以告诉我更多信息和定制价格吗？谢谢`,
     };
-    const msg = encodeURIComponent(messages[lang] || messages.FR);
-    window.open(`https://wa.me/${WA_STL}?text=${msg}`, "_blank");
+    const msg = messages[lang] || messages.FR;
+    window.open(getWhatsappUrl(settings.whatsappNumber, msg), "_blank");
   };
 
   const handleShare = async (network) => {
@@ -198,7 +201,7 @@ const GalleryMobile = ({ refEl }) => {
               {shareToast && (
                 <motion.div initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }}
                   style={{ position: "absolute", top: "52px", left: "50%", transform: "translateX(-50%)", background: "#1c1208", color: "#faf7f2", padding: "7px 16px", borderRadius: "20px", fontFamily: "'Montserrat', sans-serif", fontSize: "9.5px", whiteSpace: "nowrap", zIndex: 5, pointerEvents: "none" }}>
-                  ✓ {shareToast}
+                  {shareToast}
                 </motion.div>
               )}
 
