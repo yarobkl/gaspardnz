@@ -5,7 +5,7 @@ const isCapacitor = process.env.BUILD_TARGET === "capacitor";
 
 export default defineConfig({
   plugins: [react()],
-  base: isCapacitor ? "/" : "/gaspardnz/",
+  base: isCapacitor ? "/" : "/",
   build: {
     outDir: "dist",
     rollupOptions: {
