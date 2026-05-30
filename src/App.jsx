@@ -221,15 +221,17 @@ export default function App() {
     return () => window.removeEventListener("popstate", checkAdminPath);
   }, []);
 
+  const currentlyOnAdminPath = typeof window !== "undefined" && window.location.pathname.startsWith("/admin");
+
   useEffect(() => {
-    if (isAdminPath) {
+    if (currentlyOnAdminPath || isAdminPath) {
       const session = getSession();
       if (session) {
         setIsAdminLoggedIn(true);
         setAdminUser(session);
       }
     }
-  }, [isAdminPath]);
+  }, [currentlyOnAdminPath, isAdminPath]);
 
   useEffect(() => {
     if (splashDone && !isAdminPath) {
@@ -250,7 +252,7 @@ export default function App() {
     localStorage.setItem("gnz-notif-asked", "1");
   };
 
-  if (isAdminPath) {
+  if (currentlyOnAdminPath || isAdminPath) {
     if (!isAdminLoggedIn) {
       return (
         <AdminLogin
