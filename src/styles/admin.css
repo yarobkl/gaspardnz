@@ -56,6 +56,13 @@ body.admin {
   flex-direction: column;
   height: 100vh;
   gap: 0;
+  background: var(--gnz-dark);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9999;
 }
 
 /* Sidebar - Stack on mobile, side on desktop */
@@ -69,6 +76,7 @@ body.admin {
   overflow-x: auto;
   overflow-y: hidden;
   -webkit-overflow-scrolling: touch;
+  flex-shrink: 0;
 }
 
 .admin-sidebar-header {
@@ -130,6 +138,7 @@ body.admin {
   -webkit-overflow-scrolling: touch;
   padding: var(--spacing-lg);
   gap: var(--spacing-lg);
+  background: var(--gnz-dark);
 }
 
 .admin-header {
