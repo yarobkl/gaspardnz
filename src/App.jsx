@@ -15,6 +15,7 @@ import AdminDashboard from "./components/Admin/AdminDashboard.jsx";
 import AdminAnalytics from "./components/Admin/AdminAnalytics.jsx";
 import AdminCRM from "./components/Admin/AdminCRM.jsx";
 import AdminUsers from "./components/Admin/AdminUsers.jsx";
+import AdminWeddingInspiration from "./components/Admin/AdminWeddingInspiration.jsx";
 import AdminSettings from "./components/Admin/AdminSettings.jsx";
 import NavMobile from "./components/NavMobile.jsx";
 import HeroMobile from "./components/HeroMobile.jsx";
@@ -278,6 +279,7 @@ export default function App() {
         {adminSection === "analytics" && <AdminAnalytics />}
         {adminSection === "crm" && <AdminCRM />}
         {adminSection === "users" && <AdminUsers />}
+        {adminSection === "wedding" && <AdminWeddingInspiration />}
         {adminSection === "settings" && <AdminSettings />}
       </AdminLayout>
     );

@@ -1,13 +1,26 @@
-import { useContext, useRef, useState } from "react";
+import { useContext, useRef, useState, useEffect } from "react";
 import { motion, useInView, AnimatePresence } from "framer-motion";
 import { GOLD } from "../../constants.js";
 import { getWeddingInspirations, WA_GNZ } from "../../data/weddingInspirationData.js";
+import { getSettingsService } from "../../services/settingsService.js";
 import { LangCtx, useTr } from "../../context.jsx";
 
 const WeddingInspirationSection = ({ refEl }) => {
   const t = useTr();
   const { lang } = useContext(LangCtx);
-  const INSPIRATIONS = getWeddingInspirations(lang);
+  const [inspirations, setInspirations] = useState([]);
+  const settingsService = getSettingsService();
+
+  useEffect(() => {
+    const settings = settingsService.getSettings();
+    if (settings.weddingInspirations && settings.weddingInspirations.length > 0) {
+      setInspirations(settings.weddingInspirations);
+    } else {
+      setInspirations(getWeddingInspirations(lang));
+    }
+  }, [lang]);
+
+  const INSPIRATIONS = inspirations;
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-8% 0px" });
   const [activeSpot, setActiveSpot] = useState(null);
