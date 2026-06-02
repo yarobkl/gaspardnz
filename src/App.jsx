@@ -312,14 +312,12 @@ export default function App() {
         {!splashDone && <SplashScreen key="splash" loading={(APP_COPY[lang] || APP_COPY.FR).loading} onDone={() => setSplashDone(true)} />}
       </AnimatePresence>
 
-      {/* Toujours rendu pour que la vidéo charge pendant le splash */}
+      {/* Rendu seulement après le splash pour éviter le chargement de la vidéo en arrière-plan */}
+      {splashDone && (
       <div
         data-gnz-mode={lightMode ? "light" : "dark"}
         style={{
           minHeight: "100dvh", overflowX: "hidden",
-          opacity: splashDone ? 1 : 0,
-          pointerEvents: splashDone ? "auto" : "none",
-          transition: splashDone ? "opacity 0.4s ease" : "none",
         }}>
         <NavMobile
           onShowroom={() => scrollTo(showroomRef)}
@@ -362,6 +360,7 @@ export default function App() {
         <BookingModal isOpen={bookingOpen} onClose={() => setBookingOpen(false)} boutiqueMode={boutiqueMode} onSwitchToBooking={() => setBoutiqueMode(false)} />
         <ChatBot onReserver={() => openBooking(false)} onGalerie={() => scrollTo(galleryRef)} onShowroom={() => scrollTo(showroomRef)} onFormules={() => scrollTo(formulesRef)} />
       </div>
+      )}
       <NotificationPrompt visible={notifPrompt} onAccept={handleNotifAccept} onDecline={handleNotifDecline} />
       <CookieBanner />
     </LangCtx.Provider>
