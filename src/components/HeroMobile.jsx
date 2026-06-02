@@ -15,7 +15,7 @@ const HeroVideoLoop = () => {
     const onPause = () => { if (!document.hidden) setTimeout(play, 300); };
     const onStall = () => setTimeout(play, 500);
     const onVis   = () => { if (!document.hidden) play(); };
-    play();
+
     v.addEventListener("canplay",    play);
     v.addEventListener("loadeddata", play);
     v.addEventListener("pause",      onPause);
@@ -35,14 +35,14 @@ const HeroVideoLoop = () => {
     <video
       ref={ref}
       src={_HERO_SRC}
-      autoPlay muted playsInline loop
+      muted playsInline loop
       disablePictureInPicture disableRemotePlayback
-      preload="auto"
+      preload="none"
       controls={false}
       x-webkit-airplay="deny"
       controlsList="nodownload nofullscreen noremoteplayback"
       onEnded={e => { e.target.currentTime = 0; e.target.play().catch(() => {}); }}
-      style={{ ..._VIDEO_STYLE }}
+      style={{ ..._VIDEO_STYLE, background: "#1c1208" }}
     />
   );
 };
