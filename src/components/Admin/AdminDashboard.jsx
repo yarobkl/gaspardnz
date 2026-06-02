@@ -78,25 +78,27 @@ const AdminDashboard = () => {
         <h3 className="admin-h3" style={{ marginBottom: "1.5rem" }}>Pages les plus visitées</h3>
         <div className="admin-card">
           {(analytics?.topPages || []).length > 0 ? (
-            <table className="admin-table">
-              <thead>
-                <tr>
-                  <th>Page</th>
-                  <th style={{ textAlign: "right" }}>Vues</th>
-                </tr>
-              </thead>
-              <tbody>
-                {(analytics?.topPages || []).map((p) => (
-                  <tr key={p.page}>
-                    <td>{p.page}</td>
-                    <td style={{ textAlign: "right", color: "var(--gnz-gold)" }}>{p.count}</td>
+            <div className="admin-table-wrapper">
+              <table className="admin-table">
+                <thead>
+                  <tr>
+                    <th>Page</th>
+                    <th style={{ textAlign: "right" }}>Vues</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {(analytics?.topPages || []).map((p) => (
+                    <tr key={p.page}>
+                      <td>{p.page}</td>
+                      <td style={{ textAlign: "right", color: "var(--gnz-gold)" }}>{p.count}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           ) : (
             <div style={{ padding: "2rem", textAlign: "center", color: "var(--gnz-text-secondary)" }}>
-              Pas de données disponibles
+              Pas de dados disponibles
             </div>
           )}
         </div>

@@ -185,43 +185,45 @@ const AdminCRM = () => {
         )}
 
         <div className="admin-card">
-          <table className="admin-table">
-            <thead>
-              <tr>
-                <th>Nom</th>
-                <th>Email</th>
-                <th>Statut</th>
-                <th>Événement</th>
-              </tr>
-            </thead>
-            <tbody>
-              {leads.map((lead) => (
-                <tr
-                  key={lead.id}
-                  onClick={() => setSelectedLead(lead)}
-                  style={{
-                    cursor: "pointer",
-                    background: selectedLead?.id === lead.id ? "rgba(184,151,62,0.1)" : "transparent",
-                  }}>
-                  <td>{lead.name}</td>
-                  <td style={{ color: "var(--gnz-text-secondary)" }}>{lead.email}</td>
-                  <td>
-                    <span
-                      style={{
-                        padding: "0.3rem 0.6rem",
-                        background: lead.status === "converti" ? "rgba(92,175,45,0.2)" : "rgba(184,151,62,0.2)",
-                        color: lead.status === "converti" ? "#5caf2d" : "var(--gnz-gold)",
-                        borderRadius: "3px",
-                        fontSize: "0.75rem",
-                      }}>
-                      {lead.status}
-                    </span>
-                  </td>
-                  <td>{lead.eventType}</td>
+          <div className="admin-table-wrapper">
+            <table className="admin-table">
+              <thead>
+                <tr>
+                  <th>Nom</th>
+                  <th>Email</th>
+                  <th>Statut</th>
+                  <th>Événement</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {leads.map((lead) => (
+                  <tr
+                    key={lead.id}
+                    onClick={() => setSelectedLead(lead)}
+                    style={{
+                      cursor: "pointer",
+                      background: selectedLead?.id === lead.id ? "rgba(184,151,62,0.1)" : "transparent",
+                    }}>
+                    <td>{lead.name}</td>
+                    <td style={{ color: "var(--gnz-text-secondary)" }}>{lead.email}</td>
+                    <td>
+                      <span
+                        style={{
+                          padding: "0.3rem 0.6rem",
+                          background: lead.status === "converti" ? "rgba(92,175,45,0.2)" : "rgba(184,151,62,0.2)",
+                          color: lead.status === "converti" ? "#5caf2d" : "var(--gnz-gold)",
+                          borderRadius: "3px",
+                          fontSize: "0.75rem",
+                        }}>
+                        {lead.status}
+                      </span>
+                    </td>
+                    <td>{lead.eventType}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
           {leads.length === 0 && (
             <div style={{ padding: "2rem", textAlign: "center", color: "var(--gnz-text-secondary)" }}>
               Aucun lead pour le moment

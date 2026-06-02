@@ -115,44 +115,46 @@ const AdminUsers = () => {
       )}
 
       <div className="admin-card">
-        <table className="admin-table">
-          <thead>
-            <tr>
-              <th>Email</th>
-              <th>Permission</th>
-              <th>Créé</th>
-              <th>Dernière visite</th>
-              <th style={{ textAlign: "center" }}>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {users.map((user) => (
-              <tr key={user.id}>
-                <td>
-                  {user.email}
-                  {session?.userId === user.id && <span style={{ color: "var(--gnz-gold)", marginLeft: "0.5rem" }}>(Vous)</span>}
-                </td>
-                <td>{permissionLabels[user.permission]}</td>
-                <td style={{ color: "var(--gnz-text-secondary)" }}>
-                  {new Date(user.createdAt).toLocaleDateString("fr-FR")}
-                </td>
-                <td style={{ color: "var(--gnz-text-secondary)" }}>
-                  {user.lastLogin ? new Date(user.lastLogin).toLocaleDateString("fr-FR") : "-"}
-                </td>
-                <td style={{ textAlign: "center" }}>
-                  {session?.userId !== user.id && (
-                    <button
-                      onClick={() => handleDeleteUser(user.id)}
-                      className="admin-btn-danger"
-                      style={{ fontSize: "0.75rem", padding: "0.4rem 0.8rem" }}>
-                      Supprimer
-                    </button>
-                  )}
-                </td>
+        <div className="admin-table-wrapper">
+          <table className="admin-table">
+            <thead>
+              <tr>
+                <th>Email</th>
+                <th>Permission</th>
+                <th>Créé</th>
+                <th>Dernière visite</th>
+                <th style={{ textAlign: "center" }}>Action</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {users.map((user) => (
+                <tr key={user.id}>
+                  <td>
+                    {user.email}
+                    {session?.userId === user.id && <span style={{ color: "var(--gnz-gold)", marginLeft: "0.5rem" }}>(Vous)</span>}
+                  </td>
+                  <td>{permissionLabels[user.permission]}</td>
+                  <td style={{ color: "var(--gnz-text-secondary)" }}>
+                    {new Date(user.createdAt).toLocaleDateString("fr-FR")}
+                  </td>
+                  <td style={{ color: "var(--gnz-text-secondary)" }}>
+                    {user.lastLogin ? new Date(user.lastLogin).toLocaleDateString("fr-FR") : "-"}
+                  </td>
+                  <td style={{ textAlign: "center" }}>
+                    {session?.userId !== user.id && (
+                      <button
+                        onClick={() => handleDeleteUser(user.id)}
+                        className="admin-btn-danger"
+                        style={{ fontSize: "0.75rem", padding: "0.4rem 0.8rem" }}>
+                        Supprimer
+                      </button>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
         {users.length === 0 && (
           <div style={{ padding: "2rem", textAlign: "center", color: "var(--gnz-text-secondary)" }}>
             Aucun administrateur
