@@ -1,9 +1,8 @@
 import { useState, useEffect } from "react";
 import { GOLD } from "../../constants.js";
-import { getSettingsService } from "../../services/settingsService.js";
+import { getSettings, saveSettings } from "../../services/settingsService.js";
 
 const AdminWeddingInspiration = () => {
-  const settingsService = getSettingsService();
   const [inspirations, setInspirations] = useState([]);
   const [editingId, setEditingId] = useState(null);
   const [formData, setFormData] = useState({
@@ -16,7 +15,7 @@ const AdminWeddingInspiration = () => {
   });
 
   useEffect(() => {
-    const settings = settingsService.getSettings();
+    const settings = getSettings();
     if (settings.weddingInspirations) {
       setInspirations(settings.weddingInspirations);
     }
@@ -37,7 +36,7 @@ const AdminWeddingInspiration = () => {
     }
 
     setInspirations(newInspirations);
-    settingsService.updateSettings({ weddingInspirations: newInspirations });
+    saveSettings({ weddingInspirations: newInspirations });
     setFormData({ title: "", desc: "", color: "", style: "", occasion: "", src: "" });
   };
 
@@ -49,7 +48,7 @@ const AdminWeddingInspiration = () => {
   const handleDelete = (index) => {
     const newInspirations = inspirations.filter((_, i) => i !== index);
     setInspirations(newInspirations);
-    settingsService.updateSettings({ weddingInspirations: newInspirations });
+    saveSettings({ weddingInspirations: newInspirations });
   };
 
   const handleCancel = () => {

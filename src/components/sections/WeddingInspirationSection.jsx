@@ -2,17 +2,16 @@ import { useContext, useRef, useState, useEffect } from "react";
 import { motion, useInView, AnimatePresence } from "framer-motion";
 import { GOLD } from "../../constants.js";
 import { getWeddingInspirations, WA_GNZ } from "../../data/weddingInspirationData.js";
-import { getSettingsService } from "../../services/settingsService.js";
+import { getSettings } from "../../services/settingsService.js";
 import { LangCtx, useTr } from "../../context.jsx";
 
 const WeddingInspirationSection = ({ refEl }) => {
   const t = useTr();
   const { lang } = useContext(LangCtx);
   const [inspirations, setInspirations] = useState([]);
-  const settingsService = getSettingsService();
 
   useEffect(() => {
-    const settings = settingsService.getSettings();
+    const settings = getSettings();
     if (settings.weddingInspirations && settings.weddingInspirations.length > 0) {
       setInspirations(settings.weddingInspirations);
     } else {
