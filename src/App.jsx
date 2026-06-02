@@ -210,6 +210,12 @@ export default function App() {
   }, [lang]);
 
   useEffect(() => {
+    if (splashDone) return;
+    const t = setTimeout(() => setSplashDone(true), 4000);
+    return () => clearTimeout(t);
+  }, [splashDone]);
+
+  useEffect(() => {
     if (!splashDone) return;
     const already = localStorage.getItem("gnz-notif-asked");
     if (already) return;
