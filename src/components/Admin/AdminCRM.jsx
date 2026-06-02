@@ -28,11 +28,28 @@ const AdminCRM = () => {
 
   const handleAddLead = (e) => {
     e.preventDefault();
+
+    const trimmedName = formData.name?.trim();
+    const trimmedEmail = formData.email?.trim();
+
+    if (!trimmedName || !trimmedEmail) {
+      alert("Nom et email sont obligatoires");
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(trimmedEmail)) {
+      alert("Email invalide");
+      return;
+    }
+
     const result = createLead(formData);
     if (result.success) {
       setFormData({ name: "", email: "", phone: "", eventType: "", eventDate: "", guestCount: "", budget: "", notes: "" });
       setShowForm(false);
       loadLeads();
+    } else {
+      alert(result.error || "Erreur lors de la création du lead");
     }
   };
 
@@ -52,16 +69,27 @@ const AdminCRM = () => {
 
   const handleAddMessage = (e) => {
     e.preventDefault();
-    if (selectedLead && newMessage.trim()) {
-      addInteraction(selectedLead.id, "note", newMessage);
-      setNewMessage("");
-      const updatedLeads = getAllLeads();
-      const updated = updatedLeads.find((l) => l.id === selectedLead.id);
-      if (updated) {
-        setSelectedLead(updated);
-      } else {
-        setSelectedLead(null);
-      }
+    const trimmedMessage = newMessage.trim();
+    if (!selectedLead) return;
+
+    if (!trimmedMessage) {
+      alert("Le message ne peut pas être vide");
+      return;
+    }
+
+    if (trimmedMessage.length > 5000) {
+      alert("Le message est trop long (max 5000 caractères)");
+      return;
+    }
+
+    addInteraction(selectedLead.id, "note", trimmedMessage);
+    setNewMessage("");
+    const updatedLeads = getAllLeads();
+    const updated = updatedLeads.find((l) => l.id === selectedLead.id);
+    if (updated) {
+      setSelectedLead(updated);
+    } else {
+      setSelectedLead(null);
     }
   };
 

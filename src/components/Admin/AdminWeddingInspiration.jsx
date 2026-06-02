@@ -21,18 +21,33 @@ const AdminWeddingInspiration = () => {
     }
   }, []);
 
+  const isValidUrl = (string) => {
+    try {
+      new URL(string);
+      return true;
+    } catch (_) {
+      return false;
+    }
+  };
+
   const handleAdd = () => {
     if (!formData.title || !formData.src) {
       alert("Titre et URL image sont obligatoires");
       return;
     }
 
+    if (!isValidUrl(formData.src)) {
+      alert("URL d'image invalide");
+      return;
+    }
+
     const newInspirations = [...inspirations];
     if (editingId !== null) {
-      newInspirations[editingId] = { ...formData, id: editingId };
+      newInspirations[editingId] = formData;
       setEditingId(null);
     } else {
-      newInspirations.push({ ...formData, id: newInspirations.length });
+      const id = formData.id || `insp_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
+      newInspirations.push({ ...formData, id });
     }
 
     setInspirations(newInspirations);
@@ -148,7 +163,7 @@ const AdminWeddingInspiration = () => {
 
       <div style={{ display: "grid", gap: "1rem" }}>
         {inspirations.map((inspiration, idx) => (
-          <div key={idx} style={{ background: "#111009", padding: "1rem", borderRadius: "8px", border: `1px solid rgba(184,151,62,0.2)` }}>
+          <div key={inspiration.id || idx} style={{ background: "#111009", padding: "1rem", borderRadius: "8px", border: `1px solid rgba(184,151,62,0.2)` }}>
             <div style={{ marginBottom: "0.5rem" }}>
               <h4 style={{ color: GOLD, margin: "0 0 0.5rem 0" }}>{inspiration.title}</h4>
               <p style={{ color: "rgba(245,240,232,0.6)", margin: "0 0 0.5rem 0", fontSize: "0.9rem" }}>{inspiration.desc}</p>

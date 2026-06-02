@@ -3,9 +3,15 @@ import { getSettings, saveSettings, getDefaultSettings, subscribeToSettingsChang
 import "../../styles/admin.css";
 
 const AdminSettings = () => {
-  const [settings, setSettings] = useState(() => getSettings());
+  const [settings, setSettings] = useState(() => {
+    const s = getSettings();
+    return { ...s, formulaPrices: s.formulaPrices || {} };
+  });
   const [editMode, setEditMode] = useState(false);
-  const [formData, setFormData] = useState(settings);
+  const [formData, setFormData] = useState(() => {
+    const s = getSettings();
+    return { ...s, formulaPrices: s.formulaPrices || {} };
+  });
   const [saveMessage, setSaveMessage] = useState("");
 
   useEffect(() => {
@@ -22,11 +28,15 @@ const AdminSettings = () => {
   };
 
   const handlePriceChange = (formulaKey, value) => {
+    const numValue = parseFloat(value);
+    if (isNaN(numValue) || numValue < 0) return;
+    if (numValue > 1000000) return;
+
     setFormData({
       ...formData,
       formulaPrices: {
         ...formData.formulaPrices,
-        [formulaKey]: parseFloat(value) || 0,
+        [formulaKey]: numValue,
       },
     });
   };
@@ -167,7 +177,15 @@ const AdminSettings = () => {
           <div key={key} className="admin-form-group">
             <label className="admin-label">{key.replace("formule", "Formule ")}</label>
             {editMode ? (
-              <input type="number" value={value} onChange={(e) => handlePriceChange(key, e.target.value)} className="admin-input" />
+              <input
+                type="number"
+                value={value}
+                onChange={(e) => handlePriceChange(key, e.target.value)}
+                className="admin-input"
+                min="0"
+                max="1000000"
+                step="0.01"
+              />
             ) : (
               <p style={{ margin: 0, color: "var(--gnz-cream)" }}>{value}€</p>
             )}

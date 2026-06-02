@@ -17,17 +17,26 @@ const AdminUsers = () => {
     e.preventDefault();
     setError("");
 
-    if (!formData.email || !formData.password) {
+    const trimmedEmail = formData.email?.trim();
+    const trimmedPassword = formData.password?.trim();
+
+    if (!trimmedEmail || !trimmedPassword) {
       setError("Email et mot de passe requis");
       return;
     }
 
-    if (formData.password.length < 6) {
+    if (trimmedPassword.length < 6) {
       setError("Le mot de passe doit faire au moins 6 caractères");
       return;
     }
 
-    const result = createUser(formData.email, formData.password, formData.permission);
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(trimmedEmail)) {
+      setError("Email invalide");
+      return;
+    }
+
+    const result = createUser(trimmedEmail, trimmedPassword, formData.permission);
     if (result.success) {
       setFormData({ email: "", password: "", permission: "admin_read" });
       setShowForm(false);

@@ -14,7 +14,7 @@ const AdminLayout = ({ children, currentSection, onSectionChange, user }) => {
 
   const handleLogout = () => {
     logout();
-    window.location.reload();
+    window.location.href = "/";
   };
 
   return (

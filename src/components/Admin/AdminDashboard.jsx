@@ -17,17 +17,32 @@ const AdminDashboard = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let isMounted = true;
+    let isLoading = false;
+
     const loadData = () => {
-      const analyticsData = getAnalyticsData();
-      const crmData = getLeadStats();
-      setAnalytics(analyticsData);
-      setCRM(crmData);
-      setLoading(false);
+      if (isLoading || !isMounted) return;
+      isLoading = true;
+
+      try {
+        const analyticsData = getAnalyticsData();
+        const crmData = getLeadStats();
+        if (isMounted) {
+          setAnalytics(analyticsData);
+          setCRM(crmData);
+          setLoading(false);
+        }
+      } finally {
+        isLoading = false;
+      }
     };
 
     loadData();
     const interval = setInterval(loadData, 5000);
-    return () => clearInterval(interval);
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
   }, []);
 
   if (loading) {

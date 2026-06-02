@@ -131,6 +131,10 @@ const AdminAnalytics = () => {
     );
   };
 
+  if (!analytics) {
+    return <div style={{ padding: "2rem", textAlign: "center", color: "var(--gnz-text-secondary)" }}>Chargement des analytics...</div>;
+  }
+
   return (
     <div>
       <div style={{ display: "flex", gap: "0.5rem", marginBottom: "2rem", flexWrap: "wrap" }}>
