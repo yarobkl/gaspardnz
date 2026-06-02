@@ -108,8 +108,8 @@ const AdminCRM = () => {
   const eventTypes = ["Mariage", "Gala", "Événement Corporatif", "Cérémonie", "Autre"];
 
   return (
-    <div style={{ display: "grid", gridTemplateColumns: selectedLead ? "1fr 350px" : "1fr", gap: "2rem" }}>
-      <div>
+    <div style={{ display: "grid", gridTemplateColumns: selectedLead ? "1fr" : "1fr", gap: "1rem" }}>
+      <div style={{ minWidth: 0 }}>
         <div style={{ display: "flex", gap: "1rem", marginBottom: "2rem", flexWrap: "wrap" }}>
           <button onClick={() => setShowForm(!showForm)} className="admin-btn">
             + Nouveau Lead
@@ -121,7 +121,7 @@ const AdminCRM = () => {
 
         {showForm && (
           <form onSubmit={handleAddLead} className="admin-card" style={{ marginBottom: "2rem" }}>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "1rem", marginBottom: "1rem" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "1rem", marginBottom: "1rem" }}>
               <input
                 type="text"
                 placeholder="Nom"
@@ -231,8 +231,8 @@ const AdminCRM = () => {
       </div>
 
       {selectedLead && (
-        <div className="admin-card" style={{ height: "fit-content" }}>
-          <h3 className="admin-h3" style={{ marginTop: 0 }}>
+        <div className="admin-card" style={{ height: "fit-content", marginBottom: "2rem" }}>
+          <h3 className="admin-h3" style={{ marginTop: 0, wordBreak: "break-word" }}>
             {selectedLead.name}
           </h3>
           <div style={{ fontSize: "0.875rem", lineHeight: "1.8", marginBottom: "1.4rem" }}>

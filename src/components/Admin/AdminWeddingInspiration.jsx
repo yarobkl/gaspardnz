@@ -102,20 +102,20 @@ const AdminWeddingInspiration = () => {
             style={{ padding: "8px", background: "#0a0602", color: "#faf7f2", border: `1px solid ${GOLD}`, borderRadius: "4px" }}
           />
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: "1rem" }}>
             <input
               type="text"
               placeholder="Couleurs"
               value={formData.color}
               onChange={(e) => setFormData({ ...formData, color: e.target.value })}
-              style={{ padding: "8px", background: "#0a0602", color: "#faf7f2", border: `1px solid ${GOLD}`, borderRadius: "4px" }}
+              style={{ padding: "8px", background: "#0a0602", color: "#faf7f2", border: `1px solid ${GOLD}`, borderRadius: "4px", boxSizing: "border-box" }}
             />
             <input
               type="text"
               placeholder="Style"
               value={formData.style}
               onChange={(e) => setFormData({ ...formData, style: e.target.value })}
-              style={{ padding: "8px", background: "#0a0602", color: "#faf7f2", border: `1px solid ${GOLD}`, borderRadius: "4px" }}
+              style={{ padding: "8px", background: "#0a0602", color: "#faf7f2", border: `1px solid ${GOLD}`, borderRadius: "4px", boxSizing: "border-box" }}
             />
           </div>
 
@@ -174,7 +174,7 @@ const AdminWeddingInspiration = () => {
                   style={{ width: "100%", maxHeight: "200px", objectFit: "cover", borderRadius: "4px", marginBottom: "0.5rem" }}
                 />
               )}
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "0.5rem", fontSize: "0.85rem", color: "rgba(184,151,62,0.7)", marginBottom: "0.5rem" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))", gap: "0.5rem", fontSize: "0.85rem", color: "rgba(184,151,62,0.7)", marginBottom: "0.5rem" }}>
                 {inspiration.color && <span><strong style={{ color: GOLD }}>Couleurs:</strong> {inspiration.color}</span>}
                 {inspiration.style && <span><strong style={{ color: GOLD }}>Style:</strong> {inspiration.style}</span>}
                 {inspiration.occasion && <span><strong style={{ color: GOLD }}>Occasion:</strong> {inspiration.occasion}</span>}

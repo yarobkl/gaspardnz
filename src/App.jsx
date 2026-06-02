@@ -9,6 +9,7 @@ import { initGAIfConsented } from "./services/analytics.js";
 import { requestNotificationPermission } from "./services/notifications.js";
 import { getSession, initAdminUsers } from "./services/adminAuth.js";
 import { trackPageView, trackEvent } from "./services/adminAnalytics.js";
+import { initializeTracking, trackPageView as trackDetailedPageView } from "./services/analyticsTracking.js";
 import AdminLogin from "./components/Admin/AdminLogin.jsx";
 import AdminLayout from "./components/Admin/AdminLayout.jsx";
 import AdminDashboard from "./components/Admin/AdminDashboard.jsx";
@@ -195,6 +196,13 @@ export default function App() {
     document.body.style.margin = "0";
     document.body.style.overflowX = "hidden";
     initGAIfConsented();
+
+    // Initialize comprehensive tracking system
+    const cleanupTracking = initializeTracking();
+
+    return () => {
+      if (cleanupTracking) cleanupTracking();
+    };
   }, []);
 
   useEffect(() => {
@@ -238,6 +246,7 @@ export default function App() {
   useEffect(() => {
     if (splashDone && !isAdminPath) {
       trackPageView(window.location.pathname);
+      trackDetailedPageView(window.location.pathname);
     }
   }, [splashDone, isAdminPath]);
 
