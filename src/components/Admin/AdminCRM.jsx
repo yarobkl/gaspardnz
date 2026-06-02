@@ -57,7 +57,11 @@ const AdminCRM = () => {
       setNewMessage("");
       const updatedLeads = getAllLeads();
       const updated = updatedLeads.find((l) => l.id === selectedLead.id);
-      setSelectedLead(updated);
+      if (updated) {
+        setSelectedLead(updated);
+      } else {
+        setSelectedLead(null);
+      }
     }
   };
 

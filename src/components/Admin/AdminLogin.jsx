@@ -8,7 +8,7 @@ const AdminLogin = ({ onLoginSuccess }) => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     setError("");
     setLoading(true);
