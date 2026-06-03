@@ -300,6 +300,16 @@ export default function App() {
     }
   }, [splashDone, isAdminPath]);
 
+  useEffect(() => {
+    if (splashDone) {
+      const isAdminRoute = currentlyOnAdminPath || isAdminPath;
+      console.log("🔀 Rendering branch decision:");
+      console.log("  - currentlyOnAdminPath:", currentlyOnAdminPath);
+      console.log("  - isAdminPath:", isAdminPath);
+      console.log("  - Final decision: rendering", isAdminRoute ? "ADMIN" : "NORMAL SITE");
+    }
+  }, [splashDone, currentlyOnAdminPath, isAdminPath]);
+
   const scrollTo = (ref) => { ref?.current?.scrollIntoView({ behavior: "smooth", block: "start" }); };
   const openBooking = (boutique = false) => { setBoutiqueMode(boutique); setBookingOpen(true); };
 
