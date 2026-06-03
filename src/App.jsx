@@ -211,7 +211,7 @@ export default function App() {
 
   useEffect(() => {
     if (splashDone) return;
-    const t = setTimeout(() => setSplashDone(true), 4000);
+    const t = setTimeout(() => setSplashDone(true), 2500);
     return () => clearTimeout(t);
   }, [splashDone]);
 
