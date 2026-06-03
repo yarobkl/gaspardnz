@@ -13,9 +13,12 @@ const HeroVideoLoop = () => {
   useEffect(() => {
     const v = ref.current;
     if (!v) return;
-    const play    = () => v.play().catch(() => {});
+    const play = () => {
+      if (document.hidden || !v.paused) return;
+      v.play().catch(() => {});
+    };
     const onCanPlay = () => { setVideoReady(true); play(); };
-    const onPause = () => { if (!document.hidden) setTimeout(play, 300); };
+    const onPause = () => { if (!document.hidden) setTimeout(play, 500); };
     const onStall = () => setTimeout(play, 500);
     const onVis   = () => { if (!document.hidden && videoReady) play(); };
 

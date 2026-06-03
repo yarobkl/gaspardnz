@@ -39,6 +39,7 @@ import WeddingInspirationSection from "./components/sections/WeddingInspirationS
 import FooterMobile from "./components/FooterMobile.jsx";
 
 const FONTS_CSS = `@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Bebas+Neue&family=Montserrat:wght@200;300;400;500&display=swap');`;
+const SPLASH_MAX_MS = 1800;
 
 const _SPLASH_IMG = (typeof import.meta !== "undefined" ? (import.meta.env.BASE_URL || "/") : "/") + "images/style-parisien.jpg";
 const SUPPORTED_LANGS = ["FR", "EN", "ES", "ZH"];
@@ -78,18 +79,24 @@ const APP_COPY = {
   },
 };
 
-const SplashScreen = ({ onDone, loading }) => (
-  <motion.div
-    exit={{ opacity: 0 }}
-    transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-    style={{ position: "fixed", inset: 0, zIndex: 9999, background: "#070400", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "2.4rem", overflow: "hidden" }}>
+const SplashScreen = ({ onDone, loading }) => {
+  useEffect(() => {
+    const fallback = setTimeout(onDone, SPLASH_MAX_MS);
+    return () => clearTimeout(fallback);
+  }, [onDone]);
+
+  return (
+    <motion.div
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+      style={{ position: "fixed", inset: 0, zIndex: 9999, background: "#070400", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "2.4rem", overflow: "hidden" }}>
 
     {/* Photo de fond */}
     <motion.img
       src={_SPLASH_IMG}
       initial={{ opacity: 0, scale: 1.06 }}
       animate={{ opacity: 0.45, scale: 1 }}
-      transition={{ duration: 2, ease: [0.16, 1, 0.3, 1] }}
+      transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
       style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center top" }}
     />
     {/* Overlay sombre */}
@@ -114,14 +121,14 @@ const SplashScreen = ({ onDone, loading }) => (
       <motion.p
         initial={{ letterSpacing: "0.12em", opacity: 0 }}
         animate={{ letterSpacing: "0.38em", opacity: 1 }}
-        transition={{ duration: 1.8, ease: [0.16, 1, 0.3, 1] }}
+        transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
         style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "3.5rem", color: "#faf7f2", margin: 0, lineHeight: 1, textShadow: "0 2px 20px rgba(0,0,0,0.6)" }}>
         GASPARDNZ
       </motion.p>
       <motion.p
         initial={{ opacity: 0, letterSpacing: "0.3em" }}
         animate={{ opacity: 1, letterSpacing: "0.6em" }}
-        transition={{ duration: 1.2, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
+        transition={{ duration: 0.75, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
         style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", color: GOLD, textTransform: "uppercase", marginTop: "10px" }}>
         Paris
       </motion.p>
@@ -131,7 +138,7 @@ const SplashScreen = ({ onDone, loading }) => (
       <motion.div
         initial={{ scaleX: 0 }}
         animate={{ scaleX: 1 }}
-        transition={{ duration: 2.2, delay: 0.4, ease: [0.4, 0, 0.2, 1] }}
+        transition={{ duration: 1.05, delay: 0.2, ease: [0.4, 0, 0.2, 1] }}
         onAnimationComplete={onDone}
         style={{ position: "absolute", inset: 0, background: `linear-gradient(90deg, ${GOLD}, #d4ae5a)`, transformOrigin: "left" }} />
     </div>
@@ -139,12 +146,13 @@ const SplashScreen = ({ onDone, loading }) => (
     <motion.p
       initial={{ opacity: 0 }}
       animate={{ opacity: [0, 0.45, 0.25, 0.45] }}
-      transition={{ duration: 2.4, delay: 0.6, times: [0, 0.3, 0.6, 1] }}
+      transition={{ duration: 1.2, delay: 0.25, times: [0, 0.3, 0.6, 1] }}
       style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "6px", letterSpacing: "0.55em", color: "rgba(245,240,232,0.35)", textTransform: "uppercase", position: "relative", zIndex: 1 }}>
       {loading}
     </motion.p>
-  </motion.div>
-);
+    </motion.div>
+  );
+};
 
 export default function App() {
   const [splashDone, setSplashDone] = useState(false);
@@ -157,6 +165,7 @@ export default function App() {
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
   const [adminUser, setAdminUser] = useState(null);
   const [adminSection, setAdminSection] = useState("dashboard");
+  const finishSplash = useCallback(() => setSplashDone(true), []);
   const [lang, setLang] = useState(() => {
     try {
       const saved = localStorage.getItem("gnz-lang");
@@ -295,7 +304,7 @@ export default function App() {
       `}</style>
 
       <AnimatePresence mode="wait">
-        {!splashDone && <SplashScreen key="splash" loading={(APP_COPY[lang] || APP_COPY.FR).loading} onDone={() => setSplashDone(true)} />}
+        {!splashDone && <SplashScreen key="splash" loading={(APP_COPY[lang] || APP_COPY.FR).loading} onDone={finishSplash} />}
       </AnimatePresence>
 
       {splashDone && (

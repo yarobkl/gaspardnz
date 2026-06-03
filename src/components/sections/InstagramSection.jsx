@@ -52,7 +52,7 @@ const InstagramSection = () => {
 
       <motion.div initial={{ opacity: 0 }} animate={inView ? { opacity: 1 } : {}} transition={{ duration: 0.5, delay: 0.5 }}
         style={{ textAlign: "center", marginTop: "1.6rem", padding: "0 1.4rem" }}>
-        <motion.a href={IG_URL} target="_blank" rel="noopener noreferrer"
+        <motion.a href={igUrl} target="_blank" rel="noopener noreferrer"
           whileTap={{ scale: 0.97 }}
           style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "9.5px", letterSpacing: "0.2em", color: TEXT, textTransform: "uppercase", textDecoration: "none", borderBottom: "1px solid #b8973e", paddingBottom: "2px" }}>
           {t("ig_all")}
