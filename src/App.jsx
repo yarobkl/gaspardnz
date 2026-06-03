@@ -337,43 +337,49 @@ export default function App() {
         ` : ""}
       `}</style>
 
-      <AnimatePresence mode="wait">
+      <AnimatePresence>
         {!splashDone && <SplashScreen key="splash" loading={(APP_COPY[lang] || APP_COPY.FR).loading} onDone={() => setSplashDone(true)} />}
       </AnimatePresence>
 
       {splashDone && (
-        (currentlyOnAdminPath || isAdminPath) ? (
-          isAdminLoggedIn ? (
-            <AdminLayout
-              currentSection={adminSection}
-              onSectionChange={(section) => {
-                setAdminSection(section);
-                window.history.pushState({}, "", `/admin/${section}`);
-              }}
-              user={adminUser}>
-              {adminSection === "dashboard" && <AdminDashboard />}
-              {adminSection === "analytics" && <AdminAnalytics />}
-              {adminSection === "crm" && <AdminCRM />}
-              {adminSection === "users" && <AdminUsers />}
-              {adminSection === "wedding" && <AdminWeddingInspiration />}
-              {adminSection === "settings" && <AdminSettings />}
-            </AdminLayout>
+        <motion.div
+          key="main-content"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+          style={{ width: "100%" }}>
+          {(currentlyOnAdminPath || isAdminPath) ? (
+            isAdminLoggedIn ? (
+              <AdminLayout
+                currentSection={adminSection}
+                onSectionChange={(section) => {
+                  setAdminSection(section);
+                  window.history.pushState({}, "", `/admin/${section}`);
+                }}
+                user={adminUser}>
+                {adminSection === "dashboard" && <AdminDashboard />}
+                {adminSection === "analytics" && <AdminAnalytics />}
+                {adminSection === "crm" && <AdminCRM />}
+                {adminSection === "users" && <AdminUsers />}
+                {adminSection === "wedding" && <AdminWeddingInspiration />}
+                {adminSection === "settings" && <AdminSettings />}
+              </AdminLayout>
+            ) : (
+              <AdminLogin
+                onLoginSuccess={(user) => {
+                  setAdminUser(user);
+                  setIsAdminLoggedIn(true);
+                  setAdminSection("dashboard");
+                  window.history.replaceState({}, "", "/admin/dashboard");
+                }}
+              />
+            )
           ) : (
-            <AdminLogin
-              onLoginSuccess={(user) => {
-                setAdminUser(user);
-                setIsAdminLoggedIn(true);
-                setAdminSection("dashboard");
-                window.history.replaceState({}, "", "/admin/dashboard");
-              }}
-            />
-          )
-        ) : (
-          <div
-            data-gnz-mode={lightMode ? "light" : "dark"}
-            style={{
-              minHeight: "100dvh", overflowX: "hidden",
-            }}>
+            <div
+              data-gnz-mode={lightMode ? "light" : "dark"}
+              style={{
+                minHeight: "100dvh", overflowX: "hidden",
+              }}>
             <NavMobile
               onShowroom={() => scrollTo(showroomRef)}
               onGalerie={() => scrollTo(galleryRef)}
@@ -415,7 +421,9 @@ export default function App() {
             <BookingModal isOpen={bookingOpen} onClose={() => setBookingOpen(false)} boutiqueMode={boutiqueMode} onSwitchToBooking={() => setBoutiqueMode(false)} />
             <ChatBot onReserver={() => openBooking(false)} onGalerie={() => scrollTo(galleryRef)} onShowroom={() => scrollTo(showroomRef)} onFormules={() => scrollTo(formulesRef)} />
           </div>
-        )
+          )
+        }
+        </motion.div>
       )}
 
       <NotificationPrompt visible={notifPrompt} onAccept={handleNotifAccept} onDecline={handleNotifDecline} />
