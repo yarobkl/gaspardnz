@@ -11,6 +11,7 @@ const StyleDuMoisSection = ({ refEl }) => {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-8% 0px" });
   const [activeSpot, setActiveSpot] = useState(null);
+  const [activePhotos, setActivePhotos] = useState({});
 
   if (!STYLE_DU_MOIS || STYLE_DU_MOIS.length === 0) return null;
 
@@ -31,18 +32,29 @@ const StyleDuMoisSection = ({ refEl }) => {
             initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-6% 0px" }}
             transition={{ duration: 0.7, delay: i * 0.08, ease: [0.16, 1, 0.3, 1] }}
-            style={{ background: "#111009", borderRadius: "16px", overflow: "hidden", border: "1px solid rgba(184,151,62,0.15)" }}>
-            {item.src && (
-              <div style={{ position: "relative", width: "100%", aspectRatio: "4/3" }}
+            style={{ background: "linear-gradient(180deg,#141006,#080503)", borderRadius: "18px", overflow: "hidden", border: "1px solid rgba(184,151,62,0.22)", boxShadow: "0 26px 80px rgba(0,0,0,0.34)" }}>
+            {item.src && (() => {
+              const album = item.album?.length ? item.album : [item.src];
+              const activeIndex = activePhotos[i] || 0;
+              const activeSrc = album[activeIndex] || item.src;
+              return (
+              <>
+              <div style={{ position: "relative", width: "100%", aspectRatio: "9/16", background: "#080503" }}
                 onClick={() => setActiveSpot(null)}>
-                <img src={item.src} alt={item.title || "Style du mois"}
-                  style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top", display: "block" }} />
+                <img src={activeSrc} alt={item.title || "Style du mois"}
+                  style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center top", display: "block" }} />
+                <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 58%, rgba(7,4,0,0.72) 100%)", pointerEvents: "none" }} />
+                <div style={{ position: "absolute", left: "1rem", bottom: "1rem", zIndex: 2, display: "inline-flex", alignItems: "center", gap: "8px", padding: "0.45rem 0.7rem", background: "rgba(7,4,0,0.58)", border: "1px solid rgba(184,151,62,0.35)", borderRadius: "999px", backdropFilter: "blur(8px)" }}>
+                  <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: GOLD, boxShadow: "0 0 12px rgba(184,151,62,0.7)" }} />
+                  <span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "8px", letterSpacing: "0.22em", color: "#f5f0e8", textTransform: "uppercase" }}>Album {activeIndex + 1}/{album.length}</span>
+                </div>
                 {(item.spots || []).map((spot, si) => (
                   <div key={si} style={{ position: "absolute", left: `${spot.x}%`, top: `${spot.y}%`, transform: "translate(-50%,-50%)", zIndex: 2 }}>
                     <button
+                      aria-label={spot.label}
                       onClick={e => { e.stopPropagation(); setActiveSpot(activeSpot === `${i}-${si}` ? null : `${i}-${si}`); }}
-                      style={{ width: "20px", height: "20px", borderRadius: "50%", background: "rgba(184,151,62,0.2)", border: `1px solid ${GOLD}`, backdropFilter: "blur(4px)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", padding: 0 }}>
-                      <div style={{ width: "5px", height: "5px", borderRadius: "50%", background: GOLD }} />
+                      style={{ width: "14px", height: "14px", borderRadius: "50%", background: "rgba(184,151,62,0.18)", border: `1px solid rgba(184,151,62,0.9)`, boxShadow: "0 0 0 1px rgba(10,6,2,0.55), 0 0 10px rgba(184,151,62,0.34)", backdropFilter: "blur(4px)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", padding: 0 }}>
+                      <div style={{ width: "4px", height: "4px", borderRadius: "50%", background: GOLD }} />
                     </button>
                     <AnimatePresence>
                       {activeSpot === `${i}-${si}` && (
@@ -71,7 +83,19 @@ const StyleDuMoisSection = ({ refEl }) => {
                   </div>
                 ))}
               </div>
-            )}
+              {album.length > 1 && (
+                <div style={{ display: "grid", gridTemplateColumns: `repeat(${album.length}, 1fr)`, gap: "8px", padding: "10px 10px 0" }}>
+                  {album.map((src, ai) => (
+                    <button key={src} onClick={() => { setActivePhotos(current => ({ ...current, [i]: ai })); setActiveSpot(null); }}
+                      style={{ border: ai === activeIndex ? `1px solid ${GOLD}` : "1px solid rgba(184,151,62,0.18)", background: "none", padding: 0, borderRadius: "10px", overflow: "hidden", aspectRatio: "1/1", cursor: "pointer", opacity: ai === activeIndex ? 1 : 0.58 }}>
+                      <img src={src} alt={`${item.title || "Style du mois"} ${ai + 1}`} style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center top", display: "block" }} />
+                    </button>
+                  ))}
+                </div>
+              )}
+              </>
+              );
+            })()}
             <div style={{ padding: "1.2rem" }}>
               {item.title && <h3 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.5rem", letterSpacing: "0.06em", color: "#faf7f2", margin: "0 0 0.6rem" }}>{item.title}</h3>}
               {item.desc && <p style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: "italic", fontSize: "1rem", color: "rgba(245,240,232,0.6)", lineHeight: 1.65 }}>{item.desc}</p>}

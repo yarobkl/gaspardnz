@@ -7,12 +7,12 @@ export const WEDDING_INSPIRATIONS = {
       color: "Terracotta & Blanc",
       style: "Élégant & Soigné",
       occasion: "Mariage, Gala",
-      src: "https://images.unsplash.com/photo-1591195853828-11db59a44f6b?w=600&h=800&fit=crop",
+      src: `${import.meta.env.BASE_URL}images/terracotta-look-1.jpg`,
       spots: [
-        { x: 30, y: 40, label: "Costume Terracotta" },
-        { x: 50, y: 60, label: "Gilet Blanc" },
-        { x: 70, y: 35, label: "Cravate Verte" },
-        { x: 75, y: 80, label: "Chaussures Marron" }
+        { x: 68, y: 38, label: "Veste terracotta" },
+        { x: 53, y: 45, label: "Gilet ivoire" },
+        { x: 54, y: 31, label: "Cravate vert pastel" },
+        { x: 62, y: 88, label: "Richelieu marron" }
       ]
     },
     {
@@ -22,12 +22,12 @@ export const WEDDING_INSPIRATIONS = {
       color: "Terracotta & Blanc",
       style: "Raffiné",
       occasion: "Mariage, Événement",
-      src: "https://images.unsplash.com/photo-1591195853828-11db59a44f6b?w=600&h=800&fit=crop",
+      src: `${import.meta.env.BASE_URL}images/terracotta-look-2.jpg`,
       spots: [
-        { x: 35, y: 45, label: "Veste Terracotta" },
-        { x: 55, y: 65, label: "Pantalon Terracotta" },
-        { x: 70, y: 40, label: "Épingle de Boutonnière" },
-        { x: 80, y: 75, label: "Accessoires" }
+        { x: 70, y: 38, label: "Veste terracotta" },
+        { x: 54, y: 45, label: "Gilet ivoire" },
+        { x: 54, y: 31, label: "Cravate vert pastel" },
+        { x: 63, y: 88, label: "Richelieu marron" }
       ]
     }
   ],
@@ -39,12 +39,12 @@ export const WEDDING_INSPIRATIONS = {
       color: "Terracotta & White",
       style: "Elegant & Refined",
       occasion: "Wedding, Gala",
-      src: "https://images.unsplash.com/photo-1591195853828-11db59a44f6b?w=600&h=800&fit=crop",
+      src: `${import.meta.env.BASE_URL}images/terracotta-look-1.jpg`,
       spots: [
-        { x: 30, y: 40, label: "Terracotta Suit" },
-        { x: 50, y: 60, label: "White Waistcoat" },
-        { x: 70, y: 35, label: "Green Tie" },
-        { x: 75, y: 80, label: "Brown Shoes" }
+        { x: 68, y: 38, label: "Terracotta jacket" },
+        { x: 53, y: 45, label: "Ivory waistcoat" },
+        { x: 54, y: 31, label: "Pastel green tie" },
+        { x: 62, y: 88, label: "Brown oxfords" }
       ]
     },
     {
@@ -54,12 +54,12 @@ export const WEDDING_INSPIRATIONS = {
       color: "Terracotta & White",
       style: "Refined",
       occasion: "Wedding, Event",
-      src: "https://images.unsplash.com/photo-1591195853828-11db59a44f6b?w=600&h=800&fit=crop",
+      src: `${import.meta.env.BASE_URL}images/terracotta-look-2.jpg`,
       spots: [
-        { x: 35, y: 45, label: "Terracotta Jacket" },
-        { x: 55, y: 65, label: "Terracotta Trousers" },
-        { x: 70, y: 40, label: "Boutonniere" },
-        { x: 80, y: 75, label: "Accessories" }
+        { x: 70, y: 38, label: "Terracotta jacket" },
+        { x: 54, y: 45, label: "Ivory waistcoat" },
+        { x: 54, y: 31, label: "Pastel green tie" },
+        { x: 63, y: 88, label: "Brown oxfords" }
       ]
     }
   ],
@@ -71,12 +71,12 @@ export const WEDDING_INSPIRATIONS = {
       color: "Terracota & Blanco",
       style: "Elegante & Refinado",
       occasion: "Boda, Gala",
-      src: "https://images.unsplash.com/photo-1591195853828-11db59a44f6b?w=600&h=800&fit=crop",
+      src: `${import.meta.env.BASE_URL}images/terracotta-look-1.jpg`,
       spots: [
-        { x: 30, y: 40, label: "Traje Terracota" },
-        { x: 50, y: 60, label: "Chaleco Blanco" },
-        { x: 70, y: 35, label: "Corbata Verde" },
-        { x: 75, y: 80, label: "Zapatos Marrones" }
+        { x: 68, y: 38, label: "Chaqueta terracota" },
+        { x: 53, y: 45, label: "Chaleco marfil" },
+        { x: 54, y: 31, label: "Corbata verde pastel" },
+        { x: 62, y: 88, label: "Oxford marrones" }
       ]
     },
     {
@@ -86,12 +86,12 @@ export const WEDDING_INSPIRATIONS = {
       color: "Terracota & Blanco",
       style: "Refinado",
       occasion: "Boda, Evento",
-      src: "https://images.unsplash.com/photo-1591195853828-11db59a44f6b?w=600&h=800&fit=crop",
+      src: `${import.meta.env.BASE_URL}images/terracotta-look-2.jpg`,
       spots: [
-        { x: 35, y: 45, label: "Chaqueta Terracota" },
-        { x: 55, y: 65, label: "Pantalón Terracota" },
-        { x: 70, y: 40, label: "Alfiler de Boutonniere" },
-        { x: 80, y: 75, label: "Accesorios" }
+        { x: 70, y: 38, label: "Chaqueta terracota" },
+        { x: 54, y: 45, label: "Chaleco marfil" },
+        { x: 54, y: 31, label: "Corbata verde pastel" },
+        { x: 63, y: 88, label: "Oxford marrones" }
       ]
     }
   ],
@@ -103,12 +103,12 @@ export const WEDDING_INSPIRATIONS = {
       color: "红土色 & 白色",
       style: "优雅 & 精致",
       occasion: "婚礼, 晚会",
-      src: "https://images.unsplash.com/photo-1591195853828-11db59a44f6b?w=600&h=800&fit=crop",
+      src: `${import.meta.env.BASE_URL}images/terracotta-look-1.jpg`,
       spots: [
-        { x: 30, y: 40, label: "红土色西装" },
-        { x: 50, y: 60, label: "白色马甲" },
-        { x: 70, y: 35, label: "绿色领带" },
-        { x: 75, y: 80, label: "棕色鞋子" }
+        { x: 68, y: 38, label: "红土色外套" },
+        { x: 53, y: 45, label: "象牙色马甲" },
+        { x: 54, y: 31, label: "浅绿色领带" },
+        { x: 62, y: 88, label: "棕色牛津鞋" }
       ]
     },
     {
@@ -118,12 +118,12 @@ export const WEDDING_INSPIRATIONS = {
       color: "红土色 & 白色",
       style: "精致",
       occasion: "婚礼, 活动",
-      src: "https://images.unsplash.com/photo-1591195853828-11db59a44f6b?w=600&h=800&fit=crop",
+      src: `${import.meta.env.BASE_URL}images/terracotta-look-2.jpg`,
       spots: [
-        { x: 35, y: 45, label: "红土色外套" },
-        { x: 55, y: 65, label: "红土色裤子" },
-        { x: 70, y: 40, label: "纽扣花" },
-        { x: 80, y: 75, label: "配饰" }
+        { x: 70, y: 38, label: "红土色外套" },
+        { x: 54, y: 45, label: "象牙色马甲" },
+        { x: 54, y: 31, label: "浅绿色领带" },
+        { x: 63, y: 88, label: "棕色牛津鞋" }
       ]
     }
   ]

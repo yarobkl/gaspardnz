@@ -1,52 +1,57 @@
 const B = import.meta.env.BASE_URL;
-const SRC = `${B}images/style-du-mois-bleu-royal.jpg`;
+const TERRACOTTA_1 = `${B}images/terracotta-look-1.jpg`;
+const TERRACOTTA_2 = `${B}images/terracotta-look-2.jpg`;
 
 const STYLE_MONTH = {
   FR: [
     {
-      src: SRC,
-      title: "Veste Safari Bleu Royal — Mai 2026",
-      desc: "Veste safari bleu royal sur-mesure, boutons dorés, 4 poches plaquées et ceinture assortie. Cravate soie turquoise à pois, pantalon gris perle, souliers monk noirs. L'audace colorée au service de l'élégance africaine contemporaine — look habillé par Gaspardnz Paris.",
+      src: TERRACOTTA_1,
+      album: [TERRACOTTA_1, TERRACOTTA_2],
+      title: "Costume Terracotta — Style du Mois",
+      desc: "Costume terracotta, gilet ivoire, chemise blanche, cravate vert pastel et richelieu marron. Une silhouette mariage chaleureuse, nette et moderne, pensée pour marquer l'événement sans excès.",
       spots: [
-        { x: 72, y: 38, label: "Chemise blanche sur-mesure" },
-        { x: 30, y: 48, label: "Cravate soie turquoise à pois" },
-        { x: 72, y: 62, label: "Veste safari bleu royal" },
+        { x: 68, y: 38, label: "Veste terracotta" },
+        { x: 53, y: 45, label: "Gilet ivoire" },
+        { x: 54, y: 31, label: "Cravate vert pastel" },
       ],
     },
   ],
   EN: [
     {
-      src: SRC,
-      title: "Royal Blue Safari Jacket — May 2026",
-      desc: "Bespoke royal blue safari jacket with gold buttons, four patch pockets and a matching belt. Turquoise polka-dot silk tie, pearl-grey trousers and black monk shoes. Bold colour serving contemporary African elegance — a look dressed by Gaspardnz Paris.",
+      src: TERRACOTTA_1,
+      album: [TERRACOTTA_1, TERRACOTTA_2],
+      title: "Terracotta Suit — Style of the Month",
+      desc: "Terracotta suit, ivory waistcoat, white shirt, pastel green tie and brown oxfords. A warm, sharp and modern wedding silhouette designed to stand out with restraint.",
       spots: [
-        { x: 72, y: 38, label: "Bespoke white shirt" },
-        { x: 30, y: 48, label: "Turquoise polka-dot silk tie" },
-        { x: 72, y: 62, label: "Royal blue safari jacket" },
+        { x: 68, y: 38, label: "Terracotta jacket" },
+        { x: 53, y: 45, label: "Ivory waistcoat" },
+        { x: 54, y: 31, label: "Pastel green tie" },
       ],
     },
   ],
   ES: [
     {
-      src: SRC,
-      title: "Chaqueta Safari Azul Royal — Mayo 2026",
-      desc: "Chaqueta safari azul royal a medida, botones dorados, cuatro bolsillos de parche y cinturón a juego. Corbata de seda turquesa con lunares, pantalón gris perla y zapatos monk negros. La audacia del color al servicio de la elegancia africana contemporánea — look vestido por Gaspardnz Paris.",
+      src: TERRACOTTA_1,
+      album: [TERRACOTTA_1, TERRACOTTA_2],
+      title: "Traje Terracota — Estilo del Mes",
+      desc: "Traje terracota, chaleco marfil, camisa blanca, corbata verde pastel y zapatos oxford marrones. Una silueta de boda cálida, precisa y moderna.",
       spots: [
-        { x: 72, y: 38, label: "Camisa blanca a medida" },
-        { x: 30, y: 48, label: "Corbata de seda turquesa con lunares" },
-        { x: 72, y: 62, label: "Chaqueta safari azul royal" },
+        { x: 68, y: 38, label: "Chaqueta terracota" },
+        { x: 53, y: 45, label: "Chaleco marfil" },
+        { x: 54, y: 31, label: "Corbata verde pastel" },
       ],
     },
   ],
   ZH: [
     {
-      src: SRC,
-      title: "皇家蓝 Safari 外套 — 2026年5月",
-      desc: "皇家蓝定制 Safari 外套，金色纽扣、四个贴袋与同色腰带。绿松石色圆点真丝领带、珍珠灰长裤与黑色 monk 鞋。大胆色彩服务于当代非洲优雅 — 由 Gaspardnz Paris 打造的造型。",
+      src: TERRACOTTA_1,
+      album: [TERRACOTTA_1, TERRACOTTA_2],
+      title: "红土色西装 — 本月风格",
+      desc: "红土色西装、象牙色马甲、白衬衫、浅绿色领带与棕色牛津鞋。温暖、利落且现代的婚礼造型。",
       spots: [
-        { x: 72, y: 38, label: "定制白衬衫" },
-        { x: 30, y: 48, label: "绿松石色圆点真丝领带" },
-        { x: 72, y: 62, label: "皇家蓝 Safari 外套" },
+        { x: 68, y: 38, label: "红土色外套" },
+        { x: 53, y: 45, label: "象牙色马甲" },
+        { x: 54, y: 31, label: "浅绿色领带" },
       ],
     },
   ],

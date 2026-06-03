@@ -12,8 +12,12 @@ const WeddingInspirationSection = ({ refEl }) => {
 
   useEffect(() => {
     const settings = getSettings();
-    if (settings.weddingInspirations && settings.weddingInspirations.length > 0) {
-      setInspirations(settings.weddingInspirations);
+    const usableAdminInspirations = (settings.weddingInspirations || []).filter((item) => {
+      if (!item?.src) return true;
+      return !item.src.includes("images.unsplash.com/photo-1591195853828");
+    });
+    if (usableAdminInspirations.length > 0) {
+      setInspirations(usableAdminInspirations);
     } else {
       setInspirations(getWeddingInspirations(lang));
     }
@@ -44,11 +48,20 @@ const WeddingInspirationSection = ({ refEl }) => {
             viewport={{ once: true, margin: "-6% 0px" }}
             transition={{ duration: 0.7, delay: i * 0.08, ease: [0.16, 1, 0.3, 1] }}
             style={{ background: "#111009", borderRadius: "16px", overflow: "hidden", border: "1px solid rgba(184,151,62,0.15)" }}>
-            {item.src && (
-              <div style={{ position: "relative", width: "100%", aspectRatio: "4/3" }}
-                onClick={() => setActiveSpot(null)}>
+            <div style={{ position: "relative", width: "100%", aspectRatio: "9/16", background: "linear-gradient(135deg, rgba(184,151,62,0.14), rgba(250,247,242,0.04))" }}
+              onClick={() => setActiveSpot(null)}>
+              {item.src ? (
                 <img src={item.src} alt={item.title || "Look mariage"}
-                  style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top", display: "block" }} />
+                  style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center top", display: "block" }} />
+              ) : (
+                <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "2rem", textAlign: "center" }}>
+                  <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "8px", letterSpacing: "0.5em", color: GOLD, textTransform: "uppercase", marginBottom: "0.9rem" }}>GASPARDNZ</p>
+                  <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1.6rem", fontStyle: "italic", color: "#faf7f2", lineHeight: 1.25, margin: 0 }}>Photo à venir très bientôt</p>
+                  <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "9px", letterSpacing: "0.18em", color: "rgba(245,240,232,0.45)", textTransform: "uppercase", marginTop: "1rem" }}>Look en préparation</p>
+                </div>
+              )}
+              {item.src && (
+                <>
                 {(item.spots || []).map((spot, si) => (
                   <div key={si} style={{ position: "absolute", left: `${spot.x}%`, top: `${spot.y}%`, transform: "translate(-50%,-50%)", zIndex: 2 }}>
                     <button
@@ -82,8 +95,9 @@ const WeddingInspirationSection = ({ refEl }) => {
                     </AnimatePresence>
                   </div>
                 ))}
-              </div>
-            )}
+                </>
+              )}
+            </div>
             <div style={{ padding: "1.2rem" }}>
               {item.title && <h3 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.5rem", letterSpacing: "0.06em", color: "#faf7f2", margin: "0 0 0.6rem" }}>{item.title}</h3>}
               {item.desc && <p style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: "italic", fontSize: "1rem", color: "rgba(245,240,232,0.6)", lineHeight: 1.65 }}>{item.desc}</p>}
