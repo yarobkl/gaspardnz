@@ -66,6 +66,10 @@ const HeroMobile = ({ onScrollDown }) => {
     console.log("👁️ heroInView changed:", heroInView);
   }, [heroInView]);
 
+  useEffect(() => {
+    console.log("HeroMobile rendered");
+  }, []);
+
   return (
     <section style={{ height: "100dvh", position: "relative", overflow: "hidden", background: "#1c1208" }}>
       {/* Vidéo background - position absolute, z-index 0 */}
@@ -82,7 +86,8 @@ const HeroMobile = ({ onScrollDown }) => {
       <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0) 0%, transparent 40%, rgba(0,0,0,0.35) 100%)", zIndex: 1, pointerEvents: "none" }} />
 
       {/* Contenu texte - position relative, z-index 20 */}
-      <div style={{ position: "relative", zIndex: 20, height: "100%", display: "flex", flexDirection: "column", alignItems: "flex-start", justifyContent: "flex-end", padding: "0 1.4rem 5.5rem", width: "100%" }}>
+      <div style={{ position: "relative", zIndex: 20, height: "100%", display: "flex", flexDirection: "column", alignItems: "flex-start", justifyContent: "flex-end", padding: "0 1.4rem 5.5rem", width: "100%", background: "red", minHeight: "100vh" }} onMount={() => console.log("Text container rendered")}>
+        {console.log("Text container rendered")}
 
         <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "8px", letterSpacing: "0.6em", color: GOLD, textTransform: "uppercase", marginBottom: "1.2rem", margin: 0, opacity: 1 }}>
           {t("hero_maison")}
