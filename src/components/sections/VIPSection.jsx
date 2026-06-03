@@ -78,7 +78,25 @@ const VIPClientsSection = () => {
   const clients = [
     { initials: "R.B", name: "Rodrin Bakala Mouengue", city: "Paris", event: t("event_wedding"), gradient: "linear-gradient(135deg,#1e3a5f,#2d6a9f)", photo: `${B}images/rodrin-bakala.jpg.JPG`,
       album: [`${B}images/rodrin-bakala.jpg.JPG`, `${B}images/rodrin-w1.jpg`, `${B}images/rodrin-w2.jpg`, `${B}images/rodrin-w3.jpg`, `${B}images/rodrin-w4.jpg`, `${B}images/rodrin-w5.jpg`] },
-    { initials: "B", name: "Boris", city: "Monaco", event: t("event_prestige_gala"), gradient: "linear-gradient(135deg,#4a1942,#8b2fc9)" },
+    { initials: "B", name: "Boris", city: "Paris", event: t("event_wedding"), gradient: "linear-gradient(135deg,#4a1942,#8b2fc9)", photo: `${B}images/boris-01.jpg`,
+      album: [
+        `${B}images/boris-01.jpg`,
+        `${B}images/boris-02.jpg`,
+        `${B}images/boris-03.jpg`,
+        `${B}images/boris-04.jpg`,
+        `${B}images/boris-05.jpg`,
+        `${B}images/boris-06.jpg`,
+        `${B}images/boris-07.jpg`,
+        `${B}images/boris-08.jpg`,
+        `${B}images/boris-09.jpg`,
+        `${B}images/boris-10.jpg`,
+        `${B}images/boris-11.jpg`,
+        `${B}images/boris-12.jpg`,
+        `${B}images/boris-13.jpg`,
+        `${B}images/boris-14.jpg`,
+        `${B}images/boris-15.jpg`,
+        `${B}images/boris-16.jpg`,
+      ] },
     { initials: "Y.B", name: "Yannick B.", city: "Lyon", event: t("event_vip_evening"), gradient: "linear-gradient(135deg,#1a3a1a,#2d6b2d)" },
     { initials: "A.N", name: "Alexis N.", city: "Dubaï", event: t("event_business"), gradient: "linear-gradient(135deg,#3d1a00,#8b3d00)" },
     { initials: "D.K", name: "Diarietou K.", city: "Abidjan", event: t("event_ceremony"), gradient: "linear-gradient(135deg,#1a1a3d,#3d3d8b)" },
@@ -138,13 +156,13 @@ const VIPClientsSection = () => {
                 }}
                 animate={{ scale: isActive ? 1 : 0.80, opacity: dist === 0 ? 1 : dist === 1 ? 0.55 : 0.3 }}
                 transition={{ type: "spring", stiffness: 280, damping: 28 }}
-                style={{ flexShrink: 0, width: `${CARD_W}vw`, paddingLeft: "6px", paddingRight: "6px", cursor: isActive ? (c.album ? "pointer" : "grab") : "pointer", transformOrigin: "center center" }}>
+                style={{ flexShrink: 0, width: `${CARD_W}vw`, boxSizing: "border-box", paddingLeft: "6px", paddingRight: "6px", cursor: isActive ? (c.album ? "pointer" : "grab") : "pointer", transformOrigin: "center center" }}>
                 <div style={{ borderRadius: "16px", background: c.gradient, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", border: isActive ? `1px solid rgba(184,151,62,0.5)` : "1px solid rgba(184,151,62,0.15)", position: "relative", overflow: "hidden", aspectRatio: "3/4", boxShadow: isActive ? "0 20px 60px rgba(0,0,0,0.7)" : "none", transition: "border 0.4s, box-shadow 0.4s" }}>
                   {c.photo
-                    ? <img src={c.photo} alt={c.name} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center top" }} />
-                    : <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at 50% 30%, rgba(184,151,62,0.15), transparent 70%)" }} />
+                    ? <img src={c.photo} alt={c.name} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center top", pointerEvents: "none" }} />
+                    : <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at 50% 30%, rgba(184,151,62,0.15), transparent 70%)", pointerEvents: "none" }} />
                   }
-                  <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 45%, rgba(0,0,0,0.85) 100%)" }} />
+                  <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 45%, rgba(0,0,0,0.85) 100%)", pointerEvents: "none" }} />
                   {!c.photo && (
                     <div style={{ width: "68px", height: "68px", borderRadius: "50%", border: `1.5px solid ${isActive ? GOLD : "rgba(184,151,62,0.35)"}`, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "14px", background: "rgba(0,0,0,0.3)", transition: "border 0.4s", position: "relative", zIndex: 1 }}>
                       <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "22px", fontWeight: 500, color: GOLD }}>{c.initials}</span>
