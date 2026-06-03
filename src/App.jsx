@@ -279,6 +279,21 @@ export default function App() {
   }, [currentlyOnAdminPath, isAdminPath]);
 
   useEffect(() => {
+    if (splashDone) {
+      setTimeout(() => {
+        const docHeight = document.documentElement.scrollHeight;
+        const bodyHeight = document.body.scrollHeight;
+        const viewHeight = window.innerHeight;
+        console.log("📏 Document dimensions after content rendered:");
+        console.log("  - document.documentElement.scrollHeight:", docHeight);
+        console.log("  - document.body.scrollHeight:", bodyHeight);
+        console.log("  - window.innerHeight:", viewHeight);
+        console.log("  - Is scrollable:", docHeight > viewHeight || bodyHeight > viewHeight);
+      }, 100);
+    }
+  }, [splashDone]);
+
+  useEffect(() => {
     if (splashDone && !isAdminPath) {
       trackPageView(window.location.pathname);
       trackDetailedPageView(window.location.pathname);
