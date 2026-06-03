@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect } from "react";
 import { motion, useScroll, useTransform, useInView } from "framer-motion";
 import { GOLD, CREAM } from "../constants.js";
 import { useTr } from "../context.jsx";
@@ -8,42 +8,60 @@ const _VIDEO_STYLE = { position: "absolute", inset: 0, width: "100%", height: "1
 
 const HeroVideoLoop = () => {
   const ref = useRef(null);
-  const [videoReady, setVideoReady] = useState(false);
+  const readyRef = useRef(false);
 
   useEffect(() => {
     const v = ref.current;
     if (!v) return;
+    const preloadLink = document.createElement("link");
+    preloadLink.rel = "preload";
+    preloadLink.as = "video";
+    preloadLink.href = _HERO_SRC;
+    preloadLink.type = "video/mp4";
+    document.head.appendChild(preloadLink);
     const play = () => {
       if (document.hidden || !v.paused) return;
       v.play().catch(() => {});
     };
-    const onCanPlay = () => { setVideoReady(true); play(); };
-    const onPause = () => { if (!document.hidden) setTimeout(play, 500); };
-    const onStall = () => setTimeout(play, 500);
-    const onVis   = () => { if (!document.hidden && videoReady) play(); };
+    const loadAndPlay = () => {
+      v.load();
+      play();
+      window.setTimeout(play, 180);
+      window.setTimeout(play, 650);
+    };
+    const onCanPlay = () => { readyRef.current = true; play(); };
+    const onPause = () => { if (!document.hidden) setTimeout(play, 250); };
+    const onStall = () => setTimeout(play, 350);
+    const onVis   = () => { if (!document.hidden && readyRef.current) play(); };
 
+    loadAndPlay();
     v.addEventListener("canplay",    onCanPlay);
     v.addEventListener("loadeddata", onCanPlay);
+    v.addEventListener("loadedmetadata", onCanPlay);
     v.addEventListener("pause",      onPause);
     v.addEventListener("stalled",    onStall);
+    window.addEventListener("focus", play);
     document.addEventListener("touchstart",        play,  { once: true });
     document.addEventListener("visibilitychange",  onVis);
     return () => {
       v.removeEventListener("canplay",    onCanPlay);
       v.removeEventListener("loadeddata", onCanPlay);
+      v.removeEventListener("loadedmetadata", onCanPlay);
       v.removeEventListener("pause",      onPause);
       v.removeEventListener("stalled",    onStall);
+      window.removeEventListener("focus", play);
       document.removeEventListener("touchstart",       play);
       document.removeEventListener("visibilitychange", onVis);
+      preloadLink.remove();
     };
-  }, [videoReady]);
+  }, []);
   return (
     <video
       ref={ref}
       src={_HERO_SRC}
-      muted playsInline loop
+      autoPlay muted playsInline loop
       disablePictureInPicture disableRemotePlayback
-      preload="none"
+      preload="auto"
       controls={false}
       x-webkit-airplay="deny"
       controlsList="nodownload nofullscreen noremoteplayback"

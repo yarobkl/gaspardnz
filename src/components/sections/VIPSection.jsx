@@ -78,7 +78,7 @@ const VIPClientsSection = () => {
   const clients = [
     { initials: "R.B", name: "Rodrin Bakala Mouengue", city: "Paris", event: t("event_wedding"), gradient: "linear-gradient(135deg,#1e3a5f,#2d6a9f)", photo: `${B}images/rodrin-bakala.jpg.JPG`,
       album: [`${B}images/rodrin-bakala.jpg.JPG`, `${B}images/rodrin-w1.jpg`, `${B}images/rodrin-w2.jpg`, `${B}images/rodrin-w3.jpg`, `${B}images/rodrin-w4.jpg`, `${B}images/rodrin-w5.jpg`] },
-    { initials: "C.M", name: "Cédric M.", city: "Monaco", event: t("event_prestige_gala"), gradient: "linear-gradient(135deg,#4a1942,#8b2fc9)" },
+    { initials: "B", name: "Boris", city: "Monaco", event: t("event_prestige_gala"), gradient: "linear-gradient(135deg,#4a1942,#8b2fc9)" },
     { initials: "Y.B", name: "Yannick B.", city: "Lyon", event: t("event_vip_evening"), gradient: "linear-gradient(135deg,#1a3a1a,#2d6b2d)" },
     { initials: "A.N", name: "Alexis N.", city: "Dubaï", event: t("event_business"), gradient: "linear-gradient(135deg,#3d1a00,#8b3d00)" },
     { initials: "D.K", name: "Diarietou K.", city: "Abidjan", event: t("event_ceremony"), gradient: "linear-gradient(135deg,#1a1a3d,#3d3d8b)" },

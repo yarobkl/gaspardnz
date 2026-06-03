@@ -27,6 +27,7 @@ const WeddingInspirationSection = ({ refEl }) => {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-8% 0px" });
   const [activeSpot, setActiveSpot] = useState(null);
+  const [activePhotos, setActivePhotos] = useState({});
 
   if (!INSPIRATIONS || INSPIRATIONS.length === 0) return null;
 
@@ -48,10 +49,19 @@ const WeddingInspirationSection = ({ refEl }) => {
             viewport={{ once: true, margin: "-6% 0px" }}
             transition={{ duration: 0.7, delay: i * 0.08, ease: [0.16, 1, 0.3, 1] }}
             style={{ background: "#111009", borderRadius: "16px", overflow: "hidden", border: "1px solid rgba(184,151,62,0.15)" }}>
-            <div style={{ position: "relative", width: "100%", aspectRatio: "9/16", background: "linear-gradient(135deg, rgba(184,151,62,0.14), rgba(250,247,242,0.04))" }}
-              onClick={() => setActiveSpot(null)}>
-              {item.src ? (
-                <img src={item.src} alt={item.title || "Look mariage"}
+            {(() => {
+              const album = item.album?.length ? item.album : item.src ? [{ src: item.src, spots: item.spots || [] }] : [];
+              const activeIndex = activePhotos[i] || 0;
+              const activePhoto = album[activeIndex] || album[0] || null;
+              const activeSrc = activePhoto?.src || item.src;
+              const activeSpots = activePhoto?.spots || item.spots || [];
+
+              return (
+              <>
+              <div style={{ position: "relative", width: "100%", aspectRatio: "9/16", background: "linear-gradient(135deg, rgba(184,151,62,0.14), rgba(250,247,242,0.04))" }}
+                onClick={() => setActiveSpot(null)}>
+              {activeSrc ? (
+                <img src={activeSrc} alt={item.title || "Look mariage"}
                   style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center top", display: "block" }} />
               ) : (
                 <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "2rem", textAlign: "center" }}>
@@ -60,9 +70,9 @@ const WeddingInspirationSection = ({ refEl }) => {
                   <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "9px", letterSpacing: "0.18em", color: "rgba(245,240,232,0.45)", textTransform: "uppercase", marginTop: "1rem" }}>Look en préparation</p>
                 </div>
               )}
-              {item.src && (
+              {activeSrc && (
                 <>
-                {(item.spots || []).map((spot, si) => (
+                {(activeSpots || []).map((spot, si) => (
                   <div key={si} style={{ position: "absolute", left: `${spot.x}%`, top: `${spot.y}%`, transform: "translate(-50%,-50%)", zIndex: 2 }}>
                     <button
                       onClick={e => { e.stopPropagation(); setActiveSpot(activeSpot === `${i}-${si}` ? null : `${i}-${si}`); }}
@@ -97,7 +107,20 @@ const WeddingInspirationSection = ({ refEl }) => {
                 ))}
                 </>
               )}
-            </div>
+              </div>
+              {album.length > 1 && (
+                <div style={{ display: "grid", gridTemplateColumns: `repeat(${album.length}, 1fr)`, gap: "8px", padding: "10px 10px 0" }}>
+                  {album.map((photo, ai) => (
+                    <button key={`${photo.src}-${ai}`} onClick={() => { setActivePhotos(current => ({ ...current, [i]: ai })); setActiveSpot(null); }}
+                      style={{ border: ai === activeIndex ? `1px solid ${GOLD}` : "1px solid rgba(184,151,62,0.18)", background: "none", padding: 0, borderRadius: "10px", overflow: "hidden", aspectRatio: "1/1", cursor: "pointer", opacity: ai === activeIndex ? 1 : 0.58 }}>
+                      <img src={photo.src} alt={`${item.title || "Look mariage"} ${ai + 1}`} style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center top", display: "block" }} />
+                    </button>
+                  ))}
+                </div>
+              )}
+              </>
+              );
+            })()}
             <div style={{ padding: "1.2rem" }}>
               {item.title && <h3 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.5rem", letterSpacing: "0.06em", color: "#faf7f2", margin: "0 0 0.6rem" }}>{item.title}</h3>}
               {item.desc && <p style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: "italic", fontSize: "1rem", color: "rgba(245,240,232,0.6)", lineHeight: 1.65 }}>{item.desc}</p>}
