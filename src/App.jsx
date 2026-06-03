@@ -95,6 +95,17 @@ const SplashScreen = ({ onDone, loading }) => (
     {/* Overlay sombre */}
     <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(4,2,0,0.5) 0%, rgba(4,2,0,0.3) 40%, rgba(4,2,0,0.6) 100%)" }} />
 
+    {/* Bouton Passer */}
+    <motion.button
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 2, duration: 0.6 }}
+      onClick={onDone}
+      style={{ position: "absolute", top: "2rem", right: "2rem", zIndex: 10, background: "rgba(184,151,62,0.15)", border: "1px solid rgba(184,151,62,0.4)", color: "rgba(245,240,232,0.8)", padding: "0.6rem 1.2rem", fontFamily: "'Montserrat', sans-serif", fontSize: "11px", letterSpacing: "0.05em", textTransform: "uppercase", cursor: "pointer", borderRadius: "2px", transition: "all 0.3s ease" }}
+      onHoverStart={{ background: "rgba(184,151,62,0.25)" }}>
+      Passer
+    </motion.button>
+
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
@@ -269,37 +280,6 @@ export default function App() {
     localStorage.setItem("gnz-notif-asked", "1");
   };
 
-  if (currentlyOnAdminPath || isAdminPath) {
-    if (!isAdminLoggedIn) {
-      return (
-        <AdminLogin
-          onLoginSuccess={(user) => {
-            setAdminUser(user);
-            setIsAdminLoggedIn(true);
-            setAdminSection("dashboard");
-            window.history.replaceState({}, "", "/admin/dashboard");
-          }}
-        />
-      );
-    }
-    return (
-      <AdminLayout
-        currentSection={adminSection}
-        onSectionChange={(section) => {
-          setAdminSection(section);
-          window.history.pushState({}, "", `/admin/${section}`);
-        }}
-        user={adminUser}>
-        {adminSection === "dashboard" && <AdminDashboard />}
-        {adminSection === "analytics" && <AdminAnalytics />}
-        {adminSection === "crm" && <AdminCRM />}
-        {adminSection === "users" && <AdminUsers />}
-        {adminSection === "wedding" && <AdminWeddingInspiration />}
-        {adminSection === "settings" && <AdminSettings />}
-      </AdminLayout>
-    );
-  }
-
   return (
     <LangCtx.Provider value={{ lang, setLang: changeLang }}>
       <style>{`
@@ -318,55 +298,83 @@ export default function App() {
         {!splashDone && <SplashScreen key="splash" loading={(APP_COPY[lang] || APP_COPY.FR).loading} onDone={() => setSplashDone(true)} />}
       </AnimatePresence>
 
-      {/* Rendu seulement après le splash pour éviter le chargement de la vidéo en arrière-plan */}
       {splashDone && (
-      <div
-        data-gnz-mode={lightMode ? "light" : "dark"}
-        style={{
-          minHeight: "100dvh", overflowX: "hidden",
-        }}>
-        <NavMobile
-          onShowroom={() => scrollTo(showroomRef)}
-          onGalerie={() => scrollTo(galleryRef)}
-          onContact={() => window.open(`https://wa.me/33664826920?text=${encodeURIComponent((APP_COPY[lang] || APP_COPY.FR).waContact)}`, "_blank")}
-          onCatalogue={() => openBooking(true)}
-          onFormules={() => scrollTo(formulesRef)}
-          onBiographie={() => scrollTo(heritageRef)}
-          onReserver={() => openBooking(false)}
-          onStyleDuMois={() => scrollTo(styleDuMoisRef)}
-          highContrast={highContrast}
-          onToggleContrast={() => setHighContrast(v => !v)}
-          lightMode={lightMode}
-          onToggleDark={() => setLightMode(v => !v)}
-        />
+        (currentlyOnAdminPath || isAdminPath) ? (
+          isAdminLoggedIn ? (
+            <AdminLayout
+              currentSection={adminSection}
+              onSectionChange={(section) => {
+                setAdminSection(section);
+                window.history.pushState({}, "", `/admin/${section}`);
+              }}
+              user={adminUser}>
+              {adminSection === "dashboard" && <AdminDashboard />}
+              {adminSection === "analytics" && <AdminAnalytics />}
+              {adminSection === "crm" && <AdminCRM />}
+              {adminSection === "users" && <AdminUsers />}
+              {adminSection === "wedding" && <AdminWeddingInspiration />}
+              {adminSection === "settings" && <AdminSettings />}
+            </AdminLayout>
+          ) : (
+            <AdminLogin
+              onLoginSuccess={(user) => {
+                setAdminUser(user);
+                setIsAdminLoggedIn(true);
+                setAdminSection("dashboard");
+                window.history.replaceState({}, "", "/admin/dashboard");
+              }}
+            />
+          )
+        ) : (
+          <div
+            data-gnz-mode={lightMode ? "light" : "dark"}
+            style={{
+              minHeight: "100dvh", overflowX: "hidden",
+            }}>
+            <NavMobile
+              onShowroom={() => scrollTo(showroomRef)}
+              onGalerie={() => scrollTo(galleryRef)}
+              onContact={() => window.open(`https://wa.me/33664826920?text=${encodeURIComponent((APP_COPY[lang] || APP_COPY.FR).waContact)}`, "_blank")}
+              onCatalogue={() => openBooking(true)}
+              onFormules={() => scrollTo(formulesRef)}
+              onBiographie={() => scrollTo(heritageRef)}
+              onReserver={() => openBooking(false)}
+              onStyleDuMois={() => scrollTo(styleDuMoisRef)}
+              highContrast={highContrast}
+              onToggleContrast={() => setHighContrast(v => !v)}
+              lightMode={lightMode}
+              onToggleDark={() => setLightMode(v => !v)}
+            />
 
-        <HeroMobile onScrollDown={() => scrollTo(heritageRef)} />
-        <SectionDivider from="#1c1208" to="#f5f0e8" />
-        <HeritageMobile refEl={heritageRef} />
-        <SectionDivider from="#f5f0e8" to="#0a0602" />
-        <StyleJournalSection />
-        <SectionDivider from="#0a0602" to="#f5f0e8" />
-        <GalleryMobile refEl={galleryRef} />
-        <SectionDivider from="#f5f0e8" to="#0a0602" />
-        <VideoSection />
-        <SectionDivider from="#0a0602" to="#0a0602" />
-        <WeddingInspirationSection />
-        <SectionDivider from="#0a0602" to="#0d1b3e" />
-        <FormulesSection refEl={formulesRef} onContact={() => window.open(`https://wa.me/33664826920?text=${encodeURIComponent((APP_COPY[lang] || APP_COPY.FR).waFormula)}`, "_blank")} />
-        <SectionDivider from="#0d1b3e" to="#0a0602" />
-        <ActualitesSection />
-        <VIPClientsSection />
-        <SectionDivider from="#0f0a04" to="#f5f0e8" />
-        <ShowroomMobile refEl={showroomRef} onCatalogue={() => openBooking(true)} onGalerie={() => scrollTo(galleryRef)} onFlammes={() => scrollTo(galleryRef)} />
-        <InstagramSection />
-        <SectionDivider from="#faf7f2" to="#0a0602" />
-        <StyleDuMoisSection refEl={styleDuMoisRef} />
-        <CommunauteSection />
-        <FooterMobile onFormules={() => scrollTo(formulesRef)} onGalerie={() => scrollTo(galleryRef)} onShowroom={() => scrollTo(showroomRef)} />
-        <BookingModal isOpen={bookingOpen} onClose={() => setBookingOpen(false)} boutiqueMode={boutiqueMode} onSwitchToBooking={() => setBoutiqueMode(false)} />
-        <ChatBot onReserver={() => openBooking(false)} onGalerie={() => scrollTo(galleryRef)} onShowroom={() => scrollTo(showroomRef)} onFormules={() => scrollTo(formulesRef)} />
-      </div>
+            <HeroMobile onScrollDown={() => scrollTo(heritageRef)} />
+            <SectionDivider from="#1c1208" to="#f5f0e8" />
+            <HeritageMobile refEl={heritageRef} />
+            <SectionDivider from="#f5f0e8" to="#0a0602" />
+            <StyleJournalSection />
+            <SectionDivider from="#0a0602" to="#f5f0e8" />
+            <GalleryMobile refEl={galleryRef} />
+            <SectionDivider from="#f5f0e8" to="#0a0602" />
+            <VideoSection />
+            <SectionDivider from="#0a0602" to="#0a0602" />
+            <WeddingInspirationSection />
+            <SectionDivider from="#0a0602" to="#0d1b3e" />
+            <FormulesSection refEl={formulesRef} onContact={() => window.open(`https://wa.me/33664826920?text=${encodeURIComponent((APP_COPY[lang] || APP_COPY.FR).waFormula)}`, "_blank")} />
+            <SectionDivider from="#0d1b3e" to="#0a0602" />
+            <ActualitesSection />
+            <VIPClientsSection />
+            <SectionDivider from="#0f0a04" to="#f5f0e8" />
+            <ShowroomMobile refEl={showroomRef} onCatalogue={() => openBooking(true)} onGalerie={() => scrollTo(galleryRef)} onFlammes={() => scrollTo(galleryRef)} />
+            <InstagramSection />
+            <SectionDivider from="#faf7f2" to="#0a0602" />
+            <StyleDuMoisSection refEl={styleDuMoisRef} />
+            <CommunauteSection />
+            <FooterMobile onFormules={() => scrollTo(formulesRef)} onGalerie={() => scrollTo(galleryRef)} onShowroom={() => scrollTo(showroomRef)} />
+            <BookingModal isOpen={bookingOpen} onClose={() => setBookingOpen(false)} boutiqueMode={boutiqueMode} onSwitchToBooking={() => setBoutiqueMode(false)} />
+            <ChatBot onReserver={() => openBooking(false)} onGalerie={() => scrollTo(galleryRef)} onShowroom={() => scrollTo(showroomRef)} onFormules={() => scrollTo(formulesRef)} />
+          </div>
+        )
       )}
+
       <NotificationPrompt visible={notifPrompt} onAccept={handleNotifAccept} onDecline={handleNotifDecline} />
       <CookieBanner />
     </LangCtx.Provider>
