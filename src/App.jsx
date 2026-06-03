@@ -222,9 +222,27 @@ export default function App() {
 
   useEffect(() => {
     if (splashDone) return;
-    const t = setTimeout(() => setSplashDone(true), 2500);
+    const t = setTimeout(() => {
+      console.log("⏱️ TIMEOUT: Setting splashDone to true");
+      setSplashDone(true);
+    }, 2500);
     return () => clearTimeout(t);
   }, [splashDone]);
+
+  useEffect(() => {
+    console.log("🔄 splashDone changed:", splashDone);
+    console.log("📍 currentlyOnAdminPath:", currentlyOnAdminPath);
+    console.log("📍 isAdminPath:", isAdminPath);
+    console.log("🔐 isAdminLoggedIn:", isAdminLoggedIn);
+    if (splashDone) {
+      console.log("✅ SPLASH DONE - Content should now be visible");
+      if (currentlyOnAdminPath || isAdminPath) {
+        console.log("🔒 Rendering Admin section");
+      } else {
+        console.log("🌐 Rendering Normal site");
+      }
+    }
+  }, [splashDone, currentlyOnAdminPath, isAdminPath, isAdminLoggedIn]);
 
   useEffect(() => {
     if (!splashDone) return;

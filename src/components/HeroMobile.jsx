@@ -57,6 +57,15 @@ const HeroMobile = ({ onScrollDown }) => {
   const heroTextRef = useRef(null);
   const heroInView = useInView(heroTextRef, { once: false, margin: "-10% 0px" });
 
+  useEffect(() => {
+    console.log("🎬 HeroMobile mounted");
+    return () => console.log("🎬 HeroMobile unmounted");
+  }, []);
+
+  useEffect(() => {
+    console.log("👁️ heroInView changed:", heroInView);
+  }, [heroInView]);
+
   return (
     <section style={{ height: "100dvh", position: "relative", overflow: "hidden", display: "flex", alignItems: "flex-end", justifyContent: "center", background: "#1c1208" }}>
       <motion.div
