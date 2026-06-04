@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect, useState, useCallback } from "react";
 import { motion, useInView } from "framer-motion";
 import { GOLD, TEXT } from "../../constants.js";
 import { useTr } from "../../context.jsx";
@@ -10,8 +10,22 @@ const VideoSection = () => {
   const shouldLoad = useInView(sectionRef, { amount: 0.15, margin: "320px 0px" });
   const isInView = useInView(sectionRef, { amount: 0.5 });
   const [videoSrc, setVideoSrc] = useState("");
+  const [soundBlocked, setSoundBlocked] = useState(false);
 
   const VIDEO_URL = "https://res.cloudinary.com/dtzhbeebz/video/upload/Looks_demi-saison_ou_demi-_Dakar_arefgg.mp4";
+
+  const playWithSound = useCallback(() => {
+    const video = videoRef.current;
+    if (!video || !videoSrc) return;
+    video.muted = false;
+    video.volume = 1;
+    const playPromise = video.play();
+    if (playPromise !== undefined) {
+      playPromise
+        .then(() => setSoundBlocked(false))
+        .catch(() => setSoundBlocked(true));
+    }
+  }, [videoSrc]);
 
   useEffect(() => {
     if (shouldLoad && !videoSrc) setVideoSrc(VIDEO_URL);
@@ -23,14 +37,28 @@ const VideoSection = () => {
     if (!video) return;
 
     if (isInView) {
-      const playPromise = video.play();
-      if (playPromise !== undefined) {
-        playPromise.catch(() => {});
-      }
+      video.muted = false;
+      video.volume = 1;
+      playWithSound();
     } else {
       video.pause();
+      setSoundBlocked(false);
     }
-  }, [isInView, videoSrc]);
+  }, [isInView, videoSrc, playWithSound]);
+
+  useEffect(() => {
+    const onVisibilityChange = () => {
+      const video = videoRef.current;
+      if (!video) return;
+      if (document.hidden) {
+        video.pause();
+        return;
+      }
+      if (isInView) playWithSound();
+    };
+    document.addEventListener("visibilitychange", onVisibilityChange);
+    return () => document.removeEventListener("visibilitychange", onVisibilityChange);
+  }, [isInView, videoSrc, playWithSound]);
 
   return (
     <section ref={sectionRef} style={{ background: "#0a0602", padding: "3rem 1.4rem" }}>
@@ -64,14 +92,20 @@ const VideoSection = () => {
           maxHeight: "600px",
           margin: "0 auto",
           boxShadow: "0 8px 40px rgba(184,151,62,0.15)",
+          position: "relative",
         }}
       >
         <video
           ref={videoRef}
+          className="gnz-video-player"
           src={videoSrc}
           controls
           playsInline
+          autoPlay
+          muted={false}
           preload="none"
+          onLoadedMetadata={playWithSound}
+          onCanPlay={playWithSound}
           style={{
             width: "100%",
             height: "100%",
@@ -81,6 +115,31 @@ const VideoSection = () => {
             background: "#1c1208",
           }}
         />
+        {soundBlocked && isInView && (
+          <button
+            onClick={playWithSound}
+            style={{
+              position: "absolute",
+              left: "50%",
+              bottom: "1rem",
+              transform: "translateX(-50%)",
+              zIndex: 5,
+              border: `1px solid rgba(184,151,62,0.7)`,
+              background: "rgba(10,6,2,0.82)",
+              color: GOLD,
+              padding: "0.75rem 1rem",
+              borderRadius: "999px",
+              fontFamily: "'Montserrat', sans-serif",
+              fontSize: "9px",
+              letterSpacing: "0.18em",
+              textTransform: "uppercase",
+              cursor: "pointer",
+              backdropFilter: "blur(10px)",
+            }}
+          >
+            Activer le son
+          </button>
+        )}
       </motion.div>
 
       <motion.p
