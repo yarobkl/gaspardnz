@@ -4,31 +4,12 @@ import { GOLD, CREAM } from "../constants.js";
 import { useTr } from "../context.jsx";
 
 const _HERO_SRC = (typeof import.meta !== "undefined" ? (import.meta.env.BASE_URL || "/") : "/") + "hero.mp4";
-const _HERO_POSTER = (typeof import.meta !== "undefined" ? (import.meta.env.BASE_URL || "/") : "/") + "images/style-parisien.jpg";
 const _VIDEO_STYLE = { position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 20%", filter: "brightness(0.82) contrast(1.05) saturate(1.0)" };
 
 const HeroVideoLoop = () => {
   const ref = useRef(null);
   const readyRef = useRef(false);
-  const [videoSrc, setVideoSrc] = useState("");
-
-  useEffect(() => {
-    let cancelled = false;
-    const start = () => {
-      if (!cancelled) setVideoSrc(_HERO_SRC);
-    };
-    let timer;
-    const schedule = () => {
-      timer = window.setTimeout(start, 1400);
-    };
-    if (document.readyState === "complete") schedule();
-    else window.addEventListener("load", schedule, { once: true });
-    return () => {
-      cancelled = true;
-      window.clearTimeout(timer);
-      window.removeEventListener("load", schedule);
-    };
-  }, []);
+  const [videoSrc] = useState(_HERO_SRC);
 
   useEffect(() => {
     if (!videoSrc) return;
@@ -74,9 +55,8 @@ const HeroVideoLoop = () => {
       ref={ref}
       src={videoSrc}
       autoPlay muted playsInline loop
-      poster={_HERO_POSTER}
       disablePictureInPicture disableRemotePlayback
-      preload="metadata"
+      preload="auto"
       controls={false}
       x-webkit-airplay="deny"
       controlsList="nodownload nofullscreen noremoteplayback"
