@@ -114,9 +114,12 @@ const VideoSection = () => {
             display: "block",
             background: "#1c1208",
           }}
-        />
+        >
+          <track kind="captions" src="/captions/gaspardnz-video-fr.vtt" srcLang="fr" label="Français" default />
+        </video>
         {soundBlocked && isInView && (
           <button
+            aria-label="Activer le son de la vidéo"
             onClick={playWithSound}
             style={{
               position: "absolute",

@@ -105,6 +105,8 @@ const SplashScreen = ({ onDone, loading }) => {
     {/* Photo de fond */}
     <motion.img
       src={_SPLASH_IMG}
+      width="1200"
+      height="1600"
       initial={{ opacity: 0, scale: 1.06 }}
       animate={{ opacity: 0.45, scale: 1 }}
       transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
@@ -119,7 +121,7 @@ const SplashScreen = ({ onDone, loading }) => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 2, duration: 0.6 }}
       onClick={onDone}
-      style={{ position: "absolute", top: "2rem", right: "2rem", zIndex: 10, background: "rgba(184,151,62,0.15)", border: "1px solid rgba(184,151,62,0.4)", color: "rgba(245,240,232,0.8)", padding: "0.6rem 1.2rem", fontFamily: "'Montserrat', sans-serif", fontSize: "11px", letterSpacing: "0.05em", textTransform: "uppercase", cursor: "pointer", borderRadius: "2px", transition: "all 0.3s ease" }}
+      style={{ position: "absolute", top: "2rem", right: "2rem", zIndex: 10, background: "rgba(184,151,62,0.15)", border: "1px solid rgba(184,151,62,0.4)", color: "rgba(245,240,232,0.88)", padding: "0.7rem 1.2rem", minHeight: "44px", fontFamily: "'Montserrat', sans-serif", fontSize: "11px", letterSpacing: "0.05em", textTransform: "uppercase", cursor: "pointer", borderRadius: "2px", transition: "all 0.3s ease" }}
       onHoverStart={{ background: "rgba(184,151,62,0.25)" }}>
       Passer
     </motion.button>

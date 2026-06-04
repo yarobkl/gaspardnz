@@ -67,7 +67,7 @@ const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules, 
         }}>
         <button onClick={() => close(() => window.scrollTo({ top: 0, behavior: "smooth" }))}
           aria-label={t("nav_top")}
-          style={{ background: "none", border: "none", cursor: "pointer", textAlign: "left" }}>
+          style={{ background: "none", border: "none", cursor: "pointer", textAlign: "left", minHeight: "44px", padding: "5px 0" }}>
           <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "22px", letterSpacing: "0.3em", color: navTextColor, lineHeight: 1, transition: "color 0.4s" }}>Gaspardnz</div>
           <div style={{ fontSize: "7px", letterSpacing: "0.5em", color: GOLD, textTransform: "uppercase", fontFamily: "'Montserrat', sans-serif", marginTop: "3px" }}>Paris</div>
         </button>
@@ -75,7 +75,7 @@ const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules, 
         <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
           <motion.button onClick={onToggleContrast} whileTap={{ scale: 0.88 }}
             aria-label={highContrast ? t("nav_contrast_off") : t("nav_contrast_on")}
-            style={{ background: "none", border: "none", cursor: "pointer", color: highContrast ? GOLD : navTextColor, transition: "color 0.4s", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", padding: "0 4px", height: "36px", minWidth: "28px" }}>
+            style={{ background: "none", border: "none", cursor: "pointer", color: highContrast ? GOLD : navTextColor, transition: "color 0.4s", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", padding: 0, width: "44px", height: "44px" }}>
             <motion.div
               animate={{ rotate: highContrast ? 180 : 0, scale: highContrast ? 1.15 : 1 }}
               transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
@@ -92,7 +92,7 @@ const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules, 
 
           <motion.button onClick={onToggleDark} whileTap={{ scale: 0.95 }}
             aria-label={lightMode ? t("nav_night") : t("nav_day")}
-            style={{ background: "none", border: "none", cursor: "pointer", padding: "0 2px", display: "flex", alignItems: "center", justifyContent: "center", height: "36px" }}>
+            style={{ background: "none", border: "none", cursor: "pointer", padding: 0, display: "flex", alignItems: "center", justifyContent: "center", minWidth: "62px", height: "44px" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "5px", background: lightMode ? "#faf7f2" : "rgba(255,255,255,0.12)", border: `1px solid ${lightMode ? GOLD : "rgba(255,255,255,0.25)"}`, borderRadius: "20px", padding: "4px 8px", transition: "all 0.35s" }}>
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={lightMode ? "#333" : "rgba(255,255,255,0.5)"} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ transition: "stroke 0.3s" }} aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
               <div style={{ width: "1px", height: "12px", background: lightMode ? "rgba(0,0,0,0.15)" : "rgba(255,255,255,0.2)" }} />
@@ -107,7 +107,7 @@ const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules, 
                 <motion.button onClick={() => setLangOpen(v => !v)} whileTap={{ scale: 0.88 }}
                   aria-label={t("nav_language", lang)}
                   aria-expanded={langOpen}
-                  style={{ background: "none", border: "none", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "2px", padding: "0 4px", color: navTextColor, transition: "color 0.4s", height: "36px", minWidth: "28px" }}>
+                  style={{ background: "none", border: "none", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "2px", padding: 0, color: navTextColor, transition: "color 0.4s", width: "44px", height: "44px" }}>
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                     <circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/>
                     <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
@@ -124,7 +124,7 @@ const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules, 
                       style={{ position: "absolute", top: "42px", right: 0, display: "grid", gap: "4px", background: "rgba(245,240,232,0.98)", border: `1px solid rgba(184,151,62,0.3)`, padding: "8px", zIndex: 720, boxShadow: "0 12px 32px rgba(0,0,0,0.16)" }}>
                       {LANGS.map(l => (
                         <button key={l} onClick={() => chooseLang(l)}
-                          style={{ background: lang === l ? "rgba(184,151,62,0.12)" : "transparent", border: "none", cursor: "pointer", fontFamily: "'Montserrat', sans-serif", fontSize: "9px", letterSpacing: "0.24em", color: lang === l ? GOLD : TEXT, padding: "7px 9px", textAlign: "center" }}>
+                          style={{ background: lang === l ? "rgba(184,151,62,0.12)" : "transparent", border: "none", cursor: "pointer", fontFamily: "'Montserrat', sans-serif", fontSize: "9px", letterSpacing: "0.24em", color: lang === l ? GOLD : TEXT, padding: "10px 9px", minWidth: "44px", minHeight: "44px", textAlign: "center" }}>
                           {l}
                         </button>
                       ))}
@@ -137,7 +137,7 @@ const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules, 
 
           <motion.button onClick={onCatalogue} whileTap={{ scale: 0.88 }}
             aria-label={t("nav_open_shop")}
-            style={{ background: "none", border: "none", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "2px", padding: "0 4px", color: navTextColor, transition: "color 0.4s", height: "36px", minWidth: "28px", position: "relative" }}>
+            style={{ background: "none", border: "none", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "2px", padding: 0, color: navTextColor, transition: "color 0.4s", width: "44px", height: "44px", position: "relative" }}>
             <div style={{ position: "relative", display: "flex", alignItems: "center", justifyContent: "center" }}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>
@@ -153,7 +153,7 @@ const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules, 
           <button onClick={() => setOpen(v => !v)}
             aria-label={open ? t("nav_close_menu") : t("nav_open_menu")}
             aria-expanded={open}
-            style={{ background: "none", border: "none", cursor: "pointer", padding: "8px", display: "flex", flexDirection: "column", gap: "5px" }}>
+            style={{ background: "none", border: "none", cursor: "pointer", padding: "8px", width: "44px", height: "44px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "5px" }}>
             <motion.span animate={{ rotate: open ? 45 : 0, y: open ? 7 : 0 }} transition={{ duration: 0.3 }}
               style={{ display: "block", width: "24px", height: "1.5px", background: open ? GOLD : navTextColor, transition: "background 0.4s" }} />
             <motion.span animate={{ opacity: open ? 0 : 1, scaleX: open ? 0 : 1 }} transition={{ duration: 0.2 }}
@@ -212,7 +212,7 @@ const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules, 
                 <a key={i} href={href} target="_blank" rel="noopener noreferrer" aria-label={label} style={{ color: "rgba(28,18,8,0.72)", transition: "color 0.3s" }}
                   onTouchStart={e => e.currentTarget.style.color = GOLD}
                   onTouchEnd={e => e.currentTarget.style.color = "rgba(28,18,8,0.4)"}
-                ><Icon /></a>
+                ><span style={{ display: "flex", alignItems: "center", justifyContent: "center", width: "44px", height: "44px" }}><Icon /></span></a>
               ))}
             </motion.div>
 
@@ -221,7 +221,7 @@ const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules, 
               {["FR", "EN", "ES", "ZH"].map(l => (
                 <button key={l} onClick={() => chooseLang(l)}
                   aria-label={t("nav_switch_lang", l)}
-                  style={{ background: "none", border: "none", cursor: "pointer", fontFamily: "'Montserrat', sans-serif", fontSize: "8px", letterSpacing: "0.3em", padding: "4px 6px",
+                  style={{ background: "none", border: "none", cursor: "pointer", fontFamily: "'Montserrat', sans-serif", fontSize: "8px", letterSpacing: "0.3em", padding: "4px 6px", minWidth: "44px", minHeight: "44px",
                     color: lang === l ? GOLD : "rgba(28,18,8,0.3)", borderBottom: lang === l ? `1px solid ${GOLD}` : "1px solid transparent", transition: "all 0.3s" }}>
                   {l}
                 </button>

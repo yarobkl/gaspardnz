@@ -111,7 +111,7 @@ const GalleryMobile = ({ refEl }) => {
         }}>
           {items.map(({ src, label, hotspots }, i) => (
             <div key={i} style={{ flex: "0 0 100%", width: "100%", position: "relative" }}>
-              <img src={src} alt={label} loading="lazy"
+              <img src={src} alt={label} width="900" height="1200" loading="lazy"
                 style={{ width: "100%", aspectRatio: "3/4", objectFit: "cover", objectPosition: "top", filter: "brightness(0.94) contrast(1.02) saturate(0.9)", display: "block" }} />
               {label && (
                 <div style={{ position: "absolute", bottom: "1rem", left: "1rem" }}>
@@ -127,6 +127,7 @@ const GalleryMobile = ({ refEl }) => {
               {i === cur && hotspots.map((spot, si) => (
                 <motion.button
                   key={si}
+                  aria-label={spot.label}
                   onClick={() => setActiveSpot({ iIdx: i, sIdx: si })}
                   animate={{ boxShadow: ["0 0 0 0px rgba(184,151,62,0.5)", "0 0 0 6px rgba(184,151,62,0)", "0 0 0 0px rgba(184,151,62,0.5)"] }}
                   transition={{ duration: 2.4, repeat: Infinity, delay: si * 0.45, ease: "easeInOut" }}
@@ -135,8 +136,8 @@ const GalleryMobile = ({ refEl }) => {
                     left: `${spot.x}%`,
                     top: `${spot.y}%`,
                     transform: "translate(-50%, -50%)",
-                    width: "28px",
-                    height: "28px",
+                    width: "44px",
+                    height: "44px",
                     borderRadius: "50%",
                     background: "transparent",
                     border: "1.5px solid rgba(184,151,62,0.85)",
@@ -156,19 +157,21 @@ const GalleryMobile = ({ refEl }) => {
         </div>
 
         <button aria-label={t("previous_photo")} onClick={() => { go(-1); resetTimer(); }}
-          style={{ position: "absolute", left: "0.8rem", top: "50%", transform: "translateY(-50%)", background: "rgba(255,255,255,0.18)", border: "none", borderRadius: "50%", width: "36px", height: "36px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", backdropFilter: "blur(4px)", WebkitBackdropFilter: "blur(4px)" }}>
+          style={{ position: "absolute", left: "0.8rem", top: "50%", transform: "translateY(-50%)", background: "rgba(255,255,255,0.18)", border: "none", borderRadius: "50%", width: "44px", height: "44px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", backdropFilter: "blur(4px)", WebkitBackdropFilter: "blur(4px)" }}>
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 3L5 8l5 5" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
         </button>
 
         <button aria-label={t("next_photo")} onClick={() => { go(1); resetTimer(); }}
-          style={{ position: "absolute", right: "0.8rem", top: "50%", transform: "translateY(-50%)", background: "rgba(255,255,255,0.18)", border: "none", borderRadius: "50%", width: "36px", height: "36px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", backdropFilter: "blur(4px)", WebkitBackdropFilter: "blur(4px)" }}>
+          style={{ position: "absolute", right: "0.8rem", top: "50%", transform: "translateY(-50%)", background: "rgba(255,255,255,0.18)", border: "none", borderRadius: "50%", width: "44px", height: "44px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", backdropFilter: "blur(4px)", WebkitBackdropFilter: "blur(4px)" }}>
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 3l5 5-5 5" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
         </button>
       </div>
 
       <div style={{ display: "flex", gap: "6px", justifyContent: "center", marginTop: "1.2rem" }}>
         {items.map((_, i) => (
-          <div key={i} style={{ width: i === cur ? "20px" : "6px", height: "2px", background: i === cur ? GOLD : "rgba(28,18,8,0.2)", borderRadius: "1px", transition: "all 0.3s", cursor: "pointer" }} onClick={() => { setCur(i); resetTimer(); }} />
+          <button key={i} aria-label={`Voir la photo ${i + 1}`} style={{ width: "44px", height: "44px", flex: "0 0 44px", border: "none", background: "transparent", padding: 0, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }} onClick={() => { setCur(i); resetTimer(); }}>
+            <span style={{ width: i === cur ? "20px" : "6px", height: "2px", background: i === cur ? GOLD : "rgba(28,18,8,0.2)", borderRadius: "1px", transition: "all 0.3s", display: "block" }} />
+          </button>
         ))}
       </div>
 
@@ -210,7 +213,7 @@ const GalleryMobile = ({ refEl }) => {
                   <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "6.5px", letterSpacing: "0.55em", color: GOLD, textTransform: "uppercase", marginBottom: "5px" }}>{t("shop_the_look")}</p>
                   <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "22px", fontWeight: 300, color: TEXT, letterSpacing: "0.02em" }}>{curItem.label}</p>
                 </div>
-                <button aria-label={t("close")} onClick={() => setActiveSpot(null)} style={{ background: "none", border: "none", padding: "4px", cursor: "pointer", color: "rgba(28,18,8,0.45)", fontSize: "18px", lineHeight: 1, marginTop: "2px" }}>&times;</button>
+                <button aria-label={t("close")} onClick={() => setActiveSpot(null)} style={{ background: "none", border: "none", padding: "4px", minWidth: "44px", minHeight: "44px", cursor: "pointer", color: "rgba(28,18,8,0.62)", fontSize: "18px", lineHeight: 1, marginTop: "2px" }}>&times;</button>
               </div>
 
               <div style={{ padding: "1.2rem 1.4rem" }}>
@@ -253,7 +256,8 @@ const GalleryMobile = ({ refEl }) => {
                       icon:<path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 5.079 3.158 9.417 7.618 11.162-.105-.949-.2-2.405.042-3.441.218-.937 1.407-5.965 1.407-5.965s-.359-.719-.359-1.782c0-1.668.967-2.914 2.171-2.914 1.023 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738.098.119.112.224.083.345l-.333 1.36c-.053.22-.174.267-.402.161-1.499-.698-2.436-2.889-2.436-4.649 0-3.785 2.75-7.262 7.929-7.262 4.163 0 7.398 2.967 7.398 6.931 0 4.136-2.607 7.464-6.227 7.464-1.216 0-2.359-.632-2.75-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24.009 12.017 24.009c6.624 0 11.99-5.367 11.99-11.988C24.007 5.367 18.641.001 12.017.001z"/> },
                   ].map(n => (
                     <motion.button key={n.id} whileTap={{ scale: 0.88 }} onClick={() => handleShare(n.id)}
-                      style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "5px", background: "none", border: "none", cursor: "pointer", padding: 0 }}>
+                      aria-label={`Partager sur ${n.label}`}
+                      style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "5px", background: "none", border: "none", cursor: "pointer", padding: "2px", minWidth: "44px", minHeight: "54px" }}>
                       <div style={{ width: "40px", height: "40px", borderRadius: "50%", background: n.bg, display: "flex", alignItems: "center", justifyContent: "center" }}>
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="white">{n.icon}</svg>
                       </div>
@@ -263,7 +267,8 @@ const GalleryMobile = ({ refEl }) => {
                 </div>
                 {typeof navigator !== "undefined" && navigator.share && (
                   <motion.button whileTap={{ scale: 0.97 }} onClick={() => handleShare("native")}
-                    style={{ width: "100%", background: "transparent", border: `1px solid rgba(184,151,62,0.4)`, borderRadius: "2px", padding: "10px", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", cursor: "pointer", marginTop: "14px" }}>
+                    aria-label={t("share_native")}
+                    style={{ width: "100%", background: "transparent", border: `1px solid rgba(184,151,62,0.4)`, borderRadius: "2px", padding: "12px 10px", minHeight: "44px", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", cursor: "pointer", marginTop: "14px" }}>
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={GOLD} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8M16 6l-4-4-4 4M12 2v13"/>
                     </svg>

@@ -24,7 +24,7 @@ const AlbumModal = ({ photos, name, onClose }) => {
       onClick={onClose}
       style={{ position: "fixed", inset: 0, zIndex: 9999, background: "rgba(0,0,0,0.95)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
 
-      <button onClick={onClose} style={{ position: "absolute", top: "1.2rem", right: "1.2rem", background: "none", border: "none", color: "rgba(245,240,232,0.6)", fontSize: "1.8rem", cursor: "pointer", zIndex: 1 }}>✕</button>
+      <button aria-label={t("close")} onClick={onClose} style={{ position: "absolute", top: "1.2rem", right: "1.2rem", background: "none", border: "none", color: "rgba(245,240,232,0.82)", fontSize: "1.8rem", cursor: "pointer", zIndex: 1, width: "44px", height: "44px" }}>✕</button>
 
       <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.5em", color: GOLD, textTransform: "uppercase", marginBottom: "1.2rem", zIndex: 1 }}>ALBUM · {name.toUpperCase()}</p>
 
@@ -34,6 +34,8 @@ const AlbumModal = ({ photos, name, onClose }) => {
             <img
               src={photos[idx]}
               alt={`${name} — photo ${idx + 1}`}
+              width="900"
+              height="1200"
               loading="lazy"
               decoding="async"
               style={{ width: "100%", borderRadius: "12px", objectFit: "cover", maxHeight: "70vh", display: "block" }}
@@ -47,10 +49,10 @@ const AlbumModal = ({ photos, name, onClose }) => {
 
         {photos.length > 1 && (
           <>
-            <button onClick={() => setIdx(i => Math.max(i - 1, 0))}
-              style={{ position: "absolute", left: "-1rem", top: "50%", transform: "translateY(-50%)", background: "rgba(0,0,0,0.5)", border: `1px solid rgba(184,151,62,0.4)`, color: GOLD, borderRadius: "50%", width: "36px", height: "36px", cursor: "pointer", fontSize: "1rem", display: "flex", alignItems: "center", justifyContent: "center", opacity: idx === 0 ? 0.3 : 1 }}>‹</button>
-            <button onClick={() => setIdx(i => Math.min(i + 1, photos.length - 1))}
-              style={{ position: "absolute", right: "-1rem", top: "50%", transform: "translateY(-50%)", background: "rgba(0,0,0,0.5)", border: `1px solid rgba(184,151,62,0.4)`, color: GOLD, borderRadius: "50%", width: "36px", height: "36px", cursor: "pointer", fontSize: "1rem", display: "flex", alignItems: "center", justifyContent: "center", opacity: idx === photos.length - 1 ? 0.3 : 1 }}>›</button>
+            <button aria-label={t("previous_photo")} onClick={() => setIdx(i => Math.max(i - 1, 0))}
+              style={{ position: "absolute", left: "-1rem", top: "50%", transform: "translateY(-50%)", background: "rgba(0,0,0,0.5)", border: `1px solid rgba(184,151,62,0.4)`, color: GOLD, borderRadius: "50%", width: "44px", height: "44px", cursor: "pointer", fontSize: "1rem", display: "flex", alignItems: "center", justifyContent: "center", opacity: idx === 0 ? 0.3 : 1 }}>‹</button>
+            <button aria-label={t("next_photo")} onClick={() => setIdx(i => Math.min(i + 1, photos.length - 1))}
+              style={{ position: "absolute", right: "-1rem", top: "50%", transform: "translateY(-50%)", background: "rgba(0,0,0,0.5)", border: `1px solid rgba(184,151,62,0.4)`, color: GOLD, borderRadius: "50%", width: "44px", height: "44px", cursor: "pointer", fontSize: "1rem", display: "flex", alignItems: "center", justifyContent: "center", opacity: idx === photos.length - 1 ? 0.3 : 1 }}>›</button>
           </>
         )}
       </motion.div>
@@ -58,7 +60,10 @@ const AlbumModal = ({ photos, name, onClose }) => {
       <div style={{ display: "flex", gap: "6px", marginTop: "1rem", zIndex: 1 }}>
         {photos.map((_, i) => (
           <button key={i} onClick={e => { e.stopPropagation(); setIdx(i); }}
-            style={{ width: i === idx ? "20px" : "6px", height: "6px", borderRadius: "3px", background: i === idx ? GOLD : "rgba(184,151,62,0.3)", border: "none", cursor: "pointer", transition: "all 0.3s", padding: 0 }} />
+            aria-label={`Voir la photo ${i + 1}`}
+            style={{ width: "44px", height: "44px", borderRadius: "50%", background: "transparent", border: "none", cursor: "pointer", transition: "all 0.3s", padding: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <span style={{ width: i === idx ? "20px" : "6px", height: "6px", borderRadius: "3px", background: i === idx ? GOLD : "rgba(184,151,62,0.3)", display: "block" }} />
+          </button>
         ))}
       </div>
 
@@ -176,7 +181,7 @@ const VIPClientsSection = () => {
                 style={{ flexShrink: 0, width: `${CARD_W}vw`, boxSizing: "border-box", paddingLeft: "6px", paddingRight: "6px", cursor: isActive ? (c.album ? "pointer" : "grab") : "pointer", transformOrigin: "center center" }}>
                 <div style={{ borderRadius: "16px", background: c.gradient, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", border: isActive ? `1px solid rgba(184,151,62,0.5)` : "1px solid rgba(184,151,62,0.15)", position: "relative", overflow: "hidden", aspectRatio: "3/4", boxShadow: isActive ? "0 20px 60px rgba(0,0,0,0.7)" : "none", transition: "border 0.4s, box-shadow 0.4s" }}>
                   {c.photo
-                    ? <img src={c.photo} alt={c.name} loading="lazy" decoding="async" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center top", pointerEvents: "none" }} />
+                    ? <img src={c.photo} alt={c.name} width="900" height="1200" loading="lazy" decoding="async" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center top", pointerEvents: "none" }} />
                     : <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at 50% 30%, rgba(184,151,62,0.15), transparent 70%)", pointerEvents: "none" }} />
                   }
                   <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 45%, rgba(0,0,0,0.85) 100%)", pointerEvents: "none" }} />
@@ -200,7 +205,7 @@ const VIPClientsSection = () => {
                     <motion.button
                       onPointerUp={e => { e.stopPropagation(); setAlbum({ photos: c.album, name: c.name }); }}
                       whileTap={{ scale: 0.95 }}
-                      style={{ marginTop: "10px", display: "flex", alignItems: "center", gap: "8px", background: "rgba(184,151,62,0.12)", border: `1px solid rgba(184,151,62,0.45)`, borderRadius: "30px", padding: "0.5rem 1rem", cursor: "pointer", fontFamily: "'Montserrat', sans-serif", fontSize: "8px", letterSpacing: "0.3em", color: GOLD, textTransform: "uppercase" }}>
+                      style={{ marginTop: "10px", display: "flex", alignItems: "center", gap: "8px", background: "rgba(184,151,62,0.12)", border: `1px solid rgba(184,151,62,0.45)`, borderRadius: "30px", padding: "0.7rem 1rem", minHeight: "44px", cursor: "pointer", fontFamily: "'Montserrat', sans-serif", fontSize: "8px", letterSpacing: "0.3em", color: GOLD, textTransform: "uppercase" }}>
                       <span>◻</span> {t("vip_album")}
                     </motion.button>
                   )}
@@ -214,7 +219,10 @@ const VIPClientsSection = () => {
       <div style={{ display: "flex", justifyContent: "center", gap: "7px", marginTop: "1.6rem" }}>
         {clients.map((_, i) => (
           <button key={i} onClick={() => snapTo(i)}
-            style={{ width: i === cur ? "22px" : "6px", height: "6px", borderRadius: "3px", background: i === cur ? GOLD : "rgba(184,151,62,0.25)", border: "none", cursor: "pointer", transition: "all 0.35s", padding: 0 }} />
+            aria-label={`Voir le client ${i + 1}`}
+            style={{ width: "44px", height: "44px", borderRadius: "50%", background: "transparent", border: "none", cursor: "pointer", transition: "all 0.35s", padding: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <span style={{ width: i === cur ? "22px" : "6px", height: "6px", borderRadius: "3px", background: i === cur ? GOLD : "rgba(184,151,62,0.25)", display: "block" }} />
+          </button>
         ))}
       </div>
 
@@ -222,7 +230,7 @@ const VIPClientsSection = () => {
         style={{ textAlign: "center", marginTop: "2.4rem", padding: "0 1.4rem" }}>
         <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "9px", color: "rgba(250,247,242,0.3)", letterSpacing: "0.08em" }}>{t("vip_question")}</p>
         <motion.button whileTap={{ scale: 0.97 }} onClick={() => window.open(getWhatsappUrl(settings.whatsappNumber, t("vip_question")), "_blank")}
-          style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "9.5px", letterSpacing: "0.2em", color: GOLD, textTransform: "uppercase", background: "none", border: "none", cursor: "pointer", borderBottom: `1px solid rgba(184,151,62,0.4)`, paddingBottom: "2px", marginTop: "8px" }}>
+          style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "9.5px", letterSpacing: "0.2em", color: GOLD, textTransform: "uppercase", background: "none", border: "none", cursor: "pointer", borderBottom: `1px solid rgba(184,151,62,0.4)`, padding: "10px 0", minHeight: "44px", marginTop: "8px" }}>
           {t("vip_contact")}
         </motion.button>
       </motion.div>

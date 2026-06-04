@@ -23,7 +23,7 @@ const AvatarImg = ({ size, ring = true }) => {
   return (
     <div style={{ width: size, height: size, borderRadius: "50%", border: ring ? `2px solid ${GOLD}` : "none", overflow: "hidden", flexShrink: 0, background: "#1c1208", display: "flex", alignItems: "center", justifyContent: "center" }}>
       {!err
-        ? <img src={AVATAR_SRC} onError={() => setErr(true)} alt="Gaspard NZ" loading="lazy" decoding="async" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center top" }} />
+        ? <img src={AVATAR_SRC} onError={() => setErr(true)} alt="Gaspard NZ" width={size} height={size} loading="lazy" decoding="async" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center top" }} />
         : <span style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: `${Math.round(size * 0.3)}px`, color: GOLD, letterSpacing: "0.05em" }}>GNZ</span>
       }
     </div>
@@ -143,6 +143,7 @@ const ChatBot = ({ onReserver, onGalerie, onShowroom, onFormules }) => {
         onDragStart={() => { fabDragging.current = true; }}
         onDragEnd={() => { setTimeout(() => { fabDragging.current = false; }, 80); }}
         onClick={() => { if (fabDragging.current) return; setOpen(o => !o); setShowBubble(false); }}
+        aria-label={open ? "Fermer l'assistant Gaspard NZ" : "Ouvrir l'assistant Gaspard NZ"}
         whileTap={{ scale: 0.93 }}
         style={{ position: "fixed", bottom: "1.5rem", right: "1.2rem", zIndex: 600, width: "56px", height: "56px", borderRadius: "50%", background: open ? GOLD : "transparent", border: open ? "none" : `2px solid ${GOLD}`, padding: 0, cursor: "grab", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 24px rgba(184,151,62,0.45)", overflow: "hidden", touchAction: "none" }}>
         <AnimatePresence mode="wait">
@@ -165,7 +166,7 @@ const ChatBot = ({ onReserver, onGalerie, onShowroom, onFormules }) => {
             style={{ position: "fixed", bottom: "5.2rem", right: "1.2rem", background: "transparent", padding: "0.5rem 1rem 0.5rem 0", maxWidth: "200px", cursor: "pointer", zIndex: 598, textAlign: "right" }}
           >
             <p style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: "italic", fontSize: "0.92rem", color: GOLD, lineHeight: 1.45, margin: 0, textShadow: "0 1px 8px rgba(0,0,0,0.9), 0 0 20px rgba(0,0,0,0.8)" }}>{t("chatbot_bubble")}</p>
-            <button onClick={e => { e.stopPropagation(); setShowBubble(false); }} style={{ position: "absolute", top: "4px", right: "6px", background: "none", border: "none", cursor: "pointer", color: "rgba(245,240,232,0.35)", fontSize: "0.75rem", lineHeight: 1 }}>✕</button>
+            <button aria-label="Masquer le message de l'assistant" onClick={e => { e.stopPropagation(); setShowBubble(false); }} style={{ position: "absolute", top: "0", right: "0", background: "none", border: "none", cursor: "pointer", color: "rgba(245,240,232,0.82)", fontSize: "0.75rem", lineHeight: 1, width: "44px", height: "44px" }}>✕</button>
           </motion.div>
         )}
       </AnimatePresence>
@@ -190,7 +191,7 @@ const ChatBot = ({ onReserver, onGalerie, onShowroom, onFormules }) => {
               <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "2px" }}>
                 <div style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#25D366" }} />
               </div>
-              <button onClick={() => setOpen(false)} style={{ background: "none", border: "none", cursor: "pointer", color: "rgba(245,240,232,0.55)", fontSize: "1.1rem", padding: "0.2rem 0 0.2rem 0.6rem", lineHeight: 1 }}>✕</button>
+              <button aria-label="Fermer l'assistant" onClick={() => setOpen(false)} style={{ background: "none", border: "none", cursor: "pointer", color: "rgba(245,240,232,0.82)", fontSize: "1.1rem", padding: 0, lineHeight: 1, width: "44px", height: "44px" }}>✕</button>
             </div>
 
             <AnimatePresence>
@@ -213,11 +214,11 @@ const ChatBot = ({ onReserver, onGalerie, onShowroom, onFormules }) => {
                     @keyframes gnzShimmer { 0%{background-position:200% center} 100%{background-position:-200% center} }
                   `}</style>
                   <div style={{ width: "150px", height: "150px", borderRadius: "50%", overflow: "hidden", border: `2px solid ${GOLD}`, animation: "gnzWalk 0.85s ease-in-out infinite, gnzGlow 2.5s ease-in-out infinite", marginBottom: "1.4rem" }}>
-                    <img src={AVATAR_SRC} alt="Gaspard NZ" loading="lazy" decoding="async" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center top" }} />
+                    <img src={AVATAR_SRC} alt="Gaspard NZ" width="150" height="150" loading="lazy" decoding="async" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center top" }} />
                   </div>
                   <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.4rem", letterSpacing: "0.2em", margin: 0, background: "linear-gradient(90deg, #9a7a2e 0%, #d4ae5a 25%, #f5e070 50%, #d4ae5a 75%, #9a7a2e 100%)", backgroundSize: "250% auto", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text", animation: "gnzShimmer 2.5s linear infinite" }}>GASPARD NZ</p>
                   <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.4em", color: "rgba(184,151,62,0.55)", textTransform: "uppercase", marginTop: "8px" }}>{t("chatbot_role")}</p>
-                  <button onClick={() => setShowAvatar(false)} style={{ position: "absolute", bottom: "1.2rem", background: "none", border: "1px solid rgba(184,151,62,0.25)", color: "rgba(245,240,232,0.35)", fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.35em", textTransform: "uppercase", padding: "0.45rem 1.1rem", cursor: "pointer", borderRadius: "2px" }}>{t("chatbot_skip")}</button>
+                  <button onClick={() => setShowAvatar(false)} style={{ position: "absolute", bottom: "1.2rem", background: "none", border: "1px solid rgba(184,151,62,0.45)", color: "rgba(245,240,232,0.78)", fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.35em", textTransform: "uppercase", padding: "0.7rem 1.1rem", minHeight: "44px", cursor: "pointer", borderRadius: "2px" }}>{t("chatbot_skip")}</button>
                 </motion.div>
               )}
             </AnimatePresence>
@@ -245,7 +246,7 @@ const ChatBot = ({ onReserver, onGalerie, onShowroom, onFormules }) => {
                           else if (btn === "YouTube") { window.open("https://youtube.com/@gaspardnz?si=s4saxiuv7rt9iUmT", "_blank"); }
                           else handleAction(btn);
                         }}
-                          style={{ background: "none", border: `1px solid rgba(184,151,62,0.5)`, color: GOLD, padding: "0.35rem 0.7rem", fontFamily: "'Montserrat', sans-serif", fontSize: "9px", letterSpacing: "0.15em", cursor: "pointer", borderRadius: "20px", transition: "all 0.2s", whiteSpace: "nowrap" }}>
+                          style={{ background: "none", border: `1px solid rgba(184,151,62,0.5)`, color: GOLD, padding: "0.65rem 0.85rem", minHeight: "44px", fontFamily: "'Montserrat', sans-serif", fontSize: "9px", letterSpacing: "0.15em", cursor: "pointer", borderRadius: "20px", transition: "all 0.2s", whiteSpace: "nowrap" }}>
                           {btn}
                         </button>
                       ))}
@@ -276,8 +277,9 @@ const ChatBot = ({ onReserver, onGalerie, onShowroom, onFormules }) => {
                 style={{ flex: 1, background: "#fff", border: "1px solid rgba(184,151,62,0.2)", padding: "0.6rem 0.9rem", fontFamily: "'Montserrat', sans-serif", fontSize: "12px", color: TEXT, outline: "none", borderRadius: "20px" }}
               />
               <button onClick={handleSend}
+                aria-label="Envoyer le message"
                 disabled={!input.trim()}
-                style={{ width: "36px", height: "36px", borderRadius: "50%", background: GOLD, border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                style={{ width: "44px", height: "44px", borderRadius: "50%", background: GOLD, border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="#1c1208"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg>
               </button>
             </div>

@@ -34,7 +34,7 @@ const InstagramSection = () => {
         </div>
         <motion.a href={igUrl} target="_blank" rel="noopener noreferrer"
           whileTap={{ scale: 0.95 }}
-          style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "9px", letterSpacing: "0.1em", color: "#faf7f2", background: "linear-gradient(90deg,#dc2743,#bc1888)", padding: "8px 14px", borderRadius: "20px", textDecoration: "none", fontWeight: 600 }}>
+          style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "9px", letterSpacing: "0.1em", color: "#faf7f2", background: "linear-gradient(90deg,#dc2743,#bc1888)", padding: "10px 14px", minHeight: "44px", display: "inline-flex", alignItems: "center", borderRadius: "20px", textDecoration: "none", fontWeight: 600 }}>
           {t("ig_follow")}
         </motion.a>
       </motion.div>
@@ -45,7 +45,7 @@ const InstagramSection = () => {
             transition={{ duration: 0.4, delay: i * 0.07 }}
             style={{ position: "relative", aspectRatio: "1/1", overflow: "hidden", cursor: "pointer" }}
             onClick={() => window.open(igUrl, "_blank")}>
-            <img src={p.src} alt={`Look Gaspardnz — ${p.label}`} loading="lazy" decoding="async" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top", display: "block" }} />
+            <img src={p.src} alt={`Look Gaspardnz — ${p.label}`} width="320" height="320" loading="lazy" decoding="async" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top", display: "block" }} />
           </motion.div>
         ))}
       </div>
@@ -54,7 +54,7 @@ const InstagramSection = () => {
         style={{ textAlign: "center", marginTop: "1.6rem", padding: "0 1.4rem" }}>
         <motion.a href={igUrl} target="_blank" rel="noopener noreferrer"
           whileTap={{ scale: 0.97 }}
-          style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "9.5px", letterSpacing: "0.2em", color: TEXT, textTransform: "uppercase", textDecoration: "none", borderBottom: "1px solid #b8973e", paddingBottom: "2px" }}>
+          style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "9.5px", letterSpacing: "0.2em", color: TEXT, textTransform: "uppercase", textDecoration: "none", borderBottom: "1px solid #b8973e", padding: "12px 0", minHeight: "44px", display: "inline-flex", alignItems: "center" }}>
           {t("ig_all")}
         </motion.a>
       </motion.div>

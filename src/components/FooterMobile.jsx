@@ -33,9 +33,9 @@ const FooterMobile = ({ onFormules, onGalerie, onShowroom }) => {
             ["TikTok", () => window.open("https://www.tiktok.com/@gaspardnz?_r=1&_t=ZS-95wB65ZWhvB", "_blank")],
           ].map(([label, fn]) => (
             <button key={label} onClick={fn}
-              style={{ background: "none", border: "none", cursor: "pointer", fontFamily: "'Montserrat', sans-serif", fontSize: "8px", letterSpacing: "0.2em", color: "rgba(245,240,232,0.4)", textTransform: "uppercase", padding: "4px 0", transition: "color 0.3s" }}
+              style={{ background: "none", border: "none", cursor: "pointer", fontFamily: "'Montserrat', sans-serif", fontSize: "8px", letterSpacing: "0.2em", color: "rgba(245,240,232,0.7)", textTransform: "uppercase", padding: "12px 0", minHeight: "44px", minWidth: "44px", transition: "color 0.3s" }}
               onTouchStart={e => e.currentTarget.style.color = GOLD}
-              onTouchEnd={e => e.currentTarget.style.color = "rgba(245,240,232,0.4)"}
+              onTouchEnd={e => e.currentTarget.style.color = "rgba(245,240,232,0.7)"}
             >{label}</button>
           ))}
         </nav>
@@ -43,15 +43,16 @@ const FooterMobile = ({ onFormules, onGalerie, onShowroom }) => {
         {/* Social icons */}
         <div style={{ display: "flex", justifyContent: "center", gap: "1.4rem", marginBottom: "2rem" }}>
           {[
-            [SvgInstagram, settings.instagramUrl || "https://www.instagram.com/gaspardnz_?igsh=YWgzb3Jua2NkeDdq"],
-            [SvgTiktok, "https://www.tiktok.com/@gaspardnz?_r=1&_t=ZS-95wB65ZWhvB"],
-            [SvgYoutube, "https://youtube.com/@gaspardnz?si=s4saxiuv7rt9iUmT"],
-          ].map(([Icon, href], i) => (
+            [SvgInstagram, settings.instagramUrl || "https://www.instagram.com/gaspardnz_?igsh=YWgzb3Jua2NkeDdq", "Instagram Gaspard NZ"],
+            [SvgTiktok, "https://www.tiktok.com/@gaspardnz?_r=1&_t=ZS-95wB65ZWhvB", "TikTok Gaspard NZ"],
+            [SvgYoutube, "https://youtube.com/@gaspardnz?si=s4saxiuv7rt9iUmT", "YouTube Gaspard NZ"],
+          ].map(([Icon, href, label], i) => (
             <motion.a key={i} href={href} target="_blank" rel="noopener noreferrer"
+              aria-label={label}
               whileTap={{ scale: 0.88 }}
-              style={{ color: "rgba(245,240,232,0.35)", display: "flex", transition: "color 0.3s" }}
+              style={{ color: "rgba(245,240,232,0.72)", display: "flex", alignItems: "center", justifyContent: "center", width: "44px", height: "44px", transition: "color 0.3s" }}
               onTouchStart={e => e.currentTarget.style.color = GOLD}
-              onTouchEnd={e => e.currentTarget.style.color = "rgba(245,240,232,0.35)"}
+              onTouchEnd={e => e.currentTarget.style.color = "rgba(245,240,232,0.72)"}
             ><Icon /></motion.a>
           ))}
         </div>
@@ -67,23 +68,23 @@ const FooterMobile = ({ onFormules, onGalerie, onShowroom }) => {
             [t("footer_cgv"), "cgv"],
           ].map(([label, page]) => (
             <button key={label} onClick={() => setLegalPage(page)}
-              style={{ background: "none", border: "none", cursor: "pointer", fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.15em", color: "rgba(245,240,232,0.22)", textDecoration: "none", textTransform: "uppercase", padding: 0 }}>
+              style={{ background: "none", border: "none", cursor: "pointer", fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.15em", color: "rgba(245,240,232,0.62)", textDecoration: "none", textTransform: "uppercase", padding: "12px 0", minHeight: "44px", minWidth: "44px" }}>
               {label}
             </button>
           ))}
         </div>
 
-        <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", color: "rgba(245,240,232,0.15)", textAlign: "center", letterSpacing: "0.1em" }}>
+        <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", color: "rgba(245,240,232,0.55)", textAlign: "center", letterSpacing: "0.1em" }}>
           © {new Date().getFullYear()} Gaspardnz — Paris. {t("rights")}
         </p>
 
-        <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", color: "rgba(245,240,232,0.1)", textAlign: "center", letterSpacing: "0.1em", marginTop: "0.5rem" }}>
+        <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", color: "rgba(245,240,232,0.5)", textAlign: "center", letterSpacing: "0.1em", marginTop: "0.5rem" }}>
           {t("developed_by")}{" "}
           <a
             href="https://www.tiktok.com/@yaro_bkl?_r=1&_t=ZS-96Qu1bNUqk1"
             target="_blank"
             rel="noopener noreferrer"
-            style={{ color: "rgba(245,240,232,0.3)", textDecoration: "none", borderBottom: "1px solid rgba(184,151,62,0.3)" }}
+            style={{ color: "rgba(245,240,232,0.68)", textDecoration: "none", borderBottom: "1px solid rgba(184,151,62,0.5)", display: "inline-flex", alignItems: "center", minHeight: "44px" }}
           >
             Rodrin Bakala
           </a>

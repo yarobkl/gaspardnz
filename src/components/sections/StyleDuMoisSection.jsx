@@ -42,6 +42,7 @@ const StyleDuMoisSection = ({ refEl }) => {
               <div style={{ position: "relative", width: "100%", aspectRatio: "9/16", background: "#080503" }}
                 onClick={() => setActiveSpot(null)}>
                 <img src={activeSrc} alt={item.title || "Style du mois"}
+                  width="900" height="1600"
                   loading="lazy" decoding="async"
                   style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center top", display: "block" }} />
                 <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 58%, rgba(7,4,0,0.72) 100%)", pointerEvents: "none" }} />
@@ -54,8 +55,10 @@ const StyleDuMoisSection = ({ refEl }) => {
                     <button
                       aria-label={spot.label}
                       onClick={e => { e.stopPropagation(); setActiveSpot(activeSpot === `${i}-${si}` ? null : `${i}-${si}`); }}
-                      style={{ width: "14px", height: "14px", borderRadius: "50%", background: "rgba(184,151,62,0.18)", border: `1px solid rgba(184,151,62,0.9)`, boxShadow: "0 0 0 1px rgba(10,6,2,0.55), 0 0 10px rgba(184,151,62,0.34)", backdropFilter: "blur(4px)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", padding: 0 }}>
-                      <div style={{ width: "4px", height: "4px", borderRadius: "50%", background: GOLD }} />
+                      style={{ width: "44px", height: "44px", borderRadius: "50%", background: "transparent", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", padding: 0 }}>
+                      <span style={{ width: "14px", height: "14px", borderRadius: "50%", background: "rgba(184,151,62,0.18)", border: `1px solid rgba(184,151,62,0.9)`, boxShadow: "0 0 0 1px rgba(10,6,2,0.55), 0 0 10px rgba(184,151,62,0.34)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                        <span style={{ width: "4px", height: "4px", borderRadius: "50%", background: GOLD }} />
+                      </span>
                     </button>
                     <AnimatePresence>
                       {activeSpot === `${i}-${si}` && (
@@ -75,7 +78,7 @@ const StyleDuMoisSection = ({ refEl }) => {
                               };
                               window.open(`${WA_GNZ}?text=${encodeURIComponent(messages[lang] || messages.FR)}`, "_blank");
                             }}
-                            style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "6.5px", letterSpacing: "0.18em", color: GOLD, textTransform: "uppercase", background: "rgba(184,151,62,0.1)", border: `1px solid rgba(184,151,62,0.3)`, borderRadius: "20px", padding: "4px 8px", cursor: "pointer", width: "100%" }}>
+                            style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "6.5px", letterSpacing: "0.18em", color: GOLD, textTransform: "uppercase", background: "rgba(184,151,62,0.1)", border: `1px solid rgba(184,151,62,0.3)`, borderRadius: "20px", padding: "9px 8px", minHeight: "44px", cursor: "pointer", width: "100%" }}>
                             {t("ask_availability")}
                           </button>
                         </motion.div>
@@ -87,9 +90,9 @@ const StyleDuMoisSection = ({ refEl }) => {
               {album.length > 1 && (
                 <div style={{ display: "grid", gridTemplateColumns: `repeat(${album.length}, 1fr)`, gap: "8px", padding: "10px 10px 0" }}>
                   {album.map((src, ai) => (
-                    <button key={src} onClick={() => { setActivePhotos(current => ({ ...current, [i]: ai })); setActiveSpot(null); }}
+                    <button key={src} aria-label={`Voir ${item.title || "style du mois"} photo ${ai + 1}`} onClick={() => { setActivePhotos(current => ({ ...current, [i]: ai })); setActiveSpot(null); }}
                       style={{ border: ai === activeIndex ? `1px solid ${GOLD}` : "1px solid rgba(184,151,62,0.18)", background: "none", padding: 0, borderRadius: "10px", overflow: "hidden", aspectRatio: "1/1", cursor: "pointer", opacity: ai === activeIndex ? 1 : 0.58 }}>
-                      <img src={src} alt={`${item.title || "Style du mois"} ${ai + 1}`} loading="lazy" decoding="async" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center top", display: "block" }} />
+                      <img src={src} alt={`${item.title || "Style du mois"} ${ai + 1}`} width="320" height="320" loading="lazy" decoding="async" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center top", display: "block" }} />
                     </button>
                   ))}
                 </div>

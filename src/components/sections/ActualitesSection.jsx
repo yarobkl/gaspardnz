@@ -26,15 +26,17 @@ const ActuCard = ({ item }) => {
               playsInline
               preload="metadata"
               style={{ width: "100%", aspectRatio: "9/16", maxHeight: "560px", objectFit: "cover", objectPosition: "center", display: "block", background: "#050301" }}
-            />
+            >
+              <track kind="captions" src="/captions/jt-sape-fr.vtt" srcLang="fr" label="Français" default />
+            </video>
           ) : multi ? (
             <div style={{ display: "flex", transition: "transform 0.6s cubic-bezier(0.16,1,0.3,1)", transform: `translateX(${-photoCur * 100}%)` }}>
               {photos.map((src, i) => (
-                <img key={i} src={src} alt={item.title} loading="lazy" decoding="async" style={{ flexShrink: 0, width: "100%", aspectRatio: "4/3", objectFit: "cover", objectPosition: "center top", display: "block" }} />
+                <img key={i} src={src} alt={item.title} width="1200" height="900" loading="lazy" decoding="async" style={{ flexShrink: 0, width: "100%", aspectRatio: "4/3", objectFit: "cover", objectPosition: "center top", display: "block" }} />
               ))}
             </div>
           ) : (
-            <img src={photos[0]} alt={item.title} loading="lazy" decoding="async" style={{ width: "100%", aspectRatio: "4/3", objectFit: "cover", objectPosition: "center top", display: "block" }} />
+            <img src={photos[0]} alt={item.title} width="1200" height="900" loading="lazy" decoding="async" style={{ width: "100%", aspectRatio: "4/3", objectFit: "cover", objectPosition: "center top", display: "block" }} />
           )}
           <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 55%, rgba(17,16,9,0.9) 100%)", pointerEvents: "none" }} />
           <div style={{ position: "absolute", top: "12px", left: "12px", background: "rgba(184,151,62,0.15)", backdropFilter: "blur(6px)", border: "1px solid rgba(184,151,62,0.3)", borderRadius: "4px", padding: "4px 10px" }}>
@@ -44,16 +46,18 @@ const ActuCard = ({ item }) => {
             <div style={{ position: "absolute", bottom: "12px", left: "50%", transform: "translateX(-50%)", display: "flex", gap: "5px" }}>
               {photos.map((_, i) => (
                 <button key={i} onClick={() => setPhotoCur(i)} aria-label={`Photo ${i + 1}`}
-                  style={{ width: i === photoCur ? 18 : 5, height: 2, borderRadius: 1, background: i === photoCur ? GOLD : "rgba(184,151,62,0.35)", border: "none", padding: 0, cursor: "pointer", transition: "width 0.35s" }} />
+                  style={{ width: "44px", height: "44px", borderRadius: "50%", background: "transparent", border: "none", padding: 0, cursor: "pointer", transition: "width 0.35s", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <span style={{ width: i === photoCur ? 18 : 5, height: 2, borderRadius: 1, background: i === photoCur ? GOLD : "rgba(184,151,62,0.35)", display: "block" }} />
+                </button>
               ))}
             </div>
           )}
           {multi && (
             <>
-              <button onClick={() => setPhotoCur(c => Math.max(c-1,0))} style={{ position: "absolute", left: "8px", top: "50%", transform: "translateY(-50%)", background: "rgba(0,0,0,0.35)", border: "none", borderRadius: "50%", width: 28, height: 28, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", opacity: photoCur === 0 ? 0.3 : 1 }} aria-label={t("previous_photo")}>
+              <button onClick={() => setPhotoCur(c => Math.max(c-1,0))} style={{ position: "absolute", left: "8px", top: "50%", transform: "translateY(-50%)", background: "rgba(0,0,0,0.35)", border: "none", borderRadius: "50%", width: 44, height: 44, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", opacity: photoCur === 0 ? 0.3 : 1 }} aria-label={t("previous_photo")}>
                 <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M6.5 2L3.5 5l3 3" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
               </button>
-              <button onClick={() => setPhotoCur(c => Math.min(c+1,photos.length-1))} style={{ position: "absolute", right: "8px", top: "50%", transform: "translateY(-50%)", background: "rgba(0,0,0,0.35)", border: "none", borderRadius: "50%", width: 28, height: 28, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", opacity: photoCur === photos.length-1 ? 0.3 : 1 }} aria-label={t("next_photo")}>
+              <button onClick={() => setPhotoCur(c => Math.min(c+1,photos.length-1))} style={{ position: "absolute", right: "8px", top: "50%", transform: "translateY(-50%)", background: "rgba(0,0,0,0.35)", border: "none", borderRadius: "50%", width: 44, height: 44, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", opacity: photoCur === photos.length-1 ? 0.3 : 1 }} aria-label={t("next_photo")}>
                 <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M3.5 2L6.5 5l-3 3" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
               </button>
             </>
@@ -69,7 +73,7 @@ const ActuCard = ({ item }) => {
           {expanded ? item.text : preview}
         </div>
         <motion.button whileTap={{ scale: 0.97 }} onClick={() => setExpanded(e => !e)}
-          style={{ marginTop: "1.1rem", background: "none", border: "none", padding: 0, cursor: "pointer", display: "flex", alignItems: "center", gap: "6px" }}>
+          style={{ marginTop: "1.1rem", background: "none", border: "none", padding: "0.7rem 0", minHeight: "44px", cursor: "pointer", display: "flex", alignItems: "center", gap: "6px" }}>
           <span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "8px", letterSpacing: "0.3em", color: GOLD, textTransform: "uppercase" }}>
             {expanded ? t("reduce") : t("read_more")}
           </span>

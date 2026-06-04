@@ -22,13 +22,16 @@ const StyleDot = ({ dot }) => {
   return (
     <div style={{ position: "absolute", top: dot.top, left: dot.left, zIndex: 10 }}>
       <motion.button
+        aria-label={dot.label}
         onClick={() => setActive(a => !a)}
         animate={{ scale: [1, 1.15, 1] }}
         transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-        style={{ width: "14px", height: "14px", borderRadius: "50%", background: "rgba(184,151,62,0.25)", border: `1px solid ${GOLD}`, backdropFilter: "blur(4px)", cursor: "pointer", padding: 0, display: "flex", alignItems: "center", justifyContent: "center", position: "relative" }}>
-        <div style={{ width: "4px", height: "4px", borderRadius: "50%", background: GOLD }} />
-        <motion.div animate={{ scale: [1, 1.8, 1], opacity: [0.6, 0, 0.6] }} transition={{ duration: 1.8, repeat: Infinity }}
-          style={{ position: "absolute", inset: -3, borderRadius: "50%", border: `1px solid ${GOLD}`, pointerEvents: "none" }} />
+        style={{ width: "44px", height: "44px", borderRadius: "50%", background: "transparent", border: "none", cursor: "pointer", padding: 0, display: "flex", alignItems: "center", justifyContent: "center", position: "relative", transform: "translate(-15px, -15px)" }}>
+        <span style={{ width: "14px", height: "14px", borderRadius: "50%", background: "rgba(184,151,62,0.25)", border: `1px solid ${GOLD}`, backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", position: "relative" }}>
+          <span style={{ width: "4px", height: "4px", borderRadius: "50%", background: GOLD }} />
+          <motion.span animate={{ scale: [1, 1.8, 1], opacity: [0.6, 0, 0.6] }} transition={{ duration: 1.8, repeat: Infinity }}
+            style={{ position: "absolute", inset: -3, borderRadius: "50%", border: `1px solid ${GOLD}`, pointerEvents: "none" }} />
+        </span>
       </motion.button>
       <AnimatePresence>
         {active && (
@@ -70,6 +73,7 @@ const StyleJournalSection = () => {
             transition={{ duration: 0.8, delay: i * 0.08, ease: [0.16, 1, 0.3, 1] }}
             style={{ position: "relative", overflow: "hidden" }}>
             <img src={photo.src} alt={photo.caption}
+              width="1200" height="1600"
               loading="lazy" decoding="async"
               style={{ width: "100%", height: "auto", display: "block" }} />
             <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 55%, rgba(10,6,2,0.75) 100%)", pointerEvents: "none" }} />

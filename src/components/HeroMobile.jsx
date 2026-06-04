@@ -17,13 +17,16 @@ const HeroVideoLoop = () => {
     const start = () => {
       if (!cancelled) setVideoSrc(_HERO_SRC);
     };
-    const idle = "requestIdleCallback" in window
-      ? window.requestIdleCallback(start, { timeout: 450 })
-      : window.setTimeout(start, 160);
+    let timer;
+    const schedule = () => {
+      timer = window.setTimeout(start, 1400);
+    };
+    if (document.readyState === "complete") schedule();
+    else window.addEventListener("load", schedule, { once: true });
     return () => {
       cancelled = true;
-      if ("cancelIdleCallback" in window) window.cancelIdleCallback(idle);
-      else window.clearTimeout(idle);
+      window.clearTimeout(timer);
+      window.removeEventListener("load", schedule);
     };
   }, []);
 
@@ -79,7 +82,9 @@ const HeroVideoLoop = () => {
       controlsList="nodownload nofullscreen noremoteplayback"
       onEnded={e => { e.target.currentTime = 0; e.target.play().catch(() => {}); }}
       style={{ ..._VIDEO_STYLE, background: "#1c1208" }}
-    />
+    >
+      <track kind="captions" src="/captions/hero-fr.vtt" srcLang="fr" label="Français" default />
+    </video>
   );
 };
 
@@ -151,9 +156,10 @@ const HeroMobile = ({ onScrollDown }) => {
             {t("hero_subtitle")}
           </motion.p>
           <motion.button onClick={onScrollDown}
+            aria-label={t("hero_cta")}
             animate={reduceMotion ? {} : { boxShadow: ["0 0 0px rgba(184,151,62,0)", "0 0 14px rgba(184,151,62,0.55)", "0 0 0px rgba(184,151,62,0)"] }}
             transition={{ duration: reduceMotion ? 0 : 2.4, repeat: reduceMotion ? 0 : Infinity, ease: "easeInOut" }}
-            style={{ position: "relative", overflow: "hidden", background: "none", border: "1px solid rgba(245,240,232,0.65)", color: "rgba(245,240,232,0.95)", cursor: "pointer", padding: "0.7rem 1.4rem", fontFamily: "'Montserrat', sans-serif", fontSize: "11px", letterSpacing: "0.35em", textTransform: "uppercase", whiteSpace: "nowrap" }}>
+            style={{ position: "relative", overflow: "hidden", background: "none", border: "1px solid rgba(245,240,232,0.65)", color: "rgba(245,240,232,0.95)", cursor: "pointer", padding: "0.82rem 1.4rem", minHeight: "44px", fontFamily: "'Montserrat', sans-serif", fontSize: "11px", letterSpacing: "0.35em", textTransform: "uppercase", whiteSpace: "nowrap" }}>
             <motion.span
               animate={reduceMotion ? {} : { x: ["-130%", "230%"] }}
               transition={{ duration: reduceMotion ? 0 : 1.6, repeat: reduceMotion ? 0 : Infinity, repeatDelay: 2, ease: "easeInOut" }}
