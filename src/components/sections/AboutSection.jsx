@@ -7,51 +7,79 @@ const AboutSection = () => {
 
   const aboutContent = {
     FR: {
-      title: "Styliste & Habilleur à Paris",
-      subtitle: "Expertise en sélection de tenues pour mariages, événements africains et galas",
-      description: "Gaspardnz est un styliste et habilleur parisien spécialisé dans la sélection et la mise en place de looks sophistiqués. Avec plus de 7 ans d'expérience, il accompagne ses clients pour des mariages africains, des galas, des cérémonies et des événements haut-de-gamme. En tant que maître de cérémonie, il assure une coordination impeccable de chaque détail.",
-      services: [
-        "Styliste mariage à Paris",
-        "Habilleur événements africains",
-        "Conseiller style pour cérémonies",
-        "Maître de cérémonie",
-        "Sélection de tenues sur-mesure (partenaires)"
+      eyebrow: "Expérience client",
+      title: "Du premier échange au jour J",
+      subtitle: "L'objectif : trouver une allure forte, confortable et juste pour votre événement.",
+      steps: [
+        {
+          n: "01",
+          title: "Diagnostic du style",
+          text: "On part de votre événement, votre morphologie, vos couleurs, votre rôle et l'image que vous voulez laisser."
+        },
+        {
+          n: "02",
+          title: "Sélection du look",
+          text: "Gaspard compose les pièces, les associations et les détails : costume, chemise, chaussures, accessoires et finitions."
+        },
+        {
+          n: "03",
+          title: "Présence et coordination",
+          text: "Pour les mariages, galas et cérémonies, l'accompagnement peut aller jusqu'à la mise en place et la coordination du jour J."
+        }
+      ],
+      highlights: [
+        "Mariage",
+        "Gala",
+        "Cérémonie",
+        "Conseil image"
       ]
     },
     EN: {
-      title: "Stylist & Dresser in Paris",
-      subtitle: "Expertise in outfit selection for weddings, African events and galas",
-      description: "Gaspardnz is a Parisian stylist and dresser specializing in selecting and styling sophisticated looks. With over 7 years of experience, he assists clients for African weddings, galas, ceremonies and high-end events. As a master of ceremonies, he ensures impeccable coordination of every detail.",
-      services: [
-        "Wedding stylist in Paris",
-        "Dresser for African events",
-        "Style advisor for ceremonies",
-        "Master of ceremonies",
-        "Outfit selection through partners"
+      eyebrow: "Client experience",
+      title: "From first call to event day",
+      subtitle: "The goal: a strong, comfortable and accurate look for your occasion.",
+      steps: [
+        { n: "01", title: "Style diagnosis", text: "We start from your event, body shape, colors, role and the impression you want to leave." },
+        { n: "02", title: "Look selection", text: "Gaspard builds the outfit: suit, shirt, shoes, accessories and finishing details." },
+        { n: "03", title: "Presence and coordination", text: "For weddings, galas and ceremonies, support can include setup and coordination on the day." }
+      ],
+      highlights: [
+        "Wedding",
+        "Gala",
+        "Ceremony",
+        "Image advice"
       ]
     },
     ES: {
-      title: "Estilista y Vestidor en París",
-      subtitle: "Experiencia en selección de looks para bodas, eventos africanos y galas",
-      description: "Gaspardnz es un estilista y vestidor parisino especializado en la selección y coordinación de looks sofisticados. Con más de 7 años de experiencia, acompaña a sus clientes en bodas africanas, galas, ceremonias y eventos de alto nivel. Como maestro de ceremonias, asegura una coordinación impecable de cada detalle.",
-      services: [
-        "Estilista de bodas en París",
-        "Vestidor para eventos africanos",
-        "Asesor de estilo para ceremonias",
-        "Maestro de ceremonias",
-        "Selección de atuendos a través de socios"
+      eyebrow: "Experiencia cliente",
+      title: "De la primera llamada al evento",
+      subtitle: "El objetivo: una presencia fuerte, cómoda y justa para la ocasión.",
+      steps: [
+        { n: "01", title: "Diagnóstico de estilo", text: "Partimos del evento, la morfología, los colores, el rol y la imagen que quieres proyectar." },
+        { n: "02", title: "Selección del look", text: "Gaspard compone las piezas: traje, camisa, zapatos, accesorios y acabados." },
+        { n: "03", title: "Presencia y coordinación", text: "Para bodas, galas y ceremonias, el acompañamiento puede incluir coordinación el día del evento." }
+      ],
+      highlights: [
+        "Boda",
+        "Gala",
+        "Ceremonia",
+        "Imagen"
       ]
     },
     ZH: {
-      title: "巴黎造型师与服装搭配师",
-      subtitle: "婚礼、非洲活动和晚宴服装选择专家",
-      description: "Gaspardnz 是一位巴黎造型师和服装搭配师，专门从事精致造型的选择和协调。拥有7年以上经验，为非洲婚礼、晚宴、典礼和高端活动的客户服务。作为仪式主持人，他确保每一个细节的完美协调。",
-      services: [
-        "巴黎婚礼造型师",
-        "非洲活动服装搭配师",
-        "典礼风格顾问",
-        "仪式主持人",
-        "通过合作伙伴的服装选择"
+      eyebrow: "客户体验",
+      title: "从第一次沟通到活动当天的清晰陪伴",
+      subtitle: "目标：为你的场合打造有力量、舒适且准确的形象。",
+      steps: [
+        { n: "01", title: "风格诊断", text: "从活动、身形、颜色、角色和你想留下的印象开始。" },
+        { n: "02", title: "造型选择", text: "Gaspard 组合西装、衬衫、鞋履、配饰和细节。" },
+        { n: "03", title: "现场协调", text: "婚礼、晚宴和仪式可提供当天造型与流程协调。" }
+      ],
+      highlights: [
+        "婚礼",
+        "晚宴",
+        "仪式",
+        "形象建议"
       ]
     }
   };
@@ -59,20 +87,32 @@ const AboutSection = () => {
   const content = aboutContent[t?.lang || "FR"] || aboutContent.FR;
 
   return (
-    <section style={{ background: "#0a0602", padding: "4rem 1.4rem", color: CREAM }}>
-      <div style={{ maxWidth: "900px", margin: "0 auto" }}>
+    <section style={{ background: "#0a0602", padding: "4rem 1.4rem 4.6rem", color: CREAM }}>
+      <div style={{ maxWidth: "960px", margin: "0 auto" }}>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
           viewport={{ once: true }}>
 
+          <p style={{
+            fontFamily: "'Montserrat', sans-serif",
+            fontSize: "7px",
+            letterSpacing: "0.55em",
+            color: GOLD,
+            textTransform: "uppercase",
+            margin: "0 0 0.9rem"
+          }}>
+            {content.eyebrow}
+          </p>
+
           <h2 style={{
             fontFamily: "'Bebas Neue', sans-serif",
-            fontSize: "clamp(32px, 8vw, 56px)",
-            color: GOLD,
+            fontSize: "clamp(34px, 9vw, 64px)",
+            color: "#faf7f2",
             margin: "0 0 1rem 0",
-            letterSpacing: "0.04em"
+            letterSpacing: "0.04em",
+            lineHeight: 0.95
           }}>
             {content.title}
           </h2>
@@ -81,58 +121,60 @@ const AboutSection = () => {
             fontFamily: "'Cormorant Garamond', serif",
             fontSize: "clamp(16px, 4vw, 20px)",
             fontStyle: "italic",
-            color: "rgba(245,240,232,0.85)",
-            marginBottom: "2rem",
+            color: "rgba(245,240,232,0.78)",
+            marginBottom: "2.2rem",
             lineHeight: 1.6
           }}>
             {content.subtitle}
           </p>
 
-          <p style={{
-            fontFamily: "'Montserrat', sans-serif",
-            fontSize: "14px",
-            lineHeight: 1.8,
-            color: "rgba(245,240,232,0.75)",
-            marginBottom: "2.5rem",
-            letterSpacing: "0.02em"
-          }}>
-            {content.description}
-          </p>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(190px, 1fr))", gap: "0.85rem" }}>
+            {content.steps.map((step) => (
+              <motion.article
+                key={step.n}
+                initial={{ opacity: 0, y: 14 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.55, delay: Number(step.n) * 0.08 }}
+                viewport={{ once: true }}
+                style={{
+                  border: "1px solid rgba(184,151,62,0.24)",
+                  background: "linear-gradient(180deg, rgba(245,240,232,0.055), rgba(184,151,62,0.045))",
+                  padding: "1.15rem",
+                  minHeight: "190px",
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "space-between"
+                }}
+              >
+                <span style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "2rem", color: GOLD, letterSpacing: "0.08em", lineHeight: 1 }}>
+                  {step.n}
+                </span>
+                <div>
+                  <h3 style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "11px", letterSpacing: "0.18em", color: "#faf7f2", textTransform: "uppercase", margin: "0 0 0.75rem", lineHeight: 1.5 }}>
+                    {step.title}
+                  </h3>
+                  <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1rem", fontStyle: "italic", lineHeight: 1.6, color: "rgba(245,240,232,0.72)", margin: 0 }}>
+                    {step.text}
+                  </p>
+                </div>
+              </motion.article>
+            ))}
+          </div>
 
-          <div style={{
-            borderLeft: `2px solid ${GOLD}`,
-            paddingLeft: "1.5rem",
-            marginTop: "2.5rem"
-          }}>
-            <h3 style={{
-              fontFamily: "'Montserrat', sans-serif",
-              fontSize: "12px",
-              color: GOLD,
-              textTransform: "uppercase",
-              letterSpacing: "0.1em",
-              margin: "0 0 1.2rem 0"
-            }}>
-              Spécialités / Specialties
-            </h3>
-            <ul style={{
-              listStyle: "none",
-              padding: 0,
-              margin: 0
-            }}>
-              {content.services.map((service, i) => (
-                <li
-                  key={i}
-                  style={{
-                    fontFamily: "'Cormorant Garamond', serif",
-                    fontSize: "16px",
-                    color: "rgba(245,240,232,0.8)",
-                    marginBottom: "0.8rem",
-                    lineHeight: 1.5
-                  }}>
-                  • {service}
-                </li>
-              ))}
-            </ul>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: "0.55rem", marginTop: "1.35rem" }}>
+            {content.highlights.map((item) => (
+              <span key={item} style={{
+                border: "1px solid rgba(184,151,62,0.34)",
+                color: GOLD,
+                fontFamily: "'Montserrat', sans-serif",
+                fontSize: "8px",
+                letterSpacing: "0.2em",
+                textTransform: "uppercase",
+                padding: "0.65rem 0.75rem"
+              }}>
+                {item}
+              </span>
+            ))}
           </div>
         </motion.div>
       </div>
