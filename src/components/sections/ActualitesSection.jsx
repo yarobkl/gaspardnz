@@ -30,11 +30,11 @@ const ActuCard = ({ item }) => {
           ) : multi ? (
             <div style={{ display: "flex", transition: "transform 0.6s cubic-bezier(0.16,1,0.3,1)", transform: `translateX(${-photoCur * 100}%)` }}>
               {photos.map((src, i) => (
-                <img key={i} src={src} alt={item.title} style={{ flexShrink: 0, width: "100%", aspectRatio: "4/3", objectFit: "cover", objectPosition: "center top", display: "block" }} />
+                <img key={i} src={src} alt={item.title} loading="lazy" decoding="async" style={{ flexShrink: 0, width: "100%", aspectRatio: "4/3", objectFit: "cover", objectPosition: "center top", display: "block" }} />
               ))}
             </div>
           ) : (
-            <img src={photos[0]} alt={item.title} style={{ width: "100%", aspectRatio: "4/3", objectFit: "cover", objectPosition: "center top", display: "block" }} />
+            <img src={photos[0]} alt={item.title} loading="lazy" decoding="async" style={{ width: "100%", aspectRatio: "4/3", objectFit: "cover", objectPosition: "center top", display: "block" }} />
           )}
           <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 55%, rgba(17,16,9,0.9) 100%)", pointerEvents: "none" }} />
           <div style={{ position: "absolute", top: "12px", left: "12px", background: "rgba(184,151,62,0.15)", backdropFilter: "blur(6px)", border: "1px solid rgba(184,151,62,0.3)", borderRadius: "4px", padding: "4px 10px" }}>

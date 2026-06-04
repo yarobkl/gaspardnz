@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useState, useCallback, useEffect, useRef, lazy, Suspense } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { GOLD, CREAM } from "./constants.js";
 import { LangCtx } from "./context.jsx";
@@ -10,39 +10,40 @@ import { requestNotificationPermission } from "./services/notifications.js";
 import { getSession, initAdminUsers } from "./services/adminAuth.js";
 import { trackPageView, trackEvent } from "./services/adminAnalytics.js";
 import { initializeTracking, trackPageView as trackDetailedPageView } from "./services/analyticsTracking.js";
-import AdminLogin from "./components/Admin/AdminLogin.jsx";
-import AdminLayout from "./components/Admin/AdminLayout.jsx";
-import AdminDashboard from "./components/Admin/AdminDashboard.jsx";
-import AdminAnalytics from "./components/Admin/AdminAnalytics.jsx";
-import AdminCRM from "./components/Admin/AdminCRM.jsx";
-import AdminVIPClients from "./components/Admin/AdminVIPClients.jsx";
-import AdminUsers from "./components/Admin/AdminUsers.jsx";
-import AdminWeddingInspiration from "./components/Admin/AdminWeddingInspiration.jsx";
-import AdminSettings from "./components/Admin/AdminSettings.jsx";
 import NavMobile from "./components/NavMobile.jsx";
 import HeroMobile from "./components/HeroMobile.jsx";
-import AboutSection from "./components/sections/AboutSection.jsx";
-import HeritageMobile from "./components/HeritageMobile.jsx";
-import ShowroomMobile from "./components/ShowroomMobile.jsx";
-import GalleryMobile from "./components/GalleryMobile.jsx";
-import BookingModal from "./components/BookingModal.jsx";
-import ChatBot from "./components/ChatBot.jsx";
-import WhatsAppCTA from "./components/WhatsAppCTA.jsx";
 
 import SectionDivider from "./components/ui/SectionDivider.jsx";
-import FormulesSection from "./components/sections/FormulesSection.jsx";
-import ActualitesSection from "./components/sections/ActualitesSection.jsx";
-import StyleJournalSection from "./components/sections/StyleJournalSection.jsx";
-import InstagramSection from "./components/sections/InstagramSection.jsx";
-import VIPClientsSection from "./components/sections/VIPSection.jsx";
-import CommunauteSection from "./components/sections/CommunauteSection.jsx";
-import StyleDuMoisSection from "./components/sections/StyleDuMoisSection.jsx";
-import VideoSection from "./components/sections/VideoSection.jsx";
-import WeddingInspirationSection from "./components/sections/WeddingInspirationSection.jsx";
-import FooterMobile from "./components/FooterMobile.jsx";
 
-const FONTS_CSS = `@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Bebas+Neue&family=Montserrat:wght@200;300;400;500&display=swap');`;
-const SPLASH_MAX_MS = 1800;
+const AboutSection = lazy(() => import("./components/sections/AboutSection.jsx"));
+const AdminLogin = lazy(() => import("./components/Admin/AdminLogin.jsx"));
+const AdminLayout = lazy(() => import("./components/Admin/AdminLayout.jsx"));
+const AdminDashboard = lazy(() => import("./components/Admin/AdminDashboard.jsx"));
+const AdminAnalytics = lazy(() => import("./components/Admin/AdminAnalytics.jsx"));
+const AdminCRM = lazy(() => import("./components/Admin/AdminCRM.jsx"));
+const AdminVIPClients = lazy(() => import("./components/Admin/AdminVIPClients.jsx"));
+const AdminUsers = lazy(() => import("./components/Admin/AdminUsers.jsx"));
+const AdminWeddingInspiration = lazy(() => import("./components/Admin/AdminWeddingInspiration.jsx"));
+const AdminSettings = lazy(() => import("./components/Admin/AdminSettings.jsx"));
+const HeritageMobile = lazy(() => import("./components/HeritageMobile.jsx"));
+const ShowroomMobile = lazy(() => import("./components/ShowroomMobile.jsx"));
+const GalleryMobile = lazy(() => import("./components/GalleryMobile.jsx"));
+const BookingModal = lazy(() => import("./components/BookingModal.jsx"));
+const ChatBot = lazy(() => import("./components/ChatBot.jsx"));
+const FormulesSection = lazy(() => import("./components/sections/FormulesSection.jsx"));
+const ActualitesSection = lazy(() => import("./components/sections/ActualitesSection.jsx"));
+const StyleJournalSection = lazy(() => import("./components/sections/StyleJournalSection.jsx"));
+const InstagramSection = lazy(() => import("./components/sections/InstagramSection.jsx"));
+const VIPClientsSection = lazy(() => import("./components/sections/VIPSection.jsx"));
+const CommunauteSection = lazy(() => import("./components/sections/CommunauteSection.jsx"));
+const StyleDuMoisSection = lazy(() => import("./components/sections/StyleDuMoisSection.jsx"));
+const VideoSection = lazy(() => import("./components/sections/VideoSection.jsx"));
+const WeddingInspirationSection = lazy(() => import("./components/sections/WeddingInspirationSection.jsx"));
+const FooterMobile = lazy(() => import("./components/FooterMobile.jsx"));
+const WhatsAppCTA = lazy(() => import("./components/WhatsAppCTA.jsx"));
+
+const FONTS_CSS = "";
+const SPLASH_MAX_MS = 700;
 const ADMIN_SECTIONS = ["dashboard", "analytics", "crm", "vip", "users", "wedding", "settings"];
 const isAdminRoute = () => typeof window !== "undefined" && window.location.pathname.startsWith("/admin");
 const getAdminSectionFromPath = () => {
@@ -165,7 +166,7 @@ const SplashScreen = ({ onDone, loading }) => {
 };
 
 export default function App() {
-  const [splashDone, setSplashDone] = useState(() => isAdminRoute());
+  const [splashDone, setSplashDone] = useState(true);
   const [notifPrompt, setNotifPrompt] = useState(false);
   const [bookingOpen, setBookingOpen] = useState(false);
   const [boutiqueMode, setBoutiqueMode] = useState(false);
@@ -406,7 +407,8 @@ export default function App() {
 
       {(splashDone || currentlyOnAdminPath || isAdminPath) && (
         (currentlyOnAdminPath || isAdminPath) ? (
-          isAdminLoggedIn ? (
+          <Suspense fallback={null}>
+          {isAdminLoggedIn ? (
             <AdminLayout
               currentSection={adminSection}
               onSectionChange={(section) => {
@@ -432,6 +434,8 @@ export default function App() {
               }}
             />
           )
+          }
+          </Suspense>
         ) : (
           <div
             data-gnz-mode={lightMode ? "light" : "dark"}
@@ -454,6 +458,7 @@ export default function App() {
             />
 
             <HeroMobile onScrollDown={() => scrollTo(heritageRef)} />
+            <Suspense fallback={null}>
             <AboutSection />
             <SectionDivider from="#1c1208" to="#f5f0e8" />
             <HeritageMobile refEl={heritageRef} />
@@ -479,11 +484,16 @@ export default function App() {
             <FooterMobile onFormules={() => scrollTo(formulesRef)} onGalerie={() => scrollTo(galleryRef)} onShowroom={() => scrollTo(showroomRef)} />
             <BookingModal isOpen={bookingOpen} onClose={() => setBookingOpen(false)} boutiqueMode={boutiqueMode} onSwitchToBooking={() => setBoutiqueMode(false)} />
             <ChatBot onReserver={() => openBooking(false)} onGalerie={() => scrollTo(galleryRef)} onShowroom={() => scrollTo(showroomRef)} onFormules={() => scrollTo(formulesRef)} />
+            </Suspense>
           </div>
         )
       )}
 
-      {splashDone && !isAdminPath && <WhatsAppCTA waPhoneUrl={`https://wa.me/33664826920?text=${encodeURIComponent((APP_COPY[lang] || APP_COPY.FR).waContact)}`} />}
+      {splashDone && !isAdminPath && (
+        <Suspense fallback={null}>
+          <WhatsAppCTA waPhoneUrl={`https://wa.me/33664826920?text=${encodeURIComponent((APP_COPY[lang] || APP_COPY.FR).waContact)}`} />
+        </Suspense>
+      )}
       {!currentlyOnAdminPath && !isAdminPath && (
         <>
           <NotificationPrompt visible={notifPrompt} onAccept={handleNotifAccept} onDecline={handleNotifDecline} />

@@ -22,7 +22,7 @@ const DecontracteAlbum = ({ onClick }) => {
       <div style={{ display: "flex", height: "100%", transform: `translateX(${-cur * 100}%)`, transition: "transform 0.8s cubic-bezier(0.16,1,0.3,1)", willChange: "transform" }}>
         {photos.map((p, i) => (
           <div key={i} style={{ flexShrink: 0, width: "100%", height: "100%", position: "relative", overflow: "hidden" }}>
-            <img src={p.src} alt={p.label} style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center top", display: "block" }} />
+            <img src={p.src} alt={p.label} loading="lazy" decoding="async" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center top", display: "block" }} />
             <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 40%, rgba(0,0,0,0.55) 100%)" }} />
           </div>
         ))}

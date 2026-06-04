@@ -62,6 +62,7 @@ const WeddingInspirationSection = ({ refEl }) => {
                 onClick={() => setActiveSpot(null)}>
               {activeSrc ? (
                 <img src={activeSrc} alt={item.title || "Look mariage"}
+                  loading="lazy" decoding="async"
                   style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center top", display: "block" }} />
               ) : (
                 <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "2rem", textAlign: "center" }}>
@@ -113,7 +114,7 @@ const WeddingInspirationSection = ({ refEl }) => {
                   {album.map((photo, ai) => (
                     <button key={`${photo.src}-${ai}`} onClick={() => { setActivePhotos(current => ({ ...current, [i]: ai })); setActiveSpot(null); }}
                       style={{ border: ai === activeIndex ? `1px solid ${GOLD}` : "1px solid rgba(184,151,62,0.18)", background: "none", padding: 0, borderRadius: "10px", overflow: "hidden", aspectRatio: "1/1", cursor: "pointer", opacity: ai === activeIndex ? 1 : 0.58 }}>
-                      <img src={photo.src} alt={`${item.title || "Look mariage"} ${ai + 1}`} style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center top", display: "block" }} />
+                      <img src={photo.src} alt={`${item.title || "Look mariage"} ${ai + 1}`} loading="lazy" decoding="async" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center top", display: "block" }} />
                     </button>
                   ))}
                 </div>

@@ -1,4 +1,4 @@
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import { motion, useReducedMotion, useScroll, useTransform, useInView } from "framer-motion";
 import { GOLD, CREAM } from "../constants.js";
 import { useTr } from "../context.jsx";
@@ -10,16 +10,27 @@ const _VIDEO_STYLE = { position: "absolute", inset: 0, width: "100%", height: "1
 const HeroVideoLoop = () => {
   const ref = useRef(null);
   const readyRef = useRef(false);
+  const [videoSrc, setVideoSrc] = useState("");
 
   useEffect(() => {
+    let cancelled = false;
+    const start = () => {
+      if (!cancelled) setVideoSrc(_HERO_SRC);
+    };
+    const idle = "requestIdleCallback" in window
+      ? window.requestIdleCallback(start, { timeout: 450 })
+      : window.setTimeout(start, 160);
+    return () => {
+      cancelled = true;
+      if ("cancelIdleCallback" in window) window.cancelIdleCallback(idle);
+      else window.clearTimeout(idle);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!videoSrc) return;
     const v = ref.current;
     if (!v) return;
-    const preloadLink = document.createElement("link");
-    preloadLink.rel = "preload";
-    preloadLink.as = "video";
-    preloadLink.href = _HERO_SRC;
-    preloadLink.type = "video/mp4";
-    document.head.appendChild(preloadLink);
     const play = () => {
       if (document.hidden || !v.paused) return;
       v.play().catch(() => {});
@@ -53,17 +64,16 @@ const HeroVideoLoop = () => {
       window.removeEventListener("focus", play);
       document.removeEventListener("touchstart",       play);
       document.removeEventListener("visibilitychange", onVis);
-      preloadLink.remove();
     };
-  }, []);
+  }, [videoSrc]);
   return (
     <video
       ref={ref}
-      src={_HERO_SRC}
+      src={videoSrc}
       autoPlay muted playsInline loop
       poster={_HERO_POSTER}
       disablePictureInPicture disableRemotePlayback
-      preload="auto"
+      preload="metadata"
       controls={false}
       x-webkit-airplay="deny"
       controlsList="nodownload nofullscreen noremoteplayback"

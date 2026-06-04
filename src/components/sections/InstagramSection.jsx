@@ -45,7 +45,7 @@ const InstagramSection = () => {
             transition={{ duration: 0.4, delay: i * 0.07 }}
             style={{ position: "relative", aspectRatio: "1/1", overflow: "hidden", cursor: "pointer" }}
             onClick={() => window.open(igUrl, "_blank")}>
-            <img src={p.src} alt={`Look Gaspardnz — ${p.label}`} style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top", display: "block" }} loading="lazy" />
+            <img src={p.src} alt={`Look Gaspardnz — ${p.label}`} loading="lazy" decoding="async" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top", display: "block" }} />
           </motion.div>
         ))}
       </div>
