@@ -1,6 +1,6 @@
 import { useContext, useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { GOLD, TEXT } from "../constants.js";
+import { GOLD, SOCIAL_LINKS, TEXT } from "../constants.js";
 import { LangCtx, useTr } from "../context.jsx";
 import { getGallerySpots } from "../data/galleryData.js";
 import { useSettings } from "../hooks/useSettings.js";
@@ -92,7 +92,7 @@ const GalleryMobile = ({ refEl }) => {
       await navigator.clipboard.writeText(siteUrl);
       setShareToast(network === "instagram" ? t("share_story_copied") : t("share_bio_copied"));
       setTimeout(() => setShareToast(null), 3000);
-    } catch { window.open(network === "instagram" ? "https://www.instagram.com/gaspardnz_?igsh=YWgzb3Jua2NkeDdq" : "https://tiktok.com/@gaspardnz", "_blank"); }
+    } catch { window.open(network === "instagram" ? SOCIAL_LINKS.instagram : SOCIAL_LINKS.tiktok, "_blank"); }
   };
 
   return (

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useContext } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { GOLD, TEXT } from "../constants.js";
+import { GOLD, SOCIAL_LINKS, TEXT } from "../constants.js";
 import { LangCtx, useTr } from "../context.jsx";
 import { SvgInstagram, SvgTiktok, SvgYoutube, SvgBag } from "../icons.jsx";
 import { useSettings } from "../hooks/useSettings.js";
@@ -208,7 +208,7 @@ const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules, 
 
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.25 }}
               style={{ display: "flex", gap: "1.2rem", marginTop: "1.8rem", justifyContent: "center" }}>
-              {[[SvgInstagram, settings.instagramUrl || "https://www.instagram.com/gaspardnz_?igsh=YWgzb3Jua2NkeDdq", "Instagram"], [SvgTiktok, "https://www.tiktok.com/@gaspardnz?_r=1&_t=ZS-95wB65ZWhvB", "TikTok"], [SvgYoutube, "https://youtube.com/@gaspardnz?si=s4saxiuv7rt9iUmT", "YouTube"]].map(([Icon, href, label], i) => (
+              {[[SvgInstagram, settings.instagramUrl || SOCIAL_LINKS.instagram, "Instagram"], [SvgTiktok, SOCIAL_LINKS.tiktok, "TikTok"], [SvgYoutube, SOCIAL_LINKS.youtube, "YouTube"]].map(([Icon, href, label], i) => (
                 <a key={i} href={href} target="_blank" rel="noopener noreferrer" aria-label={label} style={{ color: "rgba(28,18,8,0.72)", transition: "color 0.3s" }}
                   onTouchStart={e => e.currentTarget.style.color = GOLD}
                   onTouchEnd={e => e.currentTarget.style.color = "rgba(28,18,8,0.4)"}

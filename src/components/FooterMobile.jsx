@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { GOLD } from "../constants.js";
+import { GOLD, SOCIAL_LINKS } from "../constants.js";
 import { useTr } from "../context.jsx";
 import { SvgInstagram, SvgTiktok, SvgYoutube, SvgWhatsapp } from "../icons.jsx";
 import LegalModal from "./LegalModal.jsx";
@@ -29,8 +29,8 @@ const FooterMobile = ({ onFormules, onGalerie, onShowroom }) => {
             [t("nav_showroom"), onShowroom],
             [t("nav_galerie"), onGalerie],
             [t("nav_formules"), onFormules],
-            ["Instagram", () => window.open(settings.instagramUrl || "https://www.instagram.com/gaspardnz_?igsh=YWgzb3Jua2NkeDdq", "_blank")],
-            ["TikTok", () => window.open("https://www.tiktok.com/@gaspardnz?_r=1&_t=ZS-95wB65ZWhvB", "_blank")],
+            ["Instagram", () => window.open(settings.instagramUrl || SOCIAL_LINKS.instagram, "_blank")],
+            ["TikTok", () => window.open(SOCIAL_LINKS.tiktok, "_blank")],
           ].map(([label, fn]) => (
             <button key={label} onClick={fn}
               style={{ background: "none", border: "none", cursor: "pointer", fontFamily: "'Montserrat', sans-serif", fontSize: "8px", letterSpacing: "0.2em", color: "rgba(245,240,232,0.7)", textTransform: "uppercase", padding: "12px 0", minHeight: "44px", minWidth: "44px", transition: "color 0.3s" }}
@@ -43,9 +43,9 @@ const FooterMobile = ({ onFormules, onGalerie, onShowroom }) => {
         {/* Social icons */}
         <div style={{ display: "flex", justifyContent: "center", gap: "1.4rem", marginBottom: "2rem" }}>
           {[
-            [SvgInstagram, settings.instagramUrl || "https://www.instagram.com/gaspardnz_?igsh=YWgzb3Jua2NkeDdq", "Instagram Gaspard NZ"],
-            [SvgTiktok, "https://www.tiktok.com/@gaspardnz?_r=1&_t=ZS-95wB65ZWhvB", "TikTok Gaspard NZ"],
-            [SvgYoutube, "https://youtube.com/@gaspardnz?si=s4saxiuv7rt9iUmT", "YouTube Gaspard NZ"],
+            [SvgInstagram, settings.instagramUrl || SOCIAL_LINKS.instagram, "Instagram Gaspard NZ"],
+            [SvgTiktok, SOCIAL_LINKS.tiktok, "TikTok Gaspard NZ"],
+            [SvgYoutube, SOCIAL_LINKS.youtube, "YouTube Gaspard NZ"],
           ].map(([Icon, href, label], i) => (
             <motion.a key={i} href={href} target="_blank" rel="noopener noreferrer"
               aria-label={label}
@@ -81,7 +81,7 @@ const FooterMobile = ({ onFormules, onGalerie, onShowroom }) => {
         <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", color: "rgba(245,240,232,0.5)", textAlign: "center", letterSpacing: "0.1em", marginTop: "0.5rem" }}>
           {t("developed_by")}{" "}
           <a
-            href="https://www.tiktok.com/@yaro_bkl?_r=1&_t=ZS-96Qu1bNUqk1"
+            href="https://www.tiktok.com/@yaro_bkl"
             target="_blank"
             rel="noopener noreferrer"
             style={{ color: "rgba(245,240,232,0.68)", textDecoration: "none", borderBottom: "1px solid rgba(184,151,62,0.5)", display: "inline-flex", alignItems: "center", minHeight: "44px" }}

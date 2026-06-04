@@ -1,6 +1,6 @@
 import { useRef } from "react";
 import { motion, useInView } from "framer-motion";
-import { TEXT } from "../../constants.js";
+import { SOCIAL_LINKS, TEXT } from "../../constants.js";
 import { useTr } from "../../context.jsx";
 import { useSettings } from "../../hooks/useSettings.js";
 
@@ -9,7 +9,7 @@ const InstagramSection = () => {
   const settings = useSettings();
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-6% 0px" });
-  const igUrl = settings.instagramUrl || "https://www.instagram.com/gaspardnz_?igsh=YWgzb3Jua2NkeDdq";
+  const igUrl = settings.instagramUrl || SOCIAL_LINKS.instagram;
   const posts = [
     { src: `${import.meta.env.BASE_URL}images/costume-creme.jpg`,      label: t("gal_1") },
     { src: `${import.meta.env.BASE_URL}images/smoking-dore.jpg`,       label: t("gal_13") },

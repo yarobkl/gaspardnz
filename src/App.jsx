@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect, useRef, lazy, Suspense } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { GOLD, CREAM } from "./constants.js";
+import { GOLD, CREAM, SOCIAL_LINKS } from "./constants.js";
 import { LangCtx } from "./context.jsx";
 
 import NotificationPrompt from "./components/NotificationPrompt.jsx";
@@ -248,7 +248,7 @@ export default function App() {
         "description": "Styliste et habilleur spécialisé à Paris. Sélection et coordination de tenues pour mariages africains, galas et cérémonies.",
         "url": "https://gaspardnz.style",
         "areaServed": "Paris",
-        "sameAs": ["https://www.instagram.com/gaspardnz", "https://www.tiktok.com/@gaspardnz"],
+        "sameAs": [SOCIAL_LINKS.instagram, SOCIAL_LINKS.tiktok, SOCIAL_LINKS.facebook, SOCIAL_LINKS.youtube],
         "contactPoint": {
           "@type": "ContactPoint",
           "contactType": "Customer Service",

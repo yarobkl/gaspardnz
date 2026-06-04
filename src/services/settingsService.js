@@ -1,3 +1,5 @@
+import { SOCIAL_LINKS } from "../constants.js";
+
 const SETTINGS_KEY = "gaspardnz_settings";
 
 const defaultSettings = {
@@ -6,7 +8,7 @@ const defaultSettings = {
   heroSubtitle: "Création et organisation d'événements mémorables",
   whatsappNumber: "+33612345678",
   calendlyUrl: "https://calendly.com/gaspardnz",
-  instagramUrl: "https://instagram.com/gaspardnz",
+  instagramUrl: SOCIAL_LINKS.instagram,
   maisonAddress: "Paris, France",
   formulaPrices: {
     formule1: 1500,
@@ -17,16 +19,30 @@ const defaultSettings = {
   vipClients: [],
 };
 
-const mergeSettings = (saved = {}) => ({
-  ...defaultSettings,
-  ...saved,
-  formulaPrices: {
-    ...defaultSettings.formulaPrices,
-    ...(saved.formulaPrices || {}),
-  },
-  weddingInspirations: Array.isArray(saved.weddingInspirations) ? saved.weddingInspirations : defaultSettings.weddingInspirations,
-  vipClients: Array.isArray(saved.vipClients) ? saved.vipClients : defaultSettings.vipClients,
-});
+const normalizeInstagramUrl = (url) => {
+  if (!url || url === "https://instagram.com/gaspardnz" || url === "https://www.instagram.com/gaspardnz") {
+    return SOCIAL_LINKS.instagram;
+  }
+  return url;
+};
+
+const mergeSettings = (saved = {}) => {
+  const merged = {
+    ...defaultSettings,
+    ...saved,
+    formulaPrices: {
+      ...defaultSettings.formulaPrices,
+      ...(saved.formulaPrices || {}),
+    },
+    weddingInspirations: Array.isArray(saved.weddingInspirations) ? saved.weddingInspirations : defaultSettings.weddingInspirations,
+    vipClients: Array.isArray(saved.vipClients) ? saved.vipClients : defaultSettings.vipClients,
+  };
+
+  return {
+    ...merged,
+    instagramUrl: normalizeInstagramUrl(merged.instagramUrl),
+  };
+};
 
 export const getSettings = () => {
   try {

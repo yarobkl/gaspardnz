@@ -1,6 +1,6 @@
 import { useContext, useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { GOLD, CREAM, TEXT } from "../constants.js";
+import { GOLD, CREAM, SOCIAL_LINKS, TEXT } from "../constants.js";
 import { LangCtx, useTr } from "../context.jsx";
 import { findReply, getChatLabels, getFallbackReply, getGreeting } from "../data/chatbotData.js";
 import { useSettings } from "../hooks/useSettings.js";
@@ -240,10 +240,10 @@ const ChatBot = ({ onReserver, onGalerie, onShowroom, onFormules }) => {
                           else if (btn === labels.gallery || btn === labels.details) { setOpen(false); onGalerie?.(); }
                           else if (btn === labels.showroom) { setOpen(false); onShowroom?.(); }
                           else if (btn === labels.whatsapp) { window.open(getWhatsappUrl(settings.whatsappNumber), "_blank"); }
-                          else if (btn === "Instagram") { window.open(settings.instagramUrl || "https://www.instagram.com/gaspardnz_?igsh=YWgzb3Jua2NkeDdq", "_blank"); }
-                          else if (btn === "TikTok") { window.open("https://www.tiktok.com/@gaspardnz?_r=1&_t=ZS-95wB65ZWhvB", "_blank"); }
-                          else if (btn === "Facebook") { window.open("https://www.facebook.com/share/1JXsWJwpTW/?mibextid=wwXIfr", "_blank"); }
-                          else if (btn === "YouTube") { window.open("https://youtube.com/@gaspardnz?si=s4saxiuv7rt9iUmT", "_blank"); }
+                          else if (btn === "Instagram") { window.open(settings.instagramUrl || SOCIAL_LINKS.instagram, "_blank"); }
+                          else if (btn === "TikTok") { window.open(SOCIAL_LINKS.tiktok, "_blank"); }
+                          else if (btn === "Facebook") { window.open(SOCIAL_LINKS.facebook, "_blank"); }
+                          else if (btn === "YouTube") { window.open(SOCIAL_LINKS.youtube, "_blank"); }
                           else handleAction(btn);
                         }}
                           style={{ background: "none", border: `1px solid rgba(184,151,62,0.5)`, color: GOLD, padding: "0.65rem 0.85rem", minHeight: "44px", fontFamily: "'Montserrat', sans-serif", fontSize: "9px", letterSpacing: "0.15em", cursor: "pointer", borderRadius: "20px", transition: "all 0.2s", whiteSpace: "nowrap" }}>
