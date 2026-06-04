@@ -9,16 +9,25 @@ const ActuCard = ({ item }) => {
   const [expanded, setExpanded] = useState(false);
   const [photoCur, setPhotoCur] = useState(0);
   const photos = item.photos || [];
+  const hasVideo = Boolean(item.video);
   const preview = item.text.split("\n\n")[0];
-  const multi = photos.length > 1;
+  const multi = !hasVideo && photos.length > 1;
   return (
     <motion.article
       initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-8% 0px" }}
       transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
       style={{ background: "#111009", borderRadius: "16px", overflow: "hidden", border: "1px solid rgba(184,151,62,0.15)" }}>
-      {photos.length > 0 && (
-        <div style={{ position: "relative", overflow: "hidden" }}>
-          {multi ? (
+      {(hasVideo || photos.length > 0) && (
+        <div style={{ position: "relative", overflow: "hidden", background: "#050301" }}>
+          {hasVideo ? (
+            <video
+              src={item.video}
+              controls
+              playsInline
+              preload="metadata"
+              style={{ width: "100%", aspectRatio: "9/16", maxHeight: "560px", objectFit: "cover", objectPosition: "center", display: "block", background: "#050301" }}
+            />
+          ) : multi ? (
             <div style={{ display: "flex", transition: "transform 0.6s cubic-bezier(0.16,1,0.3,1)", transform: `translateX(${-photoCur * 100}%)` }}>
               {photos.map((src, i) => (
                 <img key={i} src={src} alt={item.title} style={{ flexShrink: 0, width: "100%", aspectRatio: "4/3", objectFit: "cover", objectPosition: "center top", display: "block" }} />
@@ -34,7 +43,7 @@ const ActuCard = ({ item }) => {
           {multi && (
             <div style={{ position: "absolute", bottom: "12px", left: "50%", transform: "translateX(-50%)", display: "flex", gap: "5px" }}>
               {photos.map((_, i) => (
-                <button key={i} onClick={() => setPhotoCur(i)}
+                <button key={i} onClick={() => setPhotoCur(i)} aria-label={`Photo ${i + 1}`}
                   style={{ width: i === photoCur ? 18 : 5, height: 2, borderRadius: 1, background: i === photoCur ? GOLD : "rgba(184,151,62,0.35)", border: "none", padding: 0, cursor: "pointer", transition: "width 0.35s" }} />
               ))}
             </div>

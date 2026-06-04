@@ -1,5 +1,9 @@
 const B = import.meta.env.BASE_URL;
 
+const VIDEOS = {
+  jtSape: `${B}videos/jt-de-la-sape.mp4`,
+};
+
 const PHOTOS = {
   akwaba: [`${B}images/actualites/akwaba-1.jpg`, `${B}images/actualites/akwaba-2.jpg`],
   patheo: [`${B}images/actualites/patheo-abidjan.jpg`],
@@ -7,6 +11,15 @@ const PHOTOS = {
 
 const NEWS = {
   FR: [
+    {
+      id: 3,
+      video: VIDEOS.jtSape,
+      location: "Paris",
+      date: "Bientôt",
+      tag: "Vidéo",
+      title: "JT de la sape arrive bientôt",
+      text: "Une nouvelle séquence arrive très bientôt dans l'univers GaspardNZ.\n\nLe JT de la sape mettra en lumière l'élégance, les silhouettes et l'esprit de la maison.",
+    },
     {
       id: 2,
       photos: PHOTOS.akwaba,
@@ -28,6 +41,15 @@ const NEWS = {
   ],
   EN: [
     {
+      id: 3,
+      video: VIDEOS.jtSape,
+      location: "Paris",
+      date: "Soon",
+      tag: "Video",
+      title: "JT de la sape arrive bientôt",
+      text: "A new sequence is coming very soon inside the GaspardNZ universe.\n\nJT de la sape will spotlight elegance, silhouettes and the spirit of the house.",
+    },
+    {
       id: 2,
       photos: PHOTOS.akwaba,
       location: "Abidjan, Côte d'Ivoire",
@@ -48,6 +70,15 @@ const NEWS = {
   ],
   ES: [
     {
+      id: 3,
+      video: VIDEOS.jtSape,
+      location: "París",
+      date: "Pronto",
+      tag: "Vídeo",
+      title: "JT de la sape arrive bientôt",
+      text: "Una nueva secuencia llegará muy pronto al universo GaspardNZ.\n\nJT de la sape pondrá en primer plano la elegancia, las siluetas y el espíritu de la casa.",
+    },
+    {
       id: 2,
       photos: PHOTOS.akwaba,
       location: "Abiyán, Costa de Marfil",
@@ -67,6 +98,15 @@ const NEWS = {
     },
   ],
   ZH: [
+    {
+      id: 3,
+      video: VIDEOS.jtSape,
+      location: "巴黎",
+      date: "即将推出",
+      tag: "视频",
+      title: "JT de la sape arrive bientôt",
+      text: "GaspardNZ 的世界里，即将推出一段全新影像。\n\nJT de la sape 将呈现优雅、造型与品牌精神。",
+    },
     {
       id: 2,
       photos: PHOTOS.akwaba,
