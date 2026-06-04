@@ -98,7 +98,7 @@ const AdminDashboard = () => {
             </div>
           ) : (
             <div style={{ padding: "2rem", textAlign: "center", color: "var(--gnz-text-secondary)" }}>
-              Pas de dados disponibles
+              Pas de données disponibles
             </div>
           )}
         </div>

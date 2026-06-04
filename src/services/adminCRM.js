@@ -26,6 +26,8 @@ export const createLead = (data) => {
     budget = "",
     notes = "",
     source = "direct",
+    country = "",
+    city = "",
   } = data;
 
   if (!name || !email) {
@@ -43,6 +45,8 @@ export const createLead = (data) => {
     budget,
     notes,
     source,
+    country,
+    city,
     status: "nouveau",
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
@@ -126,35 +130,44 @@ export const getLeadStats = () => {
   const leads = getLeads();
   const statuses = {};
   const sources = {};
+  const countries = {};
 
   leads.forEach((lead) => {
     statuses[lead.status] = (statuses[lead.status] || 0) + 1;
     sources[lead.source] = (sources[lead.source] || 0) + 1;
+    if (lead.country) countries[lead.country] = (countries[lead.country] || 0) + 1;
   });
 
   return {
     total: leads.length,
     byStatus: statuses,
     bySources: sources,
-    recentLeads: leads.slice(-10).reverse(),
+    byCountries: countries,
+    recentLeads: leads
+      .slice()
+      .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0))
+      .slice(0, 10),
   };
 };
 
 export const exportLeadsCSV = () => {
   const leads = getLeads();
-  let csv = "Nom,Email,Téléphone,Type Événement,Date Événement,Nombre Invités,Budget,Statut,Créé,Source\n";
+  let csv = "Nom,Email,Téléphone,Pays,Ville,Type Événement,Date Événement,Nombre Invités,Budget,Statut,Créé,Mis à jour,Source\n";
 
   leads.forEach((lead) => {
     const row = [
       `"${lead.name}"`,
       `"${lead.email}"`,
       `"${lead.phone}"`,
+      `"${lead.country || ""}"`,
+      `"${lead.city || ""}"`,
       `"${lead.eventType}"`,
       `"${lead.eventDate}"`,
       `"${lead.guestCount}"`,
       `"${lead.budget}"`,
       `"${lead.status}"`,
       `"${new Date(lead.createdAt).toLocaleDateString("fr-FR")}"`,
+      `"${lead.updatedAt ? new Date(lead.updatedAt).toLocaleString("fr-FR") : ""}"`,
       `"${lead.source}"`,
     ];
     csv += row.join(",") + "\n";

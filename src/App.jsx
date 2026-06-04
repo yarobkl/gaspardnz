@@ -15,6 +15,7 @@ import AdminLayout from "./components/Admin/AdminLayout.jsx";
 import AdminDashboard from "./components/Admin/AdminDashboard.jsx";
 import AdminAnalytics from "./components/Admin/AdminAnalytics.jsx";
 import AdminCRM from "./components/Admin/AdminCRM.jsx";
+import AdminVIPClients from "./components/Admin/AdminVIPClients.jsx";
 import AdminUsers from "./components/Admin/AdminUsers.jsx";
 import AdminWeddingInspiration from "./components/Admin/AdminWeddingInspiration.jsx";
 import AdminSettings from "./components/Admin/AdminSettings.jsx";
@@ -40,6 +41,12 @@ import FooterMobile from "./components/FooterMobile.jsx";
 
 const FONTS_CSS = `@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Bebas+Neue&family=Montserrat:wght@200;300;400;500&display=swap');`;
 const SPLASH_MAX_MS = 1800;
+const ADMIN_SECTIONS = ["dashboard", "analytics", "crm", "vip", "users", "wedding", "settings"];
+const getAdminSectionFromPath = () => {
+  if (typeof window === "undefined") return "dashboard";
+  const section = window.location.pathname.split("/").filter(Boolean)[1];
+  return ADMIN_SECTIONS.includes(section) ? section : "dashboard";
+};
 
 const _SPLASH_IMG = (typeof import.meta !== "undefined" ? (import.meta.env.BASE_URL || "/") : "/") + "images/style-parisien.jpg";
 const SUPPORTED_LANGS = ["FR", "EN", "ES", "ZH"];
@@ -164,7 +171,7 @@ export default function App() {
   const [isAdminPath, setIsAdminPath] = useState(false);
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
   const [adminUser, setAdminUser] = useState(null);
-  const [adminSection, setAdminSection] = useState("dashboard");
+  const [adminSection, setAdminSection] = useState(getAdminSectionFromPath);
   const finishSplash = useCallback(() => setSplashDone(true), []);
   const [lang, setLang] = useState(() => {
     try {
@@ -251,6 +258,9 @@ export default function App() {
     const checkAdminPath = () => {
       const path = window.location.pathname;
       setIsAdminPath(path.startsWith("/admin"));
+      if (path.startsWith("/admin")) {
+        setAdminSection(getAdminSectionFromPath());
+      }
     };
     checkAdminPath();
     window.addEventListener("popstate", checkAdminPath);
@@ -320,6 +330,7 @@ export default function App() {
               {adminSection === "dashboard" && <AdminDashboard />}
               {adminSection === "analytics" && <AdminAnalytics />}
               {adminSection === "crm" && <AdminCRM />}
+              {adminSection === "vip" && <AdminVIPClients />}
               {adminSection === "users" && <AdminUsers />}
               {adminSection === "wedding" && <AdminWeddingInspiration />}
               {adminSection === "settings" && <AdminSettings />}

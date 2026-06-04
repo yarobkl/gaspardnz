@@ -75,7 +75,12 @@ const VIPClientsSection = () => {
   const curRef = useRef(0);
   useEffect(() => { curRef.current = cur; });
   const B = import.meta.env.BASE_URL;
-  const clients = [
+  const withBase = (path) => {
+    if (!path) return "";
+    if (/^https?:\/\//i.test(path) || path.startsWith("data:")) return path;
+    return `${B}${path.replace(/^\/+/, "")}`;
+  };
+  const defaultClients = [
     { initials: "R.B", name: "Rodrin Bakala Mouengue", city: "Paris", event: t("event_wedding"), gradient: "linear-gradient(135deg,#1e3a5f,#2d6a9f)", photo: `${B}images/rodrin-bakala.jpg.JPG`,
       album: [`${B}images/rodrin-bakala.jpg.JPG`, `${B}images/rodrin-w1.jpg`, `${B}images/rodrin-w2.jpg`, `${B}images/rodrin-w3.jpg`, `${B}images/rodrin-w4.jpg`, `${B}images/rodrin-w5.jpg`] },
     { initials: "B", name: "Boris", city: "Paris", event: t("event_wedding"), gradient: "linear-gradient(135deg,#4a1942,#8b2fc9)", photo: `${B}images/boris-01.jpg`,
@@ -102,6 +107,15 @@ const VIPClientsSection = () => {
     { initials: "D.K", name: "Diarietou K.", city: "Abidjan", event: t("event_ceremony"), gradient: "linear-gradient(135deg,#1a1a3d,#3d3d8b)" },
     { initials: "T.R", name: "Théo R.", city: "Paris", event: t("event_shooting"), gradient: "linear-gradient(135deg,#3d001a,#8b0030)" },
   ];
+  const clients = settings.vipClients?.length
+    ? settings.vipClients.map((client) => ({
+      ...client,
+      event: client.event || t("event_wedding"),
+      gradient: client.gradient || "linear-gradient(135deg,#1e3a5f,#2d6a9f)",
+      photo: withBase(client.photo),
+      album: (client.album || []).map(withBase),
+    }))
+    : defaultClients;
   const CARD_W = 68;
   const getX = (idx) => ((100 - CARD_W) / 2 - idx * CARD_W) * vw;
   const x = useMotionValue(getX(0));

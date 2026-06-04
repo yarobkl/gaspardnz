@@ -7,6 +7,7 @@ const AdminLayout = ({ children, currentSection, onSectionChange, user }) => {
     { id: "dashboard", label: "Tableau de Bord" },
     { id: "analytics", label: "Analytics" },
     { id: "crm", label: "CRM" },
+    { id: "vip", label: "Galerie Clients" },
     { id: "users", label: "Utilisateurs" },
     { id: "wedding", label: "Inspirations Mariage" },
     { id: "settings", label: "Paramètres" },

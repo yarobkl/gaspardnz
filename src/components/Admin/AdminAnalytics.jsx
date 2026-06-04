@@ -68,11 +68,11 @@ const AdminAnalytics = () => {
       {/* Tabs de navigation */}
       <div className="analytics-tabs">
         {[
-          { id: "kpi", label: "KPIs", icon: "📊" },
-          { id: "geo", label: "Géographie", icon: "🌍" },
-          { id: "time", label: "Temps", icon: "⏱️" },
-          { id: "behavior", label: "Comportement", icon: "👥" },
-          { id: "sessions", label: "Sessions", icon: "💼" },
+          { id: "kpi", label: "KPIs", icon: "KPI" },
+          { id: "geo", label: "Géographie", icon: "GEO" },
+          { id: "time", label: "Temps", icon: "TPS" },
+          { id: "behavior", label: "Comportement", icon: "UX" },
+          { id: "sessions", label: "Sessions", icon: "CRM" },
         ].map((tab) => (
           <button
             key={tab.id}

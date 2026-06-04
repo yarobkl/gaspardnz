@@ -55,9 +55,9 @@ body.admin {
   -moz-osx-font-smoothing: grayscale;
 }
 
-.admin-h1 { font-size: clamp(1.5rem, 5vw, 2rem); font-weight: 600; letter-spacing: -0.01em; }
-.admin-h2 { font-size: clamp(1.125rem, 4vw, 1.5rem); font-weight: 600; letter-spacing: -0.005em; }
-.admin-h3 { font-size: clamp(1rem, 3vw, 1.25rem); font-weight: 600; }
+.admin-h1 { font-size: clamp(1.5rem, 5vw, 2rem); font-weight: 600; letter-spacing: -0.01em; color: var(--gnz-cream); }
+.admin-h2 { font-size: clamp(1.125rem, 4vw, 1.5rem); font-weight: 600; letter-spacing: -0.005em; color: var(--gnz-cream); }
+.admin-h3 { font-size: clamp(1rem, 3vw, 1.25rem); font-weight: 600; color: var(--gnz-cream); }
 .admin-label { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--gnz-gold); }
 .admin-body { font-size: 0.9375rem; line-height: 1.6; color: var(--gnz-cream); }
 .admin-small { font-size: 0.8125rem; line-height: 1.5; color: var(--gnz-text-secondary); }
@@ -88,6 +88,7 @@ body.admin {
   overflow: hidden;
   margin: 0;
   padding: 0;
+  color: var(--gnz-cream);
 }
 
 /* Sidebar - Stack on mobile, side on desktop */
@@ -407,6 +408,7 @@ body.admin {
   border-collapse: collapse;
   font-size: 0.875rem;
   min-width: 400px;
+  color: var(--gnz-cream);
 }
 
 .admin-table thead {
@@ -430,6 +432,7 @@ body.admin {
 .admin-table td {
   padding: var(--spacing-md);
   border-bottom: 1px solid var(--gnz-border-light);
+  color: var(--gnz-cream);
 }
 
 .admin-table tbody tr:hover {

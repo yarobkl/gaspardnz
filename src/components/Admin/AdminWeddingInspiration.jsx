@@ -22,6 +22,7 @@ const AdminWeddingInspiration = () => {
   }, []);
 
   const isValidUrl = (string) => {
+    if (string.startsWith("/images/") || string.startsWith("images/")) return true;
     try {
       new URL(string);
       return true;
