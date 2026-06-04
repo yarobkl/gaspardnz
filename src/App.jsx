@@ -21,6 +21,7 @@ import AdminWeddingInspiration from "./components/Admin/AdminWeddingInspiration.
 import AdminSettings from "./components/Admin/AdminSettings.jsx";
 import NavMobile from "./components/NavMobile.jsx";
 import HeroMobile from "./components/HeroMobile.jsx";
+import AboutSection from "./components/sections/AboutSection.jsx";
 import HeritageMobile from "./components/HeritageMobile.jsx";
 import ShowroomMobile from "./components/ShowroomMobile.jsx";
 import GalleryMobile from "./components/GalleryMobile.jsx";
@@ -235,27 +236,64 @@ export default function App() {
     document.body.style.overflowX = "hidden";
     initGAIfConsented();
 
-    // Add LocalBusiness Schema for Local SEO
+    // Add Schemas for SEO (LocalBusiness, Services, FAQ)
     if (!document.querySelector('script[data-gnz-schema]')) {
-      const schema = {
+      const localBusiness = {
         "@context": "https://schema.org",
         "@type": "LocalBusiness",
         "name": "Gaspardnz",
-        "description": "Styliste parisien spécialisé dans l'habillage sur-mesure pour mariages, galas et événements",
+        "description": "Styliste et habilleur spécialisé à Paris. Sélection et coordination de tenues pour mariages africains, galas et cérémonies.",
         "url": "https://gaspardnz.style",
         "areaServed": "Paris",
         "sameAs": ["https://www.instagram.com/gaspardnz", "https://www.tiktok.com/@gaspardnz"],
         "contactPoint": {
           "@type": "ContactPoint",
           "contactType": "Customer Service",
-          "url": "https://wa.me/33612345678"
+          "url": "https://wa.me/33664826920"
         }
       };
-      const script = document.createElement('script');
-      script.type = 'application/ld+json';
-      script.setAttribute('data-gnz-schema', '1');
-      script.textContent = JSON.stringify(schema);
-      document.head.appendChild(script);
+
+      const services = {
+        "@context": "https://schema.org",
+        "@type": "Service",
+        "name": "Services de Style et d'Habillage",
+        "provider": { "@type": "LocalBusiness", "name": "Gaspardnz" },
+        "offers": [
+          { "@type": "Offer", "name": "Styliste Mariage à Paris" },
+          { "@type": "Offer", "name": "Habilleur Mariages Africains" },
+          { "@type": "Offer", "name": "Maître de Cérémonie Paris" }
+        ]
+      };
+
+      const faq = {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Quel est le rôle d'un styliste mariage à Paris?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Sélection et coordination des tenues pour mariages, mariages africains et cérémonies." }
+          },
+          {
+            "@type": "Question",
+            "name": "Proposez-vous des services pour mariages africains?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Oui, spécialiste en sélection de tenues pour mariages africains à Paris." }
+          },
+          {
+            "@type": "Question",
+            "name": "Qu'est-ce qu'un habilleur professionnel?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Un habilleur assure la mise en place impeccable des tenues pour galas, mariages et événements." }
+          }
+        ]
+      };
+
+      [localBusiness, services, faq].forEach(schema => {
+        const script = document.createElement('script');
+        script.type = 'application/ld+json';
+        script.setAttribute('data-gnz-schema', '1');
+        script.textContent = JSON.stringify(schema);
+        document.head.appendChild(script);
+      });
     }
 
     // Initialize comprehensive tracking system
@@ -416,6 +454,7 @@ export default function App() {
             />
 
             <HeroMobile onScrollDown={() => scrollTo(heritageRef)} />
+            <AboutSection />
             <SectionDivider from="#1c1208" to="#f5f0e8" />
             <HeritageMobile refEl={heritageRef} />
             <SectionDivider from="#f5f0e8" to="#0a0602" />
