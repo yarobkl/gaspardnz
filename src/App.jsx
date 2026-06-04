@@ -26,6 +26,7 @@ import ShowroomMobile from "./components/ShowroomMobile.jsx";
 import GalleryMobile from "./components/GalleryMobile.jsx";
 import BookingModal from "./components/BookingModal.jsx";
 import ChatBot from "./components/ChatBot.jsx";
+import WhatsAppCTA from "./components/WhatsAppCTA.jsx";
 
 import SectionDivider from "./components/ui/SectionDivider.jsx";
 import FormulesSection from "./components/sections/FormulesSection.jsx";
@@ -217,7 +218,15 @@ export default function App() {
     meta("og:title", copy.title, true);
     meta("og:description", copy.ogDescription, true);
     meta("og:type", "website", true);
+    meta("og:url", "https://gaspardnz.style", true);
+    meta("og:image", "https://gaspardnz.style/images/style-parisien.jpg", true);
+    meta("og:site_name", "Gaspardnz", true);
     meta("theme-color", highContrast ? "#fff9e6" : "#0a0602");
+
+    // Canonical tag
+    let canonical = document.querySelector('link[rel="canonical"]');
+    if (!canonical) { canonical = document.createElement("link"); canonical.rel = "canonical"; document.head.appendChild(canonical); }
+    canonical.href = "https://gaspardnz.style";
   }, [highContrast, lang]);
 
   useEffect(() => {
@@ -225,6 +234,29 @@ export default function App() {
     document.body.style.margin = "0";
     document.body.style.overflowX = "hidden";
     initGAIfConsented();
+
+    // Add LocalBusiness Schema for Local SEO
+    if (!document.querySelector('script[data-gnz-schema]')) {
+      const schema = {
+        "@context": "https://schema.org",
+        "@type": "LocalBusiness",
+        "name": "Gaspardnz",
+        "description": "Styliste parisien spécialisé dans l'habillage sur-mesure pour mariages, galas et événements",
+        "url": "https://gaspardnz.style",
+        "areaServed": "Paris",
+        "sameAs": ["https://www.instagram.com/gaspardnz", "https://www.tiktok.com/@gaspardnz"],
+        "contactPoint": {
+          "@type": "ContactPoint",
+          "contactType": "Customer Service",
+          "url": "https://wa.me/33612345678"
+        }
+      };
+      const script = document.createElement('script');
+      script.type = 'application/ld+json';
+      script.setAttribute('data-gnz-schema', '1');
+      script.textContent = JSON.stringify(schema);
+      document.head.appendChild(script);
+    }
 
     // Initialize comprehensive tracking system
     const cleanupTracking = initializeTracking();
@@ -412,6 +444,7 @@ export default function App() {
         )
       )}
 
+      {splashDone && !isAdminPath && <WhatsAppCTA waPhoneUrl={`https://wa.me/33664826920?text=${encodeURIComponent((APP_COPY[lang] || APP_COPY.FR).waContact)}`} />}
       {!currentlyOnAdminPath && !isAdminPath && (
         <>
           <NotificationPrompt visible={notifPrompt} onAccept={handleNotifAccept} onDecline={handleNotifDecline} />
