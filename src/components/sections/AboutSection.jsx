@@ -9,7 +9,7 @@ const AboutSection = () => {
     FR: {
       title: "Styliste & Habilleur à Paris",
       subtitle: "Expertise en sélection de tenues pour mariages, événements africains et galas",
-      description: "Gaspardnz est un styliste et habilleur parisien spécialisé dans la sélection et la mise en place de looks sophistiqués. Avec plus de 15 ans d'expérience, il accompagne ses clients pour des mariages africains, des galas, des cérémonies et des événements haut-de-gamme. En tant que maître de cérémonie, il assure une coordination impeccable de chaque détail.",
+      description: "Gaspardnz est un styliste et habilleur parisien spécialisé dans la sélection et la mise en place de looks sophistiqués. Avec plus de 7 ans d'expérience, il accompagne ses clients pour des mariages africains, des galas, des cérémonies et des événements haut-de-gamme. En tant que maître de cérémonie, il assure une coordination impeccable de chaque détail.",
       services: [
         "Styliste mariage à Paris",
         "Habilleur événements africains",
@@ -21,7 +21,7 @@ const AboutSection = () => {
     EN: {
       title: "Stylist & Dresser in Paris",
       subtitle: "Expertise in outfit selection for weddings, African events and galas",
-      description: "Gaspardnz is a Parisian stylist and dresser specializing in selecting and styling sophisticated looks. With over 15 years of experience, he assists clients for African weddings, galas, ceremonies and high-end events. As a master of ceremonies, he ensures impeccable coordination of every detail.",
+      description: "Gaspardnz is a Parisian stylist and dresser specializing in selecting and styling sophisticated looks. With over 7 years of experience, he assists clients for African weddings, galas, ceremonies and high-end events. As a master of ceremonies, he ensures impeccable coordination of every detail.",
       services: [
         "Wedding stylist in Paris",
         "Dresser for African events",
@@ -33,7 +33,7 @@ const AboutSection = () => {
     ES: {
       title: "Estilista y Vestidor en París",
       subtitle: "Experiencia en selección de looks para bodas, eventos africanos y galas",
-      description: "Gaspardnz es un estilista y vestidor parisino especializado en la selección y coordinación de looks sofisticados. Con más de 15 años de experiencia, acompaña a sus clientes en bodas africanas, galas, ceremonias y eventos de alto nivel. Como maestro de ceremonias, asegura una coordinación impecable de cada detalle.",
+      description: "Gaspardnz es un estilista y vestidor parisino especializado en la selección y coordinación de looks sofisticados. Con más de 7 años de experiencia, acompaña a sus clientes en bodas africanas, galas, ceremonias y eventos de alto nivel. Como maestro de ceremonias, asegura una coordinación impecable de cada detalle.",
       services: [
         "Estilista de bodas en París",
         "Vestidor para eventos africanos",
@@ -45,7 +45,7 @@ const AboutSection = () => {
     ZH: {
       title: "巴黎造型师与服装搭配师",
       subtitle: "婚礼、非洲活动和晚宴服装选择专家",
-      description: "Gaspardnz 是一位巴黎造型师和服装搭配师，专门从事精致造型的选择和协调。拥有15年以上经验，为非洲婚礼、晚宴、典礼和高端活动的客户服务。作为仪式主持人，他确保每一个细节的完美协调。",
+      description: "Gaspardnz 是一位巴黎造型师和服装搭配师，专门从事精致造型的选择和协调。拥有7年以上经验，为非洲婚礼、晚宴、典礼和高端活动的客户服务。作为仪式主持人，他确保每一个细节的完美协调。",
       services: [
         "巴黎婚礼造型师",
         "非洲活动服装搭配师",
