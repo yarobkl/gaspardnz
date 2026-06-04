@@ -37,9 +37,11 @@ const AdminLogin = ({ onLoginSuccess }) => {
         {error && <div className="admin-alert admin-alert-error">{error}</div>}
 
         <div className="admin-form-group">
-          <label className="admin-label">Email</label>
+          <label className="admin-label" htmlFor="admin-email">Email</label>
           <input
+            id="admin-email"
             type="email"
+            autoComplete="username"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             className="admin-input"
@@ -47,9 +49,11 @@ const AdminLogin = ({ onLoginSuccess }) => {
         </div>
 
         <div className="admin-form-group">
-          <label className="admin-label">Mot de passe</label>
+          <label className="admin-label" htmlFor="admin-password">Mot de passe</label>
           <input
+            id="admin-password"
             type="password"
+            autoComplete="current-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             className="admin-input"

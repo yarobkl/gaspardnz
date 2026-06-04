@@ -60,10 +60,10 @@ const GalleryMobile = ({ refEl }) => {
   const handleWA = () => {
     if (!curSpot || !curItem) return;
     const messages = {
-      FR: `Bonjour Gaspard ! J'ai découvert votre look "${curItem.label}" sur gaspardnz.com et je suis très intéressé(e) par "${curSpot.label}" — ${curSpot.detail}. Pourriez-vous me donner plus d'informations et le tarif pour une création sur-mesure ? Merci`,
-      EN: `Hello Gaspard! I discovered your look "${curItem.label}" on gaspardnz.com and I am very interested in "${curSpot.label}" — ${curSpot.detail}. Could you send me more information and the price for a bespoke creation? Thank you`,
-      ES: `Hola Gaspard. Descubrí tu look "${curItem.label}" en gaspardnz.com y me interesa mucho "${curSpot.label}" — ${curSpot.detail}. ¿Podrías enviarme más información y el precio para una creación a medida? Gracias`,
-      ZH: `你好 Gaspard！我在 gaspardnz.com 看到了造型「${curItem.label}」，我对「${curSpot.label}」很感兴趣 — ${curSpot.detail}。可以告诉我更多信息和定制价格吗？谢谢`,
+      FR: `Bonjour Gaspard ! J'ai découvert votre look "${curItem.label}" sur gaspardnz.style et je suis très intéressé(e) par "${curSpot.label}" — ${curSpot.detail}. Pourriez-vous me donner plus d'informations et le tarif pour une création sur-mesure ? Merci`,
+      EN: `Hello Gaspard! I discovered your look "${curItem.label}" on gaspardnz.style and I am very interested in "${curSpot.label}" — ${curSpot.detail}. Could you send me more information and the price for a bespoke creation? Thank you`,
+      ES: `Hola Gaspard. Descubrí tu look "${curItem.label}" en gaspardnz.style y me interesa mucho "${curSpot.label}" — ${curSpot.detail}. ¿Podrías enviarme más información y el precio para una creación a medida? Gracias`,
+      ZH: `你好 Gaspard！我在 gaspardnz.style 看到了造型「${curItem.label}」，我对「${curSpot.label}」很感兴趣 — ${curSpot.detail}。可以告诉我更多信息和定制价格吗？谢谢`,
     };
     const msg = messages[lang] || messages.FR;
     window.open(getWhatsappUrl(settings.whatsappNumber, msg), "_blank");
