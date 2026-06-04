@@ -61,7 +61,7 @@ const ChatBot = ({ onReserver, onGalerie, onShowroom, onFormules }) => {
   }, [msgs, typing]);
 
   useEffect(() => {
-    const t = setTimeout(() => { if (!open) { setShowBubble(true); setTimeout(() => setShowBubble(false), 8000); } }, 3500);
+    const t = setTimeout(() => { if (!open) { setShowBubble(true); setTimeout(() => setShowBubble(false), 7000); } }, 10000);
     return () => clearTimeout(t);
   }, []);
 

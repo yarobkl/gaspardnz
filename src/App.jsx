@@ -253,7 +253,10 @@ export default function App() {
     if (!splashDone) return;
     const already = localStorage.getItem("gnz-notif-asked");
     if (already) return;
-    const t = setTimeout(() => setNotifPrompt(true), 3500);
+    const t = setTimeout(() => {
+      if (!localStorage.getItem("gnz-cookies")) return;
+      if (!document.hidden) setNotifPrompt(true);
+    }, 14000);
     return () => clearTimeout(t);
   }, [currentlyOnAdminPath, isAdminPath, splashDone]);
 
@@ -310,6 +313,15 @@ export default function App() {
         *, *::before, *::after { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
         button, input, textarea, select { font-family: inherit; }
+        img, video { max-width: 100%; }
+        @media (prefers-reduced-motion: reduce) {
+          *, *::before, *::after {
+            animation-duration: 0.001ms !important;
+            animation-iteration-count: 1 !important;
+            scroll-behavior: auto !important;
+            transition-duration: 0.001ms !important;
+          }
+        }
         ${highContrast ? `
           body { filter: contrast(1.25) brightness(1.08); }
         ` : ""}
