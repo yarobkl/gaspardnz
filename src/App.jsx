@@ -42,6 +42,7 @@ import FooterMobile from "./components/FooterMobile.jsx";
 const FONTS_CSS = `@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Bebas+Neue&family=Montserrat:wght@200;300;400;500&display=swap');`;
 const SPLASH_MAX_MS = 1800;
 const ADMIN_SECTIONS = ["dashboard", "analytics", "crm", "vip", "users", "wedding", "settings"];
+const isAdminRoute = () => typeof window !== "undefined" && window.location.pathname.startsWith("/admin");
 const getAdminSectionFromPath = () => {
   if (typeof window === "undefined") return "dashboard";
   const section = window.location.pathname.split("/").filter(Boolean)[1];
@@ -162,7 +163,7 @@ const SplashScreen = ({ onDone, loading }) => {
 };
 
 export default function App() {
-  const [splashDone, setSplashDone] = useState(false);
+  const [splashDone, setSplashDone] = useState(() => isAdminRoute());
   const [notifPrompt, setNotifPrompt] = useState(false);
   const [bookingOpen, setBookingOpen] = useState(false);
   const [boutiqueMode, setBoutiqueMode] = useState(false);
@@ -192,6 +193,7 @@ export default function App() {
   const galleryRef     = useRef(null);
   const formulesRef    = useRef(null);
   const styleDuMoisRef = useRef(null);
+  const currentlyOnAdminPath = typeof window !== "undefined" && window.location.pathname.startsWith("/admin");
 
   useEffect(() => {
     if (!document.querySelector("style[data-gnz-fonts]")) {
@@ -237,18 +239,23 @@ export default function App() {
   }, [lang]);
 
   useEffect(() => {
+    if (isAdminPath || currentlyOnAdminPath) {
+      setSplashDone(true);
+      return;
+    }
     if (splashDone) return;
     const t = setTimeout(() => setSplashDone(true), 2500);
     return () => clearTimeout(t);
-  }, [splashDone]);
+  }, [currentlyOnAdminPath, isAdminPath, splashDone]);
 
   useEffect(() => {
+    if (isAdminPath || currentlyOnAdminPath) return;
     if (!splashDone) return;
     const already = localStorage.getItem("gnz-notif-asked");
     if (already) return;
     const t = setTimeout(() => setNotifPrompt(true), 3500);
     return () => clearTimeout(t);
-  }, [splashDone]);
+  }, [currentlyOnAdminPath, isAdminPath, splashDone]);
 
   useEffect(() => {
     initAdminUsers();
@@ -266,8 +273,6 @@ export default function App() {
     window.addEventListener("popstate", checkAdminPath);
     return () => window.removeEventListener("popstate", checkAdminPath);
   }, []);
-
-  const currentlyOnAdminPath = typeof window !== "undefined" && window.location.pathname.startsWith("/admin");
 
   useEffect(() => {
     if (currentlyOnAdminPath || isAdminPath) {
@@ -314,10 +319,10 @@ export default function App() {
       `}</style>
 
       <AnimatePresence mode="wait">
-        {!splashDone && <SplashScreen key="splash" loading={(APP_COPY[lang] || APP_COPY.FR).loading} onDone={finishSplash} />}
+        {!currentlyOnAdminPath && !isAdminPath && !splashDone && <SplashScreen key="splash" loading={(APP_COPY[lang] || APP_COPY.FR).loading} onDone={finishSplash} />}
       </AnimatePresence>
 
-      {splashDone && (
+      {(splashDone || currentlyOnAdminPath || isAdminPath) && (
         (currentlyOnAdminPath || isAdminPath) ? (
           isAdminLoggedIn ? (
             <AdminLayout
@@ -395,8 +400,12 @@ export default function App() {
         )
       )}
 
-      <NotificationPrompt visible={notifPrompt} onAccept={handleNotifAccept} onDecline={handleNotifDecline} />
-      <CookieBanner />
+      {!currentlyOnAdminPath && !isAdminPath && (
+        <>
+          <NotificationPrompt visible={notifPrompt} onAccept={handleNotifAccept} onDecline={handleNotifDecline} />
+          <CookieBanner />
+        </>
+      )}
     </LangCtx.Provider>
   );
 }
