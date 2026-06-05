@@ -40,7 +40,6 @@ const StyleDuMoisSection = lazy(() => import("./components/sections/StyleDuMoisS
 const VideoSection = lazy(() => import("./components/sections/VideoSection.jsx"));
 const WeddingInspirationSection = lazy(() => import("./components/sections/WeddingInspirationSection.jsx"));
 const FooterMobile = lazy(() => import("./components/FooterMobile.jsx"));
-const WhatsAppCTA = lazy(() => import("./components/WhatsAppCTA.jsx"));
 
 const FONTS_CSS = "";
 const SPLASH_MAX_MS = 700;
@@ -491,11 +490,6 @@ export default function App() {
         )
       )}
 
-      {splashDone && !isAdminPath && (
-        <Suspense fallback={null}>
-          <WhatsAppCTA waPhoneUrl={`https://wa.me/33664826920?text=${encodeURIComponent((APP_COPY[lang] || APP_COPY.FR).waContact)}`} />
-        </Suspense>
-      )}
       {!currentlyOnAdminPath && !isAdminPath && (
         <>
           <NotificationPrompt visible={notifPrompt} onAccept={handleNotifAccept} onDecline={handleNotifDecline} />
