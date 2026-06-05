@@ -118,12 +118,12 @@ const AdminVIPClients = () => {
                   key={`${client.name}-${index}`}
                   onClick={() => setSelectedIndex(index)}
                   style={{ cursor: "pointer", background: selectedIndex === index ? "rgba(184,151,62,0.1)" : "transparent" }}>
-                  <td>
+                  <td data-label="Client">
                     <strong>{client.name || "Sans nom"}</strong>
                     <div className="admin-small">{client.event || "Événement à préciser"}</div>
                   </td>
-                  <td>{client.city || "-"}</td>
-                  <td>{(client.album || []).length}</td>
+                  <td data-label="Ville">{client.city || "-"}</td>
+                  <td data-label="Photos">{(client.album || []).length}</td>
                 </tr>
               ))}
             </tbody>

@@ -63,7 +63,7 @@ const HeroVideoLoop = () => {
       onEnded={e => { e.target.currentTime = 0; e.target.play().catch(() => {}); }}
       style={{ ..._VIDEO_STYLE, background: "#1c1208" }}
     >
-      <track kind="captions" src="/captions/hero-fr.vtt" srcLang="fr" label="Français" default />
+      <track kind="captions" src="/captions/hero-fr.vtt" srcLang="fr" label="Français" />
     </video>
   );
 };

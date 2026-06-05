@@ -36,6 +36,7 @@ const AnalyticsTable = ({ columns, data, maxHeight = "500px", highlight = false 
               {columns.map((col) => (
                 <td
                   key={`${idx}-${col.key}`}
+                  data-label={col.label}
                   style={{
                     width: col.width,
                     textAlign: col.align || "left",

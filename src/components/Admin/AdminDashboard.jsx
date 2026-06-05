@@ -89,8 +89,8 @@ const AdminDashboard = () => {
                 <tbody>
                   {(analytics?.topPages || []).map((p) => (
                     <tr key={p.page}>
-                      <td>{p.page}</td>
-                      <td style={{ textAlign: "right", color: "var(--gnz-gold)" }}>{p.count}</td>
+                      <td data-label="Page">{p.page}</td>
+                      <td data-label="Vues" style={{ textAlign: "right", color: "var(--gnz-gold)" }}>{p.count}</td>
                     </tr>
                   ))}
                 </tbody>

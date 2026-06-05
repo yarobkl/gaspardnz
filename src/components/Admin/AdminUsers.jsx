@@ -129,18 +129,18 @@ const AdminUsers = () => {
             <tbody>
               {users.map((user) => (
                 <tr key={user.id}>
-                  <td>
+                  <td data-label="Email">
                     {user.email}
                     {session?.userId === user.id && <span style={{ color: "var(--gnz-gold)", marginLeft: "0.5rem" }}>(Vous)</span>}
                   </td>
-                  <td>{permissionLabels[user.permission]}</td>
-                  <td style={{ color: "var(--gnz-text-secondary)" }}>
+                  <td data-label="Permission">{permissionLabels[user.permission]}</td>
+                  <td data-label="Créé" style={{ color: "var(--gnz-text-secondary)" }}>
                     {new Date(user.createdAt).toLocaleDateString("fr-FR")}
                   </td>
-                  <td style={{ color: "var(--gnz-text-secondary)" }}>
+                  <td data-label="Dernière visite" style={{ color: "var(--gnz-text-secondary)" }}>
                     {user.lastLogin ? new Date(user.lastLogin).toLocaleDateString("fr-FR") : "-"}
                   </td>
-                  <td style={{ textAlign: "center" }}>
+                  <td data-label="Action" style={{ textAlign: "center" }}>
                     {session?.userId !== user.id && (
                       <button
                         onClick={() => handleDeleteUser(user.id)}

@@ -231,21 +231,21 @@ const AdminCRM = () => {
                     key={lead.id}
                     onClick={() => setSelectedLead(lead)}
                     style={{ cursor: "pointer", background: selectedLead?.id === lead.id ? "rgba(184,151,62,0.1)" : "transparent" }}>
-                    <td>
+                    <td data-label="Contact">
                       <strong>{lead.name}</strong>
                       <div className="admin-small">{lead.phone || lead.email}</div>
                     </td>
-                    <td>
+                    <td data-label="Origine">
                       {lead.source || "Direct"}
                       <div className="admin-small">{[lead.city, lead.country].filter(Boolean).join(", ") || "-"}</div>
                     </td>
-                    <td>
+                    <td data-label="Statut">
                       <span style={{ ...statusTone(lead.status), padding: "0.3rem 0.6rem", borderRadius: "4px", fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.04em" }}>
                         {lead.status}
                       </span>
                     </td>
-                    <td>{lead.eventType || "-"}</td>
-                    <td>{formatDateTime(lead.updatedAt || lead.createdAt)}</td>
+                    <td data-label="Événement">{lead.eventType || "-"}</td>
+                    <td data-label="Dernière action">{formatDateTime(lead.updatedAt || lead.createdAt)}</td>
                   </tr>
                 ))}
               </tbody>

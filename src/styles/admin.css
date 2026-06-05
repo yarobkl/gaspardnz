@@ -142,8 +142,12 @@ body.admin {
 }
 
 .admin-nav-item {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   flex: 1 1 auto;
   min-width: 60px;
+  min-height: 44px;
   max-width: 100%;
   padding: var(--spacing-xs) var(--spacing-sm);
   background: var(--gnz-surface);
@@ -281,16 +285,16 @@ body.admin {
 }
 
 /* Buttons */
-.admin-btn {
+.admin-btn,
+.admin-btn-secondary,
+.admin-btn-danger,
+.admin-btn-success {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: var(--spacing-sm);
   padding: var(--spacing-md) var(--spacing-lg);
-  background: var(--gnz-gold);
-  border: none;
   border-radius: var(--radius-md);
-  color: var(--gnz-dark);
   font-size: 0.8125rem;
   font-weight: 600;
   text-transform: uppercase;
@@ -298,6 +302,15 @@ body.admin {
   cursor: pointer;
   transition: var(--transition);
   white-space: nowrap;
+  min-height: 44px;
+  line-height: 1.15;
+  text-decoration: none;
+}
+
+.admin-btn {
+  background: var(--gnz-gold);
+  border: 1px solid var(--gnz-gold);
+  color: var(--gnz-dark);
 }
 
 .admin-btn:hover {
@@ -401,6 +414,7 @@ body.admin {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
   max-width: 100%;
+  border-radius: var(--radius-md);
 }
 
 .admin-table {
@@ -433,6 +447,7 @@ body.admin {
   padding: var(--spacing-md);
   border-bottom: 1px solid var(--gnz-border-light);
   color: var(--gnz-cream);
+  overflow-wrap: anywhere;
 }
 
 .admin-table tbody tr:hover {
@@ -601,20 +616,16 @@ body.admin {
   .admin-h2 { font-size: 0.9rem; }
   .admin-h3 { font-size: 0.8125rem; }
 
-  .admin-btn {
-    width: 100%;
-    padding: 10px 12px;
-    font-size: 0.7rem;
-    min-height: 40px;
-    flex-shrink: 0;
-    line-height: 1;
-  }
-
+  .admin-btn,
   .admin-btn-secondary,
   .admin-btn-danger,
   .admin-btn-success {
     width: 100%;
+    padding: 10px 12px;
+    font-size: 0.7rem;
     min-height: 44px;
+    flex-shrink: 0;
+    line-height: 1.1;
   }
 
   .admin-card {
@@ -657,20 +668,60 @@ body.admin {
     padding: 0;
     width: 100%;
     max-width: 100%;
-    overflow-x: auto;
+    overflow: visible;
     -webkit-overflow-scrolling: touch;
     min-width: 0;
+    border: 0;
   }
 
   .admin-table {
-    font-size: 0.75rem;
     min-width: 0;
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 0.75rem;
+  }
+
+  .admin-table thead {
+    display: none;
+  }
+
+  .admin-table tbody,
+  .admin-table tr,
+  .admin-table td {
+    display: block;
     width: 100%;
   }
 
-  .admin-table th,
+  .admin-table tr {
+    background: rgba(250, 247, 242, 0.035);
+    border: 1px solid var(--gnz-border);
+    border-radius: var(--radius-lg);
+    padding: 0.65rem;
+  }
+
   .admin-table td {
-    padding: var(--spacing-sm);
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.55rem 0;
+    border-bottom: 1px solid var(--gnz-border-light);
+    text-align: right !important;
+    font-size: 0.78rem;
+  }
+
+  .admin-table td:last-child {
+    border-bottom: 0;
+  }
+
+  .admin-table td::before {
+    content: attr(data-label);
+    flex: 0 0 42%;
+    color: var(--gnz-gold);
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-align: left;
+    text-transform: uppercase;
   }
 
   .admin-input,
@@ -741,11 +792,7 @@ body.admin {
     max-width: 100%;
   }
 
-  .admin-btn {
-    width: 100%;
-    min-height: 44px;
-  }
-
+  .admin-btn,
   .admin-btn-secondary,
   .admin-btn-danger,
   .admin-btn-success {
@@ -779,10 +826,59 @@ body.admin {
     min-height: 44px;
   }
 
+  .admin-table-wrapper {
+    overflow: visible;
+    border: 0;
+  }
+
   .admin-table {
-    font-size: 0.8rem;
-    min-width: 400px;
+    min-width: 0;
     width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 0.8rem;
+  }
+
+  .admin-table thead {
+    display: none;
+  }
+
+  .admin-table tbody,
+  .admin-table tr,
+  .admin-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .admin-table tr {
+    background: rgba(250, 247, 242, 0.035);
+    border: 1px solid var(--gnz-border);
+    border-radius: var(--radius-lg);
+    padding: 0.75rem;
+  }
+
+  .admin-table td {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid var(--gnz-border-light);
+    text-align: right !important;
+    font-size: 0.82rem;
+  }
+
+  .admin-table td:last-child {
+    border-bottom: 0;
+  }
+
+  .admin-table td::before {
+    content: attr(data-label);
+    flex: 0 0 40%;
+    color: var(--gnz-gold);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-align: left;
+    text-transform: uppercase;
   }
 
   .admin-card {
