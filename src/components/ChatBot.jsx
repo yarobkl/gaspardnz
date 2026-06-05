@@ -143,7 +143,7 @@ const ChatBot = ({ onReserver, onGalerie, onShowroom, onFormules }) => {
         onDragStart={() => { fabDragging.current = true; }}
         onDragEnd={() => { setTimeout(() => { fabDragging.current = false; }, 80); }}
         onClick={() => { if (fabDragging.current) return; setOpen(o => !o); setShowBubble(false); }}
-        aria-label={open ? "Fermer l'assistant Gaspard NZ" : "Ouvrir l'assistant Gaspard NZ"}
+        aria-label={open ? t("chatbot_close_label") : t("chatbot_open_label")}
         whileTap={{ scale: 0.93 }}
         style={{ position: "fixed", bottom: "1.5rem", right: "1.2rem", zIndex: 600, width: "56px", height: "56px", borderRadius: "50%", background: open ? GOLD : "transparent", border: open ? "none" : `2px solid ${GOLD}`, padding: 0, cursor: "grab", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 24px rgba(184,151,62,0.45)", overflow: "hidden", touchAction: "none" }}>
         <AnimatePresence mode="wait">
@@ -166,7 +166,7 @@ const ChatBot = ({ onReserver, onGalerie, onShowroom, onFormules }) => {
             style={{ position: "fixed", bottom: "5.2rem", right: "1.2rem", background: "transparent", padding: "0.5rem 1rem 0.5rem 0", maxWidth: "200px", cursor: "pointer", zIndex: 598, textAlign: "right" }}
           >
             <p style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: "italic", fontSize: "0.92rem", color: GOLD, lineHeight: 1.45, margin: 0, textShadow: "0 1px 8px rgba(0,0,0,0.9), 0 0 20px rgba(0,0,0,0.8)" }}>{t("chatbot_bubble")}</p>
-            <button aria-label="Masquer le message de l'assistant" onClick={e => { e.stopPropagation(); setShowBubble(false); }} style={{ position: "absolute", top: "0", right: "0", background: "none", border: "none", cursor: "pointer", color: "rgba(245,240,232,0.82)", fontSize: "0.75rem", lineHeight: 1, width: "44px", height: "44px" }}>✕</button>
+            <button aria-label={t("chatbot_hide_label")} onClick={e => { e.stopPropagation(); setShowBubble(false); }} style={{ position: "absolute", top: "0", right: "0", background: "none", border: "none", cursor: "pointer", color: "rgba(245,240,232,0.82)", fontSize: "0.75rem", lineHeight: 1, width: "44px", height: "44px" }}>✕</button>
           </motion.div>
         )}
       </AnimatePresence>

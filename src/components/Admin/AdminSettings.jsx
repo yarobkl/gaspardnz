@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
 import { getSettings, saveSettings, getDefaultSettings, subscribeToSettingsChanges } from "../../services/settingsService.js";
+import { useTr } from "../../context.jsx";
 import "../../styles/admin.css";
 
 const AdminSettings = () => {
+  const t = useTr();
   const [settings, setSettings] = useState(() => {
     const s = getSettings();
     return { ...s, formulaPrices: s.formulaPrices || {} };
@@ -45,7 +47,7 @@ const AdminSettings = () => {
     saveSettings(formData);
     setSettings(formData);
     setEditMode(false);
-    setSaveMessage("Paramètres sauvegardés avec succès");
+    setSaveMessage(t("admin_saved"));
     setTimeout(() => setSaveMessage(""), 3000);
   };
 
@@ -55,13 +57,13 @@ const AdminSettings = () => {
   };
 
   const handleResetToDefaults = () => {
-    if (window.confirm("Êtes-vous sûr de vouloir réinitialiser tous les paramètres par défaut ?")) {
+    if (window.confirm(t("admin_reset_defaults_confirm"))) {
       const defaults = getDefaultSettings();
       saveSettings(defaults);
       setSettings(defaults);
       setFormData(defaults);
       setEditMode(false);
-      setSaveMessage("Paramètres réinitialisés par défaut");
+      setSaveMessage(t("admin_reset_done"));
       setTimeout(() => setSaveMessage(""), 3000);
     }
   };
@@ -78,30 +80,30 @@ const AdminSettings = () => {
               setFormData(settings);
             }}
             className="admin-btn">
-            Éditer
+            {t("admin_edit")}
           </button>
         )}
         {editMode && (
           <>
             <button onClick={handleSave} className="admin-btn-success">
-              Enregistrer
+              {t("admin_save")}
             </button>
             <button onClick={handleReset} className="admin-btn-secondary">
-              Annuler
+              {t("admin_cancel")}
             </button>
           </>
         )}
         <button onClick={handleResetToDefaults} className="admin-btn-danger" style={{ marginLeft: "auto" }}>
-          Réinitialiser
+          {t("admin_reset")}
         </button>
       </div>
 
       {/* General Settings */}
       <div className="admin-card" style={{ marginBottom: "2rem" }}>
-        <h3 className="admin-h3" style={{ marginTop: 0 }}>Paramètres Généraux</h3>
+        <h3 className="admin-h3" style={{ marginTop: 0 }}>{t("admin_general_settings")}</h3>
 
         <div className="admin-form-group">
-          <label className="admin-label">Titre du Site</label>
+          <label className="admin-label">{t("admin_site_title")}</label>
           {editMode ? (
             <input type="text" name="siteTitle" value={formData.siteTitle} onChange={handleInputChange} className="admin-input" />
           ) : (
@@ -110,7 +112,7 @@ const AdminSettings = () => {
         </div>
 
         <div className="admin-form-group">
-          <label className="admin-label">Titre Hero</label>
+          <label className="admin-label">{t("admin_hero_title")}</label>
           {editMode ? (
             <input type="text" name="heroTitle" value={formData.heroTitle} onChange={handleInputChange} className="admin-input" />
           ) : (
@@ -119,7 +121,7 @@ const AdminSettings = () => {
         </div>
 
         <div className="admin-form-group">
-          <label className="admin-label">Sous-titre Hero</label>
+          <label className="admin-label">{t("admin_hero_subtitle")}</label>
           {editMode ? (
             <input type="text" name="heroSubtitle" value={formData.heroSubtitle} onChange={handleInputChange} className="admin-input" />
           ) : (
@@ -128,7 +130,7 @@ const AdminSettings = () => {
         </div>
 
         <div className="admin-form-group">
-          <label className="admin-label">Adresse de la Maison</label>
+          <label className="admin-label">{t("admin_house_address")}</label>
           {editMode ? (
             <input type="text" name="maisonAddress" value={formData.maisonAddress} onChange={handleInputChange} className="admin-input" />
           ) : (
@@ -139,10 +141,10 @@ const AdminSettings = () => {
 
       {/* Contact Settings */}
       <div className="admin-card" style={{ marginBottom: "2rem" }}>
-        <h3 className="admin-h3" style={{ marginTop: 0 }}>Paramètres de Contact</h3>
+        <h3 className="admin-h3" style={{ marginTop: 0 }}>{t("admin_contact_settings")}</h3>
 
         <div className="admin-form-group">
-          <label className="admin-label">Numéro WhatsApp</label>
+          <label className="admin-label">{t("admin_whatsapp_number")}</label>
           {editMode ? (
             <input type="tel" name="whatsappNumber" value={formData.whatsappNumber} onChange={handleInputChange} className="admin-input" />
           ) : (
@@ -151,7 +153,7 @@ const AdminSettings = () => {
         </div>
 
         <div className="admin-form-group">
-          <label className="admin-label">URL Calendly</label>
+          <label className="admin-label">{t("admin_calendly_url")}</label>
           {editMode ? (
             <input type="url" name="calendlyUrl" value={formData.calendlyUrl} onChange={handleInputChange} className="admin-input" />
           ) : (
@@ -160,7 +162,7 @@ const AdminSettings = () => {
         </div>
 
         <div className="admin-form-group">
-          <label className="admin-label">URL Instagram</label>
+          <label className="admin-label">{t("admin_instagram_url")}</label>
           {editMode ? (
             <input type="url" name="instagramUrl" value={formData.instagramUrl} onChange={handleInputChange} className="admin-input" />
           ) : (
@@ -171,7 +173,7 @@ const AdminSettings = () => {
 
       {/* Pricing */}
       <div className="admin-card">
-        <h3 className="admin-h3" style={{ marginTop: 0 }}>Tarification</h3>
+        <h3 className="admin-h3" style={{ marginTop: 0 }}>{t("admin_pricing")}</h3>
 
         {Object.entries(formData.formulaPrices).map(([key, value]) => (
           <div key={key} className="admin-form-group">

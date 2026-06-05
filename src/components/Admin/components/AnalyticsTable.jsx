@@ -1,13 +1,15 @@
+import { useTr } from "../../../context.jsx";
 import "../../../styles/analytics.css";
 
 /**
  * Reusable analytics table component
  */
 const AnalyticsTable = ({ columns, data, maxHeight = "500px", highlight = false }) => {
+  const t = useTr();
   if (!data || data.length === 0) {
     return (
       <div className="table-empty">
-        <p>Aucune données disponibles</p>
+        <p>{t("admin_no_data")}</p>
       </div>
     );
   }

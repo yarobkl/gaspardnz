@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { getAnalyticsData } from "../../services/adminAnalytics.js";
 import { getLeadStats } from "../../services/adminCRM.js";
+import { useTr } from "../../context.jsx";
 import "../../styles/admin.css";
 
 const StatCard = ({ label, value, subtext }) => (
@@ -12,6 +13,7 @@ const StatCard = ({ label, value, subtext }) => (
 );
 
 const AdminDashboard = () => {
+  const t = useTr();
   const [analytics, setAnalytics] = useState(null);
   const [crm, setCRM] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -46,51 +48,51 @@ const AdminDashboard = () => {
   }, []);
 
   if (loading) {
-    return <div className="admin-small">Chargement...</div>;
+    return <div className="admin-small">{t("admin_loading")}</div>;
   }
 
   const overview = analytics?.overview || {};
 
   return (
     <div>
-      <p className="admin-small">Vue d'ensemble en temps réel</p>
+      <p className="admin-small">{t("admin_realtime_overview")}</p>
 
       <div className="admin-grid">
-        <StatCard label="Visiteurs Total" value={overview.totalVisitors || 0} />
-        <StatCard label="Visiteurs Aujourd'hui" value={overview.visitorsToday || 0} />
-        <StatCard label="Total Événements" value={overview.totalEvents || 0} />
-        <StatCard label="Événements (24h)" value={overview.eventsToday || 0} />
+        <StatCard label={t("admin_total_visitors")} value={overview.totalVisitors || 0} />
+        <StatCard label={t("admin_visitors_today")} value={overview.visitorsToday || 0} />
+        <StatCard label={t("admin_total_events")} value={overview.totalEvents || 0} />
+        <StatCard label={t("admin_events_24h")} value={overview.eventsToday || 0} />
       </div>
 
       <div className="admin-grid" style={{ marginTop: "2rem" }}>
-        <StatCard label="Conversions Total" value={overview.totalConversions || 0} />
-        <StatCard label="Conversions (24h)" value={overview.conversionsToday || 0} />
-        <StatCard label="Taux de Conversion" value={`${overview.conversionRate || 0}%`} />
+        <StatCard label={t("admin_total_conversions")} value={overview.totalConversions || 0} />
+        <StatCard label={t("admin_conversions_24h")} value={overview.conversionsToday || 0} />
+        <StatCard label={t("admin_conversion_rate")} value={`${overview.conversionRate || 0}%`} />
       </div>
 
       <div className="admin-grid" style={{ marginTop: "2rem" }}>
-        <StatCard label="Total Leads" value={crm?.total || 0} />
-        <StatCard label="Leads Nouveaux" value={crm?.byStatus?.nouveau || 0} subtext="À contacter" />
-        <StatCard label="Leads Convertis" value={crm?.byStatus?.converti || 0} />
+        <StatCard label={t("admin_total_leads")} value={crm?.total || 0} />
+        <StatCard label={t("admin_new_leads")} value={crm?.byStatus?.nouveau || 0} subtext={t("admin_to_contact")} />
+        <StatCard label={t("admin_converted_leads")} value={crm?.byStatus?.converti || 0} />
       </div>
 
       <div style={{ marginTop: "3rem" }}>
-        <h3 className="admin-h3" style={{ marginBottom: "1.5rem" }}>Pages les plus visitées</h3>
+        <h3 className="admin-h3" style={{ marginBottom: "1.5rem" }}>{t("admin_top_pages")}</h3>
         <div className="admin-card">
           {(analytics?.topPages || []).length > 0 ? (
             <div className="admin-table-wrapper">
               <table className="admin-table">
                 <thead>
                   <tr>
-                    <th>Page</th>
-                    <th style={{ textAlign: "right" }}>Vues</th>
+                    <th>{t("admin_page")}</th>
+                    <th style={{ textAlign: "right" }}>{t("admin_views")}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {(analytics?.topPages || []).map((p) => (
                     <tr key={p.page}>
-                      <td data-label="Page">{p.page}</td>
-                      <td data-label="Vues" style={{ textAlign: "right", color: "var(--gnz-gold)" }}>{p.count}</td>
+                      <td data-label={t("admin_page")}>{p.page}</td>
+                      <td data-label={t("admin_views")} style={{ textAlign: "right", color: "var(--gnz-gold)" }}>{p.count}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -98,7 +100,7 @@ const AdminDashboard = () => {
             </div>
           ) : (
             <div style={{ padding: "2rem", textAlign: "center", color: "var(--gnz-text-secondary)" }}>
-              Pas de données disponibles
+              {t("admin_no_data")}
             </div>
           )}
         </div>

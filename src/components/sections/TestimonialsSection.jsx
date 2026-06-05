@@ -1,6 +1,7 @@
 import { useRef } from "react";
 import { motion, useInView } from "framer-motion";
 import { GOLD } from "../../constants.js";
+import { useTr } from "../../context.jsx";
 
 const reviews = [
   { id: 1, platform: "tiktok", handle: "@rodrin_b", initials: "RB", gradient: "linear-gradient(135deg,#1e3a5f,#2d6a9f)", text: "Franchement Gaspard m'a transformé pour mon mariage. Le costume était parfait, la coupe impeccable. Tous mes invités ont demandé qui m'avait habillé.", stars: 5 },
@@ -18,6 +19,7 @@ const StarRow = ({ n = 5 }) => (
 );
 
 const TestimonialsSection = () => {
+  const t = useTr();
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-8% 0px" });
 
@@ -27,8 +29,8 @@ const TestimonialsSection = () => {
         initial={{ opacity: 0, y: 16 }} animate={inView ? { opacity: 1, y: 0 } : {}}
         transition={{ duration: 0.7 }}
         style={{ padding: "0 1.4rem", marginBottom: "2.4rem" }}>
-        <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.55em", color: GOLD, textTransform: "uppercase", marginBottom: "10px" }}>TÉMOIGNAGES</p>
-        <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "28px", fontWeight: 300, color: "#faf7f2", letterSpacing: "0.02em", lineHeight: 1.2, margin: 0 }}>Ce qu'ils disent</p>
+        <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.55em", color: GOLD, textTransform: "uppercase", marginBottom: "10px" }}>{t("testimonials_eyebrow")}</p>
+        <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "28px", fontWeight: 300, color: "#faf7f2", letterSpacing: "0.02em", lineHeight: 1.2, margin: 0 }}>{t("testimonials_title")}</p>
         <div style={{ width: "48px", height: "1px", background: `linear-gradient(90deg, ${GOLD}, transparent)`, marginTop: "14px" }} />
       </motion.div>
 

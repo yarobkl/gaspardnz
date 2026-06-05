@@ -38,7 +38,7 @@ const WeddingInspirationSection = ({ refEl }) => {
         transition={{ duration: 0.7 }}
         style={{ padding: "0 1.4rem", marginBottom: "2rem" }}>
         <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.55em", color: GOLD, textTransform: "uppercase", marginBottom: "10px" }}>GASPARDNZ</p>
-        <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "28px", fontWeight: 300, color: "#faf7f2", letterSpacing: "0.02em", lineHeight: 1.2, margin: 0 }}>Inspiration Mariage</p>
+        <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "28px", fontWeight: 300, color: "#faf7f2", letterSpacing: "0.02em", lineHeight: 1.2, margin: 0 }}>{t("wedding_inspiration")}</p>
         <div style={{ width: "48px", height: "1px", background: `linear-gradient(90deg, ${GOLD}, transparent)`, marginTop: "14px" }} />
       </motion.div>
 
@@ -68,8 +68,8 @@ const WeddingInspirationSection = ({ refEl }) => {
               ) : (
                 <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "2rem", textAlign: "center" }}>
                   <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "8px", letterSpacing: "0.5em", color: GOLD, textTransform: "uppercase", marginBottom: "0.9rem" }}>GASPARDNZ</p>
-                  <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1.6rem", fontStyle: "italic", color: "#faf7f2", lineHeight: 1.25, margin: 0 }}>Photo à venir très bientôt</p>
-                  <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "9px", letterSpacing: "0.18em", color: "rgba(245,240,232,0.45)", textTransform: "uppercase", marginTop: "1rem" }}>Look en préparation</p>
+                  <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1.6rem", fontStyle: "italic", color: "#faf7f2", lineHeight: 1.25, margin: 0 }}>{t("coming_photo_soon")}</p>
+                  <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "9px", letterSpacing: "0.18em", color: "rgba(245,240,232,0.45)", textTransform: "uppercase", marginTop: "1rem" }}>{t("look_preparing")}</p>
                 </div>
               )}
               {activeSrc && (
@@ -116,7 +116,7 @@ const WeddingInspirationSection = ({ refEl }) => {
               {album.length > 1 && (
                 <div style={{ display: "grid", gridTemplateColumns: `repeat(${album.length}, 1fr)`, gap: "8px", padding: "10px 10px 0" }}>
                   {album.map((photo, ai) => (
-                    <button key={`${photo.src}-${ai}`} aria-label={`Voir ${item.title || "look mariage"} photo ${ai + 1}`} onClick={() => { setActivePhotos(current => ({ ...current, [i]: ai })); setActiveSpot(null); }}
+                    <button key={`${photo.src}-${ai}`} aria-label={t("view_photo_label", item.title || t("wedding_inspiration"), ai + 1)} onClick={() => { setActivePhotos(current => ({ ...current, [i]: ai })); setActiveSpot(null); }}
                       style={{ border: ai === activeIndex ? `1px solid ${GOLD}` : "1px solid rgba(184,151,62,0.18)", background: "none", padding: 0, borderRadius: "10px", overflow: "hidden", aspectRatio: "1/1", cursor: "pointer", opacity: ai === activeIndex ? 1 : 0.58 }}>
                       <img src={photo.src} alt={`${item.title || "Look mariage"} ${ai + 1}`} width="320" height="320" loading="lazy" decoding="async" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center top", display: "block" }} />
                     </button>
@@ -131,9 +131,9 @@ const WeddingInspirationSection = ({ refEl }) => {
               {item.desc && <p style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: "italic", fontSize: "1rem", color: "rgba(245,240,232,0.6)", lineHeight: 1.65 }}>{item.desc}</p>}
               {(item.color || item.style || item.occasion) && (
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px", marginTop: "8px", fontSize: "11px", color: "rgba(184,151,62,0.7)" }}>
-                  {item.color && <span><strong style={{ color: GOLD }}>Couleurs:</strong> {item.color}</span>}
-                  {item.style && <span><strong style={{ color: GOLD }}>Style:</strong> {item.style}</span>}
-                  {item.occasion && <span><strong style={{ color: GOLD }}>Occasion:</strong> {item.occasion}</span>}
+                  {item.color && <span><strong style={{ color: GOLD }}>{t("color_label")}:</strong> {item.color}</span>}
+                  {item.style && <span><strong style={{ color: GOLD }}>{t("style_label")}:</strong> {item.style}</span>}
+                  {item.occasion && <span><strong style={{ color: GOLD }}>{t("occasion_label")}:</strong> {item.occasion}</span>}
                 </div>
               )}
             </div>

@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { getSettings, saveSettings } from "../../services/settingsService.js";
+import { useTr } from "../../context.jsx";
 import "../../styles/admin.css";
 
 const defaultClients = [
@@ -48,6 +49,7 @@ const toAlbumText = (album = []) => album.join("\n");
 const fromAlbumText = (value) => value.split("\n").map((line) => line.trim()).filter(Boolean);
 
 const AdminVIPClients = () => {
+  const t = useTr();
   const [clients, setClients] = useState(() => {
     const settings = getSettings();
     return settings.vipClients?.length ? settings.vipClients : defaultClients;
@@ -77,17 +79,17 @@ const AdminVIPClients = () => {
 
   const removeClient = () => {
     if (clients.length <= 1) {
-      alert("Gardez au moins un client dans la galerie.");
+      alert(t("admin_keep_one_client"));
       return;
     }
-    if (!window.confirm("Supprimer ce client de la galerie ?")) return;
+    if (!window.confirm(t("admin_confirm_delete_client"))) return;
     const nextClients = clients.filter((_, index) => index !== selectedIndex);
     persist(nextClients);
     setSelectedIndex(Math.max(0, selectedIndex - 1));
   };
 
   const resetDefaults = () => {
-    if (!window.confirm("Recharger la galerie de base Rodrin, Boris et les emplacements à venir ?")) return;
+    if (!window.confirm(t("admin_confirm_reset_gallery"))) return;
     persist(defaultClients);
     setSelectedIndex(0);
   };
@@ -97,19 +99,19 @@ const AdminVIPClients = () => {
       <div className="admin-card">
         <div style={{ display: "flex", justifyContent: "space-between", gap: "0.75rem", flexWrap: "wrap", marginBottom: "1rem" }}>
           <div>
-            <h3 className="admin-h3" style={{ margin: 0 }}>Albums clients</h3>
-            <p className="admin-small" style={{ margin: "0.35rem 0 0" }}>Ces cartes alimentent la galerie exclusive visible sur le site.</p>
+            <h3 className="admin-h3" style={{ margin: 0 }}>{t("admin_client_albums")}</h3>
+            <p className="admin-small" style={{ margin: "0.35rem 0 0" }}>{t("admin_client_albums_help")}</p>
           </div>
-          <button className="admin-btn" onClick={addClient}>Ajouter</button>
+          <button className="admin-btn" onClick={addClient}>{t("admin_add")}</button>
         </div>
 
         <div className="admin-table-wrapper">
           <table className="admin-table">
             <thead>
               <tr>
-                <th>Client</th>
-                <th>Ville</th>
-                <th>Photos</th>
+                <th>{t("admin_client")}</th>
+                <th>{t("admin_city")}</th>
+                <th>{t("admin_photos")}</th>
               </tr>
             </thead>
             <tbody>
@@ -118,12 +120,12 @@ const AdminVIPClients = () => {
                   key={`${client.name}-${index}`}
                   onClick={() => setSelectedIndex(index)}
                   style={{ cursor: "pointer", background: selectedIndex === index ? "rgba(184,151,62,0.1)" : "transparent" }}>
-                  <td data-label="Client">
-                    <strong>{client.name || "Sans nom"}</strong>
-                    <div className="admin-small">{client.event || "Événement à préciser"}</div>
+                  <td data-label={t("admin_client")}>
+                    <strong>{client.name || t("admin_untitled")}</strong>
+                    <div className="admin-small">{client.event || t("admin_event_to_define")}</div>
                   </td>
-                  <td data-label="Ville">{client.city || "-"}</td>
-                  <td data-label="Photos">{(client.album || []).length}</td>
+                  <td data-label={t("admin_city")}>{client.city || "-"}</td>
+                  <td data-label={t("admin_photos")}>{(client.album || []).length}</td>
                 </tr>
               ))}
             </tbody>
@@ -131,31 +133,31 @@ const AdminVIPClients = () => {
         </div>
 
         <button className="admin-btn-secondary" onClick={resetDefaults} style={{ width: "100%", marginTop: "1rem" }}>
-          Recharger la base
+          {t("admin_reload_base")}
         </button>
       </div>
 
       <div className="admin-card">
-        <h3 className="admin-h3" style={{ marginTop: 0 }}>Modifier la carte</h3>
+        <h3 className="admin-h3" style={{ marginTop: 0 }}>{t("admin_edit_card")}</h3>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 160px), 1fr))", gap: "1rem" }}>
-          <input className="admin-input" placeholder="Initiales" value={selectedClient.initials || ""} onChange={(e) => updateClient({ initials: e.target.value })} />
-          <input className="admin-input" placeholder="Nom" value={selectedClient.name || ""} onChange={(e) => updateClient({ name: e.target.value })} />
-          <input className="admin-input" placeholder="Ville" value={selectedClient.city || ""} onChange={(e) => updateClient({ city: e.target.value })} />
-          <input className="admin-input" placeholder="Événement" value={selectedClient.event || ""} onChange={(e) => updateClient({ event: e.target.value })} />
+          <input className="admin-input" placeholder={t("admin_initials")} value={selectedClient.initials || ""} onChange={(e) => updateClient({ initials: e.target.value })} />
+          <input className="admin-input" placeholder={t("admin_name")} value={selectedClient.name || ""} onChange={(e) => updateClient({ name: e.target.value })} />
+          <input className="admin-input" placeholder={t("admin_city")} value={selectedClient.city || ""} onChange={(e) => updateClient({ city: e.target.value })} />
+          <input className="admin-input" placeholder={t("admin_event")} value={selectedClient.event || ""} onChange={(e) => updateClient({ event: e.target.value })} />
         </div>
 
         <div className="admin-form-group" style={{ marginTop: "1rem" }}>
-          <label className="admin-label">Photo principale</label>
+          <label className="admin-label">{t("admin_main_photo")}</label>
           <input className="admin-input" placeholder="/images/boris-01.jpg" value={selectedClient.photo || ""} onChange={(e) => updateClient({ photo: e.target.value })} />
         </div>
 
         <div className="admin-form-group">
-          <label className="admin-label">Fond si aucune photo</label>
+          <label className="admin-label">{t("admin_background_no_photo")}</label>
           <input className="admin-input" value={selectedClient.gradient || ""} onChange={(e) => updateClient({ gradient: e.target.value })} />
         </div>
 
         <div className="admin-form-group">
-          <label className="admin-label">Album photo, une URL par ligne</label>
+          <label className="admin-label">{t("admin_album_photo_urls")}</label>
           <textarea
             className="admin-textarea"
             rows={8}
@@ -167,14 +169,14 @@ const AdminVIPClients = () => {
 
         {selectedClient.photo && (
           <div style={{ marginBottom: "1rem" }}>
-            <p className="admin-label">Aperçu</p>
+            <p className="admin-label">{t("admin_preview")}</p>
             <img src={selectedClient.photo} alt={selectedClient.name} style={{ width: "100%", maxHeight: "320px", objectFit: "cover", borderRadius: "8px", border: "1px solid var(--gnz-border)" }} />
           </div>
         )}
 
-        <p className="admin-small">{previewAlbum.length} photo{previewAlbum.length > 1 ? "s" : ""} dans cet album.</p>
+        <p className="admin-small">{t("admin_album_count", previewAlbum.length)}</p>
         <button className="admin-btn-danger" onClick={removeClient} style={{ width: "100%" }}>
-          Supprimer cette carte
+          {t("admin_delete_card")}
         </button>
       </div>
     </div>

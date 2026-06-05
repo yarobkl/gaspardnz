@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { addInteraction, createLead, deleteLead, exportLeadsCSV, getAllLeads, updateLead } from "../../services/adminCRM.js";
+import { useTr } from "../../context.jsx";
 import "../../styles/admin.css";
 
 const statuses = ["nouveau", "contacté", "intéressé", "converti", "en attente"];
@@ -33,6 +34,7 @@ const statusTone = (status) => {
 };
 
 const AdminCRM = () => {
+  const t = useTr();
   const [leads, setLeads] = useState([]);
   const [selectedLead, setSelectedLead] = useState(null);
   const [showForm, setShowForm] = useState(false);
@@ -77,12 +79,12 @@ const AdminCRM = () => {
     const trimmedEmail = formData.email.trim();
 
     if (!trimmedName || !trimmedEmail) {
-      alert("Nom et email sont obligatoires");
+      alert(t("admin_error_name_email_required"));
       return;
     }
 
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
-      alert("Email invalide");
+      alert(t("admin_error_invalid_email"));
       return;
     }
 
@@ -95,17 +97,17 @@ const AdminCRM = () => {
       return;
     }
 
-    alert(result.error || "Erreur lors de la création du lead");
+    alert(result.error || t("admin_error_create_lead"));
   };
 
   const handleStatusChange = (leadId, newStatus) => {
     updateLead(leadId, { status: newStatus });
-    addInteraction(leadId, "statut", `Statut changé en ${newStatus}`);
+    addInteraction(leadId, "statut", t("admin_status_changed", newStatus));
     loadLeads();
   };
 
   const handleDeleteLead = (leadId) => {
-    if (window.confirm("Supprimer définitivement ce lead ?")) {
+    if (window.confirm(t("admin_confirm_delete_lead"))) {
       deleteLead(leadId);
       loadLeads();
       setSelectedLead(null);
@@ -118,12 +120,12 @@ const AdminCRM = () => {
     if (!selectedLead) return;
 
     if (!trimmedMessage) {
-      alert("La note ne peut pas être vide");
+      alert(t("admin_error_empty_note"));
       return;
     }
 
     if (trimmedMessage.length > 5000) {
-      alert("La note est trop longue (max 5000 caractères)");
+      alert(t("admin_error_note_too_long"));
       return;
     }
 
@@ -144,73 +146,93 @@ const AdminCRM = () => {
   };
 
   const phoneDigits = (selectedLead?.phone || "").replace(/[^\d+]/g, "");
+  const statusLabel = (status) => ({
+    nouveau: t("admin_status_nouveau"),
+    "contacté": t("admin_status_contacte"),
+    "intéressé": t("admin_status_interesse"),
+    converti: t("admin_status_converti"),
+    "en attente": t("admin_status_en_attente"),
+  }[status] || status);
+  const sourceLabel = (source) => ({
+    "Site web": t("admin_source_site"),
+    Recommandation: t("admin_source_recommendation"),
+    "Téléphone": t("admin_source_phone"),
+    Direct: t("admin_direct"),
+  }[source] || source);
+  const eventTypeLabel = (type) => ({
+    Mariage: t("event_wedding"),
+    "Événement corporatif": t("admin_event_corporate"),
+    "Cérémonie": t("event_ceremony"),
+    Shooting: t("event_shooting"),
+    Autre: t("admin_other"),
+  }[type] || type);
 
   return (
     <div>
       <div className="admin-grid" style={{ marginBottom: "1.5rem" }}>
         <div className="admin-kpi">
-          <div className="admin-kpi-label">Leads total</div>
+          <div className="admin-kpi-label">{t("admin_leads_total")}</div>
           <div className="admin-kpi-value">{stats.total}</div>
         </div>
         <div className="admin-kpi">
-          <div className="admin-kpi-label">Nouveaux</div>
+          <div className="admin-kpi-label">{t("admin_new")}</div>
           <div className="admin-kpi-value">{stats.new}</div>
         </div>
         <div className="admin-kpi">
-          <div className="admin-kpi-label">En attente</div>
+          <div className="admin-kpi-label">{t("admin_waiting")}</div>
           <div className="admin-kpi-value">{stats.waiting}</div>
         </div>
         <div className="admin-kpi">
-          <div className="admin-kpi-label">Convertis</div>
+          <div className="admin-kpi-label">{t("admin_converted")}</div>
           <div className="admin-kpi-value">{stats.converted}</div>
         </div>
       </div>
 
       <div style={{ display: "flex", gap: "0.75rem", marginBottom: "1rem", flexWrap: "wrap" }}>
         <button onClick={() => setShowForm((value) => !value)} className="admin-btn">
-          Nouveau lead
+          {t("admin_new_lead")}
         </button>
         <button onClick={handleExport} className="admin-btn-secondary">
-          Export CSV
+          {t("admin_export_csv")}
         </button>
       </div>
 
       {showForm && (
         <form onSubmit={handleAddLead} className="admin-card" style={{ marginBottom: "1.5rem" }}>
-          <h3 className="admin-h3" style={{ marginTop: 0 }}>Ajouter une demande</h3>
+          <h3 className="admin-h3" style={{ marginTop: 0 }}>{t("admin_add_request")}</h3>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "1rem", marginBottom: "1rem" }}>
-            <input type="text" placeholder="Nom complet" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} required className="admin-input" />
-            <input type="email" placeholder="Email" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} required className="admin-input" />
-            <input type="tel" placeholder="Téléphone" value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} className="admin-input" />
-            <input type="text" placeholder="Pays" value={formData.country} onChange={(e) => setFormData({ ...formData, country: e.target.value })} className="admin-input" />
-            <input type="text" placeholder="Ville" value={formData.city} onChange={(e) => setFormData({ ...formData, city: e.target.value })} className="admin-input" />
+            <input type="text" placeholder={t("admin_full_name")} value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} required className="admin-input" />
+            <input type="email" placeholder={t("admin_email")} value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} required className="admin-input" />
+            <input type="tel" placeholder={t("admin_phone")} value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} className="admin-input" />
+            <input type="text" placeholder={t("admin_country")} value={formData.country} onChange={(e) => setFormData({ ...formData, country: e.target.value })} className="admin-input" />
+            <input type="text" placeholder={t("admin_city")} value={formData.city} onChange={(e) => setFormData({ ...formData, city: e.target.value })} className="admin-input" />
             <select value={formData.eventType} onChange={(e) => setFormData({ ...formData, eventType: e.target.value })} className="admin-select">
-              <option value="">Type d'événement</option>
-              {eventTypes.map((type) => <option key={type} value={type}>{type}</option>)}
+              <option value="">{t("admin_event_type")}</option>
+              {eventTypes.map((type) => <option key={type} value={type}>{eventTypeLabel(type)}</option>)}
             </select>
             <input type="date" value={formData.eventDate} onChange={(e) => setFormData({ ...formData, eventDate: e.target.value })} className="admin-input" />
-            <input type="number" min="0" placeholder="Invités" value={formData.guestCount} onChange={(e) => setFormData({ ...formData, guestCount: e.target.value })} className="admin-input" />
-            <input type="number" min="0" placeholder="Budget estimé" value={formData.budget} onChange={(e) => setFormData({ ...formData, budget: e.target.value })} className="admin-input" />
+            <input type="number" min="0" placeholder={t("admin_guests")} value={formData.guestCount} onChange={(e) => setFormData({ ...formData, guestCount: e.target.value })} className="admin-input" />
+            <input type="number" min="0" placeholder={t("admin_budget")} value={formData.budget} onChange={(e) => setFormData({ ...formData, budget: e.target.value })} className="admin-input" />
             <select value={formData.source} onChange={(e) => setFormData({ ...formData, source: e.target.value })} className="admin-select">
-              {sources.map((source) => <option key={source} value={source}>{source}</option>)}
+              {sources.map((source) => <option key={source} value={source}>{sourceLabel(source)}</option>)}
             </select>
           </div>
-          <textarea placeholder="Notes internes" value={formData.notes} onChange={(e) => setFormData({ ...formData, notes: e.target.value })} rows={3} className="admin-textarea" style={{ marginBottom: "1rem" }} />
-          <button type="submit" className="admin-btn">Enregistrer</button>
+          <textarea placeholder={t("admin_internal_notes")} value={formData.notes} onChange={(e) => setFormData({ ...formData, notes: e.target.value })} rows={3} className="admin-textarea" style={{ marginBottom: "1rem" }} />
+          <button type="submit" className="admin-btn">{t("admin_save")}</button>
         </form>
       )}
 
       <div style={{ display: "grid", gridTemplateColumns: selectedLead ? "repeat(auto-fit, minmax(min(100%, 320px), 1fr))" : "1fr", gap: "1rem", alignItems: "start" }}>
         <div className="admin-card">
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 150px), 1fr))", gap: "0.75rem", marginBottom: "1rem" }}>
-            <input className="admin-input" placeholder="Rechercher nom, téléphone, pays, source..." value={query} onChange={(e) => setQuery(e.target.value)} />
+            <input className="admin-input" placeholder={t("admin_search_placeholder")} value={query} onChange={(e) => setQuery(e.target.value)} />
             <select className="admin-select" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
-              <option value="all">Tous statuts</option>
-              {statuses.map((status) => <option key={status} value={status}>{status}</option>)}
+              <option value="all">{t("admin_all_statuses")}</option>
+              {statuses.map((status) => <option key={status} value={status}>{statusLabel(status)}</option>)}
             </select>
             <select className="admin-select" value={eventFilter} onChange={(e) => setEventFilter(e.target.value)}>
-              <option value="all">Tous événements</option>
-              {eventTypes.map((type) => <option key={type} value={type}>{type}</option>)}
+              <option value="all">{t("admin_all_events")}</option>
+              {eventTypes.map((type) => <option key={type} value={type}>{eventTypeLabel(type)}</option>)}
             </select>
           </div>
 
@@ -218,11 +240,11 @@ const AdminCRM = () => {
             <table className="admin-table">
               <thead>
                 <tr>
-                  <th>Contact</th>
-                  <th>Origine</th>
-                  <th>Statut</th>
-                  <th>Événement</th>
-                  <th>Dernière action</th>
+                  <th>{t("admin_contact")}</th>
+                  <th>{t("admin_origin")}</th>
+                  <th>{t("admin_status")}</th>
+                  <th>{t("admin_event")}</th>
+                  <th>{t("admin_last_action")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -231,21 +253,21 @@ const AdminCRM = () => {
                     key={lead.id}
                     onClick={() => setSelectedLead(lead)}
                     style={{ cursor: "pointer", background: selectedLead?.id === lead.id ? "rgba(184,151,62,0.1)" : "transparent" }}>
-                    <td data-label="Contact">
+                    <td data-label={t("admin_contact")}>
                       <strong>{lead.name}</strong>
                       <div className="admin-small">{lead.phone || lead.email}</div>
                     </td>
-                    <td data-label="Origine">
-                      {lead.source || "Direct"}
+                    <td data-label={t("admin_origin")}>
+                      {sourceLabel(lead.source || "Direct")}
                       <div className="admin-small">{[lead.city, lead.country].filter(Boolean).join(", ") || "-"}</div>
                     </td>
-                    <td data-label="Statut">
+                    <td data-label={t("admin_status")}>
                       <span style={{ ...statusTone(lead.status), padding: "0.3rem 0.6rem", borderRadius: "4px", fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.04em" }}>
-                        {lead.status}
+                        {statusLabel(lead.status)}
                       </span>
                     </td>
-                    <td data-label="Événement">{lead.eventType || "-"}</td>
-                    <td data-label="Dernière action">{formatDateTime(lead.updatedAt || lead.createdAt)}</td>
+                    <td data-label={t("admin_event")}>{eventTypeLabel(lead.eventType) || "-"}</td>
+                    <td data-label={t("admin_last_action")}>{formatDateTime(lead.updatedAt || lead.createdAt)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -254,7 +276,7 @@ const AdminCRM = () => {
 
           {filteredLeads.length === 0 && (
             <div style={{ padding: "2rem", textAlign: "center", color: "var(--gnz-text-secondary)" }}>
-              Aucun lead ne correspond aux filtres.
+              {t("admin_no_matching_leads")}
             </div>
           )}
         </div>
@@ -264,39 +286,39 @@ const AdminCRM = () => {
             <div style={{ display: "flex", justifyContent: "space-between", gap: "1rem", alignItems: "start" }}>
               <div>
                 <h3 className="admin-h3" style={{ margin: "0 0 0.2rem" }}>{selectedLead.name}</h3>
-                <p className="admin-small" style={{ margin: 0 }}>{[selectedLead.city, selectedLead.country].filter(Boolean).join(", ") || "Localisation non renseignée"}</p>
+                <p className="admin-small" style={{ margin: 0 }}>{[selectedLead.city, selectedLead.country].filter(Boolean).join(", ") || t("admin_location_missing")}</p>
               </div>
-              <button className="admin-btn-secondary" onClick={() => setSelectedLead(null)} style={{ padding: "0.6rem 0.8rem" }}>Fermer</button>
+              <button className="admin-btn-secondary" onClick={() => setSelectedLead(null)} style={{ padding: "0.6rem 0.8rem" }}>{t("admin_close")}</button>
             </div>
 
             <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", margin: "1rem 0" }}>
               {selectedLead.email && <a className="admin-btn-secondary" href={`mailto:${selectedLead.email}`} style={{ textDecoration: "none" }}>Email</a>}
-              {phoneDigits && <a className="admin-btn-secondary" href={`tel:${phoneDigits}`} style={{ textDecoration: "none" }}>Appeler</a>}
+              {phoneDigits && <a className="admin-btn-secondary" href={`tel:${phoneDigits}`} style={{ textDecoration: "none" }}>{t("admin_call")}</a>}
               {phoneDigits && <a className="admin-btn-secondary" href={`https://wa.me/${phoneDigits.replace(/^\+/, "")}`} target="_blank" rel="noreferrer" style={{ textDecoration: "none" }}>WhatsApp</a>}
             </div>
 
             <div style={{ fontSize: "0.875rem", lineHeight: "1.8", marginBottom: "1.2rem" }}>
               <p><strong>Email:</strong> {selectedLead.email}</p>
-              <p><strong>Téléphone:</strong> {selectedLead.phone || "-"}</p>
-              <p><strong>Événement:</strong> {selectedLead.eventType || "-"}</p>
+              <p><strong>{t("admin_phone")}:</strong> {selectedLead.phone || "-"}</p>
+              <p><strong>{t("admin_event")}:</strong> {eventTypeLabel(selectedLead.eventType) || "-"}</p>
               <p><strong>Date:</strong> {selectedLead.eventDate || "-"}</p>
-              <p><strong>Invités:</strong> {selectedLead.guestCount || "-"}</p>
-              <p><strong>Budget:</strong> {selectedLead.budget || "-"}</p>
-              <p><strong>Source:</strong> {selectedLead.source || "Direct"}</p>
-              <p><strong>Créé:</strong> {formatDateTime(selectedLead.createdAt)}</p>
+              <p><strong>{t("admin_guests")}:</strong> {selectedLead.guestCount || "-"}</p>
+              <p><strong>{t("admin_budget")}:</strong> {selectedLead.budget || "-"}</p>
+              <p><strong>{t("admin_origin")}:</strong> {sourceLabel(selectedLead.source || "Direct")}</p>
+              <p><strong>{t("admin_created_at")}:</strong> {formatDateTime(selectedLead.createdAt)}</p>
             </div>
 
             <div className="admin-form-group">
-              <label className="admin-label">Statut</label>
+              <label className="admin-label">{t("admin_status")}</label>
               <select value={selectedLead.status} onChange={(e) => handleStatusChange(selectedLead.id, e.target.value)} className="admin-select">
-                {statuses.map((status) => <option key={status} value={status}>{status}</option>)}
+                {statuses.map((status) => <option key={status} value={status}>{statusLabel(status)}</option>)}
               </select>
             </div>
 
             <form onSubmit={handleAddMessage} style={{ marginBottom: "1rem" }}>
-              <label className="admin-label">Historique</label>
-              <textarea placeholder="Ajouter une note de suivi..." value={newMessage} onChange={(e) => setNewMessage(e.target.value)} rows={3} className="admin-textarea" style={{ margin: "0.5rem 0" }} />
-              <button type="submit" className="admin-btn-secondary" style={{ width: "100%" }}>Ajouter la note</button>
+              <label className="admin-label">{t("admin_history")}</label>
+              <textarea placeholder={t("admin_add_followup_note")} value={newMessage} onChange={(e) => setNewMessage(e.target.value)} rows={3} className="admin-textarea" style={{ margin: "0.5rem 0" }} />
+              <button type="submit" className="admin-btn-secondary" style={{ width: "100%" }}>{t("admin_add_note")}</button>
             </form>
 
             <div style={{ marginBottom: "1rem", maxHeight: "220px", overflow: "auto" }}>
@@ -306,11 +328,11 @@ const AdminCRM = () => {
                   <div>{item.message}</div>
                 </div>
               ))}
-              {(selectedLead.interactions || []).length === 0 && <p className="admin-small">Aucune note pour ce contact.</p>}
+              {(selectedLead.interactions || []).length === 0 && <p className="admin-small">{t("admin_no_note_contact")}</p>}
             </div>
 
             <button onClick={() => handleDeleteLead(selectedLead.id)} className="admin-btn-danger" style={{ width: "100%" }}>
-              Supprimer le lead
+              {t("admin_delete_lead")}
             </button>
           </aside>
         )}

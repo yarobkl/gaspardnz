@@ -1,3 +1,4 @@
+import { useTr } from "../../../context.jsx";
 import "../../../styles/analytics.css";
 
 /**
@@ -5,10 +6,11 @@ import "../../../styles/analytics.css";
  * Types: line, bar, pie
  */
 const AnalyticsChart = ({ type, data, dataKey, labelKey, xKey, color, height = 250, horizontal = false }) => {
+  const t = useTr();
   if (!data || data.length === 0) {
     return (
       <div className="chart-empty">
-        <p>Aucune données disponibles</p>
+        <p>{t("admin_no_data")}</p>
       </div>
     );
   }

@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { getAnalyticsData, clearAnalytics } from "../../services/adminAnalytics.js";
 import { formatNumber, formatDuration, getDateRange } from "../../utils/analyticsHelpers.js";
+import { useTr } from "../../context.jsx";
 import KPICard from "./components/KPICard.jsx";
 import AnalyticsChart from "./components/AnalyticsChart.jsx";
 import AnalyticsTable from "./components/AnalyticsTable.jsx";
@@ -9,6 +10,7 @@ import "../../styles/admin.css";
 import "../../styles/analytics.css";
 
 const AdminAnalytics = () => {
+  const t = useTr();
   const [analytics, setAnalytics] = useState(null);
   const [activeTab, setActiveTab] = useState("kpi");
   const [dateRange, setDateRange] = useState("7d");
@@ -28,7 +30,7 @@ const AdminAnalytics = () => {
   }, [dateRange]);
 
   const handleClear = () => {
-    if (window.confirm("Êtes-vous sûr de vouloir effacer toutes les données d'analytics ?")) {
+    if (window.confirm(t("admin_confirm_clear_analytics"))) {
       clearAnalytics();
       setAnalytics(null);
       setTimeout(() => {
@@ -42,7 +44,7 @@ const AdminAnalytics = () => {
     return (
       <div className="analytics-loading">
         <div className="analytics-spinner"></div>
-        <p>Chargement des analytics...</p>
+        <p>{t("admin_loading_analytics")}</p>
       </div>
     );
   }
@@ -54,13 +56,13 @@ const AdminAnalytics = () => {
       {/* Header avec titre et contrôles */}
       <div className="analytics-header">
         <div>
-          <h1 className="admin-h1">Tableau de Bord Analytics</h1>
-          <p className="admin-small">Suivi en temps réel de vos visiteurs et engagements</p>
+          <h1 className="admin-h1">{t("admin_analytics_title")}</h1>
+          <p className="admin-small">{t("admin_analytics_subtitle")}</p>
         </div>
         <div className="analytics-controls">
           <DateRangeSelector value={dateRange} onChange={setDateRange} />
-          <button onClick={handleClear} className="admin-btn-danger" title="Effacer toutes les données">
-            Réinitialiser
+          <button onClick={handleClear} className="admin-btn-danger" title={t("admin_clear_analytics_title")}>
+            {t("admin_reset")}
           </button>
         </div>
       </div>
@@ -68,11 +70,11 @@ const AdminAnalytics = () => {
       {/* Tabs de navigation */}
       <div className="analytics-tabs">
         {[
-          { id: "kpi", label: "KPIs", icon: "KPI" },
-          { id: "geo", label: "Géographie", icon: "GEO" },
-          { id: "time", label: "Temps", icon: "TPS" },
-          { id: "behavior", label: "Comportement", icon: "UX" },
-          { id: "sessions", label: "Sessions", icon: "CRM" },
+          { id: "kpi", label: t("admin_tab_kpis"), icon: "KPI" },
+          { id: "geo", label: t("admin_tab_geo"), icon: "GEO" },
+          { id: "time", label: t("admin_tab_time"), icon: "TPS" },
+          { id: "behavior", label: t("admin_tab_behavior"), icon: "UX" },
+          { id: "sessions", label: t("admin_tab_sessions"), icon: "CRM" },
         ].map((tab) => (
           <button
             key={tab.id}
@@ -88,7 +90,7 @@ const AdminAnalytics = () => {
       <div className={`analytics-refresh-status ${refreshing ? "refreshing" : ""}`}>
         <span className="status-dot"></span>
         <span className="status-text">
-          {refreshing ? "Mise à jour en cours..." : "En temps réel"}
+          {refreshing ? t("admin_refreshing") : t("admin_realtime")}
         </span>
       </div>
 
@@ -100,30 +102,30 @@ const AdminAnalytics = () => {
             {/* Premier rang - KPIs principaux */}
             <div className="kpi-grid-lg">
               <KPICard
-                title="Visiteurs Total"
+                title={t("admin_total_visitors")}
                 value={formatNumber(overview.totalVisitors)}
-                secondary={`${formatNumber(overview.visitorsToday)} aujourd'hui`}
+                secondary={`${formatNumber(overview.visitorsToday)} ${t("admin_today")}`}
                 trend={overview.visitorsToday > 0 ? "up" : "neutral"}
                 color="gold"
               />
               <KPICard
-                title="Pages Vues"
+                title={t("admin_page_views")}
                 value={formatNumber(overview.totalPageViews)}
-                secondary={`${formatNumber(overview.pageViewsToday)} aujourd'hui`}
+                secondary={`${formatNumber(overview.pageViewsToday)} ${t("admin_today")}`}
                 trend="up"
                 color="cream"
               />
               <KPICard
-                title="Taux de Conversion"
+                title={t("admin_conversion_rate")}
                 value={`${overview.conversionRate}%`}
-                secondary={`${formatNumber(overview.totalConversions)} conversions`}
+                secondary={`${formatNumber(overview.totalConversions)} ${t("admin_conversions")}`}
                 trend={overview.conversionRate > 0 ? "up" : "neutral"}
                 color="gold"
               />
               <KPICard
-                title="Taux de Rebond"
+                title={t("admin_bounce_rate")}
                 value={`${overview.bounceRate}%`}
-                secondary="En baisse = mieux"
+                secondary={t("admin_bounce_hint")}
                 trend={overview.bounceRate < 50 ? "up" : "down"}
                 color="cream"
               />
@@ -132,15 +134,15 @@ const AdminAnalytics = () => {
             {/* Deuxième rang - KPIs secondaires */}
             <div className="kpi-grid-md">
               <KPICard
-                title="Durée Moyenne"
+                title={t("admin_avg_duration")}
                 value={formatDuration(overview.avgSessionDuration)}
-                secondary="Par session"
+                secondary={t("admin_per_session")}
                 color="gold"
               />
               <KPICard
-                title="Sources Principales"
-                value={analytics?.topReferrers?.[0]?.referrer || "Accès direct"}
-                secondary={`${formatNumber(analytics?.topReferrers?.[0]?.count || 0)} visites`}
+                title={t("admin_top_sources")}
+                value={analytics?.topReferrers?.[0]?.referrer || t("admin_direct_access")}
+                secondary={`${formatNumber(analytics?.topReferrers?.[0]?.count || 0)} ${t("admin_visits")}`}
                 color="cream"
               />
             </div>
@@ -149,7 +151,7 @@ const AdminAnalytics = () => {
             <div className="analytics-charts-grid">
               {/* Visiteurs au fil du temps */}
               <div className="chart-card">
-                <h3 className="chart-title">Visiteurs - Derniers {dateRange === "7d" ? "7 jours" : dateRange === "30d" ? "30 jours" : "6 mois"}</h3>
+                <h3 className="chart-title">{t("admin_visitors_last", dateRange === "7d" ? t("admin_range_7d") : dateRange === "30d" ? t("admin_range_30d") : t("admin_range_6m"))}</h3>
                 <AnalyticsChart
                   type="line"
                   data={analytics?.visitorsOverTime || []}
@@ -161,7 +163,7 @@ const AdminAnalytics = () => {
 
               {/* Pages les plus visitées */}
               <div className="chart-card">
-                <h3 className="chart-title">Pages Populaires</h3>
+                <h3 className="chart-title">{t("admin_popular_pages")}</h3>
                 <AnalyticsChart
                   type="bar"
                   data={analytics?.topPages?.slice(0, 5) || []}
@@ -173,7 +175,7 @@ const AdminAnalytics = () => {
 
               {/* Heures de pointe */}
               <div className="chart-card">
-                <h3 className="chart-title">Activité par Heure</h3>
+                <h3 className="chart-title">{t("admin_activity_by_hour")}</h3>
                 <AnalyticsChart
                   type="bar"
                   data={Object.entries(analytics?.peakHours || {}).map(([hour, count]) => ({
@@ -188,7 +190,7 @@ const AdminAnalytics = () => {
 
               {/* Jour de la semaine */}
               <div className="chart-card">
-                <h3 className="chart-title">Activité par Jour</h3>
+                <h3 className="chart-title">{t("admin_activity_by_day")}</h3>
                 <AnalyticsChart
                   type="bar"
                   data={Object.entries(analytics?.dayOfWeek || {}).map(([day, count]) => ({
@@ -210,7 +212,7 @@ const AdminAnalytics = () => {
             <div className="analytics-charts-grid">
               {/* Device Breakdown */}
               <div className="chart-card">
-                <h3 className="chart-title">Répartition Appareils</h3>
+                <h3 className="chart-title">{t("admin_device_breakdown")}</h3>
                 <AnalyticsChart
                   type="pie"
                   data={Object.entries(analytics?.deviceStats || {}).map(([device, count]) => ({
@@ -223,7 +225,7 @@ const AdminAnalytics = () => {
 
               {/* Browser Breakdown */}
               <div className="chart-card">
-                <h3 className="chart-title">Navigateurs</h3>
+                <h3 className="chart-title">{t("admin_browsers")}</h3>
                 <AnalyticsChart
                   type="pie"
                   data={Object.entries(analytics?.browserStats || {}).map(([browser, count]) => ({
@@ -237,11 +239,11 @@ const AdminAnalytics = () => {
 
             {/* Villes avec la plupart des visites */}
             <div className="analytics-table-section">
-              <h3 className="chart-title">Top 10 Villes</h3>
+              <h3 className="chart-title">{t("admin_top_cities")}</h3>
               <AnalyticsTable
                 columns={[
-                  { key: "city", label: "Ville", width: "70%" },
-                  { key: "count", label: "Visites", width: "30%", align: "right" },
+                  { key: "city", label: t("admin_city"), width: "70%" },
+                  { key: "count", label: t("admin_visits"), width: "30%", align: "right" },
                 ]}
                 data={Object.entries(analytics?.cityStats || {})
                   .map(([city, count]) => ({ city, count }))
@@ -253,11 +255,11 @@ const AdminAnalytics = () => {
 
             {/* Pays */}
             <div className="analytics-table-section">
-              <h3 className="chart-title">Visiteurs par Pays</h3>
+              <h3 className="chart-title">{t("admin_visitors_by_country")}</h3>
               <AnalyticsTable
                 columns={[
-                  { key: "country", label: "Pays", width: "70%" },
-                  { key: "count", label: "Visites", width: "30%", align: "right" },
+                  { key: "country", label: t("admin_country"), width: "70%" },
+                  { key: "count", label: t("admin_visits"), width: "30%", align: "right" },
                 ]}
                 data={Object.entries(analytics?.countryStats || {})
                   .map(([country, count]) => ({ country, count }))
@@ -274,7 +276,7 @@ const AdminAnalytics = () => {
             <div className="analytics-charts-grid">
               {/* Full timeline */}
               <div className="chart-card full-width">
-                <h3 className="chart-title">Évolution des Visiteurs</h3>
+                <h3 className="chart-title">{t("admin_visitors_evolution")}</h3>
                 <AnalyticsChart
                   type="line"
                   data={analytics?.visitorsOverTime || []}
@@ -287,7 +289,7 @@ const AdminAnalytics = () => {
 
               {/* Peak Hours Heatmap visualization */}
               <div className="chart-card">
-                <h3 className="chart-title">Heures de Pointe</h3>
+                <h3 className="chart-title">{t("admin_peak_hours")}</h3>
                 <AnalyticsChart
                   type="bar"
                   data={Object.entries(analytics?.peakHours || {}).map(([hour, count]) => ({
@@ -303,7 +305,7 @@ const AdminAnalytics = () => {
 
               {/* Day of Week */}
               <div className="chart-card">
-                <h3 className="chart-title">Activité Hebdomadaire</h3>
+                <h3 className="chart-title">{t("admin_weekly_activity")}</h3>
                 <AnalyticsChart
                   type="bar"
                   data={Object.entries(analytics?.dayOfWeek || {}).map(([day, count]) => ({
@@ -324,11 +326,11 @@ const AdminAnalytics = () => {
           <div className="analytics-section">
             {/* Pages avec plus d'engagement */}
             <div className="analytics-table-section">
-              <h3 className="chart-title">Pages les Plus Engageantes</h3>
+              <h3 className="chart-title">{t("admin_engaging_pages")}</h3>
               <AnalyticsTable
                 columns={[
-                  { key: "page", label: "Page", width: "60%" },
-                  { key: "avgTime", label: "Temps Moyen", width: "40%", align: "right" },
+                  { key: "page", label: t("admin_page"), width: "60%" },
+                  { key: "avgTime", label: t("admin_avg_time"), width: "40%", align: "right" },
                 ]}
                 data={analytics?.timeOnPage || []}
                 maxHeight="400px"
@@ -337,7 +339,7 @@ const AdminAnalytics = () => {
 
             {/* Top pages by views */}
             <div className="analytics-table-section">
-              <h3 className="chart-title">Pages Populaires</h3>
+              <h3 className="chart-title">{t("admin_popular_pages")}</h3>
               <AnalyticsChart
                 type="bar"
                 data={analytics?.topPages?.slice(0, 8) || []}
@@ -349,11 +351,11 @@ const AdminAnalytics = () => {
 
             {/* User flow */}
             <div className="analytics-table-section">
-              <h3 className="chart-title">Flux Utilisateur</h3>
+              <h3 className="chart-title">{t("admin_user_flow")}</h3>
               <AnalyticsTable
                 columns={[
-                  { key: "flow", label: "Flux", width: "70%" },
-                  { key: "count", label: "Transitions", width: "30%", align: "right" },
+                  { key: "flow", label: t("admin_flow"), width: "70%" },
+                  { key: "count", label: t("admin_transitions"), width: "30%", align: "right" },
                 ]}
                 data={analytics?.userFlow || []}
                 maxHeight="400px"
@@ -367,20 +369,20 @@ const AdminAnalytics = () => {
           <div className="analytics-section">
             {/* Recent Visitors */}
             <div className="analytics-table-section">
-              <h3 className="chart-title">Sessions Récentes</h3>
+              <h3 className="chart-title">{t("admin_recent_sessions")}</h3>
               <AnalyticsTable
                 columns={[
-                  { key: "id", label: "Visiteur ID", width: "25%" },
-                  { key: "device", label: "Appareil", width: "15%" },
-                  { key: "city", label: "Ville", width: "20%" },
-                  { key: "pageCount", label: "Pages", width: "10%", align: "center" },
-                  { key: "eventCount", label: "Événements", width: "15%", align: "center" },
-                  { key: "status", label: "Statut", width: "15%" },
+                  { key: "id", label: t("admin_visitor_id"), width: "25%" },
+                  { key: "device", label: t("admin_device"), width: "15%" },
+                  { key: "city", label: t("admin_city"), width: "20%" },
+                  { key: "pageCount", label: t("admin_pages"), width: "10%", align: "center" },
+                  { key: "eventCount", label: t("admin_total_events"), width: "15%", align: "center" },
+                  { key: "status", label: t("admin_status"), width: "15%" },
                 ]}
                 data={(analytics?.recentVisitors || []).map((v) => ({
                   ...v,
                   id: v.id.slice(0, 16) + "...",
-                  status: v.status === "converted" ? "✓ Converti" : "Visiteur",
+                  status: v.status === "converted" ? `✓ ${t("admin_converted")}` : t("admin_visitor"),
                 }))}
                 maxHeight="600px"
               />

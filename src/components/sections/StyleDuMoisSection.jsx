@@ -48,7 +48,7 @@ const StyleDuMoisSection = ({ refEl }) => {
                 <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 58%, rgba(7,4,0,0.72) 100%)", pointerEvents: "none" }} />
                 <div style={{ position: "absolute", left: "1rem", bottom: "1rem", zIndex: 2, display: "inline-flex", alignItems: "center", gap: "8px", padding: "0.45rem 0.7rem", background: "rgba(7,4,0,0.58)", border: "1px solid rgba(184,151,62,0.35)", borderRadius: "999px", backdropFilter: "blur(8px)" }}>
                   <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: GOLD, boxShadow: "0 0 12px rgba(184,151,62,0.7)" }} />
-                  <span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "8px", letterSpacing: "0.22em", color: "#f5f0e8", textTransform: "uppercase" }}>Album {activeIndex + 1}/{album.length}</span>
+                  <span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "8px", letterSpacing: "0.22em", color: "#f5f0e8", textTransform: "uppercase" }}>{t("album_counter", activeIndex + 1, album.length)}</span>
                 </div>
                 {(item.spots || []).map((spot, si) => (
                   <div key={si} style={{ position: "absolute", left: `${spot.x}%`, top: `${spot.y}%`, transform: "translate(-50%,-50%)", zIndex: 2 }}>
@@ -90,7 +90,7 @@ const StyleDuMoisSection = ({ refEl }) => {
               {album.length > 1 && (
                 <div style={{ display: "grid", gridTemplateColumns: `repeat(${album.length}, 1fr)`, gap: "8px", padding: "10px 10px 0" }}>
                   {album.map((src, ai) => (
-                    <button key={src} aria-label={`Voir ${item.title || "style du mois"} photo ${ai + 1}`} onClick={() => { setActivePhotos(current => ({ ...current, [i]: ai })); setActiveSpot(null); }}
+                    <button key={src} aria-label={t("view_photo_label", item.title || t("style_month"), ai + 1)} onClick={() => { setActivePhotos(current => ({ ...current, [i]: ai })); setActiveSpot(null); }}
                       style={{ border: ai === activeIndex ? `1px solid ${GOLD}` : "1px solid rgba(184,151,62,0.18)", background: "none", padding: 0, borderRadius: "10px", overflow: "hidden", aspectRatio: "1/1", cursor: "pointer", opacity: ai === activeIndex ? 1 : 0.58 }}>
                       <img src={src} alt={`${item.title || "Style du mois"} ${ai + 1}`} width="320" height="320" loading="lazy" decoding="async" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center top", display: "block" }} />
                     </button>

@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
 import { GOLD } from "../../constants.js";
+import { useTr } from "../../context.jsx";
 import { getSettings, saveSettings } from "../../services/settingsService.js";
 
 const AdminWeddingInspiration = () => {
+  const t = useTr();
   const [inspirations, setInspirations] = useState([]);
   const [editingId, setEditingId] = useState(null);
   const [formData, setFormData] = useState({
@@ -74,22 +76,22 @@ const AdminWeddingInspiration = () => {
 
   return (
     <div style={{ padding: "2rem", maxWidth: "800px" }}>
-      <h2 style={{ color: GOLD, marginBottom: "1.5rem" }}>Inspirations Mariage</h2>
+      <h2 style={{ color: GOLD, marginBottom: "1.5rem" }}>{t("admin_wedding")}</h2>
 
       <div style={{ background: "#111009", padding: "1.5rem", borderRadius: "8px", marginBottom: "2rem", border: `1px solid rgba(184,151,62,0.2)` }}>
-        <h3 style={{ color: "#faf7f2", marginTop: 0 }}>{editingId !== null ? "Modifier" : "Ajouter"} une inspiration</h3>
+        <h3 style={{ color: "#faf7f2", marginTop: 0 }}>{editingId !== null ? t("admin_edit") : t("admin_add")} {t("wedding_inspiration").toLowerCase()}</h3>
 
         <div style={{ display: "grid", gap: "1rem", marginBottom: "1rem" }}>
           <input
             type="text"
-            placeholder="Titre du look"
+            placeholder={t("admin_hero_title")}
             value={formData.title}
             onChange={(e) => setFormData({ ...formData, title: e.target.value })}
             style={{ padding: "8px", background: "#0a0602", color: "#faf7f2", border: `1px solid ${GOLD}`, borderRadius: "4px" }}
           />
 
           <textarea
-            placeholder="Description (FR)"
+            placeholder="Description"
             value={formData.desc}
             onChange={(e) => setFormData({ ...formData, desc: e.target.value })}
             style={{ padding: "8px", background: "#0a0602", color: "#faf7f2", border: `1px solid ${GOLD}`, borderRadius: "4px", minHeight: "80px", fontFamily: "inherit" }}
@@ -106,14 +108,14 @@ const AdminWeddingInspiration = () => {
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: "1rem" }}>
             <input
               type="text"
-              placeholder="Couleurs"
+            placeholder={t("color_label")}
               value={formData.color}
               onChange={(e) => setFormData({ ...formData, color: e.target.value })}
               style={{ padding: "8px", background: "#0a0602", color: "#faf7f2", border: `1px solid ${GOLD}`, borderRadius: "4px", boxSizing: "border-box" }}
             />
             <input
               type="text"
-              placeholder="Style"
+            placeholder={t("style_label")}
               value={formData.style}
               onChange={(e) => setFormData({ ...formData, style: e.target.value })}
               style={{ padding: "8px", background: "#0a0602", color: "#faf7f2", border: `1px solid ${GOLD}`, borderRadius: "4px", boxSizing: "border-box" }}
@@ -122,7 +124,7 @@ const AdminWeddingInspiration = () => {
 
           <input
             type="text"
-            placeholder="Occasion"
+            placeholder={t("occasion_label")}
             value={formData.occasion}
             onChange={(e) => setFormData({ ...formData, occasion: e.target.value })}
             style={{ padding: "8px", background: "#0a0602", color: "#faf7f2", border: `1px solid ${GOLD}`, borderRadius: "4px" }}
@@ -142,7 +144,7 @@ const AdminWeddingInspiration = () => {
               fontWeight: "bold",
             }}
           >
-            {editingId !== null ? "Modifier" : "Ajouter"}
+            {editingId !== null ? t("admin_edit") : t("admin_add")}
           </button>
           {editingId !== null && (
             <button
@@ -156,7 +158,7 @@ const AdminWeddingInspiration = () => {
                 cursor: "pointer",
               }}
             >
-              Annuler
+              {t("admin_cancel")}
             </button>
           )}
         </div>
@@ -176,9 +178,9 @@ const AdminWeddingInspiration = () => {
                 />
               )}
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))", gap: "0.5rem", fontSize: "0.85rem", color: "rgba(184,151,62,0.7)", marginBottom: "0.5rem" }}>
-                {inspiration.color && <span><strong style={{ color: GOLD }}>Couleurs:</strong> {inspiration.color}</span>}
-                {inspiration.style && <span><strong style={{ color: GOLD }}>Style:</strong> {inspiration.style}</span>}
-                {inspiration.occasion && <span><strong style={{ color: GOLD }}>Occasion:</strong> {inspiration.occasion}</span>}
+                {inspiration.color && <span><strong style={{ color: GOLD }}>{t("color_label")}:</strong> {inspiration.color}</span>}
+                {inspiration.style && <span><strong style={{ color: GOLD }}>{t("style_label")}:</strong> {inspiration.style}</span>}
+                {inspiration.occasion && <span><strong style={{ color: GOLD }}>{t("occasion_label")}:</strong> {inspiration.occasion}</span>}
               </div>
             </div>
             <div style={{ display: "flex", gap: "0.5rem" }}>
@@ -194,7 +196,7 @@ const AdminWeddingInspiration = () => {
                   fontSize: "0.9rem",
                 }}
               >
-                Modifier
+                {t("admin_edit")}
               </button>
               <button
                 onClick={() => handleDelete(idx)}
@@ -208,7 +210,7 @@ const AdminWeddingInspiration = () => {
                   fontSize: "0.9rem",
                 }}
               >
-                Supprimer
+                {t("admin_delete")}
               </button>
             </div>
           </div>

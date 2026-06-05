@@ -1,16 +1,18 @@
 import { useState } from "react";
 import { logout } from "../../services/adminAuth.js";
+import { useTr } from "../../context.jsx";
 import "../../styles/admin.css";
 
 const AdminLayout = ({ children, currentSection, onSectionChange, user }) => {
+  const t = useTr();
   const sections = [
-    { id: "dashboard", label: "Tableau de Bord" },
-    { id: "analytics", label: "Analytics" },
-    { id: "crm", label: "CRM" },
-    { id: "vip", label: "Galerie Clients" },
-    { id: "users", label: "Utilisateurs" },
-    { id: "wedding", label: "Inspirations Mariage" },
-    { id: "settings", label: "Paramètres" },
+    { id: "dashboard", label: t("admin_dashboard") },
+    { id: "analytics", label: t("admin_analytics") },
+    { id: "crm", label: t("admin_crm") },
+    { id: "vip", label: t("admin_vip") },
+    { id: "users", label: t("admin_users") },
+    { id: "wedding", label: t("admin_wedding") },
+    { id: "settings", label: t("admin_settings") },
   ];
 
   const handleLogout = () => {
@@ -37,7 +39,7 @@ const AdminLayout = ({ children, currentSection, onSectionChange, user }) => {
         </nav>
 
         <button onClick={handleLogout} className="admin-btn-secondary" style={{ marginTop: "auto", width: "100%" }}>
-          Déconnexion
+          {t("admin_logout")}
         </button>
       </div>
 
@@ -49,7 +51,7 @@ const AdminLayout = ({ children, currentSection, onSectionChange, user }) => {
             </h2>
           </div>
           <div className="admin-user-info">
-            <span>Connecté:</span>
+            <span>{t("admin_connected")}</span>
             <strong>{user?.email}</strong>
           </div>
         </div>
