@@ -12,12 +12,20 @@ const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules, 
   const [open, setOpen] = useState(false);
   const [langOpen, setLangOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [compactNav, setCompactNav] = useState(() => typeof window !== "undefined" && window.innerWidth <= 430);
   const navigating = useRef(false);
 
   useEffect(() => {
     const fn = () => setScrolled(window.scrollY > 50);
     window.addEventListener("scroll", fn);
     return () => window.removeEventListener("scroll", fn);
+  }, []);
+
+  useEffect(() => {
+    const updateCompact = () => setCompactNav(window.innerWidth <= 430);
+    updateCompact();
+    window.addEventListener("resize", updateCompact);
+    return () => window.removeEventListener("resize", updateCompact);
   }, []);
 
   useEffect(() => {
@@ -58,8 +66,8 @@ const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules, 
     <>
       <nav style={{
         position: "fixed", top: 0, left: 0, right: 0, zIndex: 700,
-        paddingTop: "calc(env(safe-area-inset-top) + 1rem)",
-        paddingBottom: "1rem", paddingLeft: "1.4rem", paddingRight: "1.4rem",
+        paddingTop: "calc(env(safe-area-inset-top) + 0.85rem)",
+        paddingBottom: "0.85rem", paddingLeft: compactNav ? "1rem" : "1.4rem", paddingRight: compactNav ? "0.85rem" : "1.4rem",
         display: "flex", justifyContent: "space-between", alignItems: "center",
         background: scrolled || open ? "rgba(245,240,232,0.97)" : "transparent",
         borderBottom: scrolled || open ? "1px solid rgba(184,151,62,0.25)" : "1px solid transparent",
@@ -67,13 +75,13 @@ const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules, 
         }}>
         <button onClick={() => close(() => window.scrollTo({ top: 0, behavior: "smooth" }))}
           aria-label={t("nav_top")}
-          style={{ background: "none", border: "none", cursor: "pointer", textAlign: "left", minHeight: "44px", padding: "5px 0" }}>
-          <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "22px", letterSpacing: "0.3em", color: navTextColor, lineHeight: 1, transition: "color 0.4s" }}>Gaspardnz</div>
-          <div style={{ fontSize: "7px", letterSpacing: "0.5em", color: GOLD, textTransform: "uppercase", fontFamily: "'Montserrat', sans-serif", marginTop: "3px" }}>Paris</div>
+          style={{ background: "none", border: "none", cursor: "pointer", textAlign: "left", minHeight: "44px", padding: "5px 0", minWidth: 0, flex: "0 1 auto" }}>
+          <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: compactNav ? "20px" : "22px", letterSpacing: compactNav ? "0.2em" : "0.3em", color: navTextColor, lineHeight: 1, transition: "color 0.4s", whiteSpace: "nowrap" }}>Gaspardnz</div>
+          <div style={{ fontSize: "7px", letterSpacing: compactNav ? "0.36em" : "0.5em", color: GOLD, textTransform: "uppercase", fontFamily: "'Montserrat', sans-serif", marginTop: "3px" }}>Paris</div>
         </button>
 
-        <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
-          <motion.button onClick={onToggleContrast} whileTap={{ scale: 0.88 }}
+        <div style={{ display: "flex", alignItems: "center", gap: compactNav ? "0.2rem" : "0.4rem", flexShrink: 0 }}>
+          {!compactNav && <motion.button onClick={onToggleContrast} whileTap={{ scale: 0.88 }}
             aria-label={highContrast ? t("nav_contrast_off") : t("nav_contrast_on")}
             style={{ background: "none", border: "none", cursor: "pointer", color: highContrast ? GOLD : navTextColor, transition: "color 0.4s", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", padding: 0, width: "44px", height: "44px" }}>
             <motion.div
@@ -88,9 +96,9 @@ const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules, 
                 <line x1="4.93" y1="19.07" x2="6.34" y2="17.66"/><line x1="17.66" y1="6.34" x2="19.07" y2="4.93"/>
               </svg>
             </motion.div>
-          </motion.button>
+          </motion.button>}
 
-          <motion.button onClick={onToggleDark} whileTap={{ scale: 0.95 }}
+          {!compactNav && <motion.button onClick={onToggleDark} whileTap={{ scale: 0.95 }}
             aria-label={lightMode ? t("nav_night") : t("nav_day")}
             style={{ background: "none", border: "none", cursor: "pointer", padding: 0, display: "flex", alignItems: "center", justifyContent: "center", minWidth: "62px", height: "44px" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "5px", background: lightMode ? "#faf7f2" : "rgba(255,255,255,0.12)", border: `1px solid ${lightMode ? GOLD : "rgba(255,255,255,0.25)"}`, borderRadius: "20px", padding: "4px 8px", transition: "all 0.35s" }}>
@@ -98,7 +106,7 @@ const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules, 
               <div style={{ width: "1px", height: "12px", background: lightMode ? "rgba(0,0,0,0.15)" : "rgba(255,255,255,0.2)" }} />
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={lightMode ? GOLD : "rgba(255,255,255,0.35)"} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ transition: "stroke 0.3s" }} aria-hidden="true"><circle cx="12" cy="12" r="4.5"/><line x1="12" y1="2" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="6.34" y2="17.66"/><line x1="17.66" y1="6.34" x2="19.07" y2="4.93"/></svg>
             </div>
-          </motion.button>
+          </motion.button>}
 
           {(() => {
             const LANGS = ["FR","EN","ES","ZH"];
@@ -153,7 +161,7 @@ const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules, 
           <button onClick={() => setOpen(v => !v)}
             aria-label={open ? t("nav_close_menu") : t("nav_open_menu")}
             aria-expanded={open}
-            style={{ background: "none", border: "none", cursor: "pointer", padding: "8px", width: "44px", height: "44px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "5px" }}>
+            style={{ background: "none", border: "none", cursor: "pointer", padding: "8px", width: "44px", height: "44px", minWidth: "44px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "5px", flexShrink: 0 }}>
             <motion.span animate={{ rotate: open ? 45 : 0, y: open ? 7 : 0 }} transition={{ duration: 0.3 }}
               style={{ display: "block", width: "24px", height: "1.5px", background: open ? GOLD : navTextColor, transition: "background 0.4s" }} />
             <motion.span animate={{ opacity: open ? 0 : 1, scaleX: open ? 0 : 1 }} transition={{ duration: 0.2 }}
