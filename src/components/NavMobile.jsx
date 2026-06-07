@@ -162,7 +162,7 @@ const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules, 
             aria-label={open ? t("nav_close_menu") : t("nav_open_menu")}
             aria-expanded={open}
             whileHover={{ background: `rgba(184,151,62,0.1)` }}
-            style={{ background: "none", border: "none", cursor: "pointer", padding: "4px", width: "44px", height: "50px", minWidth: "44px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "2px", flexShrink: 0, borderRadius: "4px", position: "relative", transition: "background 0.3s" }}>
+            style={{ background: "none", border: "none", cursor: "pointer", padding: "8px", width: "60px", height: "60px", minWidth: "60px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "4px", flexShrink: 0, borderRadius: "4px", position: "relative", transition: "background 0.3s" }}>
 
             {/* Subtle pulse animation when menu is closed */}
             <motion.div
@@ -171,15 +171,15 @@ const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules, 
               style={{ position: "absolute", inset: 0, borderRadius: "4px", background: `rgba(184,151,62,0.04)`, pointerEvents: "none" }} />
 
             {/* Hamburger icon */}
-            <motion.span animate={{ rotate: open ? 45 : 0, y: open ? 7 : 0 }} transition={{ duration: 0.3 }}
-              style={{ display: "block", width: "24px", height: "1.5px", background: open ? GOLD : navTextColor, transition: "background 0.4s", position: "relative", zIndex: 1 }} />
+            <motion.span animate={{ rotate: open ? 45 : 0, y: open ? 8 : 0 }} transition={{ duration: 0.3 }}
+              style={{ display: "block", width: "28px", height: "2px", background: open ? GOLD : navTextColor, transition: "background 0.4s", position: "relative", zIndex: 1 }} />
             <motion.span animate={{ opacity: open ? 0 : 1, scaleX: open ? 0 : 1 }} transition={{ duration: 0.2 }}
-              style={{ display: "block", width: "16px", height: "1.5px", background: navTextColor, transition: "background 0.4s", position: "relative", zIndex: 1 }} />
-            <motion.span animate={{ rotate: open ? -45 : 0, y: open ? -7 : 0 }} transition={{ duration: 0.3 }}
-              style={{ display: "block", width: "24px", height: "1.5px", background: open ? GOLD : navTextColor, transition: "background 0.4s", position: "relative", zIndex: 1 }} />
+              style={{ display: "block", width: "20px", height: "2px", background: navTextColor, transition: "background 0.4s", position: "relative", zIndex: 1 }} />
+            <motion.span animate={{ rotate: open ? -45 : 0, y: open ? -8 : 0 }} transition={{ duration: 0.3 }}
+              style={{ display: "block", width: "28px", height: "2px", background: open ? GOLD : navTextColor, transition: "background 0.4s", position: "relative", zIndex: 1 }} />
 
             {/* "Menu" text label */}
-            <span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "5px", letterSpacing: "0.3em", color: GOLD, userSelect: "none", position: "relative", zIndex: 1, marginTop: "1px" }}>MENU</span>
+            <span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.3em", color: GOLD, userSelect: "none", position: "relative", zIndex: 1, marginTop: "2px" }}>MENU</span>
           </motion.button>
         </div>
       </nav>
