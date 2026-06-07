@@ -12,11 +12,55 @@ const TRACKING_CONFIG = {
   sessionStartKey: "gnz_session_start",
   heatmapKey: "gnz_heatmap_data",
   scrollDepthKey: "gnz_scroll_depth",
-  maxClicks: 5000,
-  maxBehavior: 5000,
-  maxHeatmapPoints: 10000,
+  maxClicks: 2000, // Reduced from 5000
+  maxBehavior: 2000, // Reduced from 5000
+  maxHeatmapPoints: 5000, // Reduced from 10000
+  maxDataAgeDays: 30, // Auto-cleanup data older than 30 days
   debounceScroll: 500,
   debounceResize: 500,
+};
+
+// ============================================================================
+// STORAGE CLEANUP & MONITORING
+// ============================================================================
+
+export const cleanupTrackingData = () => {
+  try {
+    const now = Date.now();
+    const maxAgeMs = TRACKING_CONFIG.maxDataAgeDays * 24 * 60 * 60 * 1000;
+
+    // Clean up old clicks
+    const clicks = JSON.parse(localStorage.getItem(TRACKING_CONFIG.clicksKey) || "[]");
+    const cleanedClicks = clicks
+      .filter(item => (now - new Date(item.timestamp).getTime()) < maxAgeMs)
+      .slice(0, TRACKING_CONFIG.maxClicks);
+    localStorage.setItem(TRACKING_CONFIG.clicksKey, JSON.stringify(cleanedClicks));
+
+    // Clean up old behavior
+    const behavior = JSON.parse(localStorage.getItem(TRACKING_CONFIG.behaviorKey) || "[]");
+    const cleanedBehavior = behavior
+      .filter(item => (now - new Date(item.timestamp).getTime()) < maxAgeMs)
+      .slice(0, TRACKING_CONFIG.maxBehavior);
+    localStorage.setItem(TRACKING_CONFIG.behaviorKey, JSON.stringify(cleanedBehavior));
+
+    // Check total storage size
+    const totalSize = Object.keys(localStorage)
+      .filter(k => k.startsWith("gnz_"))
+      .reduce((sum, k) => sum + (localStorage.getItem(k) || "").length, 0);
+
+    if (totalSize > 3000000) { // 3MB threshold
+      console.warn(`⚠️ Tracking storage warning: ${(totalSize / 1024 / 1024).toFixed(2)}MB used`);
+      // Aggressive cleanup: keep only 50% of data
+      if (cleanedClicks.length > 0) {
+        localStorage.setItem(TRACKING_CONFIG.clicksKey, JSON.stringify(cleanedClicks.slice(0, Math.floor(cleanedClicks.length / 2))));
+      }
+      if (cleanedBehavior.length > 0) {
+        localStorage.setItem(TRACKING_CONFIG.behaviorKey, JSON.stringify(cleanedBehavior.slice(0, Math.floor(cleanedBehavior.length / 2))));
+      }
+    }
+  } catch (error) {
+    console.error("Error during tracking data cleanup:", error);
+  }
 };
 
 // ============================================================================
@@ -447,6 +491,10 @@ export const initializeTracking = () => {
   try {
     getSessionId();
 
+    // Run cleanup once on startup and every 12 hours
+    cleanupTrackingData();
+    const cleanupInterval = setInterval(cleanupTrackingData, 12 * 60 * 60 * 1000);
+
     document.addEventListener("click", trackClick, { passive: true });
 
     const scrollCleanup = initScrollTracking();
@@ -456,6 +504,7 @@ export const initializeTracking = () => {
 
     return () => {
       document.removeEventListener("click", trackClick);
+      clearInterval(cleanupInterval);
       scrollCleanup();
       formCleanup();
       window.removeEventListener("beforeunload", trackExit);
