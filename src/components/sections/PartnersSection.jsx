@@ -88,25 +88,22 @@ const PartnersSection = () => {
                   overflow: "hidden",
                 }}>
 
-                {/* Badge Commission */}
-                {!partner.placeholder && partner.commission && (
+                {/* Badge Réduction Client */}
+                {!partner.placeholder && partner.clientDiscount && (
                   <div style={{
                     position: "absolute",
                     top: "1rem",
                     right: "1rem",
                     background: GOLD,
                     color: "#0a0602",
-                    padding: "0.5rem 1rem",
+                    padding: "0.6rem 1.2rem",
                     borderRadius: "20px",
                     fontFamily: "'Montserrat', sans-serif",
-                    fontSize: "9px",
+                    fontSize: "13px",
                     fontWeight: "600",
                     letterSpacing: "0.05em",
-                    textTransform: "uppercase",
-                    textAlign: "center",
-                    lineHeight: 1.3,
                   }}>
-                    -{partner.clientDiscount}% client<br/>+{partner.commission}% Gaspard
+                    -{partner.clientDiscount}%
                   </div>
                 )}
 
@@ -268,7 +265,7 @@ const PartnersSection = () => {
               lineHeight: 1.6,
             }}>
               <span style={{ color: GOLD, fontWeight: "600" }}>💡 {t("partners_info_title") || "Avantage Partenaires"}:</span> {" "}
-              {t("partners_commission_info") || "Clients bénéficient de 5% de réduction • Gaspardnz reçoit 5% de commission sur chaque réservation"}
+              {t("partners_commission_info") || "Bénéficiez de 5% de réduction avec nos partenaires sélectionnés"}
             </p>
           </motion.div>
         </div>
