@@ -33,6 +33,8 @@ const statusTone = (status) => {
   return { background: "rgba(184,151,62,0.18)", color: "var(--gnz-gold)" };
 };
 
+const ITEMS_PER_PAGE = 25;
+
 const AdminCRM = () => {
   const t = useTr();
   const [leads, setLeads] = useState([]);
@@ -43,6 +45,7 @@ const AdminCRM = () => {
   const [statusFilter, setStatusFilter] = useState("all");
   const [eventFilter, setEventFilter] = useState("all");
   const [formData, setFormData] = useState(emptyLead);
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     loadLeads();
@@ -65,6 +68,16 @@ const AdminCRM = () => {
       return matchesQuery && matchesStatus && matchesEvent;
     });
   }, [eventFilter, leads, query, statusFilter]);
+
+  // Pagination logic
+  const totalPages = Math.ceil(filteredLeads.length / ITEMS_PER_PAGE);
+  const startIdx = (currentPage - 1) * ITEMS_PER_PAGE;
+  const paginatedLeads = filteredLeads.slice(startIdx, startIdx + ITEMS_PER_PAGE);
+
+  // Reset to first page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [query, statusFilter, eventFilter]);
 
   const stats = useMemo(() => ({
     total: leads.length,
@@ -248,7 +261,7 @@ const AdminCRM = () => {
                 </tr>
               </thead>
               <tbody>
-                {filteredLeads.map((lead) => (
+                {paginatedLeads.map((lead) => (
                   <tr
                     key={lead.id}
                     onClick={() => setSelectedLead(lead)}
@@ -277,6 +290,23 @@ const AdminCRM = () => {
           {filteredLeads.length === 0 && (
             <div style={{ padding: "2rem", textAlign: "center", color: "var(--gnz-text-secondary)" }}>
               {t("admin_no_matching_leads")}
+            </div>
+          )}
+
+          {totalPages > 1 && (
+            <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "0.5rem", marginTop: "1rem", flexWrap: "wrap" }}>
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                <button
+                  key={page}
+                  onClick={() => setCurrentPage(page)}
+                  className={page === currentPage ? "admin-btn" : "admin-btn-secondary"}
+                  style={{ minWidth: "36px", padding: "0.5rem" }}>
+                  {page}
+                </button>
+              ))}
+              <span style={{ marginLeft: "1rem", color: "var(--gnz-text-secondary)", fontSize: "0.875rem" }}>
+                {t("admin_page")} {currentPage} / {totalPages}
+              </span>
             </div>
           )}
         </div>
