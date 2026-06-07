@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import { getAnalyticsData, clearAnalytics } from "../../services/adminAnalytics.js";
 import { formatNumber, formatDuration, getDateRange } from "../../utils/analyticsHelpers.js";
 import { useTr } from "../../context.jsx";
@@ -15,19 +15,44 @@ const AdminAnalytics = () => {
   const [activeTab, setActiveTab] = useState("kpi");
   const [dateRange, setDateRange] = useState("7d");
   const [refreshing, setRefreshing] = useState(false);
+  const [lastLoadTime, setLastLoadTime] = useState(0);
+
+  const loadData = useCallback(() => {
+    const now = Date.now();
+    // Debounce: don't reload more frequently than every 5 seconds
+    if (now - lastLoadTime < 5000) return;
+
+    setLastLoadTime(now);
+    setRefreshing(true);
+    const data = getAnalyticsData(dateRange);
+    setAnalytics(data);
+    setRefreshing(false);
+  }, [dateRange, lastLoadTime]);
 
   useEffect(() => {
-    const loadData = () => {
-      setRefreshing(true);
-      const data = getAnalyticsData(dateRange);
-      setAnalytics(data);
-      setRefreshing(false);
+    loadData();
+
+    // Only poll if page is visible (reduce battery drain)
+    const handleVisibilityChange = () => {
+      if (document.hidden === false) {
+        loadData();
+      }
     };
 
-    loadData();
-    const interval = setInterval(loadData, 4000);
-    return () => clearInterval(interval);
-  }, [dateRange]);
+    // Poll every 30s instead of 4s (much less aggressive)
+    const interval = setInterval(() => {
+      if (document.hidden === false) {
+        loadData();
+      }
+    }, 30000);
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [loadData]);
 
   const handleClear = () => {
     if (window.confirm(t("admin_confirm_clear_analytics"))) {
