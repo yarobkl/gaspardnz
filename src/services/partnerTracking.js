@@ -19,7 +19,8 @@ export const trackPartnerContact = async (partnerId, clientData) => {
       eventDate: clientData.eventDate,
       message: clientData.message,
       timestamp: new Date().toISOString(),
-      commissionPercentage: 10,
+      commissionPercentage: 5,
+      clientDiscountPercentage: 5,
       status: 'pending',
     };
 
