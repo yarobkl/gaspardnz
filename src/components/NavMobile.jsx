@@ -5,7 +5,7 @@ import { LangCtx, useTr } from "../context.jsx";
 import { SvgInstagram, SvgTiktok, SvgYoutube, SvgBag } from "../icons.jsx";
 import { useSettings } from "../hooks/useSettings.js";
 
-const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules, highContrast, onToggleContrast, onBiographie, onReserver, lightMode, onToggleDark, onStyleDuMois }) => {
+const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules, highContrast, onToggleContrast, onBiographie, onReserver, lightMode, onToggleDark, onStyleDuMois, onPartenaires }) => {
   const { lang, setLang } = useContext(LangCtx);
   const t = useTr();
   const settings = useSettings();
@@ -193,6 +193,7 @@ const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules, 
               [t("nav_showroom"), onShowroom],
               [t("nav_formules"), onFormules],
               [t("nav_galerie"), onGalerie],
+              [t("nav_partenaires") || "Nos Partenaires", onPartenaires],
               [t("style_month"), onStyleDuMois],
               [t("lookbook"), () => { const a = document.createElement("a"); a.href = `${import.meta.env.BASE_URL}lookbook-gaspardnz.pdf`; a.download = "Lookbook-GaspardNZ-2025.pdf"; a.click(); }],
             ].map(([label, fn], i) => (

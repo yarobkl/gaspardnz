@@ -199,6 +199,7 @@ export default function App() {
   const galleryRef     = useRef(null);
   const formulesRef    = useRef(null);
   const styleDuMoisRef = useRef(null);
+  const partenairesRef = useRef(null);
   const currentlyOnAdminPath = typeof window !== "undefined" && window.location.pathname.startsWith("/admin");
 
   useEffect(() => {
@@ -454,6 +455,7 @@ export default function App() {
               onBiographie={() => scrollTo(heritageRef)}
               onReserver={() => openBooking(false)}
               onStyleDuMois={() => scrollTo(styleDuMoisRef)}
+              onPartenaires={() => scrollTo(partenairesRef)}
               highContrast={highContrast}
               onToggleContrast={() => setHighContrast(v => !v)}
               lightMode={lightMode}
@@ -476,7 +478,7 @@ export default function App() {
             <SectionDivider from="#0a0602" to="#0d1b3e" />
             <FormulesSection refEl={formulesRef} onContact={() => window.open(`https://wa.me/33664826920?text=${encodeURIComponent((APP_COPY[lang] || APP_COPY.FR).waFormula)}`, "_blank")} />
             <SectionDivider from="#0d1b3e" to="#0a0602" />
-            <PartnersSection />
+            <PartnersSection refEl={partenairesRef} />
             <SectionDivider from="#0a0602" to="#0a0602" />
             <ActualitesSection />
             <VIPClientsSection />

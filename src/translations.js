@@ -44,7 +44,7 @@ export const T = {
   FR: {
     ...ADMIN_FR,
     nav_reveler:"Rendez-vous", nav_bio:"Biographie", nav_showroom:"Showroom",
-    nav_formules:"Formules", nav_galerie:"Galerie", nav_contact:"Contact",
+    nav_formules:"Formules", nav_galerie:"Galerie", nav_partenaires:"Nos Partenaires", nav_contact:"Contact",
     nav_boutique:"Boutique", nav_mode_jour:"Mode jour", nav_mode_normal:"Mode normal",
     hero_maison:"Maison Gaspardnz — Paris",
     hero_desc:"Gaspardnz est habilleur, styliste et maître de cérémonie basé à Paris.",
@@ -165,7 +165,7 @@ export const T = {
   EN: {
     ...ADMIN_EN,
     nav_reveler:"Reveal Myself", nav_bio:"Biography", nav_showroom:"Showroom",
-    nav_formules:"Packages", nav_galerie:"Gallery", nav_contact:"Contact",
+    nav_formules:"Packages", nav_galerie:"Gallery", nav_partenaires:"Our Partners", nav_contact:"Contact",
     nav_boutique:"Boutique", nav_mode_jour:"Day mode", nav_mode_normal:"Normal mode",
     hero_maison:"Maison Gaspardnz — Paris",
     hero_desc:"Gaspardnz is a dresser, stylist and master of ceremonies based in Paris.",
@@ -286,7 +286,7 @@ export const T = {
   ES: {
     ...ADMIN_ES,
     nav_reveler:"Revelarme", nav_bio:"Biografía", nav_showroom:"Showroom",
-    nav_formules:"Paquetes", nav_galerie:"Galería", nav_contact:"Contacto",
+    nav_formules:"Paquetes", nav_galerie:"Galería", nav_partenaires:"Nuestros Socios", nav_contact:"Contacto",
     nav_boutique:"Boutique", nav_mode_jour:"Modo día", nav_mode_normal:"Modo normal",
     hero_maison:"Maison Gaspardnz — París",
     hero_desc:"Gaspardnz es habilleur, estilista y maestro de ceremonias con sede en París.",
@@ -407,7 +407,7 @@ export const T = {
   ZH: {
     ...ADMIN_ZH,
     nav_reveler:"展现自我", nav_bio:"简介", nav_showroom:"展厅",
-    nav_formules:"套餐", nav_galerie:"画廊", nav_contact:"联系",
+    nav_formules:"套餐", nav_galerie:"画廊", nav_partenaires:"合作伙伴", nav_contact:"联系",
     nav_boutique:"精品店", nav_mode_jour:"日间模式", nav_mode_normal:"普通模式",
     hero_maison:"Maison Gaspardnz — 巴黎",
     hero_desc:"Gaspardnz 是一位驻巴黎的着装师、造型师和婚礼主持人。",
