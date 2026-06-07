@@ -292,7 +292,32 @@ export default function App() {
         ]
       };
 
-      [localBusiness, services, faq].forEach(schema => {
+      // Event schema for wedding services
+      const eventSchema = {
+        "@context": "https://schema.org",
+        "@type": "Service",
+        "@id": "https://gaspardnz.style/#wedding-service",
+        "name": "Service de styliste pour mariage",
+        "description": "Costume sur-mesure, habillage et direction de cérémonie pour votre mariage à Paris",
+        "provider": {
+          "@type": "Person",
+          "@id": "https://gaspardnz.style/#gaspardnz",
+          "name": "Gaspard NZ",
+          "image": "https://gaspardnz.style/avatar.jpg"
+        },
+        "areaServed": {
+          "@type": "Place",
+          "address": {
+            "@type": "PostalAddress",
+            "addressLocality": "Paris",
+            "addressCountry": "FR"
+          }
+        },
+        "priceRange": "€€€",
+        "serviceType": "Personal Styling"
+      };
+
+      [localBusiness, services, faq, eventSchema].forEach(schema => {
         const script = document.createElement('script');
         script.type = 'application/ld+json';
         script.setAttribute('data-gnz-schema', '1');
