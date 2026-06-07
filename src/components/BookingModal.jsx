@@ -126,22 +126,38 @@ const BookingModal = ({ isOpen, onClose, boutiqueMode = false, onSwitchToBooking
                   <motion.div key="step1"
                     initial={{ x: 0, opacity: 1 }} exit={{ x: -60, opacity: 0 }}
                     transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}>
-                    <div style={{ display: "flex", flexDirection: "column", gap: "1.2rem" }}>
+                    <form style={{ display: "flex", flexDirection: "column", gap: "1.2rem" }} onSubmit={e => { e.preventDefault(); ok && setStep(2); }}>
                       {[
                         { k: "nom",    lbl: t("bk_lbl_nom"), ph: t("bk_ph_nom") },
                         { k: "projet", lbl: t("bk_lbl_projet"), ph: t("bk_ph_projet") },
                         { k: "besoin", lbl: t("bk_lbl_besoin"), ph: t("bk_ph_besoin") },
                       ].map(({ k, lbl, ph }) => (
                         <div key={k}>
-                          <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.35em", color: "rgba(28,18,8,0.72)", textTransform: "uppercase", marginBottom: "0.5rem" }}>{lbl}</p>
+                          <label htmlFor={`booking-${k}`} style={{ display: "block", fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.35em", color: "rgba(28,18,8,0.72)", textTransform: "uppercase", marginBottom: "0.5rem", cursor: "pointer" }}>
+                            {lbl}
+                          </label>
                           {k === "besoin" ? (
-                            <textarea value={form[k]} rows={3} placeholder={ph} maxLength={1000}
+                            <textarea
+                              id={`booking-${k}`}
+                              value={form[k]}
+                              rows={3}
+                              placeholder={ph}
+                              maxLength={1000}
+                              required
+                              aria-required="true"
                               onChange={e => setForm(f => ({ ...f, [k]: e.target.value }))}
                               onFocus={e => e.target.style.borderColor = GOLD}
                               onBlur={e => e.target.style.borderColor = "rgba(184,151,62,0.2)"}
                               style={{ ...inputStyle, resize: "none", display: "block" }} />
                           ) : (
-                            <input type="text" value={form[k]} placeholder={ph} maxLength={100}
+                            <input
+                              id={`booking-${k}`}
+                              type="text"
+                              value={form[k]}
+                              placeholder={ph}
+                              maxLength={100}
+                              required
+                              aria-required="true"
                               onChange={e => setForm(f => ({ ...f, [k]: e.target.value }))}
                               onFocus={e => e.target.style.borderColor = GOLD}
                               onBlur={e => e.target.style.borderColor = "rgba(184,151,62,0.2)"}
@@ -149,7 +165,7 @@ const BookingModal = ({ isOpen, onClose, boutiqueMode = false, onSwitchToBooking
                           )}
                         </div>
                       ))}
-                    </div>
+                    </form>
                     <motion.button
                       onClick={() => ok && setStep(2)}
                       whileTap={{ scale: 0.97 }}
