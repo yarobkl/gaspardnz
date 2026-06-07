@@ -5,9 +5,9 @@ import { useTr } from "../../context.jsx";
 import { PARTNERS_DATA } from "../../data/partners.js";
 import PartnersContactModal from "../PartnersContactModal.jsx";
 
-const PartnersSection = () => {
+const PartnersSection = ({ refEl }) => {
   const t = useTr();
-  const ref = useRef(null);
+  const ref = refEl || useRef(null);
   const inView = useInView(ref, { once: true, margin: "-6% 0px" });
   const [selectedPartner, setSelectedPartner] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
