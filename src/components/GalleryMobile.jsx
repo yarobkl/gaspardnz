@@ -1,6 +1,6 @@
 import { useContext, useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { GOLD, SOCIAL_LINKS, TEXT } from "../constants.js";
+import { GOLD, SOCIAL_LINKS, TEXT, SITE_URL } from "../constants.js";
 import { LangCtx, useTr } from "../context.jsx";
 import { getGallerySpots } from "../data/galleryData.js";
 import { useSettings } from "../hooks/useSettings.js";
@@ -70,7 +70,7 @@ const GalleryMobile = ({ refEl }) => {
   };
 
   const handleShare = async (network) => {
-    const siteUrl = "https://gaspardnz.style";
+    const siteUrl = SITE_URL;
     const lookName = curItem?.label ?? "Gaspardnz";
     const shareTextByLang = {
       FR: `Look "${lookName}" — Gaspardnz, styliste parisien`,

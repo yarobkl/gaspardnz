@@ -1,6 +1,6 @@
 import { useRef, useEffect, useState, useCallback } from "react";
 import { motion, useInView } from "framer-motion";
-import { GOLD, TEXT } from "../../constants.js";
+import { GOLD, TEXT, CDN_BASE } from "../../constants.js";
 import { useTr } from "../../context.jsx";
 
 const VideoSection = () => {
@@ -12,7 +12,7 @@ const VideoSection = () => {
   const [videoSrc, setVideoSrc] = useState("");
   const [soundBlocked, setSoundBlocked] = useState(false);
 
-  const VIDEO_URL = "https://res.cloudinary.com/dtzhbeebz/video/upload/Looks_demi-saison_ou_demi-_Dakar_arefgg.mp4";
+  const VIDEO_URL = `${CDN_BASE}/video/upload/Looks_demi-saison_ou_demi-_Dakar_arefgg.mp4`;
 
   const playWithSound = useCallback(() => {
     const video = videoRef.current;

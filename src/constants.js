@@ -2,7 +2,14 @@ export const GOLD = "#b8973e";
 export const GOLD_LIGHT = "#d4ae5a";
 export const CREAM = "#f5f0e8";
 export const TEXT = "#1c1208";
+
+// Contact & URLs
 export const WA_NUM = "33664826920";
+export const SITE_URL = "https://gaspardnz.style";
+export const CALENDLY_URL = "https://calendly.com/gaspardnz";
+export const CDN_BASE = "https://res.cloudinary.com/dtzhbeebz";
+export const GA_ID = "G-N283W7662X";
+
 export const SOCIAL_LINKS = {
   instagram: "https://www.instagram.com/gaspardnz_",
   tiktok: "https://www.tiktok.com/@gaspardnz",

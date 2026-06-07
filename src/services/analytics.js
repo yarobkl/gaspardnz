@@ -1,4 +1,5 @@
-const GA_ID = "G-N283W7662X";
+import { GA_ID } from "../constants.js";
+
 
 export function initGA() {
   if (window._gaLoaded) return;

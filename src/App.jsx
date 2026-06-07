@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect, useRef, lazy, Suspense } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { GOLD, CREAM, SOCIAL_LINKS } from "./constants.js";
+import { GOLD, CREAM, SOCIAL_LINKS, SITE_URL } from "./constants.js";
 import { LangCtx } from "./context.jsx";
 
 import NotificationPrompt from "./components/NotificationPrompt.jsx";
@@ -224,15 +224,15 @@ export default function App() {
     meta("og:title", copy.title, true);
     meta("og:description", copy.ogDescription, true);
     meta("og:type", "website", true);
-    meta("og:url", "https://gaspardnz.style", true);
-    meta("og:image", "https://gaspardnz.style/images/style-parisien.jpg", true);
+    meta("og:url", SITE_URL, true);
+    meta("og:image", `${SITE_URL}/images/style-parisien.jpg`, true);
     meta("og:site_name", "Gaspardnz", true);
     meta("theme-color", highContrast ? "#fff9e6" : "#0a0602");
 
     // Canonical tag
     let canonical = document.querySelector('link[rel="canonical"]');
     if (!canonical) { canonical = document.createElement("link"); canonical.rel = "canonical"; document.head.appendChild(canonical); }
-    canonical.href = "https://gaspardnz.style";
+    canonical.href = SITE_URL;
   }, [highContrast, lang]);
 
   useEffect(() => {
@@ -248,7 +248,7 @@ export default function App() {
         "@type": "LocalBusiness",
         "name": "Gaspardnz",
         "description": "Styliste et habilleur spécialisé à Paris. Sélection et coordination de tenues pour mariages africains, galas et cérémonies.",
-        "url": "https://gaspardnz.style",
+        "url": SITE_URL,
         "areaServed": "Paris",
         "sameAs": [SOCIAL_LINKS.instagram, SOCIAL_LINKS.tiktok, SOCIAL_LINKS.facebook, SOCIAL_LINKS.youtube],
         "contactPoint": {

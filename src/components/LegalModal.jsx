@@ -1,6 +1,6 @@
 import { useContext, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { GOLD } from "../constants.js";
+import { GOLD, SITE_URL } from "../constants.js";
 import { LangCtx, useTr } from "../context.jsx";
 
 const EDITEUR = "BAKALA MOUENGUE RODRIN ELIEZER";
@@ -9,7 +9,7 @@ const SIRET = "803 422 294 00022";
 const ADRESSE = "19, Rue des Myrtes, 91540 Ormoy, France";
 const EMAIL = "gaspardnz.contact@gmail.com";
 const TEL = "06 64 82 69 20";
-const SITE = "https://gaspardnz.style";
+const SITE = SITE_URL;
 
 const s = {
   overlay: { position: "fixed", inset: 0, zIndex: 9000, background: "rgba(4,2,0,0.92)", overflowY: "auto", display: "flex", justifyContent: "center", padding: "2rem 1rem 4rem" },
