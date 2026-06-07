@@ -4,6 +4,8 @@
  * device/geo data, and generates heatmap/behavior analytics
  */
 
+import { getDeviceInfo, getBrowserName, getOSName, getCountryFromTimezone } from './trackingUtils.js';
+
 const TRACKING_CONFIG = {
   clicksKey: "gnz_clicks_tracking",
   behaviorKey: "gnz_behavior_tracking",
@@ -96,72 +98,11 @@ export const getSessionDuration = () => {
 };
 
 // ============================================================================
-// DEVICE & GEO DATA
+// DEVICE & GEO DATA (imported from trackingUtils.js)
 // ============================================================================
 
-const getDeviceInfo = () => {
-  const ua = navigator.userAgent;
-  const isMobile = /Mobi|Android/i.test(ua);
-  const isTablet = /iPad|Android(?!.*Mobi)/i.test(ua);
-
-  return {
-    deviceType: isTablet ? "tablet" : isMobile ? "mobile" : "desktop",
-    screenWidth: window.innerWidth,
-    screenHeight: window.innerHeight,
-    screenResolution: `${window.screen.width}x${window.screen.height}`,
-    browserName: getBrowserName(ua),
-    osName: getOSName(ua),
-    userAgent: ua.substring(0, 100),
-  };
-};
-
-const getBrowserName = (ua) => {
-  if (ua.includes("Chrome") && !ua.includes("Chromium")) return "Chrome";
-  if (ua.includes("Safari") && !ua.includes("Chrome")) return "Safari";
-  if (ua.includes("Firefox")) return "Firefox";
-  if (ua.includes("Edge")) return "Edge";
-  if (ua.includes("Opera") || ua.includes("OPR")) return "Opera";
-  return "Other";
-};
-
-const getOSName = (ua) => {
-  if (ua.includes("Windows")) return "Windows";
-  if (ua.includes("Mac")) return "macOS";
-  if (ua.includes("Linux")) return "Linux";
-  if (ua.includes("Android")) return "Android";
-  if (ua.includes("iPhone") || ua.includes("iPad")) return "iOS";
-  return "Other";
-};
-
-const getCountryFromTimezone = () => {
-  try {
-    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    const tzMap = {
-      "Europe/Paris": "FR",
-      "Europe/London": "GB",
-      "Europe/Berlin": "DE",
-      "Europe/Madrid": "ES",
-      "Europe/Brussels": "BE",
-      "America/New_York": "US",
-      "America/Los_Angeles": "US",
-      "America/Toronto": "CA",
-      "America/Toronto": "CA",
-      "America/Mexico_City": "MX",
-      "America/Buenos_Aires": "AR",
-      "Asia/Tokyo": "JP",
-      "Asia/Shanghai": "CN",
-      "Asia/Singapore": "SG",
-      "Asia/Dubai": "AE",
-      "Asia/Bangkok": "TH",
-      "Australia/Sydney": "AU",
-      "Europe/Amsterdam": "NL",
-      "Europe/Rome": "IT",
-    };
-    return tzMap[tz] || "XX";
-  } catch {
-    return "XX";
-  }
-};
+// getDeviceInfo(), getBrowserName(), getOSName(), getCountryFromTimezone()
+// are now imported from trackingUtils.js to avoid code duplication
 
 export const getGeoData = () => {
   return {
