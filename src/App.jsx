@@ -40,6 +40,8 @@ const StyleDuMoisSection = lazy(() => import("./components/sections/StyleDuMoisS
 const VideoSection = lazy(() => import("./components/sections/VideoSection.jsx"));
 const WeddingInspirationSection = lazy(() => import("./components/sections/WeddingInspirationSection.jsx"));
 const FooterMobile = lazy(() => import("./components/FooterMobile.jsx"));
+const WhatsAppCTA = lazy(() => import("./components/WhatsAppCTA.jsx"));
+const PartnersSection = lazy(() => import("./components/sections/PartnersSection.jsx"));
 
 const FONTS_CSS = "";
 const SPLASH_MAX_MS = 700;
@@ -474,6 +476,8 @@ export default function App() {
             <SectionDivider from="#0a0602" to="#0d1b3e" />
             <FormulesSection refEl={formulesRef} onContact={() => window.open(`https://wa.me/33664826920?text=${encodeURIComponent((APP_COPY[lang] || APP_COPY.FR).waFormula)}`, "_blank")} />
             <SectionDivider from="#0d1b3e" to="#0a0602" />
+            <PartnersSection />
+            <SectionDivider from="#0a0602" to="#0a0602" />
             <ActualitesSection />
             <VIPClientsSection />
             <SectionDivider from="#0f0a04" to="#f5f0e8" />
