@@ -47,7 +47,7 @@ export const trackPartnerContact = async (partnerId, clientData) => {
 export const sendPartnerContactEmail = async (partnerId, partnerEmail, clientData) => {
   try {
     const emailData = {
-      to: [partnerEmail, 'gaspardnz@gaspardnz.style'],
+      to: [partnerEmail, 'gaspardnz.contact@gmail.com'],
       subject: `Nouvelle demande de contact - ${clientData.name}`,
       partnerId,
       clientName: clientData.name,
