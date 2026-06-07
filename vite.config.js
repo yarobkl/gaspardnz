@@ -6,6 +6,17 @@ const isCapacitor = process.env.BUILD_TARGET === "capacitor";
 export default defineConfig({
   plugins: [react()],
   base: isCapacitor ? "/" : "/",
+  server: {
+    hmr: {
+      host: "localhost",
+      port: 5173,
+      protocol: "ws",
+    },
+    watch: {
+      usePolling: true,
+      interval: 100,
+    },
+  },
   build: {
     outDir: "dist",
     rollupOptions: {
