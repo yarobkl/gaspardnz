@@ -173,8 +173,24 @@ export default function App() {
   const [notifPrompt, setNotifPrompt] = useState(false);
   const [bookingOpen, setBookingOpen] = useState(false);
   const [boutiqueMode, setBoutiqueMode] = useState(false);
-  const [highContrast, setHighContrast] = useState(false);
-  const [lightMode, setLightMode] = useState(false);
+  const [highContrast, setHighContrast] = useState(() => {
+    try {
+      const saved = localStorage.getItem("gnz-highContrast");
+      return saved !== null ? saved === "true" : false;
+    } catch {
+      return false;
+    }
+  });
+  const [lightMode, setLightMode] = useState(() => {
+    try {
+      const saved = localStorage.getItem("gnz-lightMode");
+      if (saved !== null) return saved === "true";
+      // Fallback to system preference
+      return window.matchMedia("(prefers-color-scheme: light)").matches;
+    } catch {
+      return false;
+    }
+  });
   const [isAdminPath, setIsAdminPath] = useState(false);
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
   const [adminUser, setAdminUser] = useState(null);
@@ -337,6 +353,14 @@ export default function App() {
   useEffect(() => {
     document.documentElement.lang = HTML_LANG[lang] || "fr";
   }, [lang]);
+
+  useEffect(() => {
+    localStorage.setItem("gnz-lightMode", String(lightMode));
+  }, [lightMode]);
+
+  useEffect(() => {
+    localStorage.setItem("gnz-highContrast", String(highContrast));
+  }, [highContrast]);
 
   useEffect(() => {
     if (isAdminPath || currentlyOnAdminPath) {
