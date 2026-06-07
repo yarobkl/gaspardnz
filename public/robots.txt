@@ -1,5 +1,7 @@
 User-agent: *
 Allow: /
+Disallow: /admin/
+Disallow: /admin-*
 
 # Sitemaps
 Sitemap: https://gaspardnz.style/sitemap.xml
