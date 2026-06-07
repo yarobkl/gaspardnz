@@ -7,8 +7,9 @@ export default defineConfig({
   plugins: [react()],
   base: isCapacitor ? "/" : "/",
   server: {
+    host: "0.0.0.0",
     hmr: {
-      host: "localhost",
+      host: "auto",
       port: 5173,
       protocol: "ws",
     },
