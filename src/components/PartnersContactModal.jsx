@@ -4,6 +4,15 @@ import { GOLD, CREAM } from "../constants.js";
 import { useTr } from "../context.jsx";
 import { trackPartnerContact, sendPartnerContactEmail } from "../services/partnerTracking.js";
 
+// Retire les sauts de ligne et caractères de contrôle des champs courts
+// (protection contre l'injection d'en-têtes email côté futur backend)
+const cleanLine = (value) =>
+  String(value)
+    .split("")
+    .filter((ch) => ch.charCodeAt(0) >= 32 && ch.charCodeAt(0) !== 127)
+    .join("")
+    .trim();
+
 const PartnersContactModal = ({ isOpen, onClose, partner }) => {
   const t = useTr();
   const [formData, setFormData] = useState({
@@ -26,13 +35,24 @@ const PartnersContactModal = ({ isOpen, onClose, partner }) => {
     e.preventDefault();
     setLoading(true);
 
+    // Nettoie les champs courts (anti-injection d'en-têtes) avant envoi
+    const safeData = {
+      ...formData,
+      name: cleanLine(formData.name),
+      email: cleanLine(formData.email),
+      phone: cleanLine(formData.phone),
+      eventType: cleanLine(formData.eventType),
+      eventDate: cleanLine(formData.eventDate),
+      message: String(formData.message).slice(0, 2000).trim(),
+    };
+
     try {
       // Tracker le contact
-      await trackPartnerContact(partner.id, formData);
+      await trackPartnerContact(partner.id, safeData);
 
       // Envoyer emails
       if (partner.email) {
-        await sendPartnerContactEmail(partner.id, partner.email, formData);
+        await sendPartnerContactEmail(partner.id, partner.email, safeData);
       }
 
       setSubmitted(true);
@@ -128,6 +148,7 @@ const PartnersContactModal = ({ isOpen, onClose, partner }) => {
                     <input
                       type="text"
                       name="name"
+                      maxLength={100}
                       value={formData.name}
                       onChange={handleChange}
                       required
@@ -152,6 +173,7 @@ const PartnersContactModal = ({ isOpen, onClose, partner }) => {
                     <input
                       type="email"
                       name="email"
+                      maxLength={150}
                       value={formData.email}
                       onChange={handleChange}
                       required
@@ -176,6 +198,7 @@ const PartnersContactModal = ({ isOpen, onClose, partner }) => {
                     <input
                       type="tel"
                       name="phone"
+                      maxLength={30}
                       value={formData.phone}
                       onChange={handleChange}
                       style={{
@@ -199,6 +222,7 @@ const PartnersContactModal = ({ isOpen, onClose, partner }) => {
                     <input
                       type="text"
                       name="eventType"
+                      maxLength={100}
                       value={formData.eventType}
                       onChange={handleChange}
                       style={{
@@ -243,6 +267,7 @@ const PartnersContactModal = ({ isOpen, onClose, partner }) => {
                     </label>
                     <textarea
                       name="message"
+                      maxLength={2000}
                       value={formData.message}
                       onChange={handleChange}
                       rows="4"

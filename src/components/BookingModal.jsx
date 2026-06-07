@@ -135,13 +135,13 @@ const BookingModal = ({ isOpen, onClose, boutiqueMode = false, onSwitchToBooking
                         <div key={k}>
                           <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.35em", color: "rgba(28,18,8,0.72)", textTransform: "uppercase", marginBottom: "0.5rem" }}>{lbl}</p>
                           {k === "besoin" ? (
-                            <textarea value={form[k]} rows={3} placeholder={ph}
+                            <textarea value={form[k]} rows={3} placeholder={ph} maxLength={1000}
                               onChange={e => setForm(f => ({ ...f, [k]: e.target.value }))}
                               onFocus={e => e.target.style.borderColor = GOLD}
                               onBlur={e => e.target.style.borderColor = "rgba(184,151,62,0.2)"}
                               style={{ ...inputStyle, resize: "none", display: "block" }} />
                           ) : (
-                            <input type="text" value={form[k]} placeholder={ph}
+                            <input type="text" value={form[k]} placeholder={ph} maxLength={100}
                               onChange={e => setForm(f => ({ ...f, [k]: e.target.value }))}
                               onFocus={e => e.target.style.borderColor = GOLD}
                               onBlur={e => e.target.style.borderColor = "rgba(184,151,62,0.2)"}
