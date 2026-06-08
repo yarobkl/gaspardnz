@@ -274,7 +274,7 @@ const ChatBot = ({ onReserver, onGalerie, onShowroom, onFormules }) => {
                 onChange={e => setInput(e.target.value)}
                 onKeyDown={e => e.key === "Enter" && handleSend()}
                 placeholder={t("chatbot_placeholder")}
-                style={{ flex: 1, background: "#fff", border: "1px solid rgba(184,151,62,0.2)", padding: "0.6rem 0.9rem", fontFamily: "'Montserrat', sans-serif", fontSize: "12px", color: TEXT, outline: "none", borderRadius: "20px" }}
+                style={{ flex: 1, background: "#fff", border: "1px solid rgba(184,151,62,0.2)", padding: "0.6rem 0.9rem", fontFamily: "'Montserrat', sans-serif", fontSize: "12px", color: TEXT, outline: "2px solid #b8973e", outlineOffset: "2px", borderRadius: "20px" }}
               />
               <button onClick={handleSend}
                 aria-label="Envoyer le message"

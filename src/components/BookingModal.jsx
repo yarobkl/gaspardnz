@@ -172,7 +172,7 @@ const BookingModal = ({ isOpen, onClose, boutiqueMode = false, onSwitchToBooking
                       style={{
                         marginTop: "1.8rem", width: "100%", border: "none",
                         background: ok ? GOLD : "rgba(184,151,62,0.15)",
-                        color: ok ? "#1c1208" : "rgba(28,18,8,0.25)",
+                        color: ok ? "#1c1208" : "rgba(28,18,8,0.6)",
                         padding: "1rem", fontFamily: "'Montserrat', sans-serif",
                         fontSize: "8px", letterSpacing: "0.4em", textTransform: "uppercase",
                         cursor: ok ? "pointer" : "not-allowed", transition: "all 0.4s",

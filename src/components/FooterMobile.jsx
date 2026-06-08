@@ -74,11 +74,11 @@ const FooterMobile = ({ onFormules, onGalerie, onShowroom }) => {
           ))}
         </div>
 
-        <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", color: "rgba(245,240,232,0.55)", textAlign: "center", letterSpacing: "0.1em" }}>
+        <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", color: "rgba(245,240,232,0.8)", textAlign: "center", letterSpacing: "0.1em" }}>
           © {new Date().getFullYear()} Gaspardnz — Paris. {t("rights")}
         </p>
 
-        <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", color: "rgba(245,240,232,0.5)", textAlign: "center", letterSpacing: "0.1em", marginTop: "0.5rem" }}>
+        <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", color: "rgba(245,240,232,0.78)", textAlign: "center", letterSpacing: "0.1em", marginTop: "0.5rem" }}>
           {t("developed_by")}{" "}
           <a
             href="https://www.tiktok.com/@yaro_bkl"
