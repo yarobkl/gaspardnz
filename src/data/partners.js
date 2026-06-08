@@ -10,7 +10,7 @@ export const PARTNERS_DATA = [
     descriptionEn: 'Prestigious halls for weddings and galas in Paris',
     descriptionEs: 'Salones prestigiosos para bodas y galas en París',
     descriptionZh: '巴黎婚礼和晚宴的高级场地',
-    logo: 'https://www.palaisgroupe.com/assets/logo.png',
+    logo: 'https://www.palaisgroupe.com/img/logo-gold.png',
     website: 'https://www.palaisgroupe.com',
     email: 'contact@palaisgroupe.com',
     phone: '01 89 70 96 03',
