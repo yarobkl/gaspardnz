@@ -39,7 +39,7 @@ const CookieBanner = () => {
               {t("cookie_accept")}
             </motion.button>
             <button onClick={() => handle("declined")}
-              style={{ flex: 1, background: "none", color: "rgba(245,240,232,0.45)", border: "1px solid rgba(245,240,232,0.14)", borderRadius: "30px", padding: "0.55rem", fontFamily: "'Montserrat', sans-serif", fontSize: "8px", letterSpacing: "0.22em", textTransform: "uppercase", cursor: "pointer", minHeight: "40px" }}>
+              style={{ flex: 1, background: "none", color: "rgba(245,240,232,0.75)", border: "1px solid rgba(245,240,232,0.14)", borderRadius: "30px", padding: "0.55rem", fontFamily: "'Montserrat', sans-serif", fontSize: "8px", letterSpacing: "0.22em", textTransform: "uppercase", cursor: "pointer", minHeight: "40px" }}>
               {t("cookie_decline")}
             </button>
           </div>

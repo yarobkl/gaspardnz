@@ -90,7 +90,7 @@ const FormulesSection = ({ refEl, onContact }) => {
         </div>
 
         <motion.p initial={{ opacity: 0, y: 12 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ delay: 0.5 }}
-          style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(0.95rem, 3.8vw, 1.1rem)", fontWeight: 300, color: "rgba(245,240,232,0.45)", lineHeight: 1.7, fontStyle: "italic", marginBottom: "3rem" }}
+          style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(0.95rem, 3.8vw, 1.1rem)", fontWeight: 300, color: "rgba(245,240,232,0.75)", lineHeight: 1.7, fontStyle: "italic", marginBottom: "3rem" }}
         >
           {t("formules_sub")}
         </motion.p>
@@ -102,7 +102,16 @@ const FormulesSection = ({ refEl, onContact }) => {
               transition={{ delay: 0.3 + fi * 0.15, duration: 0.8 }}
               style={{ border: `1px solid rgba(184,151,62,${selected === f.id ? "0.5" : "0.18"})`, background: selected === f.id ? "rgba(184,151,62,0.05)" : "rgba(255,255,255,0.02)", transition: "all 0.3s" }}
             >
-              <button onClick={() => setSelected(selected === f.id ? null : f.id)}
+              <button
+                onClick={() => setSelected(selected === f.id ? null : f.id)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    setSelected(selected === f.id ? null : f.id);
+                  }
+                }}
+                aria-expanded={selected === f.id}
+                aria-controls={`formule-content-${f.id}`}
                 style={{ width: "100%", background: "none", border: "none", cursor: "pointer", padding: "1.6rem 1.4rem", display: "flex", justifyContent: "space-between", alignItems: "flex-start", textAlign: "left" }}
               >
                 <div>
@@ -119,7 +128,9 @@ const FormulesSection = ({ refEl, onContact }) => {
 
               <AnimatePresence>
                 {selected === f.id && (
-                  <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }}
+                  <motion.div
+                    id={`formule-content-${f.id}`}
+                    initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }}
                     transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
                     style={{ overflow: "hidden" }}
                   >
@@ -141,7 +152,7 @@ const FormulesSection = ({ refEl, onContact }) => {
                       ))}
 
                       <div style={{ marginTop: "1.4rem", padding: "1.2rem", background: "rgba(184,151,62,0.08)", border: `1px solid rgba(184,151,62,0.25)`, textAlign: "center" }}>
-                        <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "0.85rem", color: "rgba(245,240,232,0.45)", fontStyle: "italic", marginBottom: "1.2rem" }}>{f.tagline}</p>
+                        <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "0.85rem", color: "rgba(245,240,232,0.75)", fontStyle: "italic", marginBottom: "1.2rem" }}>{f.tagline}</p>
                         <button onClick={onContact}
                           style={{ width: "100%", background: "none", border: `1px solid rgba(184,151,62,0.5)`, color: GOLD, padding: "0.9rem", fontFamily: "'Montserrat', sans-serif", fontSize: "8px", letterSpacing: "0.4em", textTransform: "uppercase", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}
                         >{t("btn_reveler")} <SvgArrow size={13} /></button>

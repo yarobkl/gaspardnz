@@ -161,7 +161,7 @@ const SplashScreen = ({ onDone, loading }) => {
       initial={{ opacity: 0 }}
       animate={{ opacity: [0, 0.45, 0.25, 0.45] }}
       transition={{ duration: 1.2, delay: 0.25, times: [0, 0.3, 0.6, 1] }}
-      style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "6px", letterSpacing: "0.55em", color: "rgba(245,240,232,0.35)", textTransform: "uppercase", position: "relative", zIndex: 1 }}>
+      style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "6px", letterSpacing: "0.55em", color: "rgba(245,240,232,0.7)", textTransform: "uppercase", position: "relative", zIndex: 1 }}>
       {loading}
     </motion.p>
     </motion.div>

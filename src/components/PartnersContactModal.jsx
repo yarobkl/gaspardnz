@@ -109,9 +109,9 @@ const PartnersContactModal = ({ isOpen, onClose, partner }) => {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 style={{ textAlign: "center" }}>
-                <h3 style={{ color: GOLD, fontFamily: "'Bebas Neue', sans-serif", fontSize: "24px", margin: "0 0 1rem 0" }}>
+                <h2 style={{ color: GOLD, fontFamily: "'Bebas Neue', sans-serif", fontSize: "24px", margin: "0 0 1rem 0" }}>
                   {t("partners_form_success") || "Merci!"}
-                </h3>
+                </h2>
                 <p style={{ color: CREAM, fontFamily: "'Cormorant Garamond', serif", fontSize: "16px" }}>
                   {t("partners_form_success_msg") || "Vous recevrez une réponse sous 24h"}
                 </p>
@@ -124,6 +124,7 @@ const PartnersContactModal = ({ isOpen, onClose, partner }) => {
                   </h2>
                   <button
                     onClick={onClose}
+                    aria-label="Close dialog"
                     style={{
                       background: "none",
                       border: "none",
@@ -142,10 +143,11 @@ const PartnersContactModal = ({ isOpen, onClose, partner }) => {
 
                 <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "1.2rem" }}>
                   <div>
-                    <label style={{ display: "block", color: CREAM, fontFamily: "'Montserrat', sans-serif", fontSize: "12px", marginBottom: "0.5rem", letterSpacing: "0.05em", textTransform: "uppercase" }}>
+                    <label htmlFor="partner-name" style={{ display: "block", color: CREAM, fontFamily: "'Montserrat', sans-serif", fontSize: "12px", marginBottom: "0.5rem", letterSpacing: "0.05em", textTransform: "uppercase" }}>
                       {t("partners_form_name") || "Nom"}
                     </label>
                     <input
+                      id="partner-name"
                       type="text"
                       name="name"
                       maxLength={100}
@@ -167,10 +169,11 @@ const PartnersContactModal = ({ isOpen, onClose, partner }) => {
                   </div>
 
                   <div>
-                    <label style={{ display: "block", color: CREAM, fontFamily: "'Montserrat', sans-serif", fontSize: "12px", marginBottom: "0.5rem", letterSpacing: "0.05em", textTransform: "uppercase" }}>
+                    <label htmlFor="partner-email" style={{ display: "block", color: CREAM, fontFamily: "'Montserrat', sans-serif", fontSize: "12px", marginBottom: "0.5rem", letterSpacing: "0.05em", textTransform: "uppercase" }}>
                       {t("partners_form_email") || "Email"}
                     </label>
                     <input
+                      id="partner-email"
                       type="email"
                       name="email"
                       maxLength={150}
@@ -192,10 +195,11 @@ const PartnersContactModal = ({ isOpen, onClose, partner }) => {
                   </div>
 
                   <div>
-                    <label style={{ display: "block", color: CREAM, fontFamily: "'Montserrat', sans-serif", fontSize: "12px", marginBottom: "0.5rem", letterSpacing: "0.05em", textTransform: "uppercase" }}>
+                    <label htmlFor="partner-phone" style={{ display: "block", color: CREAM, fontFamily: "'Montserrat', sans-serif", fontSize: "12px", marginBottom: "0.5rem", letterSpacing: "0.05em", textTransform: "uppercase" }}>
                       {t("partners_form_phone") || "Téléphone"}
                     </label>
                     <input
+                      id="partner-phone"
                       type="tel"
                       name="phone"
                       maxLength={30}
@@ -216,10 +220,11 @@ const PartnersContactModal = ({ isOpen, onClose, partner }) => {
                   </div>
 
                   <div>
-                    <label style={{ display: "block", color: CREAM, fontFamily: "'Montserrat', sans-serif", fontSize: "12px", marginBottom: "0.5rem", letterSpacing: "0.05em", textTransform: "uppercase" }}>
+                    <label htmlFor="partner-eventType" style={{ display: "block", color: CREAM, fontFamily: "'Montserrat', sans-serif", fontSize: "12px", marginBottom: "0.5rem", letterSpacing: "0.05em", textTransform: "uppercase" }}>
                       {t("partners_form_event") || "Type d'événement"}
                     </label>
                     <input
+                      id="partner-eventType"
                       type="text"
                       name="eventType"
                       maxLength={100}
@@ -240,10 +245,11 @@ const PartnersContactModal = ({ isOpen, onClose, partner }) => {
                   </div>
 
                   <div>
-                    <label style={{ display: "block", color: CREAM, fontFamily: "'Montserrat', sans-serif", fontSize: "12px", marginBottom: "0.5rem", letterSpacing: "0.05em", textTransform: "uppercase" }}>
+                    <label htmlFor="partner-eventDate" style={{ display: "block", color: CREAM, fontFamily: "'Montserrat', sans-serif", fontSize: "12px", marginBottom: "0.5rem", letterSpacing: "0.05em", textTransform: "uppercase" }}>
                       {t("partners_form_date") || "Date prévue"}
                     </label>
                     <input
+                      id="partner-eventDate"
                       type="date"
                       name="eventDate"
                       value={formData.eventDate}
@@ -262,10 +268,11 @@ const PartnersContactModal = ({ isOpen, onClose, partner }) => {
                   </div>
 
                   <div>
-                    <label style={{ display: "block", color: CREAM, fontFamily: "'Montserrat', sans-serif", fontSize: "12px", marginBottom: "0.5rem", letterSpacing: "0.05em", textTransform: "uppercase" }}>
+                    <label htmlFor="partner-message" style={{ display: "block", color: CREAM, fontFamily: "'Montserrat', sans-serif", fontSize: "12px", marginBottom: "0.5rem", letterSpacing: "0.05em", textTransform: "uppercase" }}>
                       {t("partners_form_message") || "Message"}
                     </label>
                     <textarea
+                      id="partner-message"
                       name="message"
                       maxLength={2000}
                       value={formData.message}
