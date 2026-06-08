@@ -67,7 +67,7 @@ const AlbumModal = ({ photos, name, onClose }) => {
         ))}
       </div>
 
-      <p style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: "italic", fontSize: "0.85rem", color: "rgba(245,240,232,0.35)", marginTop: "0.8rem", zIndex: 1 }}>{idx + 1} / {photos.length}</p>
+      <p style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: "italic", fontSize: "0.85rem", color: "rgba(245,240,232,0.7)", marginTop: "0.8rem", zIndex: 1 }}>{idx + 1} / {photos.length}</p>
     </motion.div>
   );
 };

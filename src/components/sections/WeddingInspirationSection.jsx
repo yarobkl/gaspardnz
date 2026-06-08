@@ -69,7 +69,7 @@ const WeddingInspirationSection = ({ refEl }) => {
                 <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "2rem", textAlign: "center" }}>
                   <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "8px", letterSpacing: "0.5em", color: GOLD, textTransform: "uppercase", marginBottom: "0.9rem" }}>GASPARDNZ</p>
                   <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1.6rem", fontStyle: "italic", color: "#faf7f2", lineHeight: 1.25, margin: 0 }}>{t("coming_photo_soon")}</p>
-                  <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "9px", letterSpacing: "0.18em", color: "rgba(245,240,232,0.45)", textTransform: "uppercase", marginTop: "1rem" }}>{t("look_preparing")}</p>
+                  <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "9px", letterSpacing: "0.18em", color: "rgba(245,240,232,0.75)", textTransform: "uppercase", marginTop: "1rem" }}>{t("look_preparing")}</p>
                 </div>
               )}
               {activeSrc && (

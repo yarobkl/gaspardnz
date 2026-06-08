@@ -77,8 +77,8 @@ const BookingModal = ({ isOpen, onClose, boutiqueMode = false, onSwitchToBooking
   const inputStyle = {
     width: "100%", background: "none", border: "1px solid rgba(184,151,62,0.2)",
     padding: "0.85rem 1rem", fontFamily: "'Montserrat', sans-serif",
-    fontSize: "16px", color: TEXT, outline: "none", borderRadius: 0,
-    transition: "border-color 0.3s",
+    fontSize: "16px", color: TEXT, borderRadius: 0,
+    transition: "border-color 0.3s", outline: "3px solid transparent", outlineOffset: "2px",
   };
 
   return (
