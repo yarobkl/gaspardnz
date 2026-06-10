@@ -19,6 +19,7 @@ export const PARTNERS_DATA = [
     clientDiscount: 5,
     featured: true,
     placeholder: false,
+    status: 'coming_soon',
   },
   {
     id: 'wedding-planner-slot',

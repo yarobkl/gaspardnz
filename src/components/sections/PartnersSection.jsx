@@ -202,7 +202,7 @@ const PartnersSection = ({ refEl }) => {
                       borderRadius: "4px",
                       transition: "all 0.3s ease",
                     }}>
-                    {t("partners_contact_btn") || "Prendre Contact"}
+                    {partner.status === 'coming_soon' ? (t("partners_coming_soon") || "À venir") : (t("partners_contact_btn") || "Prendre Contact")}
                   </motion.button>
                 ) : (
                   <div style={{
