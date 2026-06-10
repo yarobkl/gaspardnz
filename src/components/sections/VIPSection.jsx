@@ -14,7 +14,11 @@ const AlbumModal = ({ photos, name, onClose }) => {
   // Reset index when album changes
   useEffect(() => {
     setIdx(0);
-  }, [name]);
+    // Debug logging to track which album is opened
+    if (typeof window !== 'undefined' && window.__GNZ_DEBUG__) {
+      console.log(`📸 Album ouvert: ${name} avec ${photos?.length || 0} photos`);
+    }
+  }, [name, photos]);
 
   // Validate photos array
   const validPhotos = Array.isArray(photos) ? photos.filter(p => p && typeof p === 'string') : [];
