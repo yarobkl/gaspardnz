@@ -1,5 +1,6 @@
 const USERS_KEY = "gnz_admin_users";
 const SESSION_KEY = "gnz_admin_session";
+const CSRF_TOKEN_KEY = "gnz_csrf_token";
 const PERMISSIONS = {
   ADMIN_FULL: "admin_full",
   ADMIN_READ: "admin_read",
@@ -163,4 +164,24 @@ export const changePassword = (userId, oldPassword, newPassword) => {
   user.passwordHash = hashPassword(newPassword);
   saveUsers(users);
   return { success: true };
+};
+
+export const generateCSRFToken = () => {
+  if (typeof window === 'undefined') return null;
+  const token = Array.from(crypto.getRandomValues(new Uint8Array(32)))
+    .map(b => b.toString(16).padStart(2, '0'))
+    .join('');
+  try {
+    localStorage.setItem(CSRF_TOKEN_KEY, token);
+  } catch {}
+  return token;
+};
+
+export const getCSRFToken = () => {
+  if (typeof window === 'undefined') return null;
+  let token = localStorage.getItem(CSRF_TOKEN_KEY);
+  if (!token) {
+    token = generateCSRFToken();
+  }
+  return token;
 };

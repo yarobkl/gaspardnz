@@ -58,9 +58,9 @@ const PartnersContactModal = ({ isOpen, onClose, partner }) => {
         throw new Error("Failed to track contact");
       }
 
-      // Envoyer emails
+      // Envoyer emails (avec status du partenaire pour router correctement)
       if (partner.email) {
-        const emailResult = await sendPartnerContactEmail(partner.id, partner.email, safeData);
+        const emailResult = await sendPartnerContactEmail(partner.id, partner.email, safeData, partner.status);
         if (!emailResult.success) {
           throw new Error("Failed to send email");
         }
