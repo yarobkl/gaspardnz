@@ -10,15 +10,24 @@ const AlbumModal = ({ photos, name, onClose }) => {
   const t = useTr();
   const [idx, setIdx] = useState(0);
   const focusTrapRef = useFocusTrap(true);
+
+  // Reset index when album changes
+  useEffect(() => {
+    setIdx(0);
+  }, [name]);
+
+  // Validate photos array
+  const validPhotos = Array.isArray(photos) ? photos.filter(p => p && typeof p === 'string') : [];
+
   useEffect(() => {
     const onKey = (e) => {
       if (e.key === "Escape") onClose();
-      if (e.key === "ArrowRight") setIdx(i => Math.min(i + 1, photos.length - 1));
+      if (e.key === "ArrowRight") setIdx(i => Math.min(i + 1, validPhotos.length - 1));
       if (e.key === "ArrowLeft") setIdx(i => Math.max(i - 1, 0));
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [photos.length, onClose]);
+  }, [validPhotos.length, onClose]);
 
   return (
     <motion.div
@@ -35,45 +44,57 @@ const AlbumModal = ({ photos, name, onClose }) => {
       <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.5em", color: GOLD, textTransform: "uppercase", marginBottom: "1.2rem", zIndex: 1 }}>ALBUM · {name.toUpperCase()}</p>
 
       <motion.div onClick={e => e.stopPropagation()} style={{ position: "relative", width: "90vw", maxWidth: "420px", zIndex: 1 }}>
-        <AnimatePresence mode="wait">
-          <motion.div key={idx} initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.96 }} transition={{ duration: 0.3 }} style={{ position: "relative" }}>
-            <img
-              src={photos[idx]}
-              alt={`${name} — photo ${idx + 1}`}
-              width="900"
-              height="1200"
-              loading="lazy"
-              decoding="async"
-              style={{ width: "100%", borderRadius: "12px", objectFit: "cover", maxHeight: "70vh", display: "block" }}
-            />
-            <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, borderRadius: "0 0 12px 12px", background: "linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 100%)", padding: "1.4rem 1rem 0.8rem", display: "flex", alignItems: "flex-end", justifyContent: "space-between" }}>
-              <p style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: "italic", fontWeight: 300, fontSize: "0.78rem", color: "rgba(245,240,232,0.6)", letterSpacing: "0.04em" }}>{t("dressed_by")}</p>
-              <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.1rem", letterSpacing: "0.12em", color: GOLD }}>GASPARDNZ</p>
-            </div>
-          </motion.div>
-        </AnimatePresence>
-
-        {photos.length > 1 && (
+        {validPhotos.length > 0 ? (
           <>
-            <button aria-label={t("previous_photo")} onClick={() => setIdx(i => Math.max(i - 1, 0))}
-              style={{ position: "absolute", left: "-1rem", top: "50%", transform: "translateY(-50%)", background: "rgba(0,0,0,0.5)", border: `1px solid rgba(184,151,62,0.4)`, color: GOLD, borderRadius: "50%", width: "44px", height: "44px", cursor: "pointer", fontSize: "1rem", display: "flex", alignItems: "center", justifyContent: "center", opacity: idx === 0 ? 0.3 : 1 }}>‹</button>
-            <button aria-label={t("next_photo")} onClick={() => setIdx(i => Math.min(i + 1, photos.length - 1))}
-              style={{ position: "absolute", right: "-1rem", top: "50%", transform: "translateY(-50%)", background: "rgba(0,0,0,0.5)", border: `1px solid rgba(184,151,62,0.4)`, color: GOLD, borderRadius: "50%", width: "44px", height: "44px", cursor: "pointer", fontSize: "1rem", display: "flex", alignItems: "center", justifyContent: "center", opacity: idx === photos.length - 1 ? 0.3 : 1 }}>›</button>
+            <AnimatePresence mode="wait">
+              <motion.div key={idx} initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.96 }} transition={{ duration: 0.3 }} style={{ position: "relative" }}>
+                <img
+                  src={validPhotos[idx]}
+                  alt={`${name} — photo ${idx + 1}`}
+                  width="900"
+                  height="1200"
+                  loading="lazy"
+                  decoding="async"
+                  style={{ width: "100%", borderRadius: "12px", objectFit: "contain", maxHeight: "70vh", display: "block", backgroundColor: "rgba(0,0,0,0.3)" }}
+                />
+                <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, borderRadius: "0 0 12px 12px", background: "linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 100%)", padding: "1.4rem 1rem 0.8rem", display: "flex", alignItems: "flex-end", justifyContent: "space-between" }}>
+                  <p style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: "italic", fontWeight: 300, fontSize: "0.78rem", color: "rgba(245,240,232,0.6)", letterSpacing: "0.04em" }}>{t("dressed_by")}</p>
+                  <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.1rem", letterSpacing: "0.12em", color: GOLD }}>GASPARDNZ</p>
+                </div>
+              </motion.div>
+            </AnimatePresence>
+
+            {validPhotos.length > 1 && (
+              <>
+                <button aria-label={t("previous_photo")} onClick={() => setIdx(i => Math.max(i - 1, 0))}
+                  style={{ position: "absolute", left: "-1rem", top: "50%", transform: "translateY(-50%)", background: "rgba(0,0,0,0.5)", border: `1px solid rgba(184,151,62,0.4)`, color: GOLD, borderRadius: "50%", width: "44px", height: "44px", cursor: "pointer", fontSize: "1rem", display: "flex", alignItems: "center", justifyContent: "center", opacity: idx === 0 ? 0.3 : 1 }}>‹</button>
+                <button aria-label={t("next_photo")} onClick={() => setIdx(i => Math.min(i + 1, validPhotos.length - 1))}
+                  style={{ position: "absolute", right: "-1rem", top: "50%", transform: "translateY(-50%)", background: "rgba(0,0,0,0.5)", border: `1px solid rgba(184,151,62,0.4)`, color: GOLD, borderRadius: "50%", width: "44px", height: "44px", cursor: "pointer", fontSize: "1rem", display: "flex", alignItems: "center", justifyContent: "center", opacity: idx === validPhotos.length - 1 ? 0.3 : 1 }}>›</button>
+              </>
+            )}
           </>
+        ) : (
+          <div style={{ width: "100%", maxWidth: "420px", aspectRatio: "3/4", borderRadius: "12px", background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", color: "rgba(245,240,232,0.5)" }}>
+            {t("no_photos") || "Aucune photo"}
+          </div>
         )}
       </motion.div>
 
-      <div style={{ display: "flex", gap: "6px", marginTop: "1rem", zIndex: 1 }}>
-        {photos.map((_, i) => (
-          <button key={i} onClick={e => { e.stopPropagation(); setIdx(i); }}
-            aria-label={`Voir la photo ${i + 1}`}
-            style={{ width: "44px", height: "44px", borderRadius: "50%", background: "transparent", border: "none", cursor: "pointer", transition: "all 0.3s", padding: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <span style={{ width: i === idx ? "20px" : "6px", height: "6px", borderRadius: "3px", background: i === idx ? GOLD : "rgba(184,151,62,0.3)", display: "block" }} />
-          </button>
-        ))}
-      </div>
+      {validPhotos.length > 0 && (
+        <div style={{ display: "flex", gap: "6px", marginTop: "1rem", zIndex: 1 }}>
+          {validPhotos.map((_, i) => (
+            <button key={i} onClick={e => { e.stopPropagation(); setIdx(i); }}
+              aria-label={`Voir la photo ${i + 1}`}
+              style={{ width: "44px", height: "44px", borderRadius: "50%", background: "transparent", border: "none", cursor: "pointer", transition: "all 0.3s", padding: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <span style={{ width: i === idx ? "20px" : "6px", height: "6px", borderRadius: "3px", background: i === idx ? GOLD : "rgba(184,151,62,0.3)", display: "block" }} />
+            </button>
+          ))}
+        </div>
+      )}
 
-      <p style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: "italic", fontSize: "0.85rem", color: "rgba(245,240,232,0.7)", marginTop: "0.8rem", zIndex: 1 }}>{idx + 1} / {photos.length}</p>
+      {validPhotos.length > 0 && (
+        <p style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: "italic", fontSize: "0.85rem", color: "rgba(245,240,232,0.7)", marginTop: "0.8rem", zIndex: 1 }}>{idx + 1} / {validPhotos.length}</p>
+      )}
     </motion.div>
   );
 };
@@ -176,12 +197,16 @@ const VIPClientsSection = () => {
           {clients.map((c, i) => {
             const isActive = i === cur;
             const dist = Math.abs(i - cur);
+            const handleCardClick = () => {
+              if (isActive && c.album && Array.isArray(c.album) && c.album.length > 0) {
+                setAlbum({ photos: c.album, name: c.name });
+              } else if (!isActive) {
+                snapTo(i);
+              }
+            };
             return (
               <motion.div key={i}
-                onClick={() => {
-                  if (isActive && c.album) setAlbum({ photos: c.album, name: c.name });
-                  else snapTo(i);
-                }}
+                onClick={handleCardClick}
                 animate={{ scale: isActive ? 1 : 0.80, opacity: dist === 0 ? 1 : dist === 1 ? 0.55 : 0.3 }}
                 transition={{ type: "spring", stiffness: 280, damping: 28 }}
                 style={{ flexShrink: 0, width: `${CARD_W}vw`, boxSizing: "border-box", paddingLeft: "6px", paddingRight: "6px", cursor: isActive ? (c.album ? "pointer" : "grab") : "pointer", transformOrigin: "center center" }}>
@@ -207,7 +232,7 @@ const VIPClientsSection = () => {
                   style={{ paddingTop: "12px", paddingLeft: "4px" }}>
                   <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "17px", fontWeight: 400, color: "#faf7f2", marginBottom: "3px" }}>{c.name}</p>
                   <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "9px", color: "rgba(250,247,242,0.4)", letterSpacing: "0.05em" }}>{c.city}</p>
-                  {isActive && c.album && (
+                  {isActive && c.album && Array.isArray(c.album) && c.album.length > 0 && (
                     <motion.button
                       onPointerUp={e => { e.stopPropagation(); setAlbum({ photos: c.album, name: c.name }); }}
                       whileTap={{ scale: 0.95 }}

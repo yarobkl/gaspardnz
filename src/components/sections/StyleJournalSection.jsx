@@ -75,7 +75,7 @@ const StyleJournalSection = () => {
             <img src={photo.src} alt={photo.caption}
               width="1200" height="1600"
               loading="lazy" decoding="async"
-              style={{ width: "100%", height: "auto", display: "block" }} />
+              style={{ width: "100%", height: "auto", display: "block", imageRendering: "high-quality" }} />
             <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 55%, rgba(10,6,2,0.75) 100%)", pointerEvents: "none" }} />
             {photo.dots.map((dot, di) => <StyleDot key={di} dot={dot} />)}
             <div style={{ position: "absolute", bottom: "14px", left: "14px", right: "14px" }}>
