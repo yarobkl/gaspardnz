@@ -49,10 +49,18 @@ export const trackPartnerContact = async (partnerId, clientData) => {
   }
 };
 
-export const sendPartnerContactEmail = async (partnerId, partnerEmail, clientData) => {
+export const sendPartnerContactEmail = async (partnerId, partnerEmail, clientData, partnerStatus = null) => {
   try {
+    // Pour les partenaires avec status 'coming_soon' (comme Palais Groupe),
+    // envoyer à Gaspard + CC à l'utilisateur
+    // Pour les autres partenaires, envoyer au partenaire + CC à l'utilisateur
+    const isComingSoon = partnerStatus === 'coming_soon';
+    const gaspardEmail = 'gaspardnz.contact@gmail.com';
+    const userEmail = 'eliebakala@gmail.com';
+
     const emailData = {
-      to: [partnerEmail, 'gaspardnz.contact@gmail.com'],
+      to: isComingSoon ? [gaspardEmail] : [partnerEmail],
+      cc: [userEmail],
       subject: `Nouvelle demande de contact - ${clientData.name}`,
       partnerId,
       clientName: clientData.name,
@@ -62,6 +70,8 @@ export const sendPartnerContactEmail = async (partnerId, partnerEmail, clientDat
       eventDate: clientData.eventDate,
       message: clientData.message,
       timestamp: new Date().toISOString(),
+      isComingSoon,
+      partnerEmail: isComingSoon ? `(à contacter par Gaspard: ${partnerEmail})` : null,
     };
 
     // Envoyer email via API existante
