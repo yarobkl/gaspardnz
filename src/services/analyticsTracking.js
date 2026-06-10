@@ -17,6 +17,7 @@ const TRACKING_CONFIG = {
   maxHeatmapPoints: 10000,
   debounceScroll: 500,
   debounceResize: 500,
+  debounceClick: 100, // Prevent rapid-fire click tracking spam
 };
 
 // ============================================================================
@@ -128,11 +129,31 @@ export const getGeoData = () => {
 };
 
 // ============================================================================
-// CLICK TRACKING
+// CLICK TRACKING (with rate limiting)
 // ============================================================================
+
+let lastClickTime = 0;
+const elementClickTimes = new Map();
 
 export const trackClick = (event) => {
   try {
+    const now = Date.now();
+
+    // Global rate limit: prevent more than one click per debounce interval
+    if (now - lastClickTime < TRACKING_CONFIG.debounceClick) {
+      return;
+    }
+
+    // Per-element rate limit: prevent same element from being tracked too frequently
+    const elementKey = `${event.target.tagName}:${event.target.id}:${event.target.className}`;
+    const lastTime = elementClickTimes.get(elementKey) || 0;
+    if (now - lastTime < TRACKING_CONFIG.debounceClick * 2) {
+      return;
+    }
+
+    lastClickTime = now;
+    elementClickTimes.set(elementKey, now);
+
     const clickData = {
       id: "click_" + Date.now() + "_" + Math.random().toString(36).slice(2, 8),
       timestamp: new Date().toISOString(),
@@ -156,6 +177,12 @@ export const trackClick = (event) => {
 
     recordClickData(clickData);
     updateHeatmapData(event.clientX, event.clientY);
+
+    // Cleanup old per-element times to prevent memory leak
+    if (elementClickTimes.size > 1000) {
+      const oldestKey = Array.from(elementClickTimes.keys())[0];
+      elementClickTimes.delete(oldestKey);
+    }
   } catch (error) {
     console.error("Click tracking error:", error);
   }

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { GOLD, TEXT } from "../constants.js";
 import { useTr } from "../context.jsx";
+import { useFocusTrap } from "../hooks/useFocusTrap.js";
 import { SvgCalendar, SvgWA, SvgArrow } from "../icons.jsx";
 import { useSettings } from "../hooks/useSettings.js";
 import { getWhatsappUrl } from "../utils/whatsappUtil.js";
@@ -61,6 +62,7 @@ const BoutiqueModal = ({ onClose, onReserver }) => {
 const BookingModal = ({ isOpen, onClose, boutiqueMode = false, onSwitchToBooking }) => {
   const t = useTr();
   const settings = useSettings();
+  const focusTrapRef = useFocusTrap(isOpen);
   const [step, setStep] = useState(1);
   const [form, setForm] = useState({ nom: "", projet: "", besoin: "" });
 
@@ -94,6 +96,9 @@ const BookingModal = ({ isOpen, onClose, boutiqueMode = false, onSwitchToBooking
             <BoutiqueModal onClose={reset} onReserver={onSwitchToBooking} />
           ) : (
           <motion.div
+            ref={focusTrapRef}
+            role="dialog"
+            aria-modal="true"
             initial={{ opacity: 0, y: 32, scale: 0.97 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.97 }}

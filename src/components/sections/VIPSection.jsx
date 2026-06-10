@@ -2,12 +2,14 @@ import { useState, useEffect, useRef } from "react";
 import { motion, useInView, useMotionValue, animate, AnimatePresence } from "framer-motion";
 import { GOLD } from "../../constants.js";
 import { useTr } from "../../context.jsx";
+import { useFocusTrap } from "../../hooks/useFocusTrap.js";
 import { useSettings } from "../../hooks/useSettings.js";
 import { getWhatsappUrl } from "../../utils/whatsappUtil.js";
 
 const AlbumModal = ({ photos, name, onClose }) => {
   const t = useTr();
   const [idx, setIdx] = useState(0);
+  const focusTrapRef = useFocusTrap(true);
   useEffect(() => {
     const onKey = (e) => {
       if (e.key === "Escape") onClose();
@@ -20,6 +22,10 @@ const AlbumModal = ({ photos, name, onClose }) => {
 
   return (
     <motion.div
+      ref={focusTrapRef}
+      role="dialog"
+      aria-modal="true"
+      aria-label={`Album photos de ${name}`}
       initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
       onClick={onClose}
       style={{ position: "fixed", inset: 0, zIndex: 9999, background: "rgba(0,0,0,0.95)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
