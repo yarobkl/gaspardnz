@@ -58,16 +58,15 @@ const cleanLine = (value) =>
 
 export const sendPartnerContactEmail = async (partnerId, partnerEmail, clientData, partnerStatus = null) => {
   try {
-    // Pour les partenaires avec status 'coming_soon' (comme Palais Groupe),
-    // envoyer à Gaspard + CC à l'utilisateur
-    // Pour les autres partenaires, envoyer au partenaire + CC à l'utilisateur
-    const isComingSoon = partnerStatus === 'coming_soon';
+    // Pour TOUS les prestataires (coming_soon ou non):
+    // Email TO: Gaspard (c'est à lui de contacter le prestataire)
+    // Email CC: Utilisateur (suivi) et Prestataire
     const gaspardEmail = 'gaspardnz.contact@gmail.com';
     const userEmail = 'eliebakala@gmail.com';
 
     const emailData = {
-      to: isComingSoon ? [gaspardEmail] : [partnerEmail],
-      cc: [userEmail],
+      to: [gaspardEmail],
+      cc: [userEmail, partnerEmail],
       subject: `Nouvelle demande de contact - ${cleanLine(clientData.name)}`,
       partnerId,
       clientName: cleanLine(clientData.name),
@@ -77,7 +76,7 @@ export const sendPartnerContactEmail = async (partnerId, partnerEmail, clientDat
       eventDate: cleanLine(clientData.eventDate),
       message: String(clientData.message).slice(0, 2000).trim(),
       timestamp: new Date().toISOString(),
-      isComingSoon,
+      isComingSoon: partnerStatus === 'coming_soon',
     };
 
     // Envoyer email via API existante
