@@ -1,4 +1,5 @@
 import { trackEvent } from "./adminAnalytics.js";
+import { getCSRFToken } from "./adminAuth.js";
 
 export const trackPartnerContact = async (partnerId, clientData) => {
   try {
@@ -27,9 +28,13 @@ export const trackPartnerContact = async (partnerId, clientData) => {
     // API call pour enregistrer dans la base de données
     if (typeof window !== 'undefined' && window.fetch) {
       try {
+        const csrfToken = getCSRFToken();
         await fetch('/api/partner-contacts', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': csrfToken, // ✅ CSRF Protection
+          },
           body: JSON.stringify(partnerContactData),
         });
       } catch (e) {
@@ -61,14 +66,22 @@ export const sendPartnerContactEmail = async (partnerId, partnerEmail, clientDat
 
     // Envoyer email via API existante
     if (typeof window !== 'undefined' && window.fetch) {
-      const response = await fetch('/api/send-email', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(emailData),
-      });
+      try {
+        const csrfToken = getCSRFToken();
+        const response = await fetch('/api/send-email', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': csrfToken, // ✅ CSRF Protection
+          },
+          body: JSON.stringify(emailData),
+        });
 
-      if (!response.ok) {
-        console.warn('Email sending returned status:', response.status);
+        if (!response.ok) {
+          console.warn('Email sending returned status:', response.status);
+        }
+      } catch (e) {
+        console.warn('Email fetch error:', e.message);
       }
     }
 

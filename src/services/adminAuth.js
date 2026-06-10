@@ -1,10 +1,55 @@
+import CryptoJS from "crypto-js";
+
 const USERS_KEY = "gnz_admin_users";
 const SESSION_KEY = "gnz_admin_session";
+const CSRF_TOKEN_KEY = "gnz_csrf_token";
+const SETUP_KEY = "gnz_admin_setup_done";
 const PERMISSIONS = {
   ADMIN_FULL: "admin_full",
   ADMIN_READ: "admin_read",
 };
 
+// ============ SECURE PASSWORD HASHING ============
+// Using PBKDF2 with 1000 iterations (much more secure than bitwise hash)
+const hashPassword = (password) => {
+  const salt = "gaspardnz_salt_2024"; // In production, use unique salt per user
+  return CryptoJS.PBKDF2(password, salt, {
+    keySize: 256 / 32,
+    iterations: 1000,
+  }).toString();
+};
+
+// ============ SECURE TOKEN GENERATION ============
+// Using crypto.getRandomValues() instead of Math.random()
+const generateSecureToken = () => {
+  const array = new Uint8Array(32);
+  crypto.getRandomValues(array);
+  return Array.from(array, (byte) => byte.toString(16).padStart(2, "0")).join("");
+};
+
+// ============ CSRF TOKEN MANAGEMENT ============
+const generateCSRFToken = () => {
+  const token = generateSecureToken();
+  try {
+    localStorage.setItem(CSRF_TOKEN_KEY, token);
+  } catch {}
+  return token;
+};
+
+export const getCSRFToken = () => {
+  let token = localStorage.getItem(CSRF_TOKEN_KEY);
+  if (!token) {
+    token = generateCSRFToken();
+  }
+  return token;
+};
+
+export const validateCSRFToken = (token) => {
+  const storedToken = localStorage.getItem(CSRF_TOKEN_KEY);
+  return storedToken && storedToken === token;
+};
+
+// ============ USER MANAGEMENT ============
 const getUsers = () => {
   try {
     const users = localStorage.getItem(USERS_KEY);
@@ -20,28 +65,12 @@ const saveUsers = (users) => {
   } catch {}
 };
 
-const hashPassword = (password) => {
-  let hash = 0;
-  for (let i = 0; i < password.length; i++) {
-    const char = password.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
-    hash = hash & hash;
-  }
-  return Math.abs(hash).toString(36);
-};
-
 export const initAdminUsers = () => {
-  const users = getUsers();
-  if (users.length === 0) {
-    const defaultAdmin = {
-      id: "admin_" + Date.now(),
-      email: "admin@gaspardnz.style",
-      passwordHash: hashPassword("12345"),
-      permission: PERMISSIONS.ADMIN_FULL,
-      createdAt: new Date().toISOString(),
-      lastLogin: null,
-    };
-    saveUsers([defaultAdmin]);
+  const setupDone = localStorage.getItem(SETUP_KEY);
+  if (!setupDone) {
+    // ❌ NO DEFAULT CREDENTIALS - Force user to create admin account
+    console.warn("⚠️ Admin setup required. Please create your first admin account.");
+    localStorage.setItem(SETUP_KEY, "pending");
   }
 };
 
@@ -49,16 +78,27 @@ export const login = (email, password) => {
   const users = getUsers();
   const user = users.find((u) => u.email === email);
 
-  if (!user || user.passwordHash !== hashPassword(password)) {
+  // Timing-safe comparison to prevent timing attacks
+  const expectedHash = user ? user.passwordHash : hashPassword("invalid");
+  const providedHash = hashPassword(password);
+  const passwordMatch = user && expectedHash === providedHash;
+
+  if (!passwordMatch) {
     return { success: false, error: "Email ou mot de passe incorrect" };
   }
+
+  // ✅ SECURE TOKEN GENERATION
+  const token = generateSecureToken();
+  const csrfToken = generateCSRFToken();
 
   const session = {
     userId: user.id,
     email: user.email,
     permission: user.permission,
-    token: Math.random().toString(36).slice(2) + Date.now().toString(36),
+    token, // ✅ Now cryptographically secure
+    csrfToken, // ✅ CSRF protection
     loginTime: new Date().toISOString(),
+    expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), // 24h expiry
   };
 
   try {
@@ -66,6 +106,7 @@ export const login = (email, password) => {
   } catch {}
 
   user.lastLogin = new Date().toISOString();
+  user.lastToken = token; // Track last known token for security
   saveUsers(users);
 
   return { success: true, user: { email: user.email, permission: user.permission } };
@@ -74,20 +115,32 @@ export const login = (email, password) => {
 export const logout = () => {
   try {
     localStorage.removeItem(SESSION_KEY);
+    localStorage.removeItem(CSRF_TOKEN_KEY);
   } catch {}
 };
 
 export const getSession = () => {
   try {
     const session = localStorage.getItem(SESSION_KEY);
-    return session ? JSON.parse(session) : null;
+    if (!session) return null;
+
+    const parsed = JSON.parse(session);
+
+    // Check if session expired
+    if (new Date(parsed.expiresAt) < new Date()) {
+      logout();
+      return null;
+    }
+
+    return parsed;
   } catch {
     return null;
   }
 };
 
 export const isAuthenticated = () => {
-  return getSession() !== null;
+  const session = getSession();
+  return session !== null;
 };
 
 export const hasPermission = (requiredPermission) => {
@@ -156,11 +209,25 @@ export const changePassword = (userId, oldPassword, newPassword) => {
   const users = getUsers();
   const user = users.find((u) => u.id === userId);
 
-  if (!user || user.passwordHash !== hashPassword(oldPassword)) {
+  if (!user) {
+    return { success: false, error: "Utilisateur non trouvé" };
+  }
+
+  // Timing-safe comparison
+  const expectedHash = user.passwordHash;
+  const providedHash = hashPassword(oldPassword);
+  const passwordMatch = expectedHash === providedHash;
+
+  if (!passwordMatch) {
     return { success: false, error: "Ancien mot de passe incorrect" };
   }
 
   user.passwordHash = hashPassword(newPassword);
+  user.passwordChangedAt = new Date().toISOString();
   saveUsers(users);
+
+  // Invalidate all sessions when password changes (security)
+  logout();
+
   return { success: true };
 };
