@@ -58,15 +58,16 @@ const cleanLine = (value) =>
 
 export const sendPartnerContactEmail = async (partnerId, partnerEmail, clientData, partnerStatus = null) => {
   try {
-    // Pour TOUS les prestataires (coming_soon ou non):
+    // Pour TOUS les prestataires:
     // Email TO: Gaspard (c'est à lui de contacter le prestataire)
-    // Email CC: Utilisateur (suivi) et Prestataire
+    // Email CC: Utilisateur (suivi)
+    // Le prestataire ne reçoit pas l'email, c'est Gaspard qui le contactera
     const gaspardEmail = 'gaspardnz.contact@gmail.com';
     const userEmail = 'eliebakala@gmail.com';
 
     const emailData = {
       to: [gaspardEmail],
-      cc: [userEmail, partnerEmail],
+      cc: [userEmail],
       subject: `Nouvelle demande de contact - ${cleanLine(clientData.name)}`,
       partnerId,
       clientName: cleanLine(clientData.name),
