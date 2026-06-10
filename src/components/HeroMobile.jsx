@@ -10,28 +10,7 @@ const HeroVideoLoop = () => {
   const ref = useRef(null);
   const readyRef = useRef(false);
   const [videoSrc] = useState(_HERO_SRC);
-  const [showPlayButton, setShowPlayButton] = useState(false);
-  const [isPowerSaving, setIsPowerSaving] = useState(false);
-
-  // Detect power saving mode
-  useEffect(() => {
-    const checkPowerSaving = async () => {
-      try {
-        // Check via Battery API (if available)
-        if ("getBattery" in navigator) {
-          const battery = await navigator.getBattery();
-          setIsPowerSaving(battery.level < 0.2 && !battery.charging);
-        }
-        // Fallback: check device memory as indicator
-        else if (navigator.deviceMemory && navigator.deviceMemory <= 4) {
-          setIsPowerSaving(true);
-        }
-      } catch (e) {
-        // Ignore errors, just proceed normally
-      }
-    };
-    checkPowerSaving();
-  }, []);
+  const playIntervalRef = useRef(null);
 
   useEffect(() => {
     if (!videoSrc) return;
@@ -40,7 +19,7 @@ const HeroVideoLoop = () => {
 
     const play = () => {
       if (document.hidden || !v.paused) return;
-      v.play().catch(() => { setShowPlayButton(true); });
+      v.play().catch(() => {});
     };
 
     const loadAndPlay = () => {
@@ -55,23 +34,22 @@ const HeroVideoLoop = () => {
     const onStall = () => setTimeout(play, 350);
     const onVis = () => { if (!document.hidden && readyRef.current) play(); };
 
-    // Only attempt autoplay if not in power saving mode
-    if (!isPowerSaving) {
-      loadAndPlay();
-      v.addEventListener("canplay",    onCanPlay);
-      v.addEventListener("loadeddata", onCanPlay);
-      v.addEventListener("loadedmetadata", onCanPlay);
-      v.addEventListener("pause",      onPause);
-      v.addEventListener("stalled",    onStall);
-      window.addEventListener("focus", play);
-      document.addEventListener("touchstart",        play,  { once: true });
-      document.addEventListener("visibilitychange",  onVis);
-    } else {
-      // Power saving mode: show play button and allow user to tap
-      setShowPlayButton(true);
-      v.load();
-      v.addEventListener("canplay",    onCanPlay);
-    }
+    loadAndPlay();
+    v.addEventListener("canplay",    onCanPlay);
+    v.addEventListener("loadeddata", onCanPlay);
+    v.addEventListener("loadedmetadata", onCanPlay);
+    v.addEventListener("pause",      onPause);
+    v.addEventListener("stalled",    onStall);
+    window.addEventListener("focus", play);
+    document.addEventListener("touchstart",        play,  { once: true });
+    document.addEventListener("visibilitychange",  onVis);
+
+    // Force play every 500ms if video isn't playing (catches power saving mode)
+    playIntervalRef.current = setInterval(() => {
+      if (!document.hidden && v.paused && readyRef.current) {
+        v.play().catch(() => {});
+      }
+    }, 500);
 
     return () => {
       v.removeEventListener("canplay",    onCanPlay);
@@ -82,74 +60,25 @@ const HeroVideoLoop = () => {
       window.removeEventListener("focus", play);
       document.removeEventListener("touchstart",       play);
       document.removeEventListener("visibilitychange", onVis);
+      if (playIntervalRef.current) clearInterval(playIntervalRef.current);
     };
-  }, [videoSrc, isPowerSaving]);
-
-  const handlePlayClick = () => {
-    const v = ref.current;
-    if (v) {
-      v.play().catch(() => {});
-      setShowPlayButton(false);
-    }
-  };
+  }, [videoSrc]);
 
   return (
-    <div style={{ position: "relative", width: "100%", height: "100%" }}>
-      <video
-        ref={ref}
-        src={videoSrc}
-        autoPlay={!isPowerSaving} muted playsInline loop
-        disablePictureInPicture disableRemotePlayback
-        preload="auto"
-        controls={false}
-        x-webkit-airplay="deny"
-        controlsList="nodownload nofullscreen noremoteplayback"
-        onEnded={e => { e.target.currentTime = 0; e.target.play().catch(() => {}); }}
-        style={{ ..._VIDEO_STYLE, background: "#1c1208" }}
-      >
-        <track kind="captions" src="/captions/hero-fr.vtt" srcLang="fr" label="Français" />
-      </video>
-
-      {showPlayButton && (
-        <motion.button
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.4 }}
-          onClick={handlePlayClick}
-          aria-label="Lancer la vidéo"
-          style={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            zIndex: 5,
-            width: "60px",
-            height: "60px",
-            borderRadius: "50%",
-            background: "rgba(184,151,62,0.9)",
-            border: "2px solid rgba(245,240,232,0.8)",
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            backdropFilter: "blur(4px)",
-            transition: "all 0.3s ease"
-          }}
-          onHoverStart={e => {
-            e.currentTarget.style.background = "rgba(184,151,62,1)";
-            e.currentTarget.style.transform = "translate(-50%, -50%) scale(1.1)";
-          }}
-          onHoverEnd={e => {
-            e.currentTarget.style.background = "rgba(184,151,62,0.9)";
-            e.currentTarget.style.transform = "translate(-50%, -50%) scale(1)";
-          }}
-        >
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="#1c1208">
-            <path d="M8 5v14l11-7z" />
-          </svg>
-        </motion.button>
-      )}
-    </div>
+    <video
+      ref={ref}
+      src={videoSrc}
+      autoPlay muted playsInline loop
+      disablePictureInPicture disableRemotePlayback
+      preload="auto"
+      controls={false}
+      x-webkit-airplay="deny"
+      controlsList="nodownload nofullscreen noremoteplayback"
+      onEnded={e => { e.target.currentTime = 0; e.target.play().catch(() => {}); }}
+      style={{ ..._VIDEO_STYLE, background: "#1c1208" }}
+    >
+      <track kind="captions" src="/captions/hero-fr.vtt" srcLang="fr" label="Français" />
+    </video>
   );
 };
 
