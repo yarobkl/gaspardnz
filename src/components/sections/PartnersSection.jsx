@@ -185,22 +185,30 @@ const PartnersSection = ({ refEl }) => {
                 {/* Button */}
                 {!partner.placeholder ? (
                   <motion.button
-                    onClick={() => handleContactClick(partner)}
-                    whileHover={{ background: `${GOLD}22` }}
-                    whileTap={{ scale: 0.98 }}
+                    onClick={() => {
+                      if (partner.status === 'coming_soon') {
+                        alert(t("partners_coming_soon_msg") || "Ce partenaire sera bientôt disponible. Merci de votre patience!");
+                      } else {
+                        handleContactClick(partner);
+                      }
+                    }}
+                    disabled={partner.status === 'coming_soon'}
+                    whileHover={partner.status !== 'coming_soon' ? { background: `${GOLD}22` } : {}}
+                    whileTap={partner.status !== 'coming_soon' ? { scale: 0.98 } : {}}
                     style={{
                       width: "100%",
                       padding: "0.8rem 1.2rem",
-                      background: `rgba(184,151,62,0.1)`,
-                      border: `1px solid ${GOLD}`,
-                      color: CREAM,
+                      background: partner.status === 'coming_soon' ? `rgba(184,151,62,0.05)` : `rgba(184,151,62,0.1)`,
+                      border: `1px solid ${partner.status === 'coming_soon' ? `${GOLD}33` : GOLD}`,
+                      color: partner.status === 'coming_soon' ? "rgba(245,240,232,0.5)" : CREAM,
                       fontFamily: "'Montserrat', sans-serif",
                       fontSize: "11px",
                       letterSpacing: "0.1em",
                       textTransform: "uppercase",
-                      cursor: "pointer",
+                      cursor: partner.status === 'coming_soon' ? "not-allowed" : "pointer",
                       borderRadius: "4px",
                       transition: "all 0.3s ease",
+                      opacity: partner.status === 'coming_soon' ? 0.6 : 1,
                     }}>
                     {partner.status === 'coming_soon' ? (t("partners_coming_soon") || "À venir") : (t("partners_contact_btn") || "Prendre Contact")}
                   </motion.button>
