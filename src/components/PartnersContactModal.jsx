@@ -2,6 +2,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { GOLD, CREAM } from "../constants.js";
 import { useTr } from "../context.jsx";
+import { useFocusTrap } from "../hooks/useFocusTrap.js";
 import { trackPartnerContact, sendPartnerContactEmail } from "../services/partnerTracking.js";
 
 // Retire les sauts de ligne et caractères de contrôle des champs courts
@@ -15,6 +16,7 @@ const cleanLine = (value) =>
 
 const PartnersContactModal = ({ isOpen, onClose, partner }) => {
   const t = useTr();
+  const focusTrapRef = useFocusTrap(isOpen);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -25,34 +27,43 @@ const PartnersContactModal = ({ isOpen, onClose, partner }) => {
   });
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState(null);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+    setError(null); // Clear error on input change
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError(null);
     setLoading(true);
 
-    // Nettoie les champs courts (anti-injection d'en-têtes) avant envoi
-    const safeData = {
-      ...formData,
-      name: cleanLine(formData.name),
-      email: cleanLine(formData.email),
-      phone: cleanLine(formData.phone),
-      eventType: cleanLine(formData.eventType),
-      eventDate: cleanLine(formData.eventDate),
-      message: String(formData.message).slice(0, 2000).trim(),
-    };
-
     try {
+      // Nettoie les champs courts (anti-injection d'en-têtes) avant envoi
+      const safeData = {
+        ...formData,
+        name: cleanLine(formData.name),
+        email: cleanLine(formData.email),
+        phone: cleanLine(formData.phone),
+        eventType: cleanLine(formData.eventType),
+        eventDate: cleanLine(formData.eventDate),
+        message: String(formData.message).slice(0, 2000).trim(),
+      };
+
       // Tracker le contact
-      await trackPartnerContact(partner.id, safeData);
+      const trackResult = await trackPartnerContact(partner.id, safeData);
+      if (!trackResult.success) {
+        throw new Error("Failed to track contact");
+      }
 
       // Envoyer emails
       if (partner.email) {
-        await sendPartnerContactEmail(partner.id, partner.email, safeData);
+        const emailResult = await sendPartnerContactEmail(partner.id, partner.email, safeData);
+        if (!emailResult.success) {
+          throw new Error("Failed to send email");
+        }
       }
 
       setSubmitted(true);
@@ -62,8 +73,9 @@ const PartnersContactModal = ({ isOpen, onClose, partner }) => {
         setSubmitted(false);
         onClose();
       }, 2000);
-    } catch (error) {
-      console.error("Form submission error:", error);
+    } catch (err) {
+      console.error("Form submission error:", err);
+      setError(err.message || "Une erreur s'est produite. Veuillez réessayer.");
     } finally {
       setLoading(false);
     }
@@ -89,6 +101,10 @@ const PartnersContactModal = ({ isOpen, onClose, partner }) => {
             padding: "1.4rem",
           }}>
           <motion.div
+            ref={focusTrapRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="partner-modal-title"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.9 }}
@@ -116,10 +132,38 @@ const PartnersContactModal = ({ isOpen, onClose, partner }) => {
                   {t("partners_form_success_msg") || "Vous recevrez une réponse sous 24h"}
                 </p>
               </motion.div>
+            ) : error ? (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                style={{ textAlign: "center" }}>
+                <h2 style={{ color: "#ff6b6b", fontFamily: "'Bebas Neue', sans-serif", fontSize: "20px", margin: "0 0 1rem 0" }}>
+                  Erreur
+                </h2>
+                <p style={{ color: "rgba(255,107,107,0.9)", fontFamily: "'Montserrat', sans-serif", fontSize: "14px", marginBottom: "1.5rem" }}>
+                  {error}
+                </p>
+                <button
+                  onClick={() => setError(null)}
+                  style={{
+                    background: "rgba(255,107,107,0.2)",
+                    border: "1px solid rgba(255,107,107,0.5)",
+                    color: "#ff6b6b",
+                    padding: "0.6rem 1.2rem",
+                    fontFamily: "'Montserrat', sans-serif",
+                    fontSize: "12px",
+                    letterSpacing: "0.05em",
+                    textTransform: "uppercase",
+                    cursor: "pointer",
+                    borderRadius: "4px",
+                  }}>
+                  Réessayer
+                </button>
+              </motion.div>
             ) : (
               <>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem" }}>
-                  <h2 style={{ color: GOLD, fontFamily: "'Bebas Neue', sans-serif", fontSize: "28px", margin: 0 }}>
+                  <h2 id="partner-modal-title" style={{ color: GOLD, fontFamily: "'Bebas Neue', sans-serif", fontSize: "28px", margin: 0 }}>
                     {t("partners_form_title") || "Contactez ce partenaire"}
                   </h2>
                   <button
