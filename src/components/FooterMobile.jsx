@@ -86,7 +86,7 @@ const FooterMobile = ({ onFormules, onGalerie, onShowroom }) => {
             rel="noopener noreferrer"
             style={{ color: "rgba(245,240,232,0.68)", textDecoration: "none", borderBottom: "1px solid rgba(184,151,62,0.5)", display: "inline-flex", alignItems: "center", minHeight: "44px" }}
           >
-            Rodrin Bakala
+            Yaroconsulting
           </a>
         </p>
       </footer>
