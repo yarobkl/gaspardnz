@@ -81,7 +81,7 @@ const FooterMobile = ({ onFormules, onGalerie, onShowroom }) => {
         <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", color: "rgba(245,240,232,0.78)", textAlign: "center", letterSpacing: "0.1em", marginTop: "0.5rem" }}>
           {t("developed_by")}{" "}
           <a
-            href="https://www.tiktok.com/@yaro_bkl"
+            href="https://www.yaroconsulting.fr"
             target="_blank"
             rel="noopener noreferrer"
             style={{ color: "rgba(245,240,232,0.68)", textDecoration: "none", borderBottom: "1px solid rgba(184,151,62,0.5)", display: "inline-flex", alignItems: "center", minHeight: "44px" }}

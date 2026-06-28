@@ -183,7 +183,7 @@ const PartnersSection = ({ refEl }) => {
                 </p>
 
                 {/* Button */}
-                {!partner.placeholder ? (
+                {!partner.placeholder && partner.status !== 'coming_soon' ? (
                   <motion.button
                     onClick={() => {
                       if (partner.status === 'coming_soon') {
@@ -213,20 +213,25 @@ const PartnersSection = ({ refEl }) => {
                     {partner.status === 'coming_soon' ? (t("partners_coming_soon") || "À venir") : (t("partners_contact_btn") || "Prendre Contact")}
                   </motion.button>
                 ) : (
-                  <div style={{
-                    padding: "0.8rem 1.2rem",
-                    background: "rgba(184,151,62,0.05)",
-                    border: `1px solid ${GOLD}33`,
-                    color: "rgba(245,240,232,0.5)",
-                    fontFamily: "'Montserrat', sans-serif",
-                    fontSize: "11px",
-                    letterSpacing: "0.1em",
-                    textTransform: "uppercase",
-                    textAlign: "center",
-                    borderRadius: "4px",
-                  }}>
+                  <button
+                    disabled
+                    onClick={() => alert(t("partners_coming_soon_msg") || "Ce partenaire sera bientôt disponible. Merci de votre patience!")}
+                    style={{
+                      width: "100%",
+                      padding: "0.8rem 1.2rem",
+                      background: "rgba(184,151,62,0.05)",
+                      border: `1px solid ${GOLD}33`,
+                      color: "rgba(245,240,232,0.5)",
+                      fontFamily: "'Montserrat', sans-serif",
+                      fontSize: "11px",
+                      letterSpacing: "0.1em",
+                      textTransform: "uppercase",
+                      textAlign: "center",
+                      borderRadius: "4px",
+                      cursor: "not-allowed",
+                    }}>
                     {t("partners_coming_soon") || "À venir"}
-                  </div>
+                  </button>
                 )}
 
                 {/* Website Link (visible for active partners) */}

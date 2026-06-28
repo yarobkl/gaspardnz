@@ -33,7 +33,7 @@ export const trackPartnerContact = async (partnerId, clientData) => {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'X-CSRF-Token': csrfToken, // ✅ CSRF Protection
+            'X-CSRF-Token': csrfToken || '',
           },
           body: JSON.stringify(partnerContactData),
         });
@@ -49,29 +49,35 @@ export const trackPartnerContact = async (partnerId, clientData) => {
   }
 };
 
+const cleanLine = (value) =>
+  String(value)
+    .split('')
+    .filter((ch) => ch.charCodeAt(0) >= 32 && ch.charCodeAt(0) !== 127)
+    .join('')
+    .trim();
+
 export const sendPartnerContactEmail = async (partnerId, partnerEmail, clientData, partnerStatus = null) => {
   try {
-    // Pour les partenaires avec status 'coming_soon' (comme Palais Groupe),
-    // envoyer à Gaspard + CC à l'utilisateur
-    // Pour les autres partenaires, envoyer au partenaire + CC à l'utilisateur
-    const isComingSoon = partnerStatus === 'coming_soon';
+    // Pour TOUS les prestataires:
+    // Email TO: Gaspard (c'est à lui de contacter le prestataire)
+    // Email CC: Utilisateur (suivi)
+    // Le prestataire ne reçoit pas l'email, c'est Gaspard qui le contactera
     const gaspardEmail = 'gaspardnz.contact@gmail.com';
     const userEmail = 'eliebakala@gmail.com';
 
     const emailData = {
-      to: isComingSoon ? [gaspardEmail] : [partnerEmail],
+      to: [gaspardEmail],
       cc: [userEmail],
-      subject: `Nouvelle demande de contact - ${clientData.name}`,
+      subject: `Nouvelle demande de contact - ${cleanLine(clientData.name)}`,
       partnerId,
-      clientName: clientData.name,
-      clientEmail: clientData.email,
-      clientPhone: clientData.phone,
-      eventType: clientData.eventType,
-      eventDate: clientData.eventDate,
-      message: clientData.message,
+      clientName: cleanLine(clientData.name),
+      clientEmail: cleanLine(clientData.email),
+      clientPhone: cleanLine(clientData.phone),
+      eventType: cleanLine(clientData.eventType),
+      eventDate: cleanLine(clientData.eventDate),
+      message: String(clientData.message).slice(0, 2000).trim(),
       timestamp: new Date().toISOString(),
-      isComingSoon,
-      partnerEmail: isComingSoon ? `(à contacter par Gaspard: ${partnerEmail})` : null,
+      isComingSoon: partnerStatus === 'coming_soon',
     };
 
     // Envoyer email via API existante
@@ -82,7 +88,7 @@ export const sendPartnerContactEmail = async (partnerId, partnerEmail, clientDat
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'X-CSRF-Token': csrfToken, // ✅ CSRF Protection
+            'X-CSRF-Token': csrfToken || '',
           },
           body: JSON.stringify(emailData),
         });
