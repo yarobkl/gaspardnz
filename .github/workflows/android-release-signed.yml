@@ -28,11 +28,20 @@ jobs:
           else
             npx cap sync android
           fi
-      - name: Décoder le keystore
+      - name: Décoder et vérifier le keystore
         env:
           ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
         run: |
-          echo "$ANDROID_KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/upload-key.jks"
+          # Nettoie tout espace/retour parasite introduit lors du collage du secret
+          printf '%s' "$ANDROID_KEYSTORE_BASE64" | tr -d '[:space:]' | base64 -d > "$RUNNER_TEMP/upload-key.jks"
+          echo "Taille du keystore décodé: $(wc -c < "$RUNNER_TEMP/upload-key.jks") octets"
+          # Vérifie que le keystore est lisible AVANT le build (diagnostic clair si corrompu)
+          if ! keytool -list -keystore "$RUNNER_TEMP/upload-key.jks" -storepass "$KEYSTORE_PASSWORD" >/dev/null 2>&1; then
+            echo "::error::Keystore invalide ou mot de passe incorrect. Vérifie le secret ANDROID_KEYSTORE_BASE64 (collage complet, sans espace) et ANDROID_KEYSTORE_PASSWORD."
+            exit 1
+          fi
+          echo "✅ Keystore valide et lisible"
       - name: Générer AAB release SIGNÉ
         env:
           KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
