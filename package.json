@@ -33,6 +33,7 @@
     "react-onesignal": "^3.5.1"
   },
   "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
     "@vitejs/plugin-react": "^6.0.2",
     "vite": "^8.0.14"
   }

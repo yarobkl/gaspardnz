@@ -28,6 +28,8 @@ jobs:
           else
             npx cap sync android
           fi
+      - name: Générer les icônes de l'app (logo GNZ)
+        run: npx @capacitor/assets generate --android
       - name: Générer APK debug
         run: |
           cd android
