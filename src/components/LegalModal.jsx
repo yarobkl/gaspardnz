@@ -31,7 +31,7 @@ const LEGAL = {
         sections: [
           ["Éditeur du site", [`Le site ${SITE} est édité par :`, `${EDITEUR}\nPropriétaire et gestionnaire du site Gaspardnz\nEmail : ${EMAIL}`]],
           ["Activité représentée", [`${OWNER}\nEntrepreneur Individuel (auto-entrepreneur)\nSIRET : ${SIRET}\nActivité : Vente à distance sur catalogue général (code APE 4791A)\nAdresse : ${ADRESSE}\nTéléphone : ${TEL}\nEmail : ${EMAIL}\nTVA non applicable — article 293 B du CGI`]],
-          ["Hébergement", ["Le site est hébergé par Vercel Inc., 340 Pine Street, Suite 701, San Francisco, CA 94104, États-Unis."]],
+          ["Hébergement", ["Hébergeur : Vercel Inc. — San Francisco, CA, USA."]],
           ["Propriété intellectuelle", [`L'ensemble des contenus présents sur ce site sont la propriété exclusive de ${OWNER} ou de leurs auteurs respectifs. Toute reproduction ou utilisation sans autorisation écrite préalable est interdite.`]],
           ["Responsabilité", [`Les informations publiées sur ce site sont fournies à titre indicatif. ${OWNER} ne saurait être tenu responsable de tout dommage direct ou indirect lié à l'utilisation du site.`]],
           ["Contact", [`Pour toute question : ${EMAIL} — ${TEL}`]],
@@ -72,7 +72,7 @@ const LEGAL = {
         sections: [
           ["Site publisher", [`The website ${SITE} is published by:`, `${EDITEUR}\nOwner and manager of the Gaspardnz website\nEmail: ${EMAIL}`]],
           ["Represented activity", [`${OWNER}\nIndividual entrepreneur\nSIRET: ${SIRET}\nActivity: Distance selling on general catalogue (APE code 4791A)\nAddress: ${ADRESSE}\nPhone: ${TEL}\nEmail: ${EMAIL}\nVAT not applicable — article 293 B of the French Tax Code`]],
-          ["Hosting", ["The website is hosted by Vercel Inc., 340 Pine Street, Suite 701, San Francisco, CA 94104, United States."]],
+          ["Hosting", ["Host: Vercel Inc. — San Francisco, CA, USA."]],
           ["Intellectual property", [`All content on this website is the exclusive property of ${OWNER} or of its respective authors. Any reproduction or use without prior written authorization is prohibited.`]],
           ["Liability", [`The information published on this website is provided for information purposes. ${OWNER} cannot be held liable for direct or indirect damage linked to use of the website.`]],
           ["Contact", [`For any question: ${EMAIL} — ${TEL}`]],
@@ -126,7 +126,7 @@ const LEGAL = {
 LEGAL.ES.pages.mentions.sections = [
   ["Editor del sitio", [`El sitio ${SITE} está editado por:`, `${EDITEUR}\nPropietario y gestor del sitio Gaspardnz\nEmail: ${EMAIL}`]],
   ["Actividad representada", [`${OWNER}\nEmpresario individual\nSIRET: ${SIRET}\nActividad: venta a distancia por catálogo general (código APE 4791A)\nDirección: ${ADRESSE}\nTeléfono: ${TEL}\nEmail: ${EMAIL}\nIVA no aplicable — artículo 293 B del CGI`]],
-  ["Alojamiento", ["El sitio está alojado por Vercel Inc., 340 Pine Street, Suite 701, San Francisco, CA 94104, Estados Unidos."]],
+  ["Alojamiento", ["Alojamiento: Vercel Inc. — San Francisco, CA, EE. UU."]],
   ["Propiedad intelectual", [`Todo el contenido del sitio pertenece exclusivamente a ${OWNER} o a sus respectivos autores. Queda prohibida toda reproducción o uso sin autorización escrita previa.`]],
   ["Responsabilidad", [`La información publicada en este sitio se proporciona a título informativo. ${OWNER} no será responsable de daños directos o indirectos relacionados con el uso del sitio.`]],
   ["Contacto", [`Para cualquier pregunta: ${EMAIL} — ${TEL}`]],
@@ -153,7 +153,7 @@ LEGAL.ES.pages.cgv.sections = [
 LEGAL.ZH.pages.mentions.sections = [
   ["网站发布者", [`网站 ${SITE} 由以下主体发布：`, `${EDITEUR}\nGaspardnz 网站所有者与管理者\n邮箱：${EMAIL}`]],
   ["代表业务", [`${OWNER}\n个体经营者\nSIRET：${SIRET}\n业务：普通目录远程销售（APE 代码 4791A）\n地址：${ADRESSE}\n电话：${TEL}\n邮箱：${EMAIL}\n增值税不适用 — 法国税法第 293 B 条`]],
-  ["托管服务", ["本网站由 Vercel Inc. 托管，地址：340 Pine Street, Suite 701, San Francisco, CA 94104, United States。"]],
+  ["托管服务", ["托管商：Vercel Inc. — San Francisco, CA, USA。"]],
   ["知识产权", [`网站上的所有内容均归 ${OWNER} 或相关作者所有。未经事先书面授权，禁止复制、传播或使用。`]],
   ["责任", [`本网站信息仅供参考。因使用网站产生的直接或间接损害，${OWNER} 不承担责任。`]],
   ["联系方式", [`如有问题：${EMAIL} — ${TEL}`]],
