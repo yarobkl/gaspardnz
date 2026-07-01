@@ -105,7 +105,7 @@ const GalleryMobile = ({ refEl }) => {
     <section ref={refEl} style={{ background: "#f5f0e8", paddingBottom: "4rem" }}>
       <motion.p
         initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
-        style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "8px", letterSpacing: "0.5em", color: GOLD, textTransform: "uppercase", padding: "3rem 1.4rem 1.5rem" }}
+        style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "11px", letterSpacing: "0.4em", color: GOLD, textTransform: "uppercase", padding: "3rem 1.4rem 1.5rem" }}
       >{t("nav_galerie")}</motion.p>
 
       <div style={{ position: "relative", overflow: "hidden" }}>
@@ -122,13 +122,13 @@ const GalleryMobile = ({ refEl }) => {
                 style={{ width: "100%", height: "auto", maxHeight: "none", objectFit: "contain", objectPosition: "center top", filter: "brightness(0.94) contrast(1.02) saturate(0.9)", display: "block" }} />
               {label && (
                 <div style={{ position: "absolute", bottom: "1rem", left: "1rem" }}>
-                  <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.4em", color: "rgba(255,255,255,0.85)", textTransform: "uppercase" }}>{label}</p>
+                  <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.4em", color: "rgba(255,255,255,0.85)", textTransform: "uppercase" }}>{label}</p>
                 </div>
               )}
               {i === cur && hotspots.length > 0 && (
                 <div style={{ position: "absolute", bottom: "1rem", right: "1rem", display: "flex", alignItems: "center", gap: "6px" }}>
                   <div style={{ width: "6px", height: "6px", borderRadius: "50%", background: GOLD }} />
-                  <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "6px", letterSpacing: "0.35em", color: "rgba(255,255,255,0.75)", textTransform: "uppercase" }}>{t("shop_the_look")}</p>
+                  <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "9px", letterSpacing: "0.35em", color: "rgba(255,255,255,0.75)", textTransform: "uppercase" }}>{t("shop_the_look")}</p>
                 </div>
               )}
               {i === cur && hotspots.map((spot, si) => (
@@ -217,7 +217,7 @@ const GalleryMobile = ({ refEl }) => {
 
               <div style={{ padding: "0.6rem 1.4rem 1rem", borderBottom: `1px solid rgba(184,151,62,0.2)`, display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
                 <div>
-                  <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "6.5px", letterSpacing: "0.55em", color: GOLD, textTransform: "uppercase", marginBottom: "5px" }}>{t("shop_the_look")}</p>
+                  <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "9px", letterSpacing: "0.42em", color: GOLD, textTransform: "uppercase", marginBottom: "5px" }}>{t("shop_the_look")}</p>
                   <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "22px", fontWeight: 300, color: TEXT, letterSpacing: "0.02em" }}>{curItem.label}</p>
                 </div>
                 <button aria-label={t("close")} onClick={() => setActiveSpot(null)} style={{ background: "none", border: "none", padding: "4px", minWidth: "44px", minHeight: "44px", cursor: "pointer", color: "rgba(28,18,8,0.62)", fontSize: "18px", lineHeight: 1, marginTop: "2px" }}>&times;</button>
@@ -248,7 +248,7 @@ const GalleryMobile = ({ refEl }) => {
               </div>
 
               <div style={{ padding: "1rem 1.4rem 0.6rem", borderTop: "1px solid rgba(184,151,62,0.15)" }}>
-                <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.5em", color: "rgba(28,18,8,0.35)", textTransform: "uppercase", textAlign: "center", marginBottom: "14px" }}>{t("share_look")}</p>
+                <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.4em", color: "rgba(28,18,8,0.35)", textTransform: "uppercase", textAlign: "center", marginBottom: "14px" }}>{t("share_look")}</p>
                 <div style={{ display: "flex", justifyContent: "center", gap: "14px" }}>
                   {[
                     { id:"instagram", label:"Instagram", bg:"linear-gradient(45deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888)",
@@ -268,7 +268,7 @@ const GalleryMobile = ({ refEl }) => {
                       <div style={{ width: "40px", height: "40px", borderRadius: "50%", background: n.bg, display: "flex", alignItems: "center", justifyContent: "center" }}>
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="white">{n.icon}</svg>
                       </div>
-                      <span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", color: "rgba(28,18,8,0.45)" }}>{n.label}</span>
+                      <span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", color: "rgba(28,18,8,0.45)" }}>{n.label}</span>
                     </motion.button>
                   ))}
                 </div>

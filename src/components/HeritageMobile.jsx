@@ -29,11 +29,11 @@ const HeritageMobile = ({ refEl }) => {
         <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, #f5f0e8 0%, transparent 25%, transparent 45%, rgba(245,240,232,0.7) 80%, #f5f0e8 100%)" }} />
         <motion.div
           initial={{ opacity: 0, x: -12 }} animate={inView ? { opacity: 1, x: 0 } : {}}
-          transition={{ delay: 0.9, duration: 0.6 }}
+          transition={{ delay: 0.5, duration: 0.5 }}
           style={{ position: "absolute", top: "1.4rem", left: "1.4rem", display: "flex", alignItems: "center", gap: "8px" }}
         >
           <div style={{ width: "20px", height: "1px", background: GOLD }} />
-          <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.45em", color: GOLD, textTransform: "uppercase" }}>{t("inspirateur")}</p>
+          <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.45em", color: GOLD, textTransform: "uppercase" }}>{t("inspirateur")}</p>
         </motion.div>
       </motion.div>
 
@@ -54,7 +54,7 @@ const HeritageMobile = ({ refEl }) => {
 
         <motion.p
           initial={{ opacity: 0, y: 12 }} animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ delay: 0.75, duration: 0.8 }}
+          transition={{ delay: 0.4, duration: 0.55 }}
           style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "clamp(0.72rem, 2.8vw, 0.82rem)", fontWeight: 300, lineHeight: 1.9, color: "rgba(28,18,8,0.78)", letterSpacing: "0.03em" }}
         >
           {t("heritage_desc")}
@@ -62,7 +62,7 @@ const HeritageMobile = ({ refEl }) => {
 
         <motion.div
           initial={{ scaleX: 0 }} animate={inView ? { scaleX: 1 } : {}}
-          transition={{ duration: 0.9, delay: 0.9, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: 0.6, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
           style={{ height: "1px", background: `linear-gradient(90deg, transparent, ${GOLD}, transparent)`, margin: "2.2rem auto 0", width: "60px", transformOrigin: "center" }}
         />
       </div>

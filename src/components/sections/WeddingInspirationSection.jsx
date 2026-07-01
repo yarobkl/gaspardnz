@@ -37,7 +37,7 @@ const WeddingInspirationSection = ({ refEl }) => {
         initial={{ opacity: 0, y: 16 }} animate={inView ? { opacity: 1, y: 0 } : {}}
         transition={{ duration: 0.7 }}
         style={{ padding: "0 1.4rem", marginBottom: "2rem" }}>
-        <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.55em", color: GOLD, textTransform: "uppercase", marginBottom: "10px" }}>GASPARDNZ</p>
+        <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.42em", color: GOLD, textTransform: "uppercase", marginBottom: "10px" }}>GASPARDNZ</p>
         <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "28px", fontWeight: 300, color: "#faf7f2", letterSpacing: "0.02em", lineHeight: 1.2, margin: 0 }}>{t("wedding_inspiration")}</p>
         <div style={{ width: "48px", height: "1px", background: `linear-gradient(90deg, ${GOLD}, transparent)`, marginTop: "14px" }} />
       </motion.div>
@@ -47,7 +47,7 @@ const WeddingInspirationSection = ({ refEl }) => {
           <motion.div key={i}
             initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-6% 0px" }}
-            transition={{ duration: 0.7, delay: i * 0.08, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 0.5, delay: i * 0.05, ease: [0.16, 1, 0.3, 1] }}
             style={{ background: "#111009", borderRadius: "16px", overflow: "hidden", border: "1px solid rgba(184,151,62,0.15)" }}>
             {(() => {
               const album = item.album?.length ? item.album : item.src ? [{ src: item.src, spots: item.spots || [] }] : [];
@@ -67,7 +67,7 @@ const WeddingInspirationSection = ({ refEl }) => {
                   style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center top", display: "block" }} />
               ) : (
                 <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "2rem", textAlign: "center" }}>
-                  <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "8px", letterSpacing: "0.5em", color: GOLD, textTransform: "uppercase", marginBottom: "0.9rem" }}>GASPARDNZ</p>
+                  <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "11px", letterSpacing: "0.4em", color: GOLD, textTransform: "uppercase", marginBottom: "0.9rem" }}>GASPARDNZ</p>
                   <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1.6rem", fontStyle: "italic", color: "#faf7f2", lineHeight: 1.25, margin: 0 }}>{t("coming_photo_soon")}</p>
                   <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "9px", letterSpacing: "0.18em", color: "rgba(245,240,232,0.75)", textTransform: "uppercase", marginTop: "1rem" }}>{t("look_preparing")}</p>
                 </div>
@@ -102,7 +102,7 @@ const WeddingInspirationSection = ({ refEl }) => {
                               };
                               window.open(`${WA_GNZ}?text=${encodeURIComponent(messages[lang] || messages.FR)}`, "_blank");
                             }}
-                            style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "6.5px", letterSpacing: "0.18em", color: GOLD, textTransform: "uppercase", background: "rgba(184,151,62,0.1)", border: `1px solid rgba(184,151,62,0.3)`, borderRadius: "20px", padding: "9px 8px", minHeight: "44px", cursor: "pointer", width: "100%" }}>
+                            style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "9px", letterSpacing: "0.18em", color: GOLD, textTransform: "uppercase", background: "rgba(184,151,62,0.1)", border: `1px solid rgba(184,151,62,0.3)`, borderRadius: "20px", padding: "9px 8px", minHeight: "44px", cursor: "pointer", width: "100%" }}>
                             {t("ask_availability")}
                           </button>
                         </motion.div>

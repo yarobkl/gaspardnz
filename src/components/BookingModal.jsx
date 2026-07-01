@@ -22,7 +22,7 @@ const BoutiqueModal = ({ onClose, onReserver }) => {
 
       <div style={{ padding: "1.6rem 1.8rem 1.2rem", borderBottom: "1px solid rgba(184,151,62,0.1)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <div>
-          <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.45em", color: GOLD, textTransform: "uppercase", marginBottom: "0.3rem" }}>{t("boutique_soon_badge")}</p>
+          <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.45em", color: GOLD, textTransform: "uppercase", marginBottom: "0.3rem" }}>{t("boutique_soon_badge")}</p>
           <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.4rem", letterSpacing: "0.1em", color: TEXT, margin: 0, lineHeight: 1 }}>{t("nav_boutique")}</p>
         </div>
         <button onClick={onClose} style={{ background: "none", border: "none", cursor: "pointer", padding: "4px 8px", color: "rgba(28,18,8,0.62)", fontSize: "22px", lineHeight: 1 }}>×</button>
@@ -31,7 +31,7 @@ const BoutiqueModal = ({ onClose, onReserver }) => {
       <div style={{ padding: "2.4rem 1.8rem", textAlign: "center" }}>
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15, duration: 0.5 }}
           style={{ display: "inline-block", border: `1px solid rgba(184,151,62,0.4)`, padding: "0.3rem 1rem", marginBottom: "1.4rem" }}>
-          <span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.45em", color: GOLD, textTransform: "uppercase" }}>
+          <span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.45em", color: GOLD, textTransform: "uppercase" }}>
             {t("boutique_soon_badge")}
           </span>
         </motion.div>
@@ -50,7 +50,7 @@ const BoutiqueModal = ({ onClose, onReserver }) => {
 
         <motion.button initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45, duration: 0.5 }}
           onClick={onReserver}
-          style={{ display: "inline-flex", alignItems: "center", gap: "10px", background: GOLD, color: "#1c1208", padding: "0.95rem 2rem", border: "none", cursor: "pointer", fontFamily: "'Montserrat', sans-serif", fontSize: "8px", letterSpacing: "0.4em", textTransform: "uppercase", fontWeight: 700 }}>
+          style={{ display: "inline-flex", alignItems: "center", gap: "10px", background: GOLD, color: "#1c1208", padding: "0.95rem 2rem", border: "none", cursor: "pointer", fontFamily: "'Montserrat', sans-serif", fontSize: "11px", letterSpacing: "0.4em", textTransform: "uppercase", fontWeight: 700 }}>
           <SvgWA />
           {t("boutique_wa_cta")}
         </motion.button>
@@ -115,7 +115,7 @@ const BookingModal = ({ isOpen, onClose, boutiqueMode = false, onSwitchToBooking
 
             <div style={{ padding: "2rem 1.8rem 1.2rem", borderBottom: "1px solid rgba(184,151,62,0.1)", display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexShrink: 0 }}>
               <div>
-                <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.5em", color: GOLD, textTransform: "uppercase", marginBottom: "0.4rem" }}>
+                <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.4em", color: GOLD, textTransform: "uppercase", marginBottom: "0.4rem" }}>
                   {step === 1 ? t("bk_step1") : t("bk_step2")}
                 </p>
                 <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.6rem", letterSpacing: "0.08em", color: TEXT, lineHeight: 1 }}>
@@ -138,7 +138,7 @@ const BookingModal = ({ isOpen, onClose, boutiqueMode = false, onSwitchToBooking
                         { k: "besoin", lbl: t("bk_lbl_besoin"), ph: t("bk_ph_besoin") },
                       ].map(({ k, lbl, ph }) => (
                         <div key={k}>
-                          <label htmlFor={`booking-${k}`} style={{ display: "block", fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.35em", color: "rgba(28,18,8,0.72)", textTransform: "uppercase", marginBottom: "0.5rem", cursor: "pointer" }}>
+                          <label htmlFor={`booking-${k}`} style={{ display: "block", fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.35em", color: "rgba(28,18,8,0.72)", textTransform: "uppercase", marginBottom: "0.5rem", cursor: "pointer" }}>
                             {lbl}
                           </label>
                           {k === "besoin" ? (
@@ -179,7 +179,7 @@ const BookingModal = ({ isOpen, onClose, boutiqueMode = false, onSwitchToBooking
                         background: ok ? GOLD : "rgba(184,151,62,0.15)",
                         color: ok ? "#1c1208" : "rgba(28,18,8,0.6)",
                         padding: "1rem", fontFamily: "'Montserrat', sans-serif",
-                        fontSize: "8px", letterSpacing: "0.4em", textTransform: "uppercase",
+                        fontSize: "11px", letterSpacing: "0.4em", textTransform: "uppercase",
                         cursor: ok ? "pointer" : "not-allowed", transition: "all 0.4s",
                         display: "flex", alignItems: "center", justifyContent: "center", gap: "8px",
                       }}>
@@ -204,7 +204,7 @@ const BookingModal = ({ isOpen, onClose, boutiqueMode = false, onSwitchToBooking
                         </div>
                         <div>
                           <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.15rem", letterSpacing: "0.07em", color: TEXT, marginBottom: "0.15rem" }}>{t("bk_cal_title")}</p>
-                          <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.2em", color: "rgba(28,18,8,0.68)", textTransform: "uppercase" }}>{t("bk_cal_sub")}</p>
+                          <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.2em", color: "rgba(28,18,8,0.68)", textTransform: "uppercase" }}>{t("bk_cal_sub")}</p>
                         </div>
                       </a>
 
@@ -217,17 +217,17 @@ const BookingModal = ({ isOpen, onClose, boutiqueMode = false, onSwitchToBooking
                         </div>
                         <div>
                           <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.15rem", letterSpacing: "0.07em", color: TEXT, marginBottom: "0.15rem" }}>{t("bk_wa_title")}</p>
-                          <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.2em", color: "rgba(28,18,8,0.68)", textTransform: "uppercase" }}>{t("bk_wa_sub")}</p>
+                          <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.2em", color: "rgba(28,18,8,0.68)", textTransform: "uppercase" }}>{t("bk_wa_sub")}</p>
                         </div>
                       </a>
                     </div>
 
-                    <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.28em", color: "rgba(28,18,8,0.6)", textTransform: "uppercase", textAlign: "center", marginTop: "1.5rem" }}>
+                    <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.28em", color: "rgba(28,18,8,0.6)", textTransform: "uppercase", textAlign: "center", marginTop: "1.5rem" }}>
                       {t("bk_guarantee")}
                     </p>
 
                     <button onClick={() => setStep(1)}
-                      style={{ display: "block", background: "none", border: "none", margin: "1.1rem auto 0", cursor: "pointer", fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.22em", color: "rgba(28,18,8,0.58)", textTransform: "uppercase" }}>
+                      style={{ display: "block", background: "none", border: "none", margin: "1.1rem auto 0", cursor: "pointer", fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.22em", color: "rgba(28,18,8,0.58)", textTransform: "uppercase" }}>
                       {t("bk_back")}
                     </button>
                   </motion.div>

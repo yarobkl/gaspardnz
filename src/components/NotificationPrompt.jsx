@@ -27,7 +27,7 @@ const NotificationPrompt = ({ visible, onAccept, onDecline }) => {
               style={{ width: "8px", height: "8px", border: `1px solid rgba(184,151,62,0.8)`, background: "rgba(184,151,62,0.25)", transform: "rotate(45deg)", margin: "0 auto 0.9rem" }}
             />
 
-            <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.38em", color: GOLD, textTransform: "uppercase", marginBottom: "0.65rem" }}>
+            <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.38em", color: GOLD, textTransform: "uppercase", marginBottom: "0.65rem" }}>
               {t("notif_label")}
             </p>
 
@@ -35,21 +35,21 @@ const NotificationPrompt = ({ visible, onAccept, onDecline }) => {
               {t("notif_title_l1")}<br />{t("notif_title_l2")}
             </h3>
 
-            <p style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: "italic", fontSize: "0.92rem", color: "rgba(245,240,232,0.56)", lineHeight: 1.55, marginBottom: "1rem" }}>
+            <p style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: "italic", fontSize: "0.92rem", color: "rgba(245,240,232,0.7)", lineHeight: 1.55, marginBottom: "1rem" }}>
               {t("notif_desc")}
             </p>
 
             <motion.button
               onClick={onAccept}
               whileTap={{ scale: 0.97 }}
-              style={{ display: "block", width: "100%", background: GOLD, color: "#0a0602", border: "none", borderRadius: "50px", padding: "0.78rem", cursor: "pointer", fontFamily: "'Montserrat', sans-serif", fontSize: "8px", letterSpacing: "0.25em", textTransform: "uppercase", fontWeight: 700, marginBottom: "0.5rem" }}
+              style={{ display: "block", width: "100%", background: GOLD, color: "#0a0602", border: "none", borderRadius: "50px", padding: "0.78rem", cursor: "pointer", fontFamily: "'Montserrat', sans-serif", fontSize: "11px", letterSpacing: "0.25em", textTransform: "uppercase", fontWeight: 700, marginBottom: "0.5rem" }}
             >
               {t("notif_accept")}
             </motion.button>
 
             <button
               onClick={onDecline}
-              style={{ display: "block", width: "100%", background: "none", color: "rgba(245,240,232,0.28)", border: "none", cursor: "pointer", fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.25em", textTransform: "uppercase", padding: "0.4rem" }}
+              style={{ display: "block", width: "100%", background: "none", color: "rgba(245,240,232,0.28)", border: "none", cursor: "pointer", fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.25em", textTransform: "uppercase", padding: "0.4rem" }}
             >
               {t("notif_decline")}
             </button>

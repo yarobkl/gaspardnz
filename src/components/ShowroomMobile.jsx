@@ -89,7 +89,7 @@ const DecontracteAlbumModal = ({ photos, onClose }) => {
         style={{ width: "min(92vw, 520px)", maxHeight: "86vh", display: "flex", flexDirection: "column" }}
       >
         <div style={{ textAlign: "center", marginBottom: "0.9rem" }}>
-          <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.5em", color: GOLD, textTransform: "uppercase", margin: 0 }}>{t("album_label")}</p>
+          <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.4em", color: GOLD, textTransform: "uppercase", margin: 0 }}>{t("album_label")}</p>
           <h3 style={{ fontFamily: "'Bebas Neue', sans-serif", color: "#f5f0e8", fontSize: "clamp(2.1rem, 10vw, 4rem)", letterSpacing: "0.08em", lineHeight: 0.9, margin: "0.55rem 0 0" }}>{t("relaxed")}</h3>
         </div>
 
@@ -208,14 +208,14 @@ const DecontracteAlbum = ({ onClick }) => {
         ))}
       </div>
       <div style={{ position: "absolute", top: "1rem", left: "1.2rem", background: "rgba(28,18,8,0.5)", padding: "0.45rem 1rem", backdropFilter: "blur(4px)" }}>
-        <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.55em", color: GOLD, textTransform: "uppercase", margin: 0 }}>{t("album_label")}</p>
+        <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.42em", color: GOLD, textTransform: "uppercase", margin: 0 }}>{t("album_label")}</p>
       </div>
       <button
         type="button"
         onClick={(e) => { e.stopPropagation(); onClick(); }}
         style={{ position: "absolute", top: "1rem", right: "1.2rem", background: "rgba(28,18,8,0.55)", border: "1px solid rgba(184,151,62,0.18)", padding: "0.75rem 0.9rem", minHeight: "44px", backdropFilter: "blur(4px)", cursor: "pointer" }}
       >
-        <span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.3em", color: GOLD, textTransform: "uppercase", margin: 0 }}>{t("view_album")}</span>
+        <span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.3em", color: GOLD, textTransform: "uppercase", margin: 0 }}>{t("view_album")}</span>
       </button>
       <div style={{ position: "absolute", bottom: "2.6rem", left: "1.2rem" }}>
         <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(2.2rem,11vw,3.5rem)", color: "rgba(245,240,232,0.95)", letterSpacing: "0.08em", lineHeight: 0.9, margin: 0, textShadow: "0 2px 20px rgba(0,0,0,0.7)" }}>{t("relaxed")}</p>
@@ -247,7 +247,7 @@ const ShowroomMobile = ({ refEl, onCatalogue }) => {
       <div ref={ref} style={{ padding: "3rem 1.4rem 4rem" }}>
         <motion.p
           initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.2 }}
-          style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "8px", letterSpacing: "0.5em", color: GOLD, textTransform: "uppercase", marginBottom: "1.2rem" }}
+          style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "11px", letterSpacing: "0.4em", color: GOLD, textTransform: "uppercase", marginBottom: "1.2rem" }}
         >{t("nav_showroom")}</motion.p>
 
         <div style={{ overflow: "hidden", marginBottom: "1.8rem" }}>
@@ -272,7 +272,7 @@ const ShowroomMobile = ({ refEl, onCatalogue }) => {
           {[["07", t("showroom_stat1")], ["∞", t("showroom_stat2")], ["01", t("showroom_stat3")]].map(([num, label]) => (
             <div key={label}>
               <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "2rem", color: GOLD, lineHeight: 1 }}>{num}</div>
-              <div style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.2em", color: "rgba(28,18,8,0.6)", textTransform: "uppercase", marginTop: "0.4rem" }}>{label}</div>
+              <div style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.2em", color: "rgba(28,18,8,0.6)", textTransform: "uppercase", marginTop: "0.4rem" }}>{label}</div>
             </div>
           ))}
         </motion.div>

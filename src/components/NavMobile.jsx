@@ -78,7 +78,7 @@ const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules, 
           aria-label={t("nav_top")}
           style={{ background: "none", border: "none", cursor: "pointer", textAlign: "left", minHeight: "44px", padding: "5px 0", minWidth: 0, flex: "0 1 auto" }}>
           <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: compactNav ? "20px" : "22px", letterSpacing: compactNav ? "0.2em" : "0.3em", color: navTextColor, lineHeight: 1, transition: "color 0.4s", whiteSpace: "nowrap" }}>Gaspardnz</div>
-          <div style={{ fontSize: "7px", letterSpacing: compactNav ? "0.36em" : "0.5em", color: GOLD, textTransform: "uppercase", fontFamily: "'Montserrat', sans-serif", marginTop: "3px" }}>Paris</div>
+          <div style={{ fontSize: "10px", letterSpacing: compactNav ? "0.36em" : "0.5em", color: GOLD, textTransform: "uppercase", fontFamily: "'Montserrat', sans-serif", marginTop: "3px" }}>Paris</div>
         </button>
 
         <div style={{ display: "flex", alignItems: "center", gap: compactNav ? "0.2rem" : "0.4rem", flexShrink: 0 }}>
@@ -121,7 +121,7 @@ const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules, 
                     <circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/>
                     <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
                   </svg>
-                  <span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "5px", letterSpacing: "0.3em", color: GOLD }}>{lang}</span>
+                  <span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "11px", letterSpacing: "0.3em", color: GOLD }}>{lang}</span>
                 </motion.button>
                 <AnimatePresence>
                   {langOpen && (
@@ -156,7 +156,7 @@ const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules, 
                 transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
                 style={{ position: "absolute", top: "-3px", right: "-4px", width: "7px", height: "7px", background: GOLD, borderRadius: "50%", border: "1.5px solid rgba(245,240,232,0.9)" }} />
             </div>
-            <span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "5px", letterSpacing: "0.3em", color: GOLD, userSelect: "none" }}>SHOP</span>
+            <span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "11px", letterSpacing: "0.3em", color: GOLD, userSelect: "none" }}>SHOP</span>
           </motion.button>
 
           <motion.button onClick={() => setOpen(v => !v)}
@@ -180,7 +180,7 @@ const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules, 
               style={{ display: "block", width: "28px", height: "2px", background: open ? GOLD : navTextColor, transition: "background 0.4s", position: "relative", zIndex: 1 }} />
 
             {/* "Menu" text label */}
-            <span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.3em", color: GOLD, userSelect: "none", position: "relative", zIndex: 1, marginTop: "2px" }}>MENU</span>
+            <span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.3em", color: GOLD, userSelect: "none", position: "relative", zIndex: 1, marginTop: "2px" }}>MENU</span>
           </motion.button>
         </div>
       </nav>
@@ -249,7 +249,7 @@ const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules, 
               {["FR", "EN", "ES", "ZH"].map(l => (
                 <button key={l} onClick={() => chooseLang(l)}
                   aria-label={t("nav_switch_lang", l)}
-                  style={{ background: "none", border: "none", cursor: "pointer", fontFamily: "'Montserrat', sans-serif", fontSize: "8px", letterSpacing: "0.3em", padding: "4px 6px", minWidth: "44px", minHeight: "44px",
+                  style={{ background: "none", border: "none", cursor: "pointer", fontFamily: "'Montserrat', sans-serif", fontSize: "11px", letterSpacing: "0.3em", padding: "4px 6px", minWidth: "44px", minHeight: "44px",
                     color: lang === l ? GOLD : "rgba(28,18,8,0.3)", borderBottom: lang === l ? `1px solid ${GOLD}` : "1px solid transparent", transition: "all 0.3s" }}>
                   {l}
                 </button>

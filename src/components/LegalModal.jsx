@@ -16,7 +16,7 @@ const s = {
   box: { background: "#0f0a04", border: "1px solid rgba(184,151,62,0.18)", borderRadius: "12px", maxWidth: "680px", width: "100%", padding: "2.4rem 1.8rem", position: "relative" },
   close: { position: "absolute", top: "1rem", right: "1.2rem", background: "none", border: "none", color: "rgba(245,240,232,0.4)", fontSize: "1.6rem", cursor: "pointer", lineHeight: 1 },
   title: { fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.8rem", letterSpacing: "0.2em", color: "#faf7f2", marginBottom: "0.4rem" },
-  sub: { fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.4em", color: GOLD, textTransform: "uppercase", marginBottom: "2rem" },
+  sub: { fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.4em", color: GOLD, textTransform: "uppercase", marginBottom: "2rem" },
   h2: { fontFamily: "'Cormorant Garamond', serif", fontSize: "1rem", color: GOLD, fontWeight: 600, marginTop: "1.8rem", marginBottom: "0.5rem", textTransform: "uppercase", letterSpacing: "0.12em" },
   p: { fontFamily: "'Montserrat', sans-serif", fontSize: "11px", color: "rgba(245,240,232,0.65)", lineHeight: 1.85, margin: "0 0 0.6rem", whiteSpace: "pre-line" },
   divider: { height: "1px", background: "linear-gradient(90deg, transparent, rgba(184,151,62,0.2), transparent)", margin: "2rem 0" },

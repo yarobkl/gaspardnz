@@ -29,7 +29,7 @@ const TestimonialsSection = () => {
         initial={{ opacity: 0, y: 16 }} animate={inView ? { opacity: 1, y: 0 } : {}}
         transition={{ duration: 0.7 }}
         style={{ padding: "0 1.4rem", marginBottom: "2.4rem" }}>
-        <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.55em", color: GOLD, textTransform: "uppercase", marginBottom: "10px" }}>{t("testimonials_eyebrow")}</p>
+        <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.42em", color: GOLD, textTransform: "uppercase", marginBottom: "10px" }}>{t("testimonials_eyebrow")}</p>
         <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "28px", fontWeight: 300, color: "#faf7f2", letterSpacing: "0.02em", lineHeight: 1.2, margin: 0 }}>{t("testimonials_title")}</p>
         <div style={{ width: "48px", height: "1px", background: `linear-gradient(90deg, ${GOLD}, transparent)`, marginTop: "14px" }} />
       </motion.div>
@@ -49,7 +49,7 @@ const TestimonialsSection = () => {
                 <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "11px", fontWeight: 600, color: "#faf7f2", margin: 0 }}>{r.handle}</p>
                 <StarRow n={r.stars} />
               </div>
-              <span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.2em", color: GOLD, textTransform: "uppercase" }}>{r.platform}</span>
+              <span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.2em", color: GOLD, textTransform: "uppercase" }}>{r.platform}</span>
             </div>
             <p style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: "italic", fontSize: "1rem", color: "rgba(245,240,232,0.72)", lineHeight: 1.65, margin: 0 }}>« {r.text} »</p>
           </motion.div>

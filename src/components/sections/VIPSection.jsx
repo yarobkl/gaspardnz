@@ -45,7 +45,7 @@ const AlbumModal = ({ photos, name, onClose }) => {
 
       <button aria-label={t("close")} onClick={onClose} style={{ position: "absolute", top: "1.2rem", right: "1.2rem", background: "none", border: "none", color: "rgba(245,240,232,0.82)", fontSize: "1.8rem", cursor: "pointer", zIndex: 1, width: "44px", height: "44px" }}>✕</button>
 
-      <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.5em", color: GOLD, textTransform: "uppercase", marginBottom: "1.2rem", zIndex: 1 }}>ALBUM · {name.toUpperCase()}</p>
+      <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.4em", color: GOLD, textTransform: "uppercase", marginBottom: "1.2rem", zIndex: 1 }}>ALBUM · {name.toUpperCase()}</p>
 
       <motion.div onClick={e => e.stopPropagation()} style={{ position: "relative", width: "90vw", maxWidth: "420px", zIndex: 1 }}>
         {validPhotos.length > 0 ? (
@@ -181,7 +181,7 @@ const VIPClientsSection = () => {
       <motion.div initial={{ opacity: 0, y: 20 }} animate={inView ? { opacity: 1, y: 0 } : {}}
         transition={{ duration: 0.7 }}
         style={{ textAlign: "center", marginBottom: "2.4rem", padding: "0 1.4rem" }}>
-        <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.55em", color: GOLD, textTransform: "uppercase", marginBottom: "10px" }}>{t("exclusive_gallery")}</p>
+        <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.42em", color: GOLD, textTransform: "uppercase", marginBottom: "10px" }}>{t("exclusive_gallery")}</p>
         <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "28px", fontWeight: 300, color: "#faf7f2", letterSpacing: "0.02em", lineHeight: 1.2, whiteSpace: "pre-line" }}>{t("trusted_title")}</p>
       </motion.div>
 
@@ -228,7 +228,7 @@ const VIPClientsSection = () => {
                   <div style={{ position: "absolute", bottom: "12px", zIndex: 1, textAlign: "center" }}>
                     <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "9px", letterSpacing: "0.15em", color: isActive ? "rgba(250,247,242,0.7)" : "rgba(250,247,242,0.4)", textTransform: "uppercase", transition: "color 0.4s" }}>{c.event}</p>
                     {isActive && c.album && (
-                      <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.2em", color: GOLD, textTransform: "uppercase", marginTop: "4px" }}>{t("view_album")}</p>
+                      <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.2em", color: GOLD, textTransform: "uppercase", marginTop: "4px" }}>{t("view_album")}</p>
                     )}
                   </div>
                 </div>
@@ -240,7 +240,7 @@ const VIPClientsSection = () => {
                     <motion.button
                       onPointerUp={e => { e.stopPropagation(); setAlbum({ photos: c.album, name: c.name }); }}
                       whileTap={{ scale: 0.95 }}
-                      style={{ marginTop: "10px", display: "flex", alignItems: "center", gap: "8px", background: "rgba(184,151,62,0.12)", border: `1px solid rgba(184,151,62,0.45)`, borderRadius: "30px", padding: "0.7rem 1rem", minHeight: "44px", cursor: "pointer", fontFamily: "'Montserrat', sans-serif", fontSize: "8px", letterSpacing: "0.3em", color: GOLD, textTransform: "uppercase" }}>
+                      style={{ marginTop: "10px", display: "flex", alignItems: "center", gap: "8px", background: "rgba(184,151,62,0.12)", border: `1px solid rgba(184,151,62,0.45)`, borderRadius: "30px", padding: "0.7rem 1rem", minHeight: "44px", cursor: "pointer", fontFamily: "'Montserrat', sans-serif", fontSize: "11px", letterSpacing: "0.3em", color: GOLD, textTransform: "uppercase" }}>
                       <span>◻</span> {t("vip_album")}
                     </motion.button>
                   )}

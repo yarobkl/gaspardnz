@@ -17,7 +17,7 @@ const FooterMobile = ({ onFormules, onGalerie, onShowroom }) => {
         {/* Brand */}
         <div style={{ textAlign: "center", marginBottom: "2.4rem" }}>
           <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "2.2rem", letterSpacing: "0.3em", color: "#faf7f2", margin: "0 0 4px" }}>Gaspardnz</p>
-          <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.5em", color: GOLD, textTransform: "uppercase" }}>{t("footer_subtitle")}</p>
+          <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.4em", color: GOLD, textTransform: "uppercase" }}>{t("footer_subtitle")}</p>
         </div>
 
         {/* Divider */}
@@ -33,7 +33,7 @@ const FooterMobile = ({ onFormules, onGalerie, onShowroom }) => {
             ["TikTok", () => window.open(SOCIAL_LINKS.tiktok, "_blank")],
           ].map(([label, fn]) => (
             <button key={label} onClick={fn}
-              style={{ background: "none", border: "none", cursor: "pointer", fontFamily: "'Montserrat', sans-serif", fontSize: "8px", letterSpacing: "0.2em", color: "rgba(245,240,232,0.7)", textTransform: "uppercase", padding: "12px 0", minHeight: "44px", minWidth: "44px", transition: "color 0.3s" }}
+              style={{ background: "none", border: "none", cursor: "pointer", fontFamily: "'Montserrat', sans-serif", fontSize: "11px", letterSpacing: "0.2em", color: "rgba(245,240,232,0.7)", textTransform: "uppercase", padding: "12px 0", minHeight: "44px", minWidth: "44px", transition: "color 0.3s" }}
               onTouchStart={e => e.currentTarget.style.color = GOLD}
               onTouchEnd={e => e.currentTarget.style.color = "rgba(245,240,232,0.7)"}
             >{label}</button>
@@ -68,17 +68,17 @@ const FooterMobile = ({ onFormules, onGalerie, onShowroom }) => {
             [t("footer_cgv"), "cgv"],
           ].map(([label, page]) => (
             <button key={label} onClick={() => setLegalPage(page)}
-              style={{ background: "none", border: "none", cursor: "pointer", fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.15em", color: "rgba(245,240,232,0.62)", textDecoration: "none", textTransform: "uppercase", padding: "12px 0", minHeight: "44px", minWidth: "44px" }}>
+              style={{ background: "none", border: "none", cursor: "pointer", fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.15em", color: "rgba(245,240,232,0.62)", textDecoration: "none", textTransform: "uppercase", padding: "12px 0", minHeight: "44px", minWidth: "44px" }}>
               {label}
             </button>
           ))}
         </div>
 
-        <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", color: "rgba(245,240,232,0.8)", textAlign: "center", letterSpacing: "0.1em" }}>
+        <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", color: "rgba(245,240,232,0.8)", textAlign: "center", letterSpacing: "0.1em" }}>
           © {new Date().getFullYear()} Gaspardnz — Paris. {t("rights")}
         </p>
 
-        <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", color: "rgba(245,240,232,0.78)", textAlign: "center", letterSpacing: "0.1em", marginTop: "0.5rem" }}>
+        <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", color: "rgba(245,240,232,0.78)", textAlign: "center", letterSpacing: "0.1em", marginTop: "0.5rem" }}>
           {t("developed_by")}{" "}
           <a
             href="https://www.yaroconsulting.fr"

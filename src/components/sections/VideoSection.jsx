@@ -70,8 +70,8 @@ const VideoSection = () => {
         viewport={{ once: true }}
         style={{
           fontFamily: "'Montserrat', sans-serif",
-          fontSize: "8px",
-          letterSpacing: "0.5em",
+          fontSize: "11px",
+          letterSpacing: "0.4em",
           color: GOLD,
           textTransform: "uppercase",
           marginBottom: "2rem",

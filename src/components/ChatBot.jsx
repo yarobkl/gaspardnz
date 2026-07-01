@@ -186,7 +186,7 @@ const ChatBot = ({ onReserver, onGalerie, onShowroom, onFormules }) => {
               </div>
               <div style={{ flex: 1 }}>
                 <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1rem", color: CREAM, letterSpacing: "0.12em", margin: 0, lineHeight: 1.2 }}>GASPARD NZ</p>
-                <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7.5px", color: "rgba(245,240,232,0.55)", letterSpacing: "0.2em", textTransform: "uppercase", margin: "3px 0 0" }}>{t("chatbot_status")}</p>
+                <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", color: "rgba(245,240,232,0.7)", letterSpacing: "0.2em", textTransform: "uppercase", margin: "3px 0 0" }}>{t("chatbot_status")}</p>
               </div>
               <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "2px" }}>
                 <div style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#25D366" }} />
@@ -217,8 +217,8 @@ const ChatBot = ({ onReserver, onGalerie, onShowroom, onFormules }) => {
                     <img src={AVATAR_SRC} alt="Gaspard NZ" width="150" height="150" loading="lazy" decoding="async" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center top" }} />
                   </div>
                   <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.4rem", letterSpacing: "0.2em", margin: 0, background: "linear-gradient(90deg, #9a7a2e 0%, #d4ae5a 25%, #f5e070 50%, #d4ae5a 75%, #9a7a2e 100%)", backgroundSize: "250% auto", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text", animation: "gnzShimmer 2.5s linear infinite" }}>GASPARD NZ</p>
-                  <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.4em", color: "rgba(184,151,62,0.55)", textTransform: "uppercase", marginTop: "8px" }}>{t("chatbot_role")}</p>
-                  <button onClick={() => setShowAvatar(false)} style={{ position: "absolute", bottom: "1.2rem", background: "none", border: "1px solid rgba(184,151,62,0.45)", color: "rgba(245,240,232,0.78)", fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.35em", textTransform: "uppercase", padding: "0.7rem 1.1rem", minHeight: "44px", cursor: "pointer", borderRadius: "2px" }}>{t("chatbot_skip")}</button>
+                  <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.4em", color: "rgba(184,151,62,0.55)", textTransform: "uppercase", marginTop: "8px" }}>{t("chatbot_role")}</p>
+                  <button onClick={() => setShowAvatar(false)} style={{ position: "absolute", bottom: "1.2rem", background: "none", border: "1px solid rgba(184,151,62,0.45)", color: "rgba(245,240,232,0.78)", fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.35em", textTransform: "uppercase", padding: "0.7rem 1.1rem", minHeight: "44px", cursor: "pointer", borderRadius: "2px" }}>{t("chatbot_skip")}</button>
                 </motion.div>
               )}
             </AnimatePresence>

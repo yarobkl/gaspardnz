@@ -110,7 +110,7 @@ const HeroMobile = ({ onScrollDown }) => {
         <motion.p
           initial={reduceMotion ? false : { opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
           transition={{ duration: reduceMotion ? 0 : 1, delay: reduceMotion ? 0 : 0.5 }}
-          style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "8px", letterSpacing: "0.6em", color: GOLD, textTransform: "uppercase", marginBottom: "1.2rem" }}
+          style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "11px", letterSpacing: "0.44em", color: GOLD, textTransform: "uppercase", marginBottom: "1.2rem" }}
         >
           {t("hero_maison")}
         </motion.p>

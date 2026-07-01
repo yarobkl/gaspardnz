@@ -97,8 +97,8 @@ const AboutSection = () => {
 
           <p style={{
             fontFamily: "'Montserrat', sans-serif",
-            fontSize: "7px",
-            letterSpacing: "0.55em",
+            fontSize: "10px",
+            letterSpacing: "0.42em",
             color: GOLD,
             textTransform: "uppercase",
             margin: "0 0 0.9rem"
@@ -167,7 +167,7 @@ const AboutSection = () => {
                 border: "1px solid rgba(184,151,62,0.34)",
                 color: GOLD,
                 fontFamily: "'Montserrat', sans-serif",
-                fontSize: "8px",
+                fontSize: "11px",
                 letterSpacing: "0.2em",
                 textTransform: "uppercase",
                 padding: "0.65rem 0.75rem"

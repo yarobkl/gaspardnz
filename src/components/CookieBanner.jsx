@@ -35,11 +35,11 @@ const CookieBanner = () => {
           </p>
           <div style={{ display: "flex", gap: "0.6rem" }}>
             <motion.button whileTap={{ scale: 0.97 }} onClick={() => handle("accepted")}
-              style={{ flex: 1, background: GOLD, color: "#0a0602", border: "none", borderRadius: "30px", padding: "0.55rem", fontFamily: "'Montserrat', sans-serif", fontSize: "8px", letterSpacing: "0.22em", textTransform: "uppercase", fontWeight: 700, cursor: "pointer", minHeight: "40px" }}>
+              style={{ flex: 1, background: GOLD, color: "#0a0602", border: "none", borderRadius: "30px", padding: "0.55rem", fontFamily: "'Montserrat', sans-serif", fontSize: "11px", letterSpacing: "0.22em", textTransform: "uppercase", fontWeight: 700, cursor: "pointer", minHeight: "40px" }}>
               {t("cookie_accept")}
             </motion.button>
             <button onClick={() => handle("declined")}
-              style={{ flex: 1, background: "none", color: "rgba(245,240,232,0.75)", border: "1px solid rgba(245,240,232,0.14)", borderRadius: "30px", padding: "0.55rem", fontFamily: "'Montserrat', sans-serif", fontSize: "8px", letterSpacing: "0.22em", textTransform: "uppercase", cursor: "pointer", minHeight: "40px" }}>
+              style={{ flex: 1, background: "none", color: "rgba(245,240,232,0.75)", border: "1px solid rgba(245,240,232,0.14)", borderRadius: "30px", padding: "0.55rem", fontFamily: "'Montserrat', sans-serif", fontSize: "11px", letterSpacing: "0.22em", textTransform: "uppercase", cursor: "pointer", minHeight: "40px" }}>
               {t("cookie_decline")}
             </button>
           </div>

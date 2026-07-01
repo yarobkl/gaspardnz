@@ -82,7 +82,7 @@ const FormulesSection = ({ refEl, onContact }) => {
 
       <div ref={ref} style={{ padding: "0 1.4rem", position: "relative" }}>
         <motion.p initial={{ opacity: 0 }} animate={inView ? { opacity: 1 } : {}} transition={{ duration: 0.7 }}
-          style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "8px", letterSpacing: "0.5em", color: GOLD, textTransform: "uppercase", marginBottom: "1rem" }}
+          style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "11px", letterSpacing: "0.4em", color: GOLD, textTransform: "uppercase", marginBottom: "1rem" }}
         >{t("formules_surtitle")}</motion.p>
 
         <div style={{ overflow: "hidden", marginBottom: "0.6rem" }}>
@@ -102,7 +102,7 @@ const FormulesSection = ({ refEl, onContact }) => {
           {formules.map((f, fi) => (
             <motion.div key={f.id}
               initial={{ opacity: 0, y: 30 }} animate={inView ? { opacity: 1, y: 0 } : {}}
-              transition={{ delay: 0.3 + fi * 0.15, duration: 0.8 }}
+              transition={{ delay: 0.15 + fi * 0.08, duration: 0.55 }}
               style={{ border: `1px solid rgba(184,151,62,${selected === f.id ? "0.5" : "0.18"})`, background: selected === f.id ? "rgba(184,151,62,0.05)" : "rgba(255,255,255,0.02)", transition: "all 0.3s" }}
             >
               <button
@@ -119,10 +119,10 @@ const FormulesSection = ({ refEl, onContact }) => {
               >
                 <div>
                   <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", marginBottom: "0.5rem" }}>
-                    <span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.4em", color: GOLD, textTransform: "uppercase", border: `1px solid rgba(184,151,62,0.3)`, padding: "3px 8px" }}>{f.tag}</span>
+                    <span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.4em", color: GOLD, textTransform: "uppercase", border: `1px solid rgba(184,151,62,0.3)`, padding: "3px 8px" }}>{f.tag}</span>
                   </div>
                   <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(1.3rem, 5.5vw, 1.7rem)", color: "#f5f0e8", fontWeight: 400, letterSpacing: "0.02em", margin: 0 }}>{f.titre}</p>
-                  <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.3em", color: "rgba(184,151,62,0.6)", textTransform: "uppercase", marginTop: "6px" }}>{t("prix_sur_demande")}</p>
+                  <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.3em", color: "rgba(184,151,62,0.6)", textTransform: "uppercase", marginTop: "6px" }}>{t("prix_sur_demande")}</p>
                 </div>
                 <motion.div animate={{ rotate: selected === f.id ? 45 : 0 }} transition={{ duration: 0.3 }}
                   style={{ color: GOLD, marginTop: "0.5rem", flexShrink: 0 }}
@@ -142,7 +142,7 @@ const FormulesSection = ({ refEl, onContact }) => {
                         <div key={li} style={{ marginTop: "1.4rem" }}>
                           <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.9rem" }}>
                             <div style={{ height: "1px", width: "20px", background: GOLD }} />
-                            <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.4em", color: GOLD, textTransform: "uppercase" }}>
+                            <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.4em", color: GOLD, textTransform: "uppercase" }}>
                               {look.nom}{look.tag ? ` — ${look.tag}` : ""}
                             </p>
                           </div>
@@ -157,7 +157,7 @@ const FormulesSection = ({ refEl, onContact }) => {
                       <div style={{ marginTop: "1.4rem", padding: "1.2rem", background: "rgba(184,151,62,0.08)", border: `1px solid rgba(184,151,62,0.25)`, textAlign: "center" }}>
                         <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "0.85rem", color: "rgba(245,240,232,0.75)", fontStyle: "italic", marginBottom: "1.2rem" }}>{f.tagline}</p>
                         <button onClick={onContact}
-                          style={{ width: "100%", background: "none", border: `1px solid rgba(184,151,62,0.5)`, color: GOLD, padding: "0.9rem", fontFamily: "'Montserrat', sans-serif", fontSize: "8px", letterSpacing: "0.4em", textTransform: "uppercase", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}
+                          style={{ width: "100%", background: "none", border: `1px solid rgba(184,151,62,0.5)`, color: GOLD, padding: "0.9rem", fontFamily: "'Montserrat', sans-serif", fontSize: "11px", letterSpacing: "0.4em", textTransform: "uppercase", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}
                         >{t("btn_reveler")} <SvgArrow size={13} /></button>
                       </div>
                     </div>
@@ -173,17 +173,17 @@ const FormulesSection = ({ refEl, onContact }) => {
           transition={{ delay: 0.7, duration: 0.7 }}
           style={{ margin: "2.5rem 0 0", padding: "2rem 1.4rem", border: "1px solid rgba(184,151,62,0.3)", background: "rgba(184,151,62,0.05)", textAlign: "center" }}
         >
-          <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.5em", color: GOLD, textTransform: "uppercase", marginBottom: "1rem" }}>GASPARDNZ · 2025</p>
+          <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.4em", color: GOLD, textTransform: "uppercase", marginBottom: "1rem" }}>GASPARDNZ · 2025</p>
           <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(1.6rem, 7vw, 2.2rem)", fontWeight: 300, color: "#f5f0e8", letterSpacing: "0.02em", margin: "0 0 0.6rem" }}>
             {t("lookbook_title")}
           </h3>
-          <p style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: "italic", fontSize: "0.9rem", color: "rgba(245,240,232,0.4)", marginBottom: "1.6rem" }}>
+          <p style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: "italic", fontSize: "0.9rem", color: "rgba(245,240,232,0.62)", marginBottom: "1.6rem" }}>
             {t("lookbook_desc")}
           </p>
           <button
             type="button"
             onClick={() => openLookbookCheckout(settings.whatsappNumber)}
-            style={{ display: "inline-flex", alignItems: "center", gap: "10px", background: GOLD, color: "#0d1b3e", border: "none", cursor: "pointer", padding: "1rem 2.2rem", textDecoration: "none", fontFamily: "'Montserrat', sans-serif", fontSize: "8px", letterSpacing: "0.4em", textTransform: "uppercase", fontWeight: 700 }}
+            style={{ display: "inline-flex", alignItems: "center", gap: "10px", background: GOLD, color: "#0d1b3e", border: "none", cursor: "pointer", padding: "1rem 2.2rem", textDecoration: "none", fontFamily: "'Montserrat', sans-serif", fontSize: "11px", letterSpacing: "0.4em", textTransform: "uppercase", fontWeight: 700 }}
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18"/><path d="M7 15h4"/>

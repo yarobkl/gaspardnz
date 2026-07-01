@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect, useRef, lazy, Suspense } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, MotionConfig } from "framer-motion";
 import { GOLD, CREAM, SOCIAL_LINKS, SITE_URL } from "./constants.js";
 import { LangCtx } from "./context.jsx";
 
@@ -195,9 +195,9 @@ const SplashScreen = ({ onDone, loading }) => {
       </motion.p>
       <motion.p
         initial={{ opacity: 0, letterSpacing: "0.3em" }}
-        animate={{ opacity: 1, letterSpacing: "0.6em" }}
+        animate={{ opacity: 1, letterSpacing: "0.44em" }}
         transition={{ duration: 0.75, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
-        style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", color: GOLD, textTransform: "uppercase", marginTop: "10px" }}>
+        style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", color: GOLD, textTransform: "uppercase", marginTop: "10px" }}>
         Paris
       </motion.p>
     </motion.div>
@@ -215,7 +215,7 @@ const SplashScreen = ({ onDone, loading }) => {
       initial={{ opacity: 0 }}
       animate={{ opacity: [0, 0.45, 0.25, 0.45] }}
       transition={{ duration: 1.2, delay: 0.25, times: [0, 0.3, 0.6, 1] }}
-      style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "6px", letterSpacing: "0.55em", color: "rgba(245,240,232,0.7)", textTransform: "uppercase", position: "relative", zIndex: 1 }}>
+      style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "9px", letterSpacing: "0.42em", color: "rgba(245,240,232,0.7)", textTransform: "uppercase", position: "relative", zIndex: 1 }}>
       {loading}
     </motion.p>
     </motion.div>
@@ -507,6 +507,7 @@ export default function App() {
 
   return (
     <LangCtx.Provider value={{ lang, setLang: changeLang }}>
+      <MotionConfig reducedMotion="user">
       <style>{`
         *, *::before, *::after { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
@@ -631,6 +632,7 @@ export default function App() {
           <CookieBanner />
         </>
       )}
+      </MotionConfig>
     </LangCtx.Provider>
   );
 }

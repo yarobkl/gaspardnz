@@ -66,7 +66,7 @@ const CommunauteSection = () => {
         transition={{ duration: 0.8 }}
         style={{ textAlign: "center", maxWidth: "420px", width: "100%", zIndex: 1 }}>
 
-        <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.5em", color: "rgba(184,151,62,0.8)", textTransform: "uppercase", marginBottom: "2rem" }}>
+        <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.4em", color: "rgba(184,151,62,0.8)", textTransform: "uppercase", marginBottom: "2rem" }}>
           {t("comm_surtitle")}
         </p>
 
@@ -76,7 +76,7 @@ const CommunauteSection = () => {
 
         <HeartbeatLine />
 
-        <p style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: "italic", fontSize: "clamp(1rem, 4vw, 1.15rem)", color: "rgba(245,240,232,0.5)", lineHeight: 1.75, marginBottom: "2.4rem" }}>
+        <p style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: "italic", fontSize: "clamp(1rem, 4vw, 1.15rem)", color: "rgba(245,240,232,0.7)", lineHeight: 1.75, marginBottom: "2.4rem" }}>
           {t("comm_desc")}
         </p>
 
@@ -85,8 +85,8 @@ const CommunauteSection = () => {
             <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/>
           </svg>
           <div style={{ textAlign: "left" }}>
-            <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "8px", letterSpacing: "0.25em", color: "#faf7f2", textTransform: "uppercase", margin: 0, fontWeight: 600 }}>{t("comm_badge_title")}</p>
-            <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", color: "rgba(245,240,232,0.4)", letterSpacing: "0.1em", margin: "3px 0 0" }}>{t("comm_badge_sub")}</p>
+            <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "11px", letterSpacing: "0.25em", color: "#faf7f2", textTransform: "uppercase", margin: 0, fontWeight: 600 }}>{t("comm_badge_title")}</p>
+            <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", color: "rgba(245,240,232,0.62)", letterSpacing: "0.1em", margin: "3px 0 0" }}>{t("comm_badge_sub")}</p>
           </div>
         </div>
 

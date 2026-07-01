@@ -12,7 +12,7 @@ const TikTokViralSection = () => {
       <motion.div initial={{ opacity: 0, y: 16 }} animate={inView ? { opacity: 1, y: 0 } : {}}
         transition={{ duration: 0.6, delay: 0.3 }}
         style={{ padding: "0 1.4rem" }}>
-        <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.45em", color: "rgba(250,247,242,0.8)", textTransform: "uppercase", textAlign: "center", marginBottom: "16px" }}>{t("tiktok_comments_pinned")}</p>
+        <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.45em", color: "rgba(250,247,242,0.8)", textTransform: "uppercase", textAlign: "center", marginBottom: "16px" }}>{t("tiktok_comments_pinned")}</p>
         <div style={{ background: "#161210", borderRadius: "14px", padding: "1.1rem 1.2rem", border: "1px solid rgba(184,151,62,0.18)", maxWidth: "340px", margin: "0 auto" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "10px" }}>
             <div style={{ width: "38px", height: "38px", borderRadius: "50%", background: "linear-gradient(135deg,#1a237e,#283593)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, border: "2px solid rgba(184,151,62,0.3)" }}>

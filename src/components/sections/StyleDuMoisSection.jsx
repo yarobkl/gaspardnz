@@ -21,7 +21,7 @@ const StyleDuMoisSection = ({ refEl }) => {
         initial={{ opacity: 0, y: 16 }} animate={inView ? { opacity: 1, y: 0 } : {}}
         transition={{ duration: 0.7 }}
         style={{ padding: "0 1.4rem", marginBottom: "2rem" }}>
-        <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.55em", color: GOLD, textTransform: "uppercase", marginBottom: "10px" }}>GASPARDNZ</p>
+        <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.42em", color: GOLD, textTransform: "uppercase", marginBottom: "10px" }}>GASPARDNZ</p>
         <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "28px", fontWeight: 300, color: "#faf7f2", letterSpacing: "0.02em", lineHeight: 1.2, margin: 0 }}>{t("style_month")}</p>
         <div style={{ width: "48px", height: "1px", background: `linear-gradient(90deg, ${GOLD}, transparent)`, marginTop: "14px" }} />
       </motion.div>
@@ -31,7 +31,7 @@ const StyleDuMoisSection = ({ refEl }) => {
           <motion.div key={i}
             initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-6% 0px" }}
-            transition={{ duration: 0.7, delay: i * 0.08, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 0.5, delay: i * 0.05, ease: [0.16, 1, 0.3, 1] }}
             style={{ background: "linear-gradient(180deg,#141006,#080503)", borderRadius: "18px", overflow: "hidden", border: "1px solid rgba(184,151,62,0.22)", boxShadow: "0 26px 80px rgba(0,0,0,0.34)" }}>
             {item.src && (() => {
               const album = item.album?.length ? item.album : [item.src];
@@ -48,7 +48,7 @@ const StyleDuMoisSection = ({ refEl }) => {
                 <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 58%, rgba(7,4,0,0.72) 100%)", pointerEvents: "none" }} />
                 <div style={{ position: "absolute", left: "1rem", bottom: "1rem", zIndex: 2, display: "inline-flex", alignItems: "center", gap: "8px", padding: "0.45rem 0.7rem", background: "rgba(7,4,0,0.58)", border: "1px solid rgba(184,151,62,0.35)", borderRadius: "999px", backdropFilter: "blur(8px)" }}>
                   <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: GOLD, boxShadow: "0 0 12px rgba(184,151,62,0.7)" }} />
-                  <span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "8px", letterSpacing: "0.22em", color: "#f5f0e8", textTransform: "uppercase" }}>{t("album_counter", activeIndex + 1, album.length)}</span>
+                  <span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "11px", letterSpacing: "0.22em", color: "#f5f0e8", textTransform: "uppercase" }}>{t("album_counter", activeIndex + 1, album.length)}</span>
                 </div>
                 {(item.spots || []).map((spot, si) => (
                   <div key={si} style={{ position: "absolute", left: `${spot.x}%`, top: `${spot.y}%`, transform: "translate(-50%,-50%)", zIndex: 2 }}>
@@ -78,7 +78,7 @@ const StyleDuMoisSection = ({ refEl }) => {
                               };
                               window.open(`${WA_GNZ}?text=${encodeURIComponent(messages[lang] || messages.FR)}`, "_blank");
                             }}
-                            style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "6.5px", letterSpacing: "0.18em", color: GOLD, textTransform: "uppercase", background: "rgba(184,151,62,0.1)", border: `1px solid rgba(184,151,62,0.3)`, borderRadius: "20px", padding: "9px 8px", minHeight: "44px", cursor: "pointer", width: "100%" }}>
+                            style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "9px", letterSpacing: "0.18em", color: GOLD, textTransform: "uppercase", background: "rgba(184,151,62,0.1)", border: `1px solid rgba(184,151,62,0.3)`, borderRadius: "20px", padding: "9px 8px", minHeight: "44px", cursor: "pointer", width: "100%" }}>
                             {t("ask_availability")}
                           </button>
                         </motion.div>

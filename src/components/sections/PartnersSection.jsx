@@ -37,8 +37,8 @@ const PartnersSection = ({ refEl }) => {
             style={{ marginBottom: "3.5rem" }}>
             <p style={{
               fontFamily: "'Montserrat', sans-serif",
-              fontSize: "7px",
-              letterSpacing: "0.55em",
+              fontSize: "10px",
+              letterSpacing: "0.42em",
               color: GOLD,
               textTransform: "uppercase",
               margin: "0 0 0.8rem 0",
@@ -78,7 +78,7 @@ const PartnersSection = ({ refEl }) => {
                 key={partner.id}
                 initial={{ opacity: 0, y: 30 }}
                 animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-                transition={{ duration: 0.6, delay: idx * 0.1 }}
+                transition={{ duration: 0.6, delay: idx * 0.05 }}
                 whileHover={{ y: -5 }}
                 style={{
                   background: "rgba(184,151,62,0.03)",
@@ -222,7 +222,7 @@ const PartnersSection = ({ refEl }) => {
                       padding: "0.8rem 1.2rem",
                       background: "rgba(184,151,62,0.05)",
                       border: `1px solid ${GOLD}33`,
-                      color: "rgba(245,240,232,0.5)",
+                      color: "rgba(245,240,232,0.7)",
                       fontFamily: "'Montserrat', sans-serif",
                       fontSize: "11px",
                       letterSpacing: "0.1em",

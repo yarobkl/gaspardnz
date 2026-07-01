@@ -40,7 +40,7 @@ const ActuCard = ({ item }) => {
           )}
           <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 55%, rgba(17,16,9,0.9) 100%)", pointerEvents: "none" }} />
           <div style={{ position: "absolute", top: "12px", left: "12px", background: "rgba(184,151,62,0.15)", backdropFilter: "blur(6px)", border: "1px solid rgba(184,151,62,0.3)", borderRadius: "4px", padding: "4px 10px" }}>
-            <span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.35em", color: GOLD, textTransform: "uppercase" }}>{item.tag}</span>
+            <span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.35em", color: GOLD, textTransform: "uppercase" }}>{item.tag}</span>
           </div>
           {multi && (
             <div style={{ position: "absolute", bottom: "12px", left: "50%", transform: "translateX(-50%)", display: "flex", gap: "5px" }}>
@@ -63,7 +63,7 @@ const ActuCard = ({ item }) => {
             </>
           )}
           <div style={{ position: "absolute", bottom: multi ? "28px" : "12px", right: "12px", textAlign: "right" }}>
-            <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.2em", color: "rgba(245,240,232,0.5)", margin: 0, textTransform: "uppercase" }}>{item.location} · {item.date}</p>
+            <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.2em", color: "rgba(245,240,232,0.7)", margin: 0, textTransform: "uppercase" }}>{item.location} · {item.date}</p>
           </div>
         </div>
       )}
@@ -74,7 +74,7 @@ const ActuCard = ({ item }) => {
         </div>
         <motion.button whileTap={{ scale: 0.97 }} onClick={() => setExpanded(e => !e)}
           style={{ marginTop: "1.1rem", background: "none", border: "none", padding: "0.7rem 0", minHeight: "44px", cursor: "pointer", display: "flex", alignItems: "center", gap: "6px" }}>
-          <span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "8px", letterSpacing: "0.3em", color: GOLD, textTransform: "uppercase" }}>
+          <span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "11px", letterSpacing: "0.3em", color: GOLD, textTransform: "uppercase" }}>
             {expanded ? t("reduce") : t("read_more")}
           </span>
           <motion.svg animate={{ rotate: expanded ? 180 : 0 }} transition={{ duration: 0.3 }} width="10" height="10" viewBox="0 0 10 10" fill="none">
@@ -96,7 +96,7 @@ const ActualitesSection = () => {
     <section ref={ref} style={{ background: "#0a0602", padding: "4.5rem 0 5rem" }}>
       <motion.div initial={{ opacity: 0, y: 16 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.7 }}
         style={{ padding: "0 1.4rem", marginBottom: "2.4rem" }}>
-        <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.55em", color: GOLD, textTransform: "uppercase", marginBottom: "10px" }}>GASPARDNZ</p>
+        <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.42em", color: GOLD, textTransform: "uppercase", marginBottom: "10px" }}>GASPARDNZ</p>
         <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "28px", fontWeight: 300, color: "#faf7f2", letterSpacing: "0.02em", lineHeight: 1.2, margin: 0 }}>{t("actualites_title")}</p>
         <div style={{ width: "48px", height: "1px", background: `linear-gradient(90deg, ${GOLD}, transparent)`, marginTop: "14px" }} />
       </motion.div>
