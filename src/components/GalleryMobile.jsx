@@ -11,22 +11,28 @@ const GalleryMobile = ({ refEl }) => {
   const { lang } = useContext(LangCtx);
   const settings = useSettings();
   const gallerySpots = getGallerySpots(lang);
+  const image = (file, width, height, label) => ({
+    src: `${import.meta.env.BASE_URL}images/${file}`,
+    width,
+    height,
+    label,
+  });
   const baseItems = [
-    { src: `${import.meta.env.BASE_URL}images/costume-creme.jpg`, label: t("gal_1") },
-    { src: `${import.meta.env.BASE_URL}images/elegance-blanche.jpg`, label: t("gal_2") },
-    { src: `${import.meta.env.BASE_URL}images/veste-rayee.jpg`, label: t("gal_3") },
-    { src: `${import.meta.env.BASE_URL}images/veste-orange.jpg`, label: t("gal_4") },
-    { src: `${import.meta.env.BASE_URL}images/costume-carreaux.jpg`, label: t("gal_5") },
-    { src: `${import.meta.env.BASE_URL}images/veste-bleue.jpg`, label: t("gal_6") },
-    { src: `${import.meta.env.BASE_URL}images/style-parisien.jpg`, label: t("gal_7") },
-    { src: `${import.meta.env.BASE_URL}images/chemise-lavande.jpg`, label: t("gal_8") },
-    { src: `${import.meta.env.BASE_URL}images/costume-bleu-rouge.jpg`, label: t("gal_9") },
-    { src: `${import.meta.env.BASE_URL}images/veste-bleue-rayee.jpg`, label: t("gal_10") },
-    { src: `${import.meta.env.BASE_URL}images/costume-bordeaux.jpg`, label: t("gal_11") },
-    { src: `${import.meta.env.BASE_URL}images/promenade-blanche.jpg`, label: t("gal_12") },
-    { src: `${import.meta.env.BASE_URL}images/smoking-dore.jpg`, label: t("gal_13") },
-    { src: `${import.meta.env.BASE_URL}images/veste-navy-soiree.jpg`, label: t("gal_14") },
-    { src: `${import.meta.env.BASE_URL}images/costume-carreaux-rose.jpg`, label: t("gal_15") },
+    image("costume-creme.jpg", 960, 1200, t("gal_1")),
+    image("elegance-blanche.jpg", 960, 1200, t("gal_2")),
+    image("veste-rayee.jpg", 900, 1200, t("gal_3")),
+    image("veste-orange.jpg", 900, 1200, t("gal_4")),
+    image("costume-carreaux.jpg", 960, 960, t("gal_5")),
+    image("veste-bleue.jpg", 900, 1200, t("gal_6")),
+    image("style-parisien.jpg", 1200, 1200, t("gal_7")),
+    image("chemise-lavande.jpg", 1200, 1200, t("gal_8")),
+    image("costume-bleu-rouge.jpg", 1200, 1200, t("gal_9")),
+    image("veste-bleue-rayee.jpg", 1200, 1200, t("gal_10")),
+    image("costume-bordeaux.jpg", 960, 1200, t("gal_11")),
+    image("promenade-blanche.jpg", 960, 1200, t("gal_12")),
+    image("smoking-dore.jpg", 683, 1200, t("gal_13")),
+    image("veste-navy-soiree.jpg", 800, 1200, t("gal_14")),
+    image("costume-carreaux-rose.jpg", 675, 1200, t("gal_15")),
   ];
   const items = baseItems.map((it, i) => ({ ...it, hotspots: gallerySpots[i] || [] }));
 
@@ -105,14 +111,15 @@ const GalleryMobile = ({ refEl }) => {
       <div style={{ position: "relative", overflow: "hidden" }}>
         <div style={{
           display: "flex",
+          alignItems: "flex-start",
           transform: `translateX(${-cur * 100}%)`,
           transition: "transform 0.7s cubic-bezier(0.16,1,0.3,1)",
           willChange: "transform",
         }}>
-          {items.map(({ src, label, hotspots }, i) => (
-            <div key={i} style={{ flex: "0 0 100%", width: "100%", position: "relative" }}>
-              <img src={src} alt={label} width="900" height="1200" loading="lazy"
-                style={{ width: "100%", aspectRatio: "3/4", objectFit: "cover", objectPosition: "top", filter: "brightness(0.94) contrast(1.02) saturate(0.9)", display: "block" }} />
+          {items.map(({ src, label, width, height, hotspots }, i) => (
+            <div key={i} style={{ flex: "0 0 100%", width: "100%", position: "relative", background: "#f5f0e8" }}>
+              <img src={src} alt={label} width={width} height={height} loading="lazy"
+                style={{ width: "100%", height: "auto", maxHeight: "none", objectFit: "contain", objectPosition: "center top", filter: "brightness(0.94) contrast(1.02) saturate(0.9)", display: "block" }} />
               {label && (
                 <div style={{ position: "absolute", bottom: "1rem", left: "1rem" }}>
                   <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7px", letterSpacing: "0.4em", color: "rgba(255,255,255,0.85)", textTransform: "uppercase" }}>{label}</p>
