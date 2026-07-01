@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && node scripts/generate-static-seo-routes.mjs",
     "test:seo": "node scripts/validate-seo.mjs",
     "test:email-security": "node scripts/validate-email-api-security.mjs",
     "build:app": "BUILD_TARGET=capacitor vite build",
