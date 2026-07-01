@@ -56,18 +56,70 @@ const getAdminSectionFromPath = () => {
 const _SPLASH_IMG = (typeof import.meta !== "undefined" ? (import.meta.env.BASE_URL || "/") : "/") + "images/style-parisien.jpg";
 const SUPPORTED_LANGS = ["FR", "EN", "ES", "ZH"];
 const HTML_LANG = { FR: "fr", EN: "en", ES: "es", ZH: "zh" };
+const SEO_ROUTES = {
+  "/": {
+    title: "GaspardNZ | Styliste Parisien pour Mariages, Galas et Événements",
+    description: "GaspardNZ est un styliste parisien spécialisé dans l'habillage premium pour mariages, galas et événements. Découvrez ses formules, son lookbook et prenez rendez-vous.",
+    canonicalPath: "/",
+  },
+  "/a-propos": {
+    title: "À propos de GaspardNZ | Styliste et Habilleur à Paris",
+    description: "Découvrez l'univers de GaspardNZ, styliste parisien spécialisé dans l'habillage premium, les mariages, les galas et le conseil en image.",
+    canonicalPath: "/a-propos",
+  },
+  "/services": {
+    title: "Services GaspardNZ | Habillage Mariage, Galas et Événements",
+    description: "Formules d'habillage premium, conseil en image, accompagnement mariage et maître de cérémonie à Paris avec GaspardNZ.",
+    canonicalPath: "/services",
+  },
+  "/lookbook": {
+    title: "Lookbook GaspardNZ | Inspirations Style et Habillage Premium",
+    description: "Découvrez le lookbook GaspardNZ, les inspirations style, les silhouettes premium et les tenues pour mariages, galas et événements.",
+    canonicalPath: "/lookbook",
+  },
+  "/contact": {
+    title: "Contact GaspardNZ | Rendez-vous Habillage Premium à Paris",
+    description: "Contactez GaspardNZ pour un rendez-vous, une formule mariage, un gala ou un accompagnement d'habillage premium à Paris.",
+    canonicalPath: "/contact",
+  },
+  "/galerie": {
+    title: "Galerie GaspardNZ | Looks, Costumes et Inspirations",
+    description: "Explorez la galerie GaspardNZ avec des looks, costumes, détails de style et inspirations d'habillage premium.",
+    canonicalPath: "/galerie",
+  },
+  "/videos": {
+    title: "Vidéos GaspardNZ | Style, Mariage et Événements",
+    description: "Retrouvez les vidéos GaspardNZ autour du style, des événements, des mariages et de l'univers premium de la marque.",
+    canonicalPath: "/videos",
+  },
+  "/partenaires": {
+    title: "Partenaires GaspardNZ | Prestataires Mariage et Événement",
+    description: "Découvrez les partenaires GaspardNZ pour organiser un mariage, un gala ou un événement avec des prestataires sélectionnés.",
+    canonicalPath: "/partenaires",
+  },
+  "/style-du-mois": {
+    title: "Style du Mois GaspardNZ | Pièces et Inspirations Premium",
+    description: "Découvrez le style du mois GaspardNZ, une sélection de pièces et d'inspirations pour composer une allure premium.",
+    canonicalPath: "/style-du-mois",
+  },
+  "/actualites": {
+    title: "Actualités GaspardNZ | Style, Voyages et Événements",
+    description: "Suivez les actualités de GaspardNZ, ses inspirations, ses voyages, ses événements et ses nouveautés style.",
+    canonicalPath: "/actualites",
+  },
+};
 const APP_COPY = {
   FR: {
     loading: "Chargement...",
-    title: "Gaspardnz — L'Inspirateur de la Haute Allure · Paris",
-    description: "Gaspardnz — Styliste parisien spécialisé dans l'habillage sur-mesure pour mariages, galas et événements. Découvrez nos formules et prenez rendez-vous.",
-    ogDescription: "Costumes sur-mesure, looks événementiels et conseils style. Paris.",
+    title: SEO_ROUTES["/"].title,
+    description: SEO_ROUTES["/"].description,
+    ogDescription: SEO_ROUTES["/"].description,
     waContact: "Bonjour Gaspard, je souhaite vous contacter.",
     waFormula: "Bonjour Gaspard, je souhaite réserver une formule. Pouvez-vous me recontacter ?",
   },
   EN: {
     loading: "Loading...",
-    title: "Gaspardnz — The Inspirer of High Style · Paris",
+    title: "GaspardNZ | Parisian Stylist for Weddings, Galas and Events",
     description: "Gaspardnz is a Parisian stylist specializing in bespoke dressing for weddings, galas and events. Discover the packages and book an appointment.",
     ogDescription: "Bespoke suits, event looks and style advice. Paris.",
     waContact: "Hello Gaspard, I would like to contact you.",
@@ -75,7 +127,7 @@ const APP_COPY = {
   },
   ES: {
     loading: "Cargando...",
-    title: "Gaspardnz — El Inspirador de la Alta Elegancia · París",
+    title: "GaspardNZ | Estilista Parisino para Bodas, Galas y Eventos",
     description: "Gaspardnz es un estilista parisino especializado en vestimenta a medida para bodas, galas y eventos. Descubre los paquetes y reserva una cita.",
     ogDescription: "Trajes a medida, looks para eventos y asesoría de estilo. París.",
     waContact: "Hola Gaspard, me gustaría contactarte.",
@@ -83,7 +135,7 @@ const APP_COPY = {
   },
   ZH: {
     loading: "加载中...",
-    title: "Gaspardnz — 高级风格灵感缔造者 · 巴黎",
+    title: "GaspardNZ | 巴黎婚礼、晚宴与活动造型师",
     description: "Gaspardnz 是巴黎造型师，专注婚礼、晚会和活动的定制着装。探索套餐并预约。",
     ogDescription: "定制西装、活动造型与风格建议。巴黎。",
     waContact: "你好 Gaspard，我想联系你。",
@@ -237,26 +289,34 @@ export default function App() {
 
   useEffect(() => {
     const copy = APP_COPY[lang] || APP_COPY.FR;
-    document.title = copy.title;
+    const path = window.location.pathname.replace(/\/$/, "") || "/";
+    const routeSeo = SEO_ROUTES[path] || SEO_ROUTES["/"];
+    const seoTitle = lang === "FR" ? routeSeo.title : copy.title;
+    const seoDescription = lang === "FR" ? routeSeo.description : copy.description;
+    const canonicalUrl = `${SITE_URL}${routeSeo.canonicalPath === "/" ? "/" : routeSeo.canonicalPath}`;
+    document.title = seoTitle;
     const meta = (name, content, prop = false) => {
       const sel = prop ? `meta[property="${name}"]` : `meta[name="${name}"]`;
       let el = document.querySelector(sel);
       if (!el) { el = document.createElement("meta"); prop ? el.setAttribute("property", name) : el.setAttribute("name", name); document.head.appendChild(el); }
       el.setAttribute("content", content);
     };
-    meta("description", copy.description);
-    meta("og:title", copy.title, true);
-    meta("og:description", copy.ogDescription, true);
+    meta("description", seoDescription);
+    meta("og:title", seoTitle, true);
+    meta("og:description", seoDescription, true);
     meta("og:type", "website", true);
-    meta("og:url", SITE_URL, true);
+    meta("og:url", canonicalUrl, true);
     meta("og:image", `${SITE_URL}/images/style-parisien.jpg`, true);
-    meta("og:site_name", "Gaspardnz", true);
+    meta("og:site_name", "GaspardNZ", true);
+    meta("twitter:title", seoTitle);
+    meta("twitter:description", seoDescription);
+    meta("twitter:image", `${SITE_URL}/images/style-parisien.jpg`);
     meta("theme-color", highContrast ? "#fff9e6" : "#0a0602");
 
     // Canonical tag
     let canonical = document.querySelector('link[rel="canonical"]');
     if (!canonical) { canonical = document.createElement("link"); canonical.rel = "canonical"; document.head.appendChild(canonical); }
-    canonical.href = SITE_URL;
+    canonical.href = canonicalUrl;
   }, [highContrast, lang]);
 
   useEffect(() => {
@@ -270,10 +330,16 @@ export default function App() {
       const localBusiness = {
         "@context": "https://schema.org",
         "@type": "LocalBusiness",
-        "name": "Gaspardnz",
-        "description": "Styliste et habilleur spécialisé à Paris. Sélection et coordination de tenues pour mariages africains, galas et cérémonies.",
+        "name": "GaspardNZ",
+        "alternateName": ["Gaspard NZ", "Gaspardnz", "gaspardnz_"],
+        "description": "Styliste parisien spécialisé dans l'habillage sur mesure pour mariages, galas et événements.",
         "url": SITE_URL,
-        "areaServed": "Paris",
+        "logo": `${SITE_URL}/icon-512.png`,
+        "image": `${SITE_URL}/avatar.jpg`,
+        "areaServed": {
+          "@type": "City",
+          "name": "Paris"
+        },
         "sameAs": [SOCIAL_LINKS.instagram, SOCIAL_LINKS.tiktok, SOCIAL_LINKS.facebook, SOCIAL_LINKS.youtube],
         "contactPoint": {
           "@type": "ContactPoint",

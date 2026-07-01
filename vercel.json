@@ -6,6 +6,42 @@
     {
       "source": "/admin(.*)",
       "destination": "/index.html"
+    },
+    {
+      "source": "/a-propos",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/services",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/lookbook",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/contact",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/galerie",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/videos",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/partenaires",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/style-du-mois",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/actualites",
+      "destination": "/index.html"
     }
   ],
   "headers": [

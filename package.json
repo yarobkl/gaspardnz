@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "test:seo": "node scripts/validate-seo.mjs",
     "test:email-security": "node scripts/validate-email-api-security.mjs",
     "build:app": "BUILD_TARGET=capacitor vite build",
     "preview": "vite preview",

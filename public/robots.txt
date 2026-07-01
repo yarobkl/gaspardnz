@@ -3,24 +3,7 @@ Allow: /
 Disallow: /admin/
 Disallow: /admin-*
 
-# Sitemaps
-Sitemap: https://gaspardnz.style/sitemap.xml
-
-# LLM crawlers
-User-agent: GPTBot
-Allow: /
-
-User-agent: Claude-Web
-Allow: /
-
-User-agent: anthropic-ai
-Allow: /
-
-User-agent: ChatGPT-User
-Allow: /
-
-User-agent: PerplexityBot
-Allow: /
-
 User-agent: Googlebot
 Allow: /
+
+Sitemap: https://gaspardnz.style/sitemap.xml
