@@ -56,7 +56,7 @@ const cleanLine = (value) =>
     .join('')
     .trim();
 
-export const sendPartnerContactEmail = async (partnerId, partnerEmail, clientData, partnerStatus = null) => {
+export const sendPartnerContactEmail = async (partnerId, partnerEmail, clientData, partnerStatus = null, partnerName = "") => {
   try {
     // Pour TOUS les prestataires:
     // Email TO: Gaspard (c'est à lui de contacter le prestataire)
@@ -68,8 +68,9 @@ export const sendPartnerContactEmail = async (partnerId, partnerEmail, clientDat
     const emailData = {
       to: [gaspardEmail],
       cc: [userEmail],
-      subject: `Nouvelle demande de contact - ${cleanLine(clientData.name)}`,
+      subject: `Nouvelle demande ${partnerName ? `- ${cleanLine(partnerName)}` : "partenaire"} - ${cleanLine(clientData.name)}`,
       partnerId,
+      partnerName: cleanLine(partnerName || partnerId),
       clientName: cleanLine(clientData.name),
       clientEmail: cleanLine(clientData.email),
       clientPhone: cleanLine(clientData.phone),
@@ -77,7 +78,7 @@ export const sendPartnerContactEmail = async (partnerId, partnerEmail, clientDat
       eventDate: cleanLine(clientData.eventDate),
       message: String(clientData.message).slice(0, 2000).trim(),
       timestamp: new Date().toISOString(),
-      isComingSoon: partnerStatus === 'coming_soon',
+      isComingSoon: partnerStatus === 'coming_soon' || partnerId === 'palais-groupe',
     };
 
     // Envoyer email via API existante
@@ -94,10 +95,12 @@ export const sendPartnerContactEmail = async (partnerId, partnerEmail, clientDat
         });
 
         if (!response.ok) {
-          console.warn('Email sending returned status:', response.status);
+          const payload = await response.json().catch(() => ({}));
+          throw new Error(payload.error || `Email sending returned status: ${response.status}`);
         }
       } catch (e) {
         console.warn('Email fetch error:', e.message);
+        return { success: false, error: e.message };
       }
     }
 

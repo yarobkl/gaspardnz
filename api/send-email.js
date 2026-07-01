@@ -128,7 +128,7 @@ const createTransporter = () => {
 };
 
 // Formater l'email
-const formatEmailBody = (data, isComingSoon) => {
+const formatInternalEmailBody = (data, isComingSoon) => {
   const header = isComingSoon
     ? 'NOUVELLE DEMANDE PALAIS GROUPE (À finaliser avec le groupe)'
     : 'NOUVELLE DEMANDE DE CONTACT';
@@ -150,6 +150,7 @@ DÉTAILS DE L'ÉVÉNEMENT
 
 Type d'événement: ${sanitizeText(data.eventType, 140)}
 Date prévue: ${sanitizeText(data.eventDate, 80)}
+Partenaire concerné: ${sanitizeText(data.partnerName || data.partnerId || 'Gaspard NZ', 160)}
 
 Message du client:
 ${sanitizeText(data.message, 2000)}
@@ -159,8 +160,8 @@ ${isComingSoon ? 'ACTION REQUISE' : 'SUIVI'}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 ${isComingSoon
-  ? `Gaspard doit contacter le groupe Palais et finaliser.
-Utilisateur reçoit une copie pour suivi du process.`
+  ? `Gaspard doit contacter Palais Groupe directement et finaliser la mise en relation.
+Palais Groupe ne reçoit pas cet email automatique.`
   : 'Contacter directement le client pour suite.'
 }
 
@@ -169,6 +170,25 @@ Timestamp: ${new Date(data.timestamp).toLocaleString('fr-FR')}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 `;
 };
+
+const formatClientEmailBody = (data) => `
+Bonjour ${sanitizeText(data.clientName, 80)},
+
+Merci pour votre demande via Gaspard NZ.
+
+Votre demande a bien été transmise à Gaspard. Il reviendra vers vous rapidement pour qualifier votre besoin et organiser la suite.
+
+Récapitulatif :
+- Partenaire / service : ${sanitizeText(data.partnerName || data.partnerId || 'Gaspard NZ', 160)}
+- Type d'événement : ${sanitizeText(data.eventType || 'Non précisé', 140)}
+- Date prévue : ${sanitizeText(data.eventDate || 'Non précisée', 80)}
+
+Si vous souhaitez ajouter une précision, vous pouvez répondre directement à cet email.
+
+Gaspard NZ
+Styliste, habilleur & maître de cérémonie
+https://gaspardnz.style
+`;
 
 export default async function handler(req, res) {
   // Seulement POST
@@ -192,7 +212,7 @@ export default async function handler(req, res) {
       return res.status(403).json({ error: 'CSRF token missing' });
     }
 
-    const { to, cc, subject, clientName, clientEmail, clientPhone, eventType, eventDate, message, timestamp, isComingSoon } = req.body;
+    const { to, cc, subject, partnerId, partnerName, clientName, clientEmail, clientPhone, eventType, eventDate, message, timestamp, isComingSoon } = req.body;
 
     // Valider les données
     const recipients = resolveRecipients({ to, cc });
@@ -220,7 +240,9 @@ export default async function handler(req, res) {
     const transporter = createTransporter();
 
     // Formater le corps de l'email
-    const emailBody = formatEmailBody({
+    const emailBody = formatInternalEmailBody({
+      partnerId,
+      partnerName,
       clientName,
       clientEmail,
       clientPhone,
@@ -244,10 +266,20 @@ export default async function handler(req, res) {
     // Envoyer l'email
     const info = await transporter.sendMail(mailOptions);
 
+    const clientInfo = await transporter.sendMail({
+      from: process.env.EMAIL_FROM,
+      to: normalizeEmail(clientEmail),
+      subject: 'Votre demande a bien été reçue - Gaspard NZ',
+      text: formatClientEmailBody({ partnerId, partnerName, clientName, eventType, eventDate }),
+      html: formatClientEmailBody({ partnerId, partnerName, clientName, eventType, eventDate }).split('\n').map(escapeHtml).join('<br>'),
+      replyTo: process.env.EMAIL_FROM,
+    });
+
     console.log('✅ Email envoyé:', {
       to: to.join(', '),
       cc: cc?.join(', '),
       messageId: info.messageId,
+      clientMessageId: clientInfo.messageId,
       timestamp: new Date().toISOString(),
     });
 
@@ -255,6 +287,7 @@ export default async function handler(req, res) {
       success: true,
       message: 'Email envoyé avec succès',
       messageId: info.messageId,
+      clientMessageId: clientInfo.messageId,
     });
 
   } catch (error) {

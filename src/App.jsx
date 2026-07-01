@@ -218,6 +218,12 @@ export default function App() {
   const formulesRef    = useRef(null);
   const styleDuMoisRef = useRef(null);
   const partenairesRef = useRef(null);
+  const styleJournalRef = useRef(null);
+  const videoRef        = useRef(null);
+  const weddingRef      = useRef(null);
+  const actualitesRef   = useRef(null);
+  const vipRef          = useRef(null);
+  const communauteRef   = useRef(null);
   const currentlyOnAdminPath = typeof window !== "undefined" && window.location.pathname.startsWith("/admin");
 
   useEffect(() => {
@@ -507,6 +513,12 @@ export default function App() {
               onReserver={() => openBooking(false)}
               onStyleDuMois={() => scrollTo(styleDuMoisRef)}
               onPartenaires={() => scrollTo(partenairesRef)}
+              onStyleJournal={() => scrollTo(styleJournalRef)}
+              onVideo={() => scrollTo(videoRef)}
+              onWedding={() => scrollTo(weddingRef)}
+              onActualites={() => scrollTo(actualitesRef)}
+              onVIP={() => scrollTo(vipRef)}
+              onCommunaute={() => scrollTo(communauteRef)}
               highContrast={highContrast}
               onToggleContrast={() => setHighContrast(v => !v)}
               lightMode={lightMode}
@@ -519,26 +531,26 @@ export default function App() {
             <SectionDivider from="#1c1208" to="#f5f0e8" />
             <HeritageMobile refEl={heritageRef} />
             <SectionDivider from="#f5f0e8" to="#0a0602" />
-            <StyleJournalSection />
+            <div ref={styleJournalRef}><StyleJournalSection /></div>
             <SectionDivider from="#0a0602" to="#f5f0e8" />
             <GalleryMobile refEl={galleryRef} />
             <SectionDivider from="#f5f0e8" to="#0a0602" />
-            <VideoSection />
+            <div ref={videoRef}><VideoSection /></div>
             <SectionDivider from="#0a0602" to="#0a0602" />
-            <WeddingInspirationSection />
+            <WeddingInspirationSection refEl={weddingRef} />
             <SectionDivider from="#0a0602" to="#0d1b3e" />
             <FormulesSection refEl={formulesRef} onContact={() => window.open(`https://wa.me/33664826920?text=${encodeURIComponent((APP_COPY[lang] || APP_COPY.FR).waFormula)}`, "_blank")} />
             <SectionDivider from="#0d1b3e" to="#0a0602" />
             <PartnersSection refEl={partenairesRef} />
             <SectionDivider from="#0a0602" to="#0a0602" />
-            <ActualitesSection />
-            <VIPClientsSection />
+            <div ref={actualitesRef}><ActualitesSection /></div>
+            <div ref={vipRef}><VIPClientsSection /></div>
             <SectionDivider from="#0f0a04" to="#f5f0e8" />
             <ShowroomMobile refEl={showroomRef} onCatalogue={() => openBooking(true)} onGalerie={() => scrollTo(galleryRef)} onFlammes={() => scrollTo(galleryRef)} />
             <InstagramSection />
             <SectionDivider from="#faf7f2" to="#0a0602" />
             <StyleDuMoisSection refEl={styleDuMoisRef} />
-            <CommunauteSection />
+            <div ref={communauteRef}><CommunauteSection /></div>
             <FooterMobile onFormules={() => scrollTo(formulesRef)} onGalerie={() => scrollTo(galleryRef)} onShowroom={() => scrollTo(showroomRef)} />
             <BookingModal isOpen={bookingOpen} onClose={() => setBookingOpen(false)} boutiqueMode={boutiqueMode} onSwitchToBooking={() => setBoutiqueMode(false)} />
             <ChatBot onReserver={() => openBooking(false)} onGalerie={() => scrollTo(galleryRef)} onShowroom={() => scrollTo(showroomRef)} onFormules={() => scrollTo(formulesRef)} />

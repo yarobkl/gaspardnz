@@ -59,11 +59,9 @@ const PartnersContactModal = ({ isOpen, onClose, partner }) => {
       }
 
       // Envoyer emails (avec status du partenaire pour router correctement)
-      if (partner.email) {
-        const emailResult = await sendPartnerContactEmail(partner.id, partner.email, safeData, partner.status);
-        if (!emailResult.success) {
-          throw new Error("Failed to send email");
-        }
+      const emailResult = await sendPartnerContactEmail(partner.id, partner.email || "", safeData, partner.status, partner.name);
+      if (!emailResult.success) {
+        throw new Error(emailResult.error || "Failed to send email");
       }
 
       setSubmitted(true);

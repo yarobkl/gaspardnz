@@ -4,8 +4,9 @@ import { GOLD, SOCIAL_LINKS, TEXT } from "../constants.js";
 import { LangCtx, useTr } from "../context.jsx";
 import { SvgInstagram, SvgTiktok, SvgYoutube, SvgBag } from "../icons.jsx";
 import { useSettings } from "../hooks/useSettings.js";
+import { LOOKBOOK_PRICE_EUR, openLookbookCheckout } from "../utils/lookbookCheckout.js";
 
-const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules, highContrast, onToggleContrast, onBiographie, onReserver, lightMode, onToggleDark, onStyleDuMois, onPartenaires }) => {
+const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules, highContrast, onToggleContrast, onBiographie, onReserver, lightMode, onToggleDark, onStyleDuMois, onPartenaires, onStyleJournal, onVideo, onWedding, onActualites, onVIP, onCommunaute }) => {
   const { lang, setLang } = useContext(LangCtx);
   const t = useTr();
   const settings = useSettings();
@@ -202,12 +203,18 @@ const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules, 
             {[
               [t("nav_reveler"), onReserver],
               [t("nav_bio"), onBiographie],
-              [t("nav_showroom"), onShowroom],
               [t("nav_formules"), onFormules],
+              ["Style Journal", onStyleJournal],
               [t("nav_galerie"), onGalerie],
+              ["Vidéos", onVideo],
+              [t("wedding_inspiration"), onWedding],
               [t("nav_partenaires") || "Nos Partenaires", onPartenaires],
+              [t("actualites_title"), onActualites],
+              ["Galerie clients", onVIP],
+              [t("nav_showroom"), onShowroom],
               [t("style_month"), onStyleDuMois],
-              [t("lookbook"), () => { const a = document.createElement("a"); a.href = `${import.meta.env.BASE_URL}lookbook-gaspardnz.pdf`; a.download = "Lookbook-GaspardNZ-2025.pdf"; a.click(); }],
+              ["Communauté", onCommunaute],
+              [t("lookbook"), () => openLookbookCheckout(settings.whatsappNumber)],
             ].map(([label, fn], i) => (
               <motion.button key={label}
                 initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }}
@@ -215,7 +222,7 @@ const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules, 
                 onClick={() => close(fn)}
                 style={{ display: "block", width: "100%", background: "none", border: "none", textAlign: "left", cursor: "pointer", padding: "1.1rem 0", fontFamily: "'Cormorant Garamond', serif", fontSize: "1.8rem", letterSpacing: "0.08em", color: label === t("lookbook") ? GOLD : TEXT, borderBottom: "1px solid rgba(28,18,8,0.07)" }}
               >
-                {label}{label === t("lookbook") && <span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "9px", letterSpacing: "0.3em", marginLeft: "10px", opacity: 0.7 }}>↓ PDF</span>}
+                {label}{label === t("lookbook") && <span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "9px", letterSpacing: "0.3em", marginLeft: "10px", opacity: 0.7 }}>{LOOKBOOK_PRICE_EUR}€ · Stripe</span>}
               </motion.button>
             ))}
 

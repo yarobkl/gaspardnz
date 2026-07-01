@@ -1,12 +1,13 @@
-import { useState, useRef } from "react";
+import { useContext, useState, useRef } from "react";
 import { motion, useInView } from "framer-motion";
 import { GOLD, CREAM } from "../../constants.js";
-import { useTr } from "../../context.jsx";
+import { LangCtx, useTr } from "../../context.jsx";
 import { PARTNERS_DATA } from "../../data/partners.js";
 import PartnersContactModal from "../PartnersContactModal.jsx";
 
 const PartnersSection = ({ refEl }) => {
   const t = useTr();
+  const { lang } = useContext(LangCtx);
   const ref = refEl || useRef(null);
   const inView = useInView(ref, { once: true, margin: "-6% 0px" });
   const [selectedPartner, setSelectedPartner] = useState(null);
@@ -18,9 +19,9 @@ const PartnersSection = ({ refEl }) => {
   };
 
   const getPartnerText = (partner, key, fallback) => {
-    if (t?.lang === "EN" && partner[`${key}En`]) return partner[`${key}En`];
-    if (t?.lang === "ES" && partner[`${key}Es`]) return partner[`${key}Es`];
-    if (t?.lang === "ZH" && partner[`${key}Zh`]) return partner[`${key}Zh`];
+    if (lang === "EN" && partner[`${key}En`]) return partner[`${key}En`];
+    if (lang === "ES" && partner[`${key}Es`]) return partner[`${key}Es`];
+    if (lang === "ZH" && partner[`${key}Zh`]) return partner[`${key}Zh`];
     return partner[key] || fallback;
   };
 
