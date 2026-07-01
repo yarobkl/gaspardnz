@@ -12,6 +12,14 @@ const PHOTOS = {
 const NEWS = {
   FR: [
     {
+      id: 4,
+      location: "Paris",
+      date: "Très bientôt",
+      tag: "Application",
+      title: "L'application GaspardNZ arrive sur Google Play",
+      text: "L'univers GaspardNZ se prépare à passer une nouvelle étape.\n\nL'application mobile arrive très bientôt sur Google Play Store pour rendre l'expérience plus directe, plus fluide et plus proche des clients.\n\nLookbook, inspirations, demandes, services et nouveautés seront réunis dans un espace pensé pour accompagner chaque client avec élégance.",
+    },
+    {
       id: 3,
       video: VIDEOS.jtSape,
       location: "Paris",
@@ -40,6 +48,14 @@ const NEWS = {
     },
   ],
   EN: [
+    {
+      id: 4,
+      location: "Paris",
+      date: "Very soon",
+      tag: "App",
+      title: "The GaspardNZ app is coming to Google Play",
+      text: "The GaspardNZ universe is getting ready for a new step.\n\nThe mobile app is coming very soon to Google Play Store, designed to make the experience more direct, smoother and closer to every client.\n\nLookbook, inspirations, requests, services and updates will be gathered in one elegant space.",
+    },
     {
       id: 3,
       video: VIDEOS.jtSape,
@@ -70,6 +86,14 @@ const NEWS = {
   ],
   ES: [
     {
+      id: 4,
+      location: "París",
+      date: "Muy pronto",
+      tag: "Aplicación",
+      title: "La aplicación GaspardNZ llega pronto a Google Play",
+      text: "El universo GaspardNZ se prepara para una nueva etapa.\n\nLa aplicación móvil llegará muy pronto a Google Play Store para ofrecer una experiencia más directa, más fluida y más cercana a cada cliente.\n\nLookbook, inspiraciones, solicitudes, servicios y novedades estarán reunidos en un espacio elegante.",
+    },
+    {
       id: 3,
       video: VIDEOS.jtSape,
       location: "París",
@@ -98,6 +122,14 @@ const NEWS = {
     },
   ],
   ZH: [
+    {
+      id: 4,
+      location: "巴黎",
+      date: "即将推出",
+      tag: "应用",
+      title: "GaspardNZ 应用即将登陆 Google Play",
+      text: "GaspardNZ 的世界即将迈出全新一步。\n\n移动应用将很快登陆 Google Play Store，让体验更直接、更流畅，也更贴近每一位客户。\n\n造型册、灵感、预约、服务与最新动态都将集中在一个优雅的空间中。",
+    },
     {
       id: 3,
       video: VIDEOS.jtSape,
