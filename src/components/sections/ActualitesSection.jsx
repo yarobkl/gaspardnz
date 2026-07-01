@@ -91,17 +91,61 @@ const ActualitesSection = () => {
   const { lang } = useContext(LangCtx);
   const actualites = getActualites(lang);
   const ref = useRef(null);
+  const railRef = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-8% 0px" });
+
+  const scrollNews = (direction) => {
+    const rail = railRef.current;
+    if (!rail) return;
+    const card = rail.querySelector("[data-actu-card]");
+    const step = card ? card.getBoundingClientRect().width + 18 : rail.clientWidth * 0.86;
+    rail.scrollBy({ left: direction * step, behavior: "smooth" });
+  };
+
   return (
-    <section ref={ref} style={{ background: "#0a0602", padding: "4.5rem 0 5rem" }}>
+    <section ref={ref} style={{ background: "#0a0602", padding: "4.5rem 0 5rem", overflow: "hidden" }}>
       <motion.div initial={{ opacity: 0, y: 16 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.7 }}
-        style={{ padding: "0 1.4rem", marginBottom: "2.4rem" }}>
+        style={{ padding: "0 1.4rem", marginBottom: "1.5rem" }}>
         <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.42em", color: GOLD, textTransform: "uppercase", marginBottom: "10px" }}>GASPARDNZ</p>
         <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "28px", fontWeight: 300, color: "#faf7f2", letterSpacing: "0.02em", lineHeight: 1.2, margin: 0 }}>{t("actualites_title")}</p>
         <div style={{ width: "48px", height: "1px", background: `linear-gradient(90deg, ${GOLD}, transparent)`, marginTop: "14px" }} />
       </motion.div>
-      <div style={{ padding: "0 1.4rem", display: "flex", flexDirection: "column", gap: "1.4rem" }}>
-        {actualites.map(item => <ActuCard key={item.id} item={item} />)}
+      <div style={{ padding: "0 1.4rem", display: "flex", justifyContent: "space-between", alignItems: "center", gap: "1rem", marginBottom: "1rem" }}>
+        <p style={{ maxWidth: "32rem", fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(1rem,4vw,1.15rem)", lineHeight: 1.6, color: "rgba(245,240,232,0.68)", margin: 0, fontStyle: "italic" }}>
+          {t("actualites_hint")}
+        </p>
+        <div style={{ display: "flex", gap: "0.55rem", flexShrink: 0 }}>
+          <button onClick={() => scrollNews(-1)} aria-label={t("previous_photo")}
+            style={{ width: 44, height: 44, borderRadius: "50%", border: "1px solid rgba(184,151,62,0.28)", background: "rgba(255,255,255,0.04)", color: GOLD, display: "grid", placeItems: "center", cursor: "pointer" }}>
+            <svg width="12" height="12" viewBox="0 0 10 10" fill="none"><path d="M6.5 2L3.5 5l3 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+          </button>
+          <button onClick={() => scrollNews(1)} aria-label={t("next_photo")}
+            style={{ width: 44, height: 44, borderRadius: "50%", border: "1px solid rgba(184,151,62,0.28)", background: "rgba(255,255,255,0.04)", color: GOLD, display: "grid", placeItems: "center", cursor: "pointer" }}>
+            <svg width="12" height="12" viewBox="0 0 10 10" fill="none"><path d="M3.5 2L6.5 5l-3 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+          </button>
+        </div>
+      </div>
+      <div
+        ref={railRef}
+        style={{
+          padding: "0 1.4rem 0.35rem",
+          display: "grid",
+          gridAutoFlow: "column",
+          gridAutoColumns: "minmax(282px, 420px)",
+          gap: "1.1rem",
+          overflowX: "auto",
+          scrollSnapType: "x mandatory",
+          scrollPadding: "1.4rem",
+          WebkitOverflowScrolling: "touch",
+          scrollbarWidth: "thin",
+          scrollbarColor: `${GOLD} rgba(255,255,255,0.08)`,
+        }}
+      >
+        {actualites.map(item => (
+          <div key={item.id} data-actu-card style={{ scrollSnapAlign: "start" }}>
+            <ActuCard item={item} />
+          </div>
+        ))}
       </div>
     </section>
   );
