@@ -7,6 +7,103 @@ import nodemailer from 'nodemailer';
 
 // Valider les variables d'environnement
 const requiredEnvVars = ['EMAIL_FROM', 'EMAIL_PASSWORD', 'SMTP_HOST', 'SMTP_PORT'];
+const DEFAULT_ALLOWED_RECIPIENTS = [
+  'gaspardnz.contact@gmail.com',
+  'eliebakala@gmail.com',
+];
+
+export const sanitizeText = (value, maxLength = 2000) =>
+  String(value ?? '')
+    .replace(/[\u0000-\u001f\u007f]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, maxLength);
+
+export const escapeHtml = (value) =>
+  sanitizeText(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+
+const normalizeEmail = (value) => sanitizeText(value, 320).toLowerCase();
+
+const isValidEmail = (value) =>
+  /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizeEmail(value));
+
+const parseCsvEmails = (value) =>
+  String(value || '')
+    .split(',')
+    .map(normalizeEmail)
+    .filter(Boolean);
+
+const getAllowedRecipients = () => {
+  const configured = parseCsvEmails(process.env.ALLOWED_EMAIL_RECIPIENTS || process.env.EMAIL_TO);
+  return new Set(configured.length > 0 ? configured : DEFAULT_ALLOWED_RECIPIENTS);
+};
+
+export const resolveRecipients = ({ to = [], cc = [] }) => {
+  const allowed = getAllowedRecipients();
+  const normalizeList = (list) => Array.isArray(list) ? list.map(normalizeEmail).filter(Boolean) : [];
+  const requested = [...normalizeList(to), ...normalizeList(cc)];
+
+  if (requested.length === 0) {
+    return { ok: false, error: 'Destinataire manquant' };
+  }
+
+  if (requested.some((email) => !isValidEmail(email))) {
+    return { ok: false, error: 'Adresse email invalide' };
+  }
+
+  const forbidden = requested.filter((email) => !allowed.has(email));
+  if (forbidden.length > 0) {
+    return { ok: false, error: 'Destinataire non autorisé' };
+  }
+
+  return {
+    ok: true,
+    to: normalizeList(to).filter((email) => allowed.has(email)),
+    cc: normalizeList(cc).filter((email) => allowed.has(email)),
+  };
+};
+
+const getAllowedHosts = () => {
+  const configured = String(process.env.ALLOWED_ORIGINS || process.env.SITE_URL || 'https://gaspardnz.style')
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+
+  const hosts = new Set(['gaspardnz.style', 'www.gaspardnz.style']);
+  configured.forEach((origin) => {
+    try {
+      hosts.add(new URL(origin).host);
+    } catch {}
+  });
+  if (process.env.VERCEL_URL) hosts.add(process.env.VERCEL_URL);
+  return hosts;
+};
+
+export const isAllowedOrigin = (origin) => {
+  if (!origin) return process.env.NODE_ENV !== 'production';
+  try {
+    return getAllowedHosts().has(new URL(origin).host);
+  } catch {
+    return false;
+  }
+};
+
+const rateLimitStore = new Map();
+const isRateLimited = (key) => {
+  const now = Date.now();
+  const windowMs = 10 * 60 * 1000;
+  const maxRequests = 8;
+  const bucket = rateLimitStore.get(key) || [];
+  const recent = bucket.filter((timestamp) => now - timestamp < windowMs);
+  recent.push(now);
+  rateLimitStore.set(key, recent);
+  return recent.length > maxRequests;
+};
 
 const validateEnv = () => {
   const missing = requiredEnvVars.filter(v => !process.env[v]);
@@ -33,8 +130,8 @@ const createTransporter = () => {
 // Formater l'email
 const formatEmailBody = (data, isComingSoon) => {
   const header = isComingSoon
-    ? '📋 NOUVELLE DEMANDE PALAIS GROUPE (À finaliser avec le groupe)'
-    : '📋 NOUVELLE DEMANDE DE CONTACT';
+    ? 'NOUVELLE DEMANDE PALAIS GROUPE (À finaliser avec le groupe)'
+    : 'NOUVELLE DEMANDE DE CONTACT';
 
   return `
 ${header}
@@ -43,19 +140,19 @@ ${header}
 INFORMATIONS CLIENT
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Nom: ${data.clientName}
-Email: ${data.clientEmail}
-Téléphone: ${data.clientPhone}
+Nom: ${sanitizeText(data.clientName, 140)}
+Email: ${sanitizeText(data.clientEmail, 320)}
+Téléphone: ${sanitizeText(data.clientPhone, 80)}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 DÉTAILS DE L'ÉVÉNEMENT
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Type d'événement: ${data.eventType}
-Date prévue: ${data.eventDate}
+Type d'événement: ${sanitizeText(data.eventType, 140)}
+Date prévue: ${sanitizeText(data.eventDate, 80)}
 
 Message du client:
-${data.message}
+${sanitizeText(data.message, 2000)}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ${isComingSoon ? 'ACTION REQUISE' : 'SUIVI'}
@@ -80,6 +177,15 @@ export default async function handler(req, res) {
   }
 
   try {
+    if (!isAllowedOrigin(req.headers.origin)) {
+      return res.status(403).json({ error: 'Origin not allowed' });
+    }
+
+    const clientIp = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket?.remoteAddress || 'unknown';
+    if (isRateLimited(clientIp)) {
+      return res.status(429).json({ error: 'Trop de demandes, réessayez plus tard' });
+    }
+
     // Valider le CSRF token
     const csrfToken = req.headers['x-csrf-token'];
     if (!csrfToken) {
@@ -89,11 +195,12 @@ export default async function handler(req, res) {
     const { to, cc, subject, clientName, clientEmail, clientPhone, eventType, eventDate, message, timestamp, isComingSoon } = req.body;
 
     // Valider les données
-    if (!to || !Array.isArray(to) || to.length === 0) {
-      return res.status(400).json({ error: 'Destinataire manquant' });
+    const recipients = resolveRecipients({ to, cc });
+    if (!recipients.ok) {
+      return res.status(400).json({ error: recipients.error });
     }
 
-    if (!clientEmail || !clientName) {
+    if (!isValidEmail(clientEmail) || !sanitizeText(clientName, 140)) {
       return res.status(400).json({ error: 'Données client incomplètes' });
     }
 
@@ -126,12 +233,12 @@ export default async function handler(req, res) {
     // Préparer les options d'email
     const mailOptions = {
       from: process.env.EMAIL_FROM,
-      to: to.join(', '),
-      cc: cc && cc.length > 0 ? cc.join(', ') : undefined,
-      subject: subject,
+      to: recipients.to.join(', '),
+      cc: recipients.cc.length > 0 ? recipients.cc.join(', ') : undefined,
+      subject: sanitizeText(subject || 'Nouvelle demande de contact', 160),
       text: emailBody,
-      html: emailBody.replace(/\n/g, '<br>'),
-      replyTo: clientEmail,
+      html: emailBody.split('\n').map(escapeHtml).join('<br>'),
+      replyTo: normalizeEmail(clientEmail),
     };
 
     // Envoyer l'email

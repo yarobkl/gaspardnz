@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "test:email-security": "node scripts/validate-email-api-security.mjs",
     "build:app": "BUILD_TARGET=capacitor vite build",
     "preview": "vite preview",
     "cap:sync": "npm run build:app && npx cap sync",
@@ -27,13 +28,12 @@
     "@capacitor/status-bar": "^8.0.2",
     "crypto-js": "^4.2.0",
     "framer-motion": "^11.0.0",
-    "nodemailer": "^6.10.1",
+    "nodemailer": "^9.0.3",
     "react": "^18.3.0",
     "react-dom": "^18.3.0",
     "react-onesignal": "^3.5.1"
   },
   "devDependencies": {
-    "@capacitor/assets": "^3.0.5",
     "@vitejs/plugin-react": "^6.0.2",
     "vite": "^8.0.14"
   }

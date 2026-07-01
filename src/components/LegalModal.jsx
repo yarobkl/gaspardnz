@@ -41,7 +41,7 @@ const LEGAL = {
         label: "Politique de confidentialité",
         sections: [
           ["Responsable du traitement", [`${OWNER} — ${ADRESSE} — ${EMAIL}`]],
-          ["Données collectées", ["Lors de votre utilisation du site, nous pouvons collecter :\n• Données de navigation via Google Analytics 4, avec votre consentement\n• Nom, prénom, email et téléphone lors d'une prise de contact ou réservation\n• Préférences de notifications push via OneSignal"]],
+          ["Données collectées", ["Lors de votre utilisation du site, nous pouvons collecter :\n• Données de navigation via Google Analytics 4, avec votre consentement\n• Nom, prénom, email et téléphone lors d'une prise de contact ou réservation"]],
           ["Finalités", ["Ces données servent à améliorer l'expérience utilisateur, répondre aux demandes de contact, envoyer des notifications si vous les acceptez et mesurer l'audience du site."]],
           ["Durée de conservation", ["Les données de navigation sont conservées 26 mois maximum. Les données de contact sont conservées 3 ans à compter du dernier échange."]],
           ["Cookies", ["Le site utilise des cookies analytiques uniquement avec votre consentement explicite. Vous pouvez retirer votre consentement à tout moment via la bannière cookies."]],
@@ -82,7 +82,7 @@ const LEGAL = {
         label: "Privacy policy",
         sections: [
           ["Data controller", [`${OWNER} — ${ADRESSE} — ${EMAIL}`]],
-          ["Collected data", ["When you use the website, we may collect:\n• Browsing data through Google Analytics 4, with your consent\n• First name, last name, email and phone number when you contact or book\n• Push notification preferences through OneSignal"]],
+          ["Collected data", ["When you use the website, we may collect:\n• Browsing data through Google Analytics 4, with your consent\n• First name, last name, email and phone number when you contact or book"]],
           ["Purposes", ["This data is used to improve user experience, answer contact requests, send notifications only if accepted and measure website audience."]],
           ["Retention period", ["Browsing data is kept for a maximum of 26 months. Contact data is kept for 3 years from the last exchange."]],
           ["Cookies", ["The website uses analytics cookies only with your explicit consent. You can withdraw consent at any time through the cookie banner."]],
@@ -133,7 +133,7 @@ LEGAL.ES.pages.mentions.sections = [
 ];
 LEGAL.ES.pages.confidentialite.sections = [
   ["Responsable del tratamiento", [`${OWNER} — ${ADRESSE} — ${EMAIL}`]],
-  ["Datos recopilados", ["Durante el uso del sitio podemos recopilar:\n• Datos de navegación mediante Google Analytics 4, con tu consentimiento\n• Nombre, apellido, email y teléfono al contactar o reservar\n• Preferencias de notificaciones push mediante OneSignal"]],
+  ["Datos recopilados", ["Durante el uso del sitio podemos recopilar:\n• Datos de navegación mediante Google Analytics 4, con tu consentimiento\n• Nombre, apellido, email y teléfono al contactar o reservar"]],
   ["Finalidades", ["Estos datos se utilizan para mejorar la experiencia, responder solicitudes, enviar notificaciones si las aceptas y medir la audiencia del sitio."]],
   ["Conservación", ["Los datos de navegación se conservan un máximo de 26 meses. Los datos de contacto se conservan 3 años desde el último intercambio."]],
   ["Cookies", ["El sitio utiliza cookies analíticas solo con tu consentimiento explícito. Puedes retirar tu consentimiento en cualquier momento desde la banda de cookies."]],
@@ -160,7 +160,7 @@ LEGAL.ZH.pages.mentions.sections = [
 ];
 LEGAL.ZH.pages.confidentialite.sections = [
   ["数据控制者", [`${OWNER} — ${ADRESSE} — ${EMAIL}`]],
-  ["收集的数据", ["使用网站时，我们可能收集：\n• 经你同意后，通过 Google Analytics 4 收集的浏览数据\n• 联系或预约时提供的姓名、邮箱和电话\n• 通过 OneSignal 设置的推送通知偏好"]],
+  ["收集的数据", ["使用网站时，我们可能收集：\n• 经你同意后，通过 Google Analytics 4 收集的浏览数据\n• 联系或预约时提供的姓名、邮箱和电话"]],
   ["用途", ["这些数据用于改善用户体验、回复联系请求、在你同意时发送通知，以及衡量网站访问情况。"]],
   ["保存期限", ["浏览数据最长保存 26 个月。联系数据自最后一次交流起保存 3 年。"]],
   ["Cookie", ["网站仅在你明确同意后使用分析 Cookie。你可以随时通过 Cookie 横幅撤回同意。"]],

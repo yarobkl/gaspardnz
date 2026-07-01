@@ -1,4 +1,4 @@
-import { SOCIAL_LINKS, CALENDLY_URL } from "../constants.js";
+import { SOCIAL_LINKS, CALENDLY_URL, WA_NUM } from "../constants.js";
 
 const SETTINGS_KEY = "gaspardnz_settings";
 
@@ -6,7 +6,7 @@ const defaultSettings = {
   siteTitle: "GASPARDNZ",
   heroTitle: "Événements d'Exception",
   heroSubtitle: "Création et organisation d'événements mémorables",
-  whatsappNumber: "+33612345678",
+  whatsappNumber: `+${WA_NUM}`,
   calendlyUrl: CALENDLY_URL,
   instagramUrl: SOCIAL_LINKS.instagram,
   maisonAddress: "Paris, France",

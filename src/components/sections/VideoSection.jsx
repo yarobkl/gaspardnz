@@ -11,19 +11,23 @@ const VideoSection = () => {
   const isInView = useInView(sectionRef, { amount: 0.5 });
   const [videoSrc, setVideoSrc] = useState("");
   const [soundBlocked, setSoundBlocked] = useState(false);
+  const [soundEnabled, setSoundEnabled] = useState(false);
 
   const VIDEO_URL = `${CDN_BASE}/video/upload/Looks_demi-saison_ou_demi-_Dakar_arefgg.mp4`;
 
-  const playWithSound = useCallback(() => {
+  const playVideo = useCallback((withSound = false) => {
     const video = videoRef.current;
     if (!video || !videoSrc) return;
-    video.muted = false;
-    video.volume = 1;
+    video.muted = !withSound;
+    video.volume = withSound ? 1 : 0;
     const playPromise = video.play();
     if (playPromise !== undefined) {
       playPromise
-        .then(() => setSoundBlocked(false))
-        .catch(() => setSoundBlocked(true));
+        .then(() => {
+          setSoundBlocked(false);
+          if (withSound) setSoundEnabled(true);
+        })
+        .catch(() => setSoundBlocked(withSound));
     }
   }, [videoSrc]);
 
@@ -37,14 +41,12 @@ const VideoSection = () => {
     if (!video) return;
 
     if (isInView) {
-      video.muted = false;
-      video.volume = 1;
-      playWithSound();
+      playVideo(soundEnabled);
     } else {
       video.pause();
       setSoundBlocked(false);
     }
-  }, [isInView, videoSrc, playWithSound]);
+  }, [isInView, videoSrc, playVideo, soundEnabled]);
 
   useEffect(() => {
     const onVisibilityChange = () => {
@@ -54,11 +56,11 @@ const VideoSection = () => {
         video.pause();
         return;
       }
-      if (isInView) playWithSound();
+      if (isInView) playVideo(soundEnabled);
     };
     document.addEventListener("visibilitychange", onVisibilityChange);
     return () => document.removeEventListener("visibilitychange", onVisibilityChange);
-  }, [isInView, videoSrc, playWithSound]);
+  }, [isInView, videoSrc, playVideo, soundEnabled]);
 
   return (
     <section ref={sectionRef} style={{ background: "#0a0602", padding: "3rem 1.4rem" }}>
@@ -102,10 +104,10 @@ const VideoSection = () => {
           controls
           playsInline
           autoPlay
-          muted={false}
+          muted
           preload="none"
-          onLoadedMetadata={playWithSound}
-          onCanPlay={playWithSound}
+          onLoadedMetadata={() => playVideo(false)}
+          onCanPlay={() => playVideo(false)}
           style={{
             width: "100%",
             height: "100%",
@@ -117,10 +119,10 @@ const VideoSection = () => {
         >
           <track kind="captions" src="/captions/gaspardnz-video-fr.vtt" srcLang="fr" label="Français" default />
         </video>
-        {soundBlocked && isInView && (
+        {isInView && !soundEnabled && (
           <button
             aria-label="Activer le son de la vidéo"
-            onClick={playWithSound}
+            onClick={() => playVideo(true)}
             style={{
               position: "absolute",
               left: "50%",
@@ -140,7 +142,7 @@ const VideoSection = () => {
               backdropFilter: "blur(10px)",
             }}
           >
-            Activer le son
+            {soundBlocked ? "Touchez pour activer le son" : "Activer le son"}
           </button>
         )}
       </motion.div>

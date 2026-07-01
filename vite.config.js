@@ -8,11 +8,6 @@ export default defineConfig({
   base: isCapacitor ? "/" : "/",
   server: {
     host: "0.0.0.0",
-    hmr: {
-      host: "auto",
-      port: 5173,
-      protocol: "ws",
-    },
     watch: {
       usePolling: true,
       interval: 100,
