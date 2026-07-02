@@ -63,14 +63,14 @@ const FooterMobile = ({ onFormules, onGalerie, onShowroom }) => {
         {/* Legal */}
         <div style={{ display: "flex", justifyContent: "center", gap: "1.4rem", marginBottom: "1.2rem" }}>
           {[
-            [t("footer_mentions"), "mentions"],
-            [t("footer_conf"), "confidentialite"],
-            [t("footer_cgv"), "cgv"],
-          ].map(([label, page]) => (
-            <button key={label} onClick={() => setLegalPage(page)}
-              style={{ background: "none", border: "none", cursor: "pointer", fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.15em", color: "rgba(245,240,232,0.62)", textDecoration: "none", textTransform: "uppercase", padding: "12px 0", minHeight: "44px", minWidth: "44px" }}>
+            [t("footer_mentions"), "/mentions-legales.html"],
+            [t("footer_conf"), "/confidentialite.html"],
+            [t("footer_cgv"), "/cgv.html"],
+          ].map(([label, href]) => (
+            <a key={label} href={href} target="_blank" rel="noopener noreferrer"
+              style={{ background: "none", border: "none", cursor: "pointer", fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.15em", color: "rgba(245,240,232,0.62)", textDecoration: "none", textTransform: "uppercase", padding: "12px 0", minHeight: "44px", minWidth: "44px", display: "inline-flex", alignItems: "center" }}>
               {label}
-            </button>
+            </a>
           ))}
         </div>
 
