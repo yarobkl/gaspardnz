@@ -1,6 +1,15 @@
 name: Android Capacitor Build
 on:
   workflow_dispatch:
+    inputs:
+      versionCode:
+        description: "Code de version (entier, doit augmenter à chaque upload Play Store)"
+        required: false
+        default: "3"
+      versionName:
+        description: "Nom de version visible (ex: 1.0)"
+        required: false
+        default: "1.0"
 jobs:
   build-android:
     name: Build Android APK/AAB
@@ -30,6 +39,15 @@ jobs:
           fi
       - name: Générer les icônes de l'app (logo GNZ)
         run: npx @capacitor/assets generate --android
+      - name: Définir le code et le nom de version
+        env:
+          VERSION_CODE: ${{ github.event.inputs.versionCode || '3' }}
+          VERSION_NAME: ${{ github.event.inputs.versionName || '1.0' }}
+        run: |
+          sed -i "s/versionCode [0-9]\+/versionCode ${VERSION_CODE}/" android/app/build.gradle
+          sed -i "s/versionName \"[^\"]*\"/versionName \"${VERSION_NAME}\"/" android/app/build.gradle
+          echo "✅ versionCode=${VERSION_CODE} versionName=${VERSION_NAME}"
+          grep -n "versionCode\|versionName" android/app/build.gradle
       - name: Générer APK debug
         run: |
           cd android
