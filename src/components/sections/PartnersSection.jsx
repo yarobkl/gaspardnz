@@ -5,6 +5,9 @@ import { LangCtx, useTr } from "../../context.jsx";
 import { PARTNERS_DATA } from "../../data/partners.js";
 import PartnersContactModal from "../PartnersContactModal.jsx";
 
+// Badge "-X%" masqué temporairement (accord partenaire pas encore finalisé) — repasser à true pour le réafficher.
+const SHOW_PARTNER_DISCOUNT_BADGE = false;
+
 const PartnersSection = ({ refEl }) => {
   const t = useTr();
   const { lang } = useContext(LangCtx);
@@ -90,7 +93,7 @@ const PartnersSection = ({ refEl }) => {
                 }}>
 
                 {/* Badge Réduction Client */}
-                {!partner.placeholder && partner.clientDiscount && (
+                {SHOW_PARTNER_DISCOUNT_BADGE && !partner.placeholder && partner.clientDiscount && (
                   <div style={{
                     position: "absolute",
                     top: "1rem",
