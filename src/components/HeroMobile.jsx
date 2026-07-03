@@ -7,10 +7,12 @@ const _HERO_SRC = (typeof import.meta !== "undefined" ? (import.meta.env.BASE_UR
 const _VIDEO_STYLE = { position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 20%", filter: "brightness(0.82) contrast(1.05) saturate(1.0)" };
 
 const HeroVideoLoop = () => {
+  const t = useTr();
   const ref = useRef(null);
   const readyRef = useRef(false);
   const [videoSrc] = useState(_HERO_SRC);
   const playIntervalRef = useRef(null);
+  const [showPausedNotice, setShowPausedNotice] = useState(false);
 
   useEffect(() => {
     if (!videoSrc) return;
@@ -22,14 +24,27 @@ const HeroVideoLoop = () => {
       v.play().catch(() => {});
     };
 
+    // Tente play() puis vérifie l'état réel ~600ms après (promesse rejetée
+    // ou video.paused toujours true = Low Power Mode / économie d'énergie)
+    const attemptPlayAndCheck = () => {
+      const result = v.play();
+      if (result && typeof result.catch === "function") {
+        result.then(() => {
+          setTimeout(() => { if (!v.paused) setShowPausedNotice(false); }, 600);
+        }).catch(() => setShowPausedNotice(true));
+      }
+      setTimeout(() => { if (v.paused) setShowPausedNotice(true); }, 600);
+    };
+
     const loadAndPlay = () => {
       v.load();
       play();
       window.setTimeout(play, 180);
-      window.setTimeout(play, 650);
+      window.setTimeout(attemptPlayAndCheck, 650);
     };
 
     const onCanPlay = () => { readyRef.current = true; play(); };
+    const onPlaying = () => setShowPausedNotice(false);
     const onPause = () => { if (!document.hidden) setTimeout(play, 250); };
     const onStall = () => setTimeout(play, 350);
     const onVis = () => { if (!document.hidden && readyRef.current) play(); };
@@ -38,6 +53,7 @@ const HeroVideoLoop = () => {
     v.addEventListener("canplay",    onCanPlay);
     v.addEventListener("loadeddata", onCanPlay);
     v.addEventListener("loadedmetadata", onCanPlay);
+    v.addEventListener("playing",    onPlaying);
     v.addEventListener("pause",      onPause);
     v.addEventListener("stalled",    onStall);
     window.addEventListener("focus", play);
@@ -49,12 +65,14 @@ const HeroVideoLoop = () => {
       if (!document.hidden && v.paused && readyRef.current) {
         v.play().catch(() => {});
       }
+      if (!v.paused) setShowPausedNotice(false);
     }, 500);
 
     return () => {
       v.removeEventListener("canplay",    onCanPlay);
       v.removeEventListener("loadeddata", onCanPlay);
       v.removeEventListener("loadedmetadata", onCanPlay);
+      v.removeEventListener("playing",    onPlaying);
       v.removeEventListener("pause",      onPause);
       v.removeEventListener("stalled",    onStall);
       window.removeEventListener("focus", play);
@@ -64,21 +82,62 @@ const HeroVideoLoop = () => {
     };
   }, [videoSrc]);
 
+  const retryPlay = () => {
+    const v = ref.current;
+    if (!v) return;
+    const result = v.play();
+    if (result && typeof result.catch === "function") {
+      result.then(() => setTimeout(() => { if (!v.paused) setShowPausedNotice(false); }, 300))
+            .catch(() => setShowPausedNotice(true));
+    }
+  };
+
   return (
-    <video
-      ref={ref}
-      src={videoSrc}
-      autoPlay muted playsInline loop
-      disablePictureInPicture disableRemotePlayback
-      preload="auto"
-      controls={false}
-      x-webkit-airplay="deny"
-      controlsList="nodownload nofullscreen noremoteplayback"
-      onEnded={e => { e.target.currentTime = 0; e.target.play().catch(() => {}); }}
-      style={{ ..._VIDEO_STYLE, background: "#1c1208" }}
-    >
-      <track kind="captions" src="/captions/hero-fr.vtt" srcLang="fr" label="Français" />
-    </video>
+    <>
+      <video
+        ref={ref}
+        src={videoSrc}
+        autoPlay muted playsInline loop
+        disablePictureInPicture disableRemotePlayback
+        preload="auto"
+        controls={false}
+        x-webkit-airplay="deny"
+        controlsList="nodownload nofullscreen noremoteplayback"
+        onEnded={e => { e.target.currentTime = 0; e.target.play().catch(() => {}); }}
+        style={{ ..._VIDEO_STYLE, background: "#1c1208" }}
+      >
+        <track kind="captions" src="/captions/hero-fr.vtt" srcLang="fr" label="Français" />
+      </video>
+      {showPausedNotice && (
+        <button
+          onClick={retryPlay}
+          aria-label={t("hero_video_paused")}
+          style={{
+            position: "absolute",
+            bottom: "14px",
+            left: "50%",
+            transform: "translateX(-50%)",
+            zIndex: 9,
+            maxWidth: "min(88vw, 420px)",
+            background: "rgba(20,13,6,0.45)",
+            backdropFilter: "blur(2px)",
+            border: "1px solid rgba(184,151,62,0.3)",
+            borderRadius: "999px",
+            padding: "0.5rem 1rem",
+            fontFamily: "'Montserrat', sans-serif",
+            fontSize: "10.5px",
+            lineHeight: 1.4,
+            letterSpacing: "0.02em",
+            color: "rgba(245,240,232,0.85)",
+            textShadow: "0 1px 3px rgba(0,0,0,0.6)",
+            cursor: "pointer",
+            textAlign: "center",
+          }}
+        >
+          {t("hero_video_paused")}
+        </button>
+      )}
+    </>
   );
 };
 
