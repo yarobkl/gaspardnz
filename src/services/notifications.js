@@ -10,8 +10,11 @@ import { Capacitor } from "@capacitor/core";
 
 const ONESIGNAL_ENABLED = false;
 
+export const isNotificationFeatureAvailable = () =>
+  Capacitor.isNativePlatform() && ONESIGNAL_ENABLED;
+
 export async function registerPushToken() {
-  if (!Capacitor.isNativePlatform() || !ONESIGNAL_ENABLED) return;
+  if (!isNotificationFeatureAvailable()) return;
 
   try {
     await PushNotifications.register();
@@ -29,7 +32,7 @@ export async function registerPushToken() {
 }
 
 export async function requestNotificationPermission() {
-  if (!Capacitor.isNativePlatform() || !ONESIGNAL_ENABLED) return false;
+  if (!isNotificationFeatureAvailable()) return false;
 
   try {
     const { receive } = await PushNotifications.checkPermissions();
