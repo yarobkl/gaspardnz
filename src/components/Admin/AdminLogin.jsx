@@ -3,17 +3,17 @@ import { login } from "../../services/adminAuth.js";
 import "../../styles/admin.css";
 
 const AdminLogin = ({ onLoginSuccess }) => {
-  const [email, setEmail] = useState("admin@gaspardnz.style");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
     setLoading(true);
 
-    const result = login(email, password);
+    const result = await login(email, password);
     setLoading(false);
 
     if (result.success) {

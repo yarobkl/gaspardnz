@@ -6,8 +6,8 @@ import { LangCtx } from "./context.jsx";
 import NotificationPrompt from "./components/NotificationPrompt.jsx";
 import CookieBanner from "./components/CookieBanner.jsx";
 import { initGAIfConsented } from "./services/analytics.js";
-import { requestNotificationPermission } from "./services/notifications.js";
-import { getSession, initAdminUsers } from "./services/adminAuth.js";
+import { isNotificationFeatureAvailable, requestNotificationPermission } from "./services/notifications.js";
+import { getSession } from "./services/adminAuth.js";
 import { trackPageView, trackEvent } from "./services/adminAnalytics.js";
 import { initializeTracking, trackPageView as trackDetailedPageView } from "./services/analyticsTracking.js";
 import NavMobile from "./components/NavMobile.jsx";
@@ -22,7 +22,6 @@ const AdminDashboard = lazy(() => import("./components/Admin/AdminDashboard.jsx"
 const AdminAnalytics = lazy(() => import("./components/Admin/AdminAnalytics.jsx"));
 const AdminCRM = lazy(() => import("./components/Admin/AdminCRM.jsx"));
 const AdminVIPClients = lazy(() => import("./components/Admin/AdminVIPClients.jsx"));
-const AdminUsers = lazy(() => import("./components/Admin/AdminUsers.jsx"));
 const AdminWeddingInspiration = lazy(() => import("./components/Admin/AdminWeddingInspiration.jsx"));
 const AdminSettings = lazy(() => import("./components/Admin/AdminSettings.jsx"));
 const HeritageMobile = lazy(() => import("./components/HeritageMobile.jsx"));
@@ -45,7 +44,7 @@ const PartnersSection = lazy(() => import("./components/sections/PartnersSection
 
 const FONTS_CSS = "";
 const SPLASH_MAX_MS = 700;
-const ADMIN_SECTIONS = ["dashboard", "analytics", "crm", "vip", "users", "wedding", "settings"];
+const ADMIN_SECTIONS = ["dashboard", "analytics", "crm", "vip", "wedding", "settings"];
 const isAdminRoute = () => typeof window !== "undefined" && window.location.pathname.startsWith("/admin");
 const getAdminSectionFromPath = () => {
   if (typeof window === "undefined") return "dashboard";
@@ -247,6 +246,7 @@ export default function App() {
   });
   const [isAdminPath, setIsAdminPath] = useState(false);
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
+  const [isAdminSessionLoading, setIsAdminSessionLoading] = useState(true);
   const [adminUser, setAdminUser] = useState(null);
   const [adminSection, setAdminSection] = useState(getAdminSectionFromPath);
   const finishSplash = useCallback(() => setSplashDone(true), []);
@@ -447,6 +447,7 @@ export default function App() {
   }, [currentlyOnAdminPath, isAdminPath, splashDone]);
 
   useEffect(() => {
+    if (!isNotificationFeatureAvailable()) return;
     if (isAdminPath || currentlyOnAdminPath) return;
     if (!splashDone) return;
     const already = localStorage.getItem("gnz-notif-asked");
@@ -457,10 +458,6 @@ export default function App() {
     }, 14000);
     return () => clearTimeout(t);
   }, [currentlyOnAdminPath, isAdminPath, splashDone]);
-
-  useEffect(() => {
-    initAdminUsers();
-  }, []);
 
   useEffect(() => {
     const checkAdminPath = () => {
@@ -476,13 +473,20 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    if (currentlyOnAdminPath || isAdminPath) {
-      const session = getSession();
-      if (session) {
-        setIsAdminLoggedIn(true);
-        setAdminUser(session);
-      }
-    }
+    if (!currentlyOnAdminPath && !isAdminPath) return;
+
+    let cancelled = false;
+    setIsAdminSessionLoading(true);
+    getSession().then((session) => {
+      if (cancelled) return;
+      setIsAdminLoggedIn(Boolean(session));
+      setAdminUser(session);
+      setIsAdminSessionLoading(false);
+    });
+
+    return () => {
+      cancelled = true;
+    };
   }, [currentlyOnAdminPath, isAdminPath]);
 
   useEffect(() => {
@@ -536,7 +540,9 @@ export default function App() {
       {(splashDone || currentlyOnAdminPath || isAdminPath) && (
         (currentlyOnAdminPath || isAdminPath) ? (
           <Suspense fallback={null}>
-          {isAdminLoggedIn ? (
+          {isAdminSessionLoading ? (
+            <div className="admin-container" aria-live="polite">Chargement de l’espace administrateur…</div>
+          ) : isAdminLoggedIn ? (
             <AdminLayout
               currentSection={adminSection}
               onSectionChange={(section) => {
@@ -548,7 +554,6 @@ export default function App() {
               {adminSection === "analytics" && <AdminAnalytics />}
               {adminSection === "crm" && <AdminCRM />}
               {adminSection === "vip" && <AdminVIPClients />}
-              {adminSection === "users" && <AdminUsers />}
               {adminSection === "wedding" && <AdminWeddingInspiration />}
               {adminSection === "settings" && <AdminSettings />}
             </AdminLayout>

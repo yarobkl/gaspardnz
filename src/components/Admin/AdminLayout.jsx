@@ -10,13 +10,16 @@ const AdminLayout = ({ children, currentSection, onSectionChange, user }) => {
     { id: "analytics", label: t("admin_analytics") },
     { id: "crm", label: t("admin_crm") },
     { id: "vip", label: t("admin_vip") },
-    { id: "users", label: t("admin_users") },
     { id: "wedding", label: t("admin_wedding") },
     { id: "settings", label: t("admin_settings") },
   ];
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    const loggedOut = await logout();
+    if (!loggedOut) {
+      window.alert("La déconnexion n’a pas abouti. Veuillez réessayer.");
+      return;
+    }
     window.location.href = "/";
   };
 
