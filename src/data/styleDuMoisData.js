@@ -60,4 +60,4 @@ const STYLE_MONTH = {
 export const getStyleDuMois = (lang = "FR") => STYLE_MONTH[lang] || STYLE_MONTH.FR;
 export const STYLE_DU_MOIS = STYLE_MONTH.FR;
 export const WA_GNZ = "https://wa.me/33664826920";
-export const WA_CHANNEL_URL = WA_GNZ;
+export const WA_CHANNEL_URL = "https://chat.whatsapp.com/GkYtoTgHk9kLpC0a6kjVTY?mode=gi_t";
