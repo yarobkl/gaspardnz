@@ -11,6 +11,7 @@ const ALLOWED_TABLES = new Set([
   "promotions",
   "media_assets",
   "site_content",
+  "content_albums",
 ]);
 
 export function usePublicCollection(table, {
@@ -35,10 +36,7 @@ export function usePublicCollection(table, {
 
     let alive = true;
     const load = async () => {
-      let query = supabase.from(table).select(select);
-      if (table === "site_content") query = query.eq("published", true);
-      else if (table !== "media_assets") query = query.eq("published", true);
-      else query = query.eq("published", true);
+      let query = supabase.from(table).select(select).eq("published", true);
       for (const filter of filters) {
         if (filter?.type === "eq") query = query.eq(filter.column, filter.value);
         if (filter?.type === "gte") query = query.gte(filter.column, filter.value);
