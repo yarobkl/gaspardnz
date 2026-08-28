@@ -1,6 +1,7 @@
 import { supabase } from "./supabaseClient.js";
 
 const PROFILE_KEY = "gnz-admin-profile";
+const ADMIN_URL = "https://gaspardnz.style/admin";
 export const PERMISSIONS = { OWNER: "owner", ADMIN_FULL: "admin", EDITOR: "editor", ADMIN_READ: "viewer" };
 export const initAdminUsers = () => {};
 
@@ -29,7 +30,7 @@ export async function login(email, password) {
 export async function registerAdmin(email, password) {
   const normalized = String(email || "").trim().toLowerCase();
   if (!normalized || !password || password.length < 10) return { success: false, error: "Utilisez un mot de passe d'au moins 10 caractères." };
-  const { data, error } = await supabase.auth.signUp({ email: normalized, password, options: { emailRedirectTo: `${window.location.origin}/admin/dashboard` } });
+  const { data, error } = await supabase.auth.signUp({ email: normalized, password, options: { emailRedirectTo: ADMIN_URL } });
   if (error) return { success: false, error: error.message };
   if (data?.session && data?.user) {
     const profile = await getAccessProfile(data.user);
