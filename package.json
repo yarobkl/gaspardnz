@@ -27,6 +27,7 @@
     "@capacitor/push-notifications": "^8.0.4",
     "@capacitor/splash-screen": "^8.0.1",
     "@capacitor/status-bar": "^8.0.2",
+    "@supabase/supabase-js": "^2.57.4",
     "crypto-js": "^4.2.0",
     "framer-motion": "^11.0.0",
     "nodemailer": "^9.0.3",
