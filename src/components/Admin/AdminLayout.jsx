@@ -8,6 +8,7 @@ import AdminMedia from "./AdminMedia.jsx";
 import AdminPromotions from "./AdminPromotions.jsx";
 import AdminStyleMonth from "./AdminStyleMonth.jsx";
 import AdminAlbums from "./AdminAlbums.jsx";
+import AdminTexts from "./AdminTexts.jsx";
 import "../../styles/admin-v2.css";
 
 const NAV_GROUPS = [
@@ -23,6 +24,7 @@ const NAV_GROUPS = [
   ]},
   { label: "Site", items: [
     { id: "content", label: "Contenu du site", icon: "✎" },
+    { id: "texts", label: "Textes du site", icon: "Aa" },
     { id: "media", label: "Médias & photos", icon: "▧" },
     { id: "albums", label: "Galerie & Showroom", icon: "▦" },
     { id: "promotions", label: "Promotions", icon: "◇" },
@@ -36,7 +38,7 @@ const NAV_GROUPS = [
   ]},
 ];
 const allItems = NAV_GROUPS.flatMap((group) => group.items);
-const standalone = new Set(["seo","bookings","emails","content","media","albums","promotions","style"]);
+const standalone = new Set(["seo","bookings","emails","content","texts","media","albums","promotions","style"]);
 
 const AdminLayout = ({ children, currentSection, onSectionChange, user }) => {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -52,6 +54,7 @@ const AdminLayout = ({ children, currentSection, onSectionChange, user }) => {
   else if (effectiveSection === "bookings") rendered = <AdminBookings />;
   else if (effectiveSection === "emails") rendered = <AdminEmails />;
   else if (effectiveSection === "content") rendered = <AdminContent />;
+  else if (effectiveSection === "texts") rendered = <AdminTexts />;
   else if (effectiveSection === "media") rendered = <AdminMedia />;
   else if (effectiveSection === "albums") rendered = <AdminAlbums />;
   else if (effectiveSection === "promotions") rendered = <AdminPromotions />;
