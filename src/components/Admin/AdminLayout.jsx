@@ -6,6 +6,7 @@ import AdminEmails from "./AdminEmails.jsx";
 import AdminContent from "./AdminContent.jsx";
 import AdminMedia from "./AdminMedia.jsx";
 import AdminPromotions from "./AdminPromotions.jsx";
+import AdminStyleMonth from "./AdminStyleMonth.jsx";
 import "../../styles/admin-v2.css";
 
 const NAV_GROUPS = [
@@ -23,6 +24,7 @@ const NAV_GROUPS = [
     { id: "content", label: "Contenu du site", icon: "✎" },
     { id: "media", label: "Médias & photos", icon: "▧" },
     { id: "promotions", label: "Promotions", icon: "◇" },
+    { id: "style", label: "Style du mois", icon: "◈" },
     { id: "vip", label: "Clients VIP", icon: "☆" },
     { id: "wedding", label: "Wedding Inspiration", icon: "♢" },
   ]},
@@ -32,7 +34,7 @@ const NAV_GROUPS = [
   ]},
 ];
 const allItems = NAV_GROUPS.flatMap((group) => group.items);
-const standalone = new Set(["seo","bookings","emails","content","media","promotions"]);
+const standalone = new Set(["seo","bookings","emails","content","media","promotions","style"]);
 
 const AdminLayout = ({ children, currentSection, onSectionChange, user }) => {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -50,6 +52,7 @@ const AdminLayout = ({ children, currentSection, onSectionChange, user }) => {
   else if (effectiveSection === "content") rendered = <AdminContent />;
   else if (effectiveSection === "media") rendered = <AdminMedia />;
   else if (effectiveSection === "promotions") rendered = <AdminPromotions />;
+  else if (effectiveSection === "style") rendered = <AdminStyleMonth />;
   else if (effectiveSection === "dashboard" && isValidElement(children)) rendered = cloneElement(children, { onNavigate: navigate });
   else if (standalone.has(effectiveSection)) rendered = null;
 
