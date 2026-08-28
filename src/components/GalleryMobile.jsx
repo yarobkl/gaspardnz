@@ -1,294 +1,124 @@
-import { useContext, useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { GOLD, SOCIAL_LINKS, TEXT, SITE_URL } from "../constants.js";
+import { useContext, useEffect, useMemo, useRef, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { GOLD, SITE_URL } from "../constants.js";
 import { LangCtx, useTr } from "../context.jsx";
 import { getGallerySpots } from "../data/galleryData.js";
+import { usePublicCollection } from "../hooks/usePublicCollection.js";
 import { useSettings } from "../hooks/useSettings.js";
 import { getWhatsappUrl } from "../utils/whatsappUtil.js";
 
-const GalleryMobile = ({ refEl }) => {
+const fallbackFiles = [
+  ["costume-creme.jpg",960,1200],["elegance-blanche.jpg",960,1200],["veste-rayee.jpg",900,1200],
+  ["veste-orange.jpg",900,1200],["costume-carreaux.jpg",960,960],["veste-bleue.jpg",900,1200],
+  ["style-parisien.jpg",1200,1200],["chemise-lavande.jpg",1200,1200],["costume-bleu-rouge.jpg",1200,1200],
+  ["veste-bleue-rayee.jpg",1200,1200],["costume-bordeaux.jpg",960,1200],["promenade-blanche.jpg",960,1200],
+  ["smoking-dore.jpg",683,1200],["veste-navy-soiree.jpg",800,1200],["costume-carreaux-rose.jpg",675,1200],
+];
+
+const absoluteMedia = (src) => {
+  if (!src) return "";
+  if (/^(https?:|data:|blob:)/i.test(src)) return src;
+  return `${import.meta.env.BASE_URL}${String(src).replace(/^\/+/, "")}`;
+};
+
+export default function GalleryMobile({ refEl }) {
   const t = useTr();
   const { lang } = useContext(LangCtx);
   const settings = useSettings();
-  const gallerySpots = getGallerySpots(lang);
-  const image = (file, width, height, label) => ({
+  const spots = getGallerySpots(lang);
+  const fallback = useMemo(() => fallbackFiles.map(([file,width,height], index) => ({
     src: `${import.meta.env.BASE_URL}images/${file}`,
     width,
     height,
-    label,
-  });
-  const baseItems = [
-    image("costume-creme.jpg", 960, 1200, t("gal_1")),
-    image("elegance-blanche.jpg", 960, 1200, t("gal_2")),
-    image("veste-rayee.jpg", 900, 1200, t("gal_3")),
-    image("veste-orange.jpg", 900, 1200, t("gal_4")),
-    image("costume-carreaux.jpg", 960, 960, t("gal_5")),
-    image("veste-bleue.jpg", 900, 1200, t("gal_6")),
-    image("style-parisien.jpg", 1200, 1200, t("gal_7")),
-    image("chemise-lavande.jpg", 1200, 1200, t("gal_8")),
-    image("costume-bleu-rouge.jpg", 1200, 1200, t("gal_9")),
-    image("veste-bleue-rayee.jpg", 1200, 1200, t("gal_10")),
-    image("costume-bordeaux.jpg", 960, 1200, t("gal_11")),
-    image("promenade-blanche.jpg", 960, 1200, t("gal_12")),
-    image("smoking-dore.jpg", 683, 1200, t("gal_13")),
-    image("veste-navy-soiree.jpg", 800, 1200, t("gal_14")),
-    image("costume-carreaux-rose.jpg", 675, 1200, t("gal_15")),
-  ];
-  const items = baseItems.map((it, i) => ({ ...it, hotspots: gallerySpots[i] || [] }));
+    label: t(`gal_${index + 1}`),
+    hotspots: spots[index] || [],
+  })), [lang, spots, t]);
 
-  const n = items.length;
+  const { rows } = usePublicCollection("content_albums", {
+    fallback: [],
+    filters: [{ type:"eq", column:"section_key", value:"gallery" }],
+    orderBy: "sort_order",
+  });
+
+  const items = useMemo(() => {
+    const album = rows?.[0];
+    if (!album || !Array.isArray(album.items) || !album.items.length) return fallback;
+    return album.items.map((item, index) => ({
+      ...item,
+      src: absoluteMedia(item.src || item.url || item.public_url),
+      width: Number(item.width || 1200),
+      height: Number(item.height || 1500),
+      label: item.label || fallback[index]?.label || `Look ${index + 1}`,
+      hotspots: Array.isArray(item.hotspots) && item.hotspots.length ? item.hotspots : (spots[index] || []),
+    })).filter((item) => item.src);
+  }, [rows, fallback, spots]);
+
   const [cur, setCur] = useState(0);
   const [activeSpot, setActiveSpot] = useState(null);
-  const [shareToast, setShareToast] = useState(null);
   const timerRef = useRef(null);
+  const n = items.length;
 
-  const go = (dir) => { setCur(c => (c + dir + n) % n); };
-
-  const resetTimer = () => {
-    clearInterval(timerRef.current);
-    timerRef.current = setInterval(() => setCur(c => (c + 1) % n), 4000);
-  };
-
+  useEffect(() => { if (cur >= n) setCur(0); }, [n, cur]);
   useEffect(() => {
-    if (!n) return;
-    timerRef.current = setInterval(() => setCur(c => (c + 1) % n), 4000);
-    return () => clearInterval(timerRef.current);
-  }, [n]);
+    if (n < 2 || activeSpot !== null) return undefined;
+    timerRef.current = window.setInterval(() => setCur((value) => (value + 1) % n), 5000);
+    return () => window.clearInterval(timerRef.current);
+  }, [n, activeSpot]);
 
-  useEffect(() => {
-    if (activeSpot) clearInterval(timerRef.current);
-    else resetTimer();
-  }, [activeSpot]);
+  if (!n) return null;
+  const current = items[cur];
+  const selected = activeSpot !== null ? current?.hotspots?.[activeSpot] : null;
+  const go = (direction) => { setActiveSpot(null); setCur((value) => (value + direction + n) % n); };
 
-  const curSpot = activeSpot ? items[activeSpot.iIdx]?.hotspots?.[activeSpot.sIdx] : null;
-  const curItem = activeSpot ? items[activeSpot.iIdx] : null;
-
-  const handleWA = () => {
-    if (!curSpot || !curItem) return;
+  const ask = () => {
+    if (!selected) return;
     const messages = {
-      FR: `Bonjour Gaspard ! J'ai découvert votre look "${curItem.label}" sur gaspardnz.style et je suis très intéressé(e) par "${curSpot.label}" — ${curSpot.detail}. Pourriez-vous me donner plus d'informations et le tarif pour une création sur-mesure ? Merci`,
-      EN: `Hello Gaspard! I discovered your look "${curItem.label}" on gaspardnz.style and I am very interested in "${curSpot.label}" — ${curSpot.detail}. Could you send me more information and the price for a bespoke creation? Thank you`,
-      ES: `Hola Gaspard. Descubrí tu look "${curItem.label}" en gaspardnz.style y me interesa mucho "${curSpot.label}" — ${curSpot.detail}. ¿Podrías enviarme más información y el precio para una creación a medida? Gracias`,
-      ZH: `你好 Gaspard！我在 gaspardnz.style 看到了造型「${curItem.label}」，我对「${curSpot.label}」很感兴趣 — ${curSpot.detail}。可以告诉我更多信息和定制价格吗？谢谢`,
+      FR:`Bonjour Gaspard, je suis intéressé(e) par ${selected.label}${selected.detail ? ` — ${selected.detail}` : ""}. Pouvez-vous me donner plus d'informations ?`,
+      EN:`Hello Gaspard, I am interested in ${selected.label}${selected.detail ? ` — ${selected.detail}` : ""}. Could you send me more information?`,
+      ES:`Hola Gaspard, me interesa ${selected.label}${selected.detail ? ` — ${selected.detail}` : ""}. ¿Puedes enviarme más información?`,
+      ZH:`你好 Gaspard，我对 ${selected.label} 感兴趣。可以给我更多信息吗？`,
     };
-    const msg = messages[lang] || messages.FR;
-    window.open(getWhatsappUrl(settings.whatsappNumber, msg), "_blank");
+    window.open(getWhatsappUrl(settings.whatsappNumber, messages[lang] || messages.FR), "_blank", "noopener,noreferrer");
   };
 
-  const handleShare = async (network) => {
-    const siteUrl = SITE_URL;
-    const lookName = curItem?.label ?? "Gaspardnz";
-    const shareTextByLang = {
-      FR: `Look "${lookName}" — Gaspardnz, styliste parisien`,
-      EN: `Look "${lookName}" — Gaspardnz, Parisian stylist`,
-      ES: `Look "${lookName}" — Gaspardnz, estilista parisino`,
-      ZH: `造型「${lookName}」— Gaspardnz，巴黎造型师`,
-    };
-    const shareText = shareTextByLang[lang] || shareTextByLang.FR;
-    if (network === "native") {
-      try { await navigator.share({ title: lookName, text: shareText, url: siteUrl }); } catch {}
-      return;
-    }
-    const enc = encodeURIComponent;
-    if (network === "facebook") { window.open(`https://www.facebook.com/sharer/sharer.php?u=${enc(siteUrl)}`, "_blank"); return; }
-    if (network === "twitter")  { window.open(`https://twitter.com/intent/tweet?text=${enc(shareText)}&url=${enc(siteUrl)}`, "_blank"); return; }
-    if (network === "pinterest"){ window.open(`https://pinterest.com/pin/create/button/?url=${enc(siteUrl)}&description=${enc(shareText)}`, "_blank"); return; }
-    if (network === "whatsapp") { window.open(`https://wa.me/?text=${enc(shareText + "\n" + siteUrl)}`, "_blank"); return; }
-    try {
-      await navigator.clipboard.writeText(siteUrl);
-      setShareToast(network === "instagram" ? t("share_story_copied") : t("share_bio_copied"));
-      setTimeout(() => setShareToast(null), 3000);
-    } catch { window.open(network === "instagram" ? SOCIAL_LINKS.instagram : SOCIAL_LINKS.tiktok, "_blank"); }
+  const share = async () => {
+    const payload = { title: current?.label || "GaspardNZ", text: current?.label || "GaspardNZ", url: SITE_URL };
+    if (navigator.share) { try { await navigator.share(payload); return; } catch {} }
+    try { await navigator.clipboard.writeText(SITE_URL); } catch {}
   };
 
   return (
-    <section ref={refEl} style={{ background: "#f5f0e8", paddingBottom: "4rem" }}>
-      <motion.p
-        initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
-        style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "11px", letterSpacing: "0.4em", color: GOLD, textTransform: "uppercase", padding: "3rem 1.4rem 1.5rem" }}
-      >{t("nav_galerie")}</motion.p>
-
-      <div style={{ position: "relative", overflow: "hidden" }}>
-        <div style={{
-          display: "flex",
-          alignItems: "flex-start",
-          transform: `translateX(${-cur * 100}%)`,
-          transition: "transform 0.7s cubic-bezier(0.16,1,0.3,1)",
-          willChange: "transform",
-        }}>
-          {items.map(({ src, label, width, height, hotspots }, i) => (
-            <div key={i} style={{ flex: "0 0 100%", width: "100%", position: "relative", background: "#f5f0e8" }}>
-              <img src={src} alt={label} width={width} height={height} loading="lazy"
-                style={{ width: "100%", height: "auto", maxHeight: "none", objectFit: "contain", objectPosition: "center top", filter: "brightness(0.94) contrast(1.02) saturate(0.9)", display: "block" }} />
-              {label && (
-                <div style={{ position: "absolute", bottom: "1rem", left: "1rem" }}>
-                  <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.4em", color: "rgba(255,255,255,0.85)", textTransform: "uppercase" }}>{label}</p>
-                </div>
-              )}
-              {i === cur && hotspots.length > 0 && (
-                <div style={{ position: "absolute", bottom: "1rem", right: "1rem", display: "flex", alignItems: "center", gap: "6px" }}>
-                  <div style={{ width: "6px", height: "6px", borderRadius: "50%", background: GOLD }} />
-                  <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "9px", letterSpacing: "0.35em", color: "rgba(255,255,255,0.75)", textTransform: "uppercase" }}>{t("shop_the_look")}</p>
-                </div>
-              )}
-              {i === cur && hotspots.map((spot, si) => (
-                <motion.button
-                  key={si}
-                  aria-label={spot.label}
-                  onClick={() => setActiveSpot({ iIdx: i, sIdx: si })}
-                  animate={{ boxShadow: ["0 0 0 0px rgba(184,151,62,0.5)", "0 0 0 6px rgba(184,151,62,0)", "0 0 0 0px rgba(184,151,62,0.5)"] }}
-                  transition={{ duration: 2.4, repeat: Infinity, delay: si * 0.45, ease: "easeInOut" }}
-                  style={{
-                    position: "absolute",
-                    left: `${spot.x}%`,
-                    top: `${spot.y}%`,
-                    transform: "translate(-50%, -50%)",
-                    width: "44px",
-                    height: "44px",
-                    borderRadius: "50%",
-                    background: "transparent",
-                    border: "1.5px solid rgba(184,151,62,0.85)",
-                    cursor: "pointer",
-                    zIndex: 10,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    padding: 0,
-                  }}
-                >
-                  <div style={{ width: "7px", height: "7px", borderRadius: "50%", background: "rgba(184,151,62,0.9)", boxShadow: "0 0 4px rgba(184,151,62,0.6)" }} />
-                </motion.button>
-              ))}
-            </div>
-          ))}
+    <section ref={refEl} style={{ background:"#f5f0e8", paddingBottom:"4rem", overflow:"hidden" }}>
+      <div style={{ maxWidth:1100, margin:"0 auto" }}>
+        <div style={{ padding:"3rem 1.4rem 1.4rem", display:"flex", alignItems:"end", justifyContent:"space-between", gap:"1rem" }}>
+          <div>
+            <p style={{ fontFamily:"'Montserrat',sans-serif", fontSize:10, letterSpacing:".42em", color:GOLD, textTransform:"uppercase", margin:"0 0 .55rem" }}>GASPARDNZ</p>
+            <h2 style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:"clamp(42px,12vw,72px)", lineHeight:.9, letterSpacing:".04em", color:"#1c1208", margin:0 }}>{t("nav_galerie")}</h2>
+          </div>
+          <span style={{ fontFamily:"'Montserrat',sans-serif", fontSize:10, letterSpacing:".22em", color:"rgba(28,18,8,.5)" }}>{String(cur + 1).padStart(2,"0")} / {String(n).padStart(2,"0")}</span>
         </div>
 
-        <button aria-label={t("previous_photo")} onClick={() => { go(-1); resetTimer(); }}
-          style={{ position: "absolute", left: "0.8rem", top: "50%", transform: "translateY(-50%)", background: "rgba(255,255,255,0.18)", border: "none", borderRadius: "50%", width: "44px", height: "44px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", backdropFilter: "blur(4px)", WebkitBackdropFilter: "blur(4px)" }}>
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 3L5 8l5 5" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-        </button>
-
-        <button aria-label={t("next_photo")} onClick={() => { go(1); resetTimer(); }}
-          style={{ position: "absolute", right: "0.8rem", top: "50%", transform: "translateY(-50%)", background: "rgba(255,255,255,0.18)", border: "none", borderRadius: "50%", width: "44px", height: "44px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", backdropFilter: "blur(4px)", WebkitBackdropFilter: "blur(4px)" }}>
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 3l5 5-5 5" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-        </button>
-      </div>
-
-      <div style={{ display: "flex", gap: "6px", justifyContent: "center", marginTop: "1.2rem" }}>
-        {items.map((_, i) => (
-          <button key={i} aria-label={`Voir la photo ${i + 1}`} style={{ width: "44px", height: "44px", flex: "0 0 44px", border: "none", background: "transparent", padding: 0, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }} onClick={() => { setCur(i); resetTimer(); }}>
-            <span style={{ width: i === cur ? "20px" : "6px", height: "2px", background: i === cur ? GOLD : "rgba(28,18,8,0.2)", borderRadius: "1px", transition: "all 0.3s", display: "block" }} />
-          </button>
-        ))}
-      </div>
-
-      <AnimatePresence>
-        {activeSpot && curSpot && curItem && (
-          <>
-            <motion.div
-              key="stl-backdrop"
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              onClick={() => setActiveSpot(null)}
-              style={{ position: "fixed", inset: 0, background: "rgba(28,18,8,0.55)", zIndex: 200, backdropFilter: "blur(2px)", WebkitBackdropFilter: "blur(2px)" }}
-            />
-            <motion.div
-              key="stl-panel"
-              initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }}
-              transition={{ type: "spring", damping: 28, stiffness: 320 }}
-              style={{
-                position: "fixed", bottom: 0, left: 0, right: 0,
-                background: "#faf7f2",
-                zIndex: 201,
-                borderRadius: "18px 18px 0 0",
-                paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 1.4rem)",
-                maxHeight: "82vh",
-                overflow: "auto",
-              }}
-            >
-              <div style={{ display: "flex", justifyContent: "center", paddingTop: "12px", paddingBottom: "6px" }}>
-                <div style={{ width: "36px", height: "3px", background: "rgba(28,18,8,0.18)", borderRadius: "2px" }} />
+        <div style={{ position:"relative", margin:"0 1.4rem", borderRadius:18, overflow:"hidden", background:"#120c07", boxShadow:"0 24px 70px rgba(28,18,8,.16)" }}>
+          <AnimatePresence mode="wait">
+            <motion.div key={`${cur}-${current.src}`} initial={{ opacity:0, scale:1.015 }} animate={{ opacity:1, scale:1 }} exit={{ opacity:0, scale:.99 }} transition={{ duration:.35 }} style={{ position:"relative" }}>
+              <img src={current.src} alt={current.label} width={current.width} height={current.height} loading="lazy" decoding="async" style={{ width:"100%", maxHeight:"78vh", minHeight:"54vh", objectFit:"contain", objectPosition:"center", display:"block", background:"#0a0602" }} />
+              <div style={{ position:"absolute", inset:0, background:"linear-gradient(to bottom,transparent 62%,rgba(5,3,1,.78) 100%)", pointerEvents:"none" }} />
+              <div style={{ position:"absolute", left:"1rem", right:"1rem", bottom:"1rem", display:"flex", alignItems:"end", justifyContent:"space-between", gap:"1rem", pointerEvents:"none" }}>
+                <div><p style={{ margin:0, color:"#faf7f2", fontFamily:"'Cormorant Garamond',serif", fontSize:"1.25rem", fontStyle:"italic" }}>{current.label}</p>{current.hotspots?.length > 0 && <p style={{ margin:"4px 0 0", color:GOLD, fontFamily:"'Montserrat',sans-serif", fontSize:9, letterSpacing:".25em", textTransform:"uppercase" }}>{t("shop_the_look")}</p>}</div>
               </div>
-              {shareToast && (
-                <motion.div initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }}
-                  style={{ position: "absolute", top: "52px", left: "50%", transform: "translateX(-50%)", background: "#1c1208", color: "#faf7f2", padding: "7px 16px", borderRadius: "20px", fontFamily: "'Montserrat', sans-serif", fontSize: "9.5px", whiteSpace: "nowrap", zIndex: 5, pointerEvents: "none" }}>
-                  {shareToast}
-                </motion.div>
-              )}
-
-              <div style={{ padding: "0.6rem 1.4rem 1rem", borderBottom: `1px solid rgba(184,151,62,0.2)`, display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                <div>
-                  <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "9px", letterSpacing: "0.42em", color: GOLD, textTransform: "uppercase", marginBottom: "5px" }}>{t("shop_the_look")}</p>
-                  <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "22px", fontWeight: 300, color: TEXT, letterSpacing: "0.02em" }}>{curItem.label}</p>
-                </div>
-                <button aria-label={t("close")} onClick={() => setActiveSpot(null)} style={{ background: "none", border: "none", padding: "4px", minWidth: "44px", minHeight: "44px", cursor: "pointer", color: "rgba(28,18,8,0.62)", fontSize: "18px", lineHeight: 1, marginTop: "2px" }}>&times;</button>
-              </div>
-
-              <div style={{ padding: "1.2rem 1.4rem" }}>
-                <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "20px", fontWeight: 400, color: TEXT, marginBottom: "10px" }}>{curSpot.label}</p>
-                <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10.5px", color: "rgba(28,18,8,0.58)", lineHeight: 1.7 }}>{curSpot.detail}</p>
-              </div>
-
-              <div style={{ padding: "1.2rem 1.4rem 0" }}>
-                <motion.button
-                  onClick={handleWA}
-                  whileTap={{ scale: 0.97 }}
-                  style={{
-                    width: "100%", background: "#1c1208", border: "none",
-                    padding: "16px 20px",
-                    display: "flex", alignItems: "center", justifyContent: "center", gap: "10px",
-                    cursor: "pointer", borderRadius: "2px",
-                  }}
-                >
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="#25D366">
-                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-                  </svg>
-                  <span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.2em", color: "#faf7f2", textTransform: "uppercase", fontWeight: 500 }}>{t("ask_look_whatsapp")}</span>
-                </motion.button>
-                <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "9px", color: "rgba(28,18,8,0.38)", textAlign: "center", marginTop: "10px", letterSpacing: "0.05em" }}>{t("stylist_note")}</p>
-              </div>
-
-              <div style={{ padding: "1rem 1.4rem 0.6rem", borderTop: "1px solid rgba(184,151,62,0.15)" }}>
-                <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.4em", color: "rgba(28,18,8,0.35)", textTransform: "uppercase", textAlign: "center", marginBottom: "14px" }}>{t("share_look")}</p>
-                <div style={{ display: "flex", justifyContent: "center", gap: "14px" }}>
-                  {[
-                    { id:"instagram", label:"Instagram", bg:"linear-gradient(45deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888)",
-                      icon:<path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/> },
-                    { id:"tiktok", label:"TikTok", bg:"#010101",
-                      icon:<path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.34 6.34 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.82a8.27 8.27 0 004.84 1.54V6.91a4.85 4.85 0 01-1.07-.22z"/> },
-                    { id:"facebook", label:"Facebook", bg:"#1877F2",
-                      icon:<path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/> },
-                    { id:"twitter", label:"X", bg:"#000000",
-                      icon:<path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/> },
-                    { id:"pinterest", label:"Pinterest", bg:"#E60023",
-                      icon:<path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 5.079 3.158 9.417 7.618 11.162-.105-.949-.2-2.405.042-3.441.218-.937 1.407-5.965 1.407-5.965s-.359-.719-.359-1.782c0-1.668.967-2.914 2.171-2.914 1.023 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738.098.119.112.224.083.345l-.333 1.36c-.053.22-.174.267-.402.161-1.499-.698-2.436-2.889-2.436-4.649 0-3.785 2.75-7.262 7.929-7.262 4.163 0 7.398 2.967 7.398 6.931 0 4.136-2.607 7.464-6.227 7.464-1.216 0-2.359-.632-2.75-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24.009 12.017 24.009c6.624 0 11.99-5.367 11.99-11.988C24.007 5.367 18.641.001 12.017.001z"/> },
-                  ].map(n => (
-                    <motion.button key={n.id} whileTap={{ scale: 0.88 }} onClick={() => handleShare(n.id)}
-                      aria-label={`Partager sur ${n.label}`}
-                      style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "5px", background: "none", border: "none", cursor: "pointer", padding: "2px", minWidth: "44px", minHeight: "54px" }}>
-                      <div style={{ width: "40px", height: "40px", borderRadius: "50%", background: n.bg, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="white">{n.icon}</svg>
-                      </div>
-                      <span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", color: "rgba(28,18,8,0.45)" }}>{n.label}</span>
-                    </motion.button>
-                  ))}
-                </div>
-                {typeof navigator !== "undefined" && navigator.share && (
-                  <motion.button whileTap={{ scale: 0.97 }} onClick={() => handleShare("native")}
-                    aria-label={t("share_native")}
-                    style={{ width: "100%", background: "transparent", border: `1px solid rgba(184,151,62,0.4)`, borderRadius: "2px", padding: "12px 10px", minHeight: "44px", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", cursor: "pointer", marginTop: "14px" }}>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={GOLD} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8M16 6l-4-4-4 4M12 2v13"/>
-                    </svg>
-                    <span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "9px", letterSpacing: "0.15em", color: GOLD, textTransform: "uppercase" }}>{t("share_native")}</span>
-                  </motion.button>
-                )}
-              </div>
+              {(current.hotspots || []).map((spot,index) => <button key={`${spot.label}-${index}`} aria-label={spot.label} onClick={() => setActiveSpot(index)} style={{ position:"absolute", left:`${spot.x}%`, top:`${spot.y}%`, transform:"translate(-50%,-50%)", width:44, height:44, borderRadius:"50%", border:"1px solid rgba(184,151,62,.9)", background:"rgba(8,5,2,.32)", backdropFilter:"blur(4px)", display:"grid", placeItems:"center", cursor:"pointer", zIndex:3 }}><span style={{ width:7, height:7, borderRadius:"50%", background:GOLD, boxShadow:"0 0 0 5px rgba(184,151,62,.14)" }} /></button>)}
             </motion.div>
-          </>
-        )}
-      </AnimatePresence>
+          </AnimatePresence>
+
+          {n > 1 && <><button aria-label={t("previous_photo")} onClick={() => go(-1)} style={{ position:"absolute", left:10, top:"50%", transform:"translateY(-50%)", width:44, height:44, borderRadius:"50%", border:"1px solid rgba(255,255,255,.18)", background:"rgba(0,0,0,.36)", color:"white", fontSize:22, cursor:"pointer" }}>‹</button><button aria-label={t("next_photo")} onClick={() => go(1)} style={{ position:"absolute", right:10, top:"50%", transform:"translateY(-50%)", width:44, height:44, borderRadius:"50%", border:"1px solid rgba(255,255,255,.18)", background:"rgba(0,0,0,.36)", color:"white", fontSize:22, cursor:"pointer" }}>›</button></>}
+        </div>
+
+        <div style={{ display:"flex", justifyContent:"center", flexWrap:"wrap", padding:".7rem 1rem 0" }}>{items.map((_,index) => <button key={index} onClick={() => { setCur(index); setActiveSpot(null); }} aria-label={`Photo ${index + 1}`} style={{ width:36, height:36, border:0, background:"transparent", padding:0, display:"grid", placeItems:"center", cursor:"pointer" }}><span style={{ width:index === cur ? 20 : 5, height:2, borderRadius:2, background:index === cur ? GOLD : "rgba(28,18,8,.2)", transition:"width .25s" }} /></button>)}</div>
+
+        <div style={{ padding:".6rem 1.4rem 0", display:"flex", justifyContent:"center" }}><button onClick={share} style={{ minHeight:44, border:"1px solid rgba(184,151,62,.28)", background:"transparent", color:"rgba(28,18,8,.72)", padding:"0 1.2rem", fontFamily:"'Montserrat',sans-serif", fontSize:9, letterSpacing:".22em", textTransform:"uppercase", cursor:"pointer" }}>Partager ce look</button></div>
+      </div>
+
+      <AnimatePresence>{selected && <><motion.button aria-label="Fermer" onClick={() => setActiveSpot(null)} initial={{ opacity:0 }} animate={{ opacity:1 }} exit={{ opacity:0 }} style={{ position:"fixed", inset:0, zIndex:800, border:0, background:"rgba(5,3,1,.66)" }} /><motion.aside role="dialog" aria-modal="true" initial={{ y:"100%" }} animate={{ y:0 }} exit={{ y:"100%" }} transition={{ type:"spring", damping:30, stiffness:320 }} style={{ position:"fixed", left:0, right:0, bottom:0, zIndex:801, background:"#faf7f2", borderRadius:"20px 20px 0 0", padding:"1.2rem 1.3rem calc(1.4rem + env(safe-area-inset-bottom))", boxShadow:"0 -20px 60px rgba(0,0,0,.22)" }}><div style={{ width:38, height:3, borderRadius:3, background:"rgba(28,18,8,.16)", margin:"0 auto 1rem" }} /><p style={{ fontFamily:"'Montserrat',sans-serif", fontSize:9, letterSpacing:".3em", color:GOLD, textTransform:"uppercase", margin:"0 0 .5rem" }}>{t("shop_the_look")}</p><h3 style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:"1.45rem", color:"#1c1208", margin:"0 0 .55rem" }}>{selected.label}</h3>{selected.detail && <p style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:"1rem", lineHeight:1.6, color:"rgba(28,18,8,.72)", margin:"0 0 1.1rem" }}>{selected.detail}</p>}<div style={{ display:"grid", gridTemplateColumns:"1fr auto", gap:8 }}><button onClick={ask} style={{ minHeight:48, border:0, background:GOLD, color:"#1c1208", fontFamily:"'Montserrat',sans-serif", fontSize:10, fontWeight:700, letterSpacing:".2em", textTransform:"uppercase", cursor:"pointer" }}>Demander à Gaspard</button><button onClick={() => setActiveSpot(null)} style={{ width:48, height:48, border:"1px solid rgba(28,18,8,.12)", background:"transparent", fontSize:20, cursor:"pointer" }}>×</button></div></motion.aside></>}</AnimatePresence>
     </section>
   );
-};
-
-export default GalleryMobile;
+}
