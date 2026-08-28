@@ -1,70 +1,87 @@
 import { useState } from "react";
-import { login } from "../../services/adminAuth.js";
-import "../../styles/admin.css";
+import { login, registerAdmin } from "../../services/adminAuth.js";
+import "../../styles/admin-v2.css";
 
 const AdminLogin = ({ onLoginSuccess }) => {
-  const [email, setEmail] = useState("admin@gaspardnz.style");
+  const [email, setEmail] = useState("gaspardnz.contact@gmail.com");
   const [password, setPassword] = useState("");
+  const [mode, setMode] = useState("login");
   const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    setMessage("");
     setLoading(true);
-
-    const result = login(email, password);
+    const result = mode === "login"
+      ? await login(email, password)
+      : await registerAdmin(email, password);
     setLoading(false);
 
-    if (result.success) {
-      onLoginSuccess(result.user);
-    } else {
-      setError(result.error);
-      setPassword("");
+    if (!result.success) {
+      setError(result.error || "Impossible de continuer.");
+      return;
     }
+    if (result.user) {
+      onLoginSuccess(result.user);
+      return;
+    }
+    setMessage(result.message || "Vérifiez votre boîte mail pour confirmer votre accès.");
+    setPassword("");
   };
 
   return (
-    <div className="admin-container" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
-      <form onSubmit={handleSubmit} className="admin-card" style={{ width: "100%", maxWidth: "400px" }}>
-        <h1 className="admin-h1" style={{ marginBottom: "0.5rem" }}>
-          GASPARDNZ
-        </h1>
-        <p className="admin-label" style={{ marginBottom: "2rem" }}>
-          Espace Admin
+    <main className="gnz-login-shell">
+      <section className="gnz-login-card" aria-labelledby="admin-login-title">
+        <div className="gnz-brand-mark">GNZ</div>
+        <p className="gnz-eyebrow">GASPARDNZ · ADMINISTRATION</p>
+        <h1 id="admin-login-title">Pilotez votre activité.</h1>
+        <p className="gnz-muted">
+          Accès sécurisé au CRM, aux réservations, contenus, médias, promotions et données de performance.
         </p>
 
-        {error && <div className="admin-alert admin-alert-error">{error}</div>}
+        {error && <div className="gnz-alert gnz-alert-error">{error}</div>}
+        {message && <div className="gnz-alert gnz-alert-success">{message}</div>}
 
-        <div className="admin-form-group">
-          <label className="admin-label" htmlFor="admin-email">Email</label>
-          <input
-            id="admin-email"
-            type="email"
-            autoComplete="username"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="admin-input"
-          />
-        </div>
+        <form onSubmit={handleSubmit} className="gnz-form-stack">
+          <label>
+            <span>Adresse email</span>
+            <input
+              type="email"
+              autoComplete="username"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </label>
+          <label>
+            <span>{mode === "login" ? "Mot de passe" : "Créer mon mot de passe"}</span>
+            <input
+              type="password"
+              autoComplete={mode === "login" ? "current-password" : "new-password"}
+              minLength={mode === "login" ? 1 : 10}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </label>
+          <button type="submit" className="gnz-primary-button" disabled={loading}>
+            {loading ? "Vérification…" : mode === "login" ? "Se connecter" : "Activer mon accès"}
+          </button>
+        </form>
 
-        <div className="admin-form-group">
-          <label className="admin-label" htmlFor="admin-password">Mot de passe</label>
-          <input
-            id="admin-password"
-            type="password"
-            autoComplete="current-password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="admin-input"
-          />
-        </div>
-
-        <button type="submit" disabled={loading} className="admin-btn" style={{ width: "100%" }}>
-          {loading ? "Connexion..." : "Se Connecter"}
+        <button
+          type="button"
+          className="gnz-text-button"
+          onClick={() => { setMode(mode === "login" ? "register" : "login"); setError(""); setMessage(""); }}
+        >
+          {mode === "login" ? "Première connexion ? Créer mon mot de passe" : "J'ai déjà un mot de passe"}
         </button>
-      </form>
-    </div>
+        <p className="gnz-login-note">Seules les adresses préautorisées peuvent accéder à cet espace.</p>
+      </section>
+    </main>
   );
 };
 

@@ -1,70 +1,49 @@
 import { trackEvent } from "./adminAnalytics.js";
-import { getCSRFToken } from "./adminAuth.js";
+import { sendPublicEvent } from "./supabaseClient.js";
+import { getTrackingContext } from "./siteTracking.js";
 
 export const trackPartnerContact = async (partnerId, clientData) => {
   try {
-    // Envoyer event Google Analytics
-    trackEvent('partner_contact', {
+    trackEvent("partner_contact", {
       partner_id: partnerId,
-      client_email: clientData.email,
       event_type: clientData.eventType,
     });
 
-    // Enregistrer dans le CRM admin
-    const partnerContactData = {
-      partnerId,
-      clientName: clientData.name,
-      clientEmail: clientData.email,
-      clientPhone: clientData.phone,
-      eventType: clientData.eventType,
-      eventDate: clientData.eventDate,
-      message: clientData.message,
-      timestamp: new Date().toISOString(),
-      commissionPercentage: 5,
-      clientDiscountPercentage: 5,
-      status: 'pending',
-    };
+    const context = getTrackingContext();
+    const result = await sendPublicEvent("partner_contact", {
+      ...context,
+      partner_slug: partnerId,
+      full_name: clientData.name,
+      email: clientData.email,
+      phone: clientData.phone,
+      message: [clientData.eventType, clientData.eventDate, clientData.message].filter(Boolean).join(" · "),
+      metadata: {
+        event_type: clientData.eventType || null,
+        event_date: clientData.eventDate || null,
+        commission_percentage: 5,
+        client_discount_percentage: 5,
+      },
+    });
 
-    // API call pour enregistrer dans la base de données
-    if (typeof window !== 'undefined' && window.fetch) {
-      try {
-        const csrfToken = getCSRFToken();
-        await fetch('/api/partner-contacts', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-Token': csrfToken || '',
-          },
-          body: JSON.stringify(partnerContactData),
-        });
-      } catch (e) {
-        console.warn('Failed to log to CRM:', e.message);
-      }
-    }
-
-    return { success: true, timestamp: new Date().toISOString() };
+    if (!result?.ok) throw new Error("La demande n'a pas pu être enregistrée dans le CRM.");
+    return { success: true, id: result.id, leadId: result.lead_id, timestamp: new Date().toISOString() };
   } catch (error) {
-    console.error('Partner tracking error:', error);
-    return { success: false, error: error.message };
+    console.error("Partner tracking error:", error);
+    return { success: false, error: error?.message || "Erreur CRM" };
   }
 };
 
 const cleanLine = (value) =>
-  String(value)
-    .split('')
+  String(value ?? "")
+    .split("")
     .filter((ch) => ch.charCodeAt(0) >= 32 && ch.charCodeAt(0) !== 127)
-    .join('')
+    .join("")
     .trim();
 
 export const sendPartnerContactEmail = async (partnerId, partnerEmail, clientData, partnerStatus = null, partnerName = "") => {
   try {
-    // Pour TOUS les prestataires:
-    // Email TO: Gaspard (c'est à lui de contacter le prestataire)
-    // Email CC: Utilisateur (suivi)
-    // Le prestataire ne reçoit pas l'email, c'est Gaspard qui le contactera
-    const gaspardEmail = 'gaspardnz.contact@gmail.com';
-    const userEmail = 'eliebakala@gmail.com';
-
+    const gaspardEmail = "gaspardnz.contact@gmail.com";
+    const userEmail = "eliebakala@gmail.com";
     const emailData = {
       to: [gaspardEmail],
       cc: [userEmail],
@@ -76,37 +55,34 @@ export const sendPartnerContactEmail = async (partnerId, partnerEmail, clientDat
       clientPhone: cleanLine(clientData.phone),
       eventType: cleanLine(clientData.eventType),
       eventDate: cleanLine(clientData.eventDate),
-      message: String(clientData.message).slice(0, 2000).trim(),
+      message: String(clientData.message || "").slice(0, 2000).trim(),
       timestamp: new Date().toISOString(),
-      isComingSoon: partnerStatus === 'coming_soon' || partnerId === 'palais-groupe',
+      isComingSoon: partnerStatus === "coming_soon" || partnerId === "palais-groupe",
     };
 
-    // Envoyer email via API existante
-    if (typeof window !== 'undefined' && window.fetch) {
-      try {
-        const csrfToken = getCSRFToken();
-        const response = await fetch('/api/send-email', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-Token': csrfToken || '',
-          },
-          body: JSON.stringify(emailData),
-        });
-
-        if (!response.ok) {
-          const payload = await response.json().catch(() => ({}));
-          throw new Error(payload.error || `Email sending returned status: ${response.status}`);
-        }
-      } catch (e) {
-        console.warn('Email fetch error:', e.message);
-        return { success: false, error: e.message };
-      }
+    const response = await fetch("/api/send-email", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(emailData),
+    });
+    if (!response.ok) {
+      const payload = await response.json().catch(() => ({}));
+      throw new Error(payload.error || `Email sending returned status: ${response.status}`);
     }
+
+    const context = getTrackingContext();
+    await sendPublicEvent("analytics_event", {
+      ...context,
+      event_name: "partner_email_sent",
+      entity_type: "partner",
+      entity_id: partnerId,
+      page_path: window.location.pathname,
+      metadata: { partner_name: partnerName || partnerId },
+    });
 
     return { success: true };
   } catch (error) {
-    console.error('Email sending error:', error);
-    return { success: false, error: error.message };
+    console.error("Email sending error:", error);
+    return { success: false, error: error?.message || "Erreur email" };
   }
 };
