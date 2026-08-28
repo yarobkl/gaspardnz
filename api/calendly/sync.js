@@ -88,8 +88,10 @@ async function upsertLead(db, invitee, event) {
 }
 
 async function upsertBooking(db, event, invitee, leadId) {
-  const externalId = uuidFromUri(event.uri);
-  if (!externalId) return null;
+  const eventId = uuidFromUri(event.uri);
+  if (!eventId) return null;
+  const inviteeId = uuidFromUri(invitee?.uri);
+  const externalId = inviteeId ? `${eventId}:${inviteeId}` : eventId;
   const status = event.status === "canceled" || invitee?.status === "canceled" ? "cancelled" : "confirmed";
   const payload = {
     lead_id:leadId || null,
@@ -100,17 +102,16 @@ async function upsertBooking(db, event, invitee, leadId) {
     ends_at:event.end_time || null,
     title:clean(event.name || "Rendez-vous Calendly", 240),
     source:"Calendly",
-    metadata:{
-      event_uri:event.uri || null,
-      invitee_uri:invitee?.uri || null,
-      invitee_email:invitee?.email || null,
-      invitee_name:invitee?.name || null,
-      event_type:event.event_type || null,
-      location:event.location || null,
-      calendly_status:event.status || null,
-    },
+    metadata:{ event_uri:event.uri || null, invitee_uri:invitee?.uri || null, invitee_email:invitee?.email || null, invitee_name:invitee?.name || null, event_type:event.event_type || null, location:event.location || null, calendly_status:event.status || null },
   };
-  const { data, error } = await db.from("bookings").upsert(payload, { onConflict:"provider,external_id", ignoreDuplicates:false }).select("id").single();
+  const { data: existing, error: findError } = await db.from("bookings").select("id").eq("provider","calendly").eq("external_id",externalId).maybeSingle();
+  if (findError) throw findError;
+  if (existing?.id) {
+    const { data, error } = await db.from("bookings").update(payload).eq("id",existing.id).select("id").single();
+    if (error) throw error;
+    return data?.id || null;
+  }
+  const { data, error } = await db.from("bookings").insert(payload).select("id").single();
   if (error) throw error;
   return data?.id || null;
 }
