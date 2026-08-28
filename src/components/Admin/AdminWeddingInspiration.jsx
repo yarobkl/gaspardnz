@@ -1,223 +1,46 @@
-import { useState, useEffect } from "react";
-import { GOLD } from "../../constants.js";
-import { useTr } from "../../context.jsx";
-import { getSettings, saveSettings } from "../../services/settingsService.js";
+import { useEffect, useState } from "react";
+import { listContentTable, upsertRow } from "../../services/adminData.js";
+import "../../styles/admin-v2.css";
 
-const AdminWeddingInspiration = () => {
-  const t = useTr();
-  const [inspirations, setInspirations] = useState([]);
-  const [editingId, setEditingId] = useState(null);
-  const [formData, setFormData] = useState({
-    title: "",
-    desc: "",
-    color: "",
-    style: "",
-    occasion: "",
-    src: "",
-  });
+const empty = { title:"", description:"", color_label:"", style_label:"", occasion_label:"", cover_url:"", album:[], published:true, sort_order:0 };
+const albumToText = (album) => Array.isArray(album) ? album.map((item) => typeof item === "string" ? item : item?.src).filter(Boolean).join("\n") : "";
 
-  useEffect(() => {
-    const settings = getSettings();
-    if (settings.weddingInspirations) {
-      setInspirations(settings.weddingInspirations);
-    }
-  }, []);
+export default function AdminWeddingInspiration() {
+  const [rows, setRows] = useState([]);
+  const [form, setForm] = useState(empty);
+  const [albumText, setAlbumText] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
 
-  const isValidUrl = (string) => {
-    if (string.startsWith("/images/") || string.startsWith("images/")) return true;
+  const load = async () => { try { setRows(await listContentTable("wedding_inspirations")); setError(""); } catch (e) { setError(e?.message || "Impossible de charger les inspirations."); } };
+  useEffect(() => { load(); }, []);
+  const edit = (row) => { setForm(row); setAlbumText(albumToText(row.album)); };
+  const reset = () => { setForm(empty); setAlbumText(""); };
+  const save = async (e) => {
+    e.preventDefault(); setSaving(true); setError("");
     try {
-      new URL(string);
-      return true;
-    } catch (_) {
-      return false;
-    }
+      const album = albumText.split(/\n+/).map((src) => src.trim()).filter(Boolean).map((src) => ({ src, spots: [] }));
+      await upsertRow("wedding_inspirations", { ...form, album, sort_order: Number(form.sort_order || 0) });
+      await load(); reset();
+    } catch (e) { setError(e?.message || "Enregistrement impossible."); }
+    finally { setSaving(false); }
   };
 
-  const handleAdd = () => {
-    if (!formData.title || !formData.src) {
-      alert("Titre et URL image sont obligatoires");
-      return;
-    }
-
-    if (!isValidUrl(formData.src)) {
-      alert("URL d'image invalide");
-      return;
-    }
-
-    const newInspirations = [...inspirations];
-    if (editingId !== null) {
-      newInspirations[editingId] = formData;
-      setEditingId(null);
-    } else {
-      const id = formData.id || `insp_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
-      newInspirations.push({ ...formData, id });
-    }
-
-    setInspirations(newInspirations);
-    saveSettings({ weddingInspirations: newInspirations });
-    setFormData({ title: "", desc: "", color: "", style: "", occasion: "", src: "" });
-  };
-
-  const handleEdit = (index) => {
-    setFormData(inspirations[index]);
-    setEditingId(index);
-  };
-
-  const handleDelete = (index) => {
-    const newInspirations = inspirations.filter((_, i) => i !== index);
-    setInspirations(newInspirations);
-    saveSettings({ weddingInspirations: newInspirations });
-  };
-
-  const handleCancel = () => {
-    setEditingId(null);
-    setFormData({ title: "", desc: "", color: "", style: "", occasion: "", src: "" });
-  };
-
-  return (
-    <div style={{ padding: "2rem", maxWidth: "800px" }}>
-      <h2 style={{ color: GOLD, marginBottom: "1.5rem" }}>{t("admin_wedding")}</h2>
-
-      <div style={{ background: "#111009", padding: "1.5rem", borderRadius: "8px", marginBottom: "2rem", border: `1px solid rgba(184,151,62,0.2)` }}>
-        <h3 style={{ color: "#faf7f2", marginTop: 0 }}>{editingId !== null ? t("admin_edit") : t("admin_add")} {t("wedding_inspiration").toLowerCase()}</h3>
-
-        <div style={{ display: "grid", gap: "1rem", marginBottom: "1rem" }}>
-          <input
-            type="text"
-            placeholder={t("admin_hero_title")}
-            value={formData.title}
-            onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-            style={{ padding: "8px", background: "#0a0602", color: "#faf7f2", border: `1px solid ${GOLD}`, borderRadius: "4px" }}
-          />
-
-          <textarea
-            placeholder="Description"
-            value={formData.desc}
-            onChange={(e) => setFormData({ ...formData, desc: e.target.value })}
-            style={{ padding: "8px", background: "#0a0602", color: "#faf7f2", border: `1px solid ${GOLD}`, borderRadius: "4px", minHeight: "80px", fontFamily: "inherit" }}
-          />
-
-          <input
-            type="text"
-            placeholder="URL de l'image"
-            value={formData.src}
-            onChange={(e) => setFormData({ ...formData, src: e.target.value })}
-            style={{ padding: "8px", background: "#0a0602", color: "#faf7f2", border: `1px solid ${GOLD}`, borderRadius: "4px" }}
-          />
-
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: "1rem" }}>
-            <input
-              type="text"
-            placeholder={t("color_label")}
-              value={formData.color}
-              onChange={(e) => setFormData({ ...formData, color: e.target.value })}
-              style={{ padding: "8px", background: "#0a0602", color: "#faf7f2", border: `1px solid ${GOLD}`, borderRadius: "4px", boxSizing: "border-box" }}
-            />
-            <input
-              type="text"
-            placeholder={t("style_label")}
-              value={formData.style}
-              onChange={(e) => setFormData({ ...formData, style: e.target.value })}
-              style={{ padding: "8px", background: "#0a0602", color: "#faf7f2", border: `1px solid ${GOLD}`, borderRadius: "4px", boxSizing: "border-box" }}
-            />
-          </div>
-
-          <input
-            type="text"
-            placeholder={t("occasion_label")}
-            value={formData.occasion}
-            onChange={(e) => setFormData({ ...formData, occasion: e.target.value })}
-            style={{ padding: "8px", background: "#0a0602", color: "#faf7f2", border: `1px solid ${GOLD}`, borderRadius: "4px" }}
-          />
-        </div>
-
-        <div style={{ display: "flex", gap: "1rem" }}>
-          <button
-            onClick={handleAdd}
-            style={{
-              padding: "8px 16px",
-              background: GOLD,
-              color: "#0a0602",
-              border: "none",
-              borderRadius: "4px",
-              cursor: "pointer",
-              fontWeight: "bold",
-            }}
-          >
-            {editingId !== null ? t("admin_edit") : t("admin_add")}
-          </button>
-          {editingId !== null && (
-            <button
-              onClick={handleCancel}
-              style={{
-                padding: "8px 16px",
-                background: "rgba(184,151,62,0.2)",
-                color: GOLD,
-                border: `1px solid ${GOLD}`,
-                borderRadius: "4px",
-                cursor: "pointer",
-              }}
-            >
-              {t("admin_cancel")}
-            </button>
-          )}
-        </div>
-      </div>
-
-      <div style={{ display: "grid", gap: "1rem" }}>
-        {inspirations.map((inspiration, idx) => (
-          <div key={inspiration.id || idx} style={{ background: "#111009", padding: "1rem", borderRadius: "8px", border: `1px solid rgba(184,151,62,0.2)` }}>
-            <div style={{ marginBottom: "0.5rem" }}>
-              <h4 style={{ color: GOLD, margin: "0 0 0.5rem 0" }}>{inspiration.title}</h4>
-              <p style={{ color: "rgba(245,240,232,0.6)", margin: "0 0 0.5rem 0", fontSize: "0.9rem" }}>{inspiration.desc}</p>
-              {inspiration.src && (
-                <img
-                  src={inspiration.src}
-                  alt={inspiration.title}
-                  style={{ width: "100%", maxHeight: "200px", objectFit: "cover", borderRadius: "4px", marginBottom: "0.5rem" }}
-                />
-              )}
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))", gap: "0.5rem", fontSize: "0.85rem", color: "rgba(184,151,62,0.7)", marginBottom: "0.5rem" }}>
-                {inspiration.color && <span><strong style={{ color: GOLD }}>{t("color_label")}:</strong> {inspiration.color}</span>}
-                {inspiration.style && <span><strong style={{ color: GOLD }}>{t("style_label")}:</strong> {inspiration.style}</span>}
-                {inspiration.occasion && <span><strong style={{ color: GOLD }}>{t("occasion_label")}:</strong> {inspiration.occasion}</span>}
-              </div>
-            </div>
-            <div style={{ display: "flex", gap: "0.5rem" }}>
-              <button
-                onClick={() => handleEdit(idx)}
-                style={{
-                  padding: "6px 12px",
-                  background: "rgba(184,151,62,0.2)",
-                  color: GOLD,
-                  border: `1px solid ${GOLD}`,
-                  borderRadius: "4px",
-                  cursor: "pointer",
-                  fontSize: "0.9rem",
-                }}
-              >
-                {t("admin_edit")}
-              </button>
-              <button
-                onClick={() => handleDelete(idx)}
-                style={{
-                  padding: "6px 12px",
-                  background: "rgba(220,53,69,0.2)",
-                  color: "#dc3545",
-                  border: "1px solid #dc3545",
-                  borderRadius: "4px",
-                  cursor: "pointer",
-                  fontSize: "0.9rem",
-                }}
-              >
-                {t("admin_delete")}
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
+  return <div>
+    <div className="gnz-page-heading"><div><h1>Wedding Inspiration</h1><p>Modifier les inspirations mariage, leurs visuels et leur ordre d'affichage.</p></div><div className="gnz-page-actions"><button className="gnz-secondary-button" onClick={reset}>Nouvelle inspiration</button></div></div>
+    {error && <div className="gnz-alert gnz-alert-error">{error}</div>}
+    <div className="gnz-split">
+      <article className="gnz-card"><div className="gnz-table-wrap"><table className="gnz-table"><thead><tr><th>Inspiration</th><th>Couleur</th><th>Style</th><th>Photos</th><th>État</th><th>Action</th></tr></thead><tbody>{rows.length ? rows.map((row) => <tr key={row.id}><td><strong>{row.title}</strong><span className="gnz-table-sub">{row.occasion_label || "—"}</span></td><td>{row.color_label || "—"}</td><td>{row.style_label || "—"}</td><td>{Array.isArray(row.album) ? row.album.length : 0}</td><td><span className={`gnz-status ${row.published ? "success" : "warning"}`}>{row.published ? "Publié" : "Masqué"}</span></td><td><button className="gnz-secondary-button" onClick={() => edit(row)}>Modifier</button></td></tr>) : <tr><td colSpan="6"><div className="gnz-empty-state">Aucune inspiration enregistrée.</div></td></tr>}</tbody></table></div></article>
+      <aside className="gnz-card gnz-editor"><header className="gnz-card-header"><div className="gnz-card-title"><strong>{form.id ? "Modifier l'inspiration" : "Nouvelle inspiration"}</strong><span>Importer d'abord les images dans Médias & photos.</span></div></header><form className="gnz-card-body gnz-editor-grid" onSubmit={save}>
+        <label className="gnz-field">Titre<input className="gnz-input" value={form.title || ""} onChange={(e)=>setForm({...form,title:e.target.value})} required/></label>
+        <label className="gnz-field">Description<textarea className="gnz-textarea" value={form.description || ""} onChange={(e)=>setForm({...form,description:e.target.value})}/></label>
+        <div className="gnz-section-grid" style={{marginTop:0}}><label className="gnz-field gnz-col-4">Couleur<input className="gnz-input" value={form.color_label || ""} onChange={(e)=>setForm({...form,color_label:e.target.value})}/></label><label className="gnz-field gnz-col-4">Style<input className="gnz-input" value={form.style_label || ""} onChange={(e)=>setForm({...form,style_label:e.target.value})}/></label><label className="gnz-field gnz-col-4">Occasion<input className="gnz-input" value={form.occasion_label || ""} onChange={(e)=>setForm({...form,occasion_label:e.target.value})}/></label></div>
+        <label className="gnz-field">Photo principale (URL)<input className="gnz-input" value={form.cover_url || ""} onChange={(e)=>setForm({...form,cover_url:e.target.value})}/></label>
+        <label className="gnz-field">Album — une URL par ligne<textarea className="gnz-textarea" style={{minHeight:150}} value={albumText} onChange={(e)=>setAlbumText(e.target.value)}/></label>
+        <label className="gnz-field">Ordre<input className="gnz-input" type="number" value={form.sort_order || 0} onChange={(e)=>setForm({...form,sort_order:e.target.value})}/></label>
+        <label className="gnz-checkbox"><input type="checkbox" checked={Boolean(form.published)} onChange={(e)=>setForm({...form,published:e.target.checked})}/>Afficher sur le site</label>
+        <div className="gnz-editor-actions">{form.id && <button type="button" className="gnz-secondary-button" onClick={reset}>Annuler</button>}<button className="gnz-primary-button" disabled={saving}>{saving ? "Enregistrement…" : "Enregistrer"}</button></div>
+      </form></aside>
     </div>
-  );
-};
-
-export default AdminWeddingInspiration;
+  </div>;
+}
