@@ -4,6 +4,7 @@ const VISITOR_KEY = "gnz_vid_v2";
 const SESSION_KEY = "gnz_sid_v2";
 const SESSION_STARTED_KEY = "gnz_sid_started_v2";
 const ATTRIBUTION_KEY = "gnz_attribution_v2";
+const BOOKING_SENT_KEY = "gnz_booking_intents_v2";
 const SESSION_TTL = 30 * 60 * 1000;
 
 const safeStorage = (storage, method, ...args) => {
@@ -51,9 +52,7 @@ function parseAttribution() {
 
 function getAttribution() {
   const saved = safeStorage(localStorage, "getItem", ATTRIBUTION_KEY);
-  if (saved) {
-    try { return JSON.parse(saved); } catch {}
-  }
+  if (saved) { try { return JSON.parse(saved); } catch {} }
   const parsed = parseAttribution();
   safeStorage(localStorage, "setItem", ATTRIBUTION_KEY, JSON.stringify(parsed));
   return parsed;
@@ -107,6 +106,27 @@ export function trackPageViewToSupabase(path = window.location.pathname) {
   return trackSiteEvent("page_view", { pagePath: path });
 }
 
+async function recordBookingIntent({ label, href }) {
+  const context = getTrackingContext();
+  const provider = /calendly/i.test(href || "") ? "calendly" : /wa\.me|whatsapp/i.test(href || "") ? "whatsapp" : "site";
+  const dedupeKey = `${provider}:${href || label || "booking"}`.slice(0, 300);
+  let sent = [];
+  try { sent = JSON.parse(sessionStorage.getItem(BOOKING_SENT_KEY) || "[]"); } catch {}
+  if (sent.includes(dedupeKey)) return;
+
+  const result = await sendPublicEvent("booking_request", {
+    ...context,
+    provider,
+    request_type: "booking_intent",
+    title: label || "Demande de rendez-vous",
+    metadata: { href: href ? href.slice(0, 300) : null, page_path: window.location.pathname },
+  });
+  if (result?.ok) {
+    sent.push(dedupeKey);
+    try { sessionStorage.setItem(BOOKING_SENT_KEY, JSON.stringify(sent.slice(-20))); } catch {}
+  }
+}
+
 export function initializeSupabaseTracking() {
   if (typeof window === "undefined" || window.location.pathname.startsWith("/admin")) return () => {};
   let lastPath = `${window.location.pathname}${window.location.search}`;
@@ -124,7 +144,9 @@ export function initializeSupabaseTracking() {
     if (!eventName && /formule|package/i.test(label)) eventName = "packages_click";
     if (!eventName && /promotion|offre|promo/i.test(label)) eventName = "promo_click";
     if (!eventName) return;
+
     trackSiteEvent(eventName, { metadata: { label: label || null, href: href ? href.slice(0, 300) : null } });
+    if (eventName === "booking_click") recordBookingIntent({ label, href });
   };
 
   const routeCheck = () => {
@@ -147,8 +169,6 @@ export function initializeSupabaseTracking() {
 
 if (typeof window !== "undefined" && !window.location.pathname.startsWith("/admin")) {
   queueMicrotask(() => {
-    if (!window.__GNZ_SUPABASE_TRACKING_CLEANUP__) {
-      window.__GNZ_SUPABASE_TRACKING_CLEANUP__ = initializeSupabaseTracking();
-    }
+    if (!window.__GNZ_SUPABASE_TRACKING_CLEANUP__) window.__GNZ_SUPABASE_TRACKING_CLEANUP__ = initializeSupabaseTracking();
   });
 }
