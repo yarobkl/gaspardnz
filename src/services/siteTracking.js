@@ -26,7 +26,7 @@ function parseAttribution() {
   const utmSource = params.get("utm_source");
   const utmMedium = params.get("utm_medium");
   const utmCampaign = params.get("utm_campaign");
-  let referrer = document.referrer || "";
+  const referrer = document.referrer || "";
   let inferredSource = "Direct";
   if (utmSource) inferredSource = utmSource;
   else if (referrer) {
@@ -92,7 +92,7 @@ export function getTrackingContext() {
 export async function trackSiteEvent(eventName, options = {}) {
   if (typeof window === "undefined") return;
   const consent = safeStorage(localStorage, "getItem", "gnz-cookies");
-  if (consent === "declined" && options.essential !== true) return;
+  if (options.essential !== true && consent !== "accepted") return;
   return sendPublicEvent("analytics_event", {
     ...getTrackingContext(),
     event_name: eventName,
@@ -108,29 +108,33 @@ export function trackPageViewToSupabase(path = window.location.pathname) {
 }
 
 export function initializeSupabaseTracking() {
-  if (typeof window === "undefined") return () => {};
+  if (typeof window === "undefined" || window.location.pathname.startsWith("/admin")) return () => {};
   let lastPath = `${window.location.pathname}${window.location.search}`;
-  trackPageViewToSupabase(lastPath);
 
   const clickHandler = (event) => {
     const target = event.target?.closest?.("a,button,[data-track]");
     if (!target) return;
     const explicit = target.getAttribute?.("data-track");
-    const text = (target.getAttribute?.("aria-label") || target.textContent || "").trim().slice(0, 120);
+    const label = (target.getAttribute?.("aria-label") || target.textContent || "").trim().replace(/\s+/g, " ").slice(0, 120);
     const href = target.getAttribute?.("href") || "";
     let eventName = explicit;
     if (!eventName && /wa\.me|whatsapp/i.test(href)) eventName = "whatsapp_click";
     if (!eventName && /calendly/i.test(href)) eventName = "booking_click";
-    if (!eventName && /réserver|reservation|rendez-vous/i.test(text)) eventName = "booking_click";
-    if (!eventName && /formule/i.test(text)) eventName = "packages_click";
+    if (!eventName && /réserver|reservation|rendez-vous|appointment/i.test(label)) eventName = "booking_click";
+    if (!eventName && /formule|package/i.test(label)) eventName = "packages_click";
+    if (!eventName && /promotion|offre|promo/i.test(label)) eventName = "promo_click";
     if (!eventName) return;
-    trackSiteEvent(eventName, { metadata: { label: text || null, href: href ? href.slice(0, 300) : null } });
+    trackSiteEvent(eventName, { metadata: { label: label || null, href: href ? href.slice(0, 300) : null } });
   };
 
   const routeCheck = () => {
     const next = `${window.location.pathname}${window.location.search}`;
-    if (next !== lastPath) { lastPath = next; trackPageViewToSupabase(next); }
+    if (next !== lastPath) {
+      lastPath = next;
+      trackPageViewToSupabase(next);
+    }
   };
+
   document.addEventListener("click", clickHandler, { capture: true, passive: true });
   window.addEventListener("popstate", routeCheck);
   const interval = window.setInterval(routeCheck, 2500);
@@ -139,4 +143,12 @@ export function initializeSupabaseTracking() {
     window.removeEventListener("popstate", routeCheck);
     window.clearInterval(interval);
   };
+}
+
+if (typeof window !== "undefined" && !window.location.pathname.startsWith("/admin")) {
+  queueMicrotask(() => {
+    if (!window.__GNZ_SUPABASE_TRACKING_CLEANUP__) {
+      window.__GNZ_SUPABASE_TRACKING_CLEANUP__ = initializeSupabaseTracking();
+    }
+  });
 }
