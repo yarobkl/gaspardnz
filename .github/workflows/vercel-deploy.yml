@@ -1,8 +1,10 @@
 name: Deploy to Vercel
 
+# Vercel already deploys this repository through its Git integration.
+# Keep this workflow as a manual fallback so each Git push does not trigger
+# an additional production build and consume the Hobby build quota twice.
 on:
-  push:
-    branches: [main]
+  workflow_dispatch:
 
 jobs:
   deploy:
@@ -11,7 +13,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install --no-audit --no-fund
 
       - name: Deploy to Vercel
         run: npx vercel --prod --token=${{ secrets.VERCEL_TOKEN }} --yes
