@@ -1,186 +1,36 @@
-import { useMemo, useState } from "react";
-import { getSettings, saveSettings } from "../../services/settingsService.js";
-import { useTr } from "../../context.jsx";
-import "../../styles/admin.css";
+import { useEffect, useState } from "react";
+import { listContentTable, upsertRow } from "../../services/adminData.js";
+import "../../styles/admin-v2.css";
 
-const defaultClients = [
-  {
-    initials: "R.B",
-    name: "Rodrin Bakala Mouengue",
-    city: "Paris",
-    event: "Mariage",
-    gradient: "linear-gradient(135deg,#1e3a5f,#2d6a9f)",
-    photo: "/images/rodrin-bakala.jpg.JPG",
-    album: [
-      "/images/rodrin-bakala.jpg.JPG",
-      "/images/rodrin-w1.jpg",
-      "/images/rodrin-w2.jpg",
-      "/images/rodrin-w3.jpg",
-      "/images/rodrin-w4.jpg",
-      "/images/rodrin-w5.jpg",
-    ],
-  },
-  {
-    initials: "B",
-    name: "Boris",
-    city: "Paris",
-    event: "Mariage",
-    gradient: "linear-gradient(135deg,#4a1942,#8b2fc9)",
-    photo: "/images/boris-01.jpg",
-    album: Array.from({ length: 16 }, (_, index) => `/images/boris-${String(index + 1).padStart(2, "0")}.jpg`),
-  },
-  { initials: "Y.B", name: "Yannick B.", city: "Lyon", event: "Soirée VIP", gradient: "linear-gradient(135deg,#1a3a1a,#2d6b2d)", photo: "", album: [] },
-  { initials: "A.N", name: "Alexis N.", city: "Dubaï", event: "Business", gradient: "linear-gradient(135deg,#3d1a00,#8b3d00)", photo: "", album: [] },
-  { initials: "D.K", name: "Diarietou K.", city: "Abidjan", event: "Cérémonie", gradient: "linear-gradient(135deg,#1a1a3d,#3d3d8b)", photo: "", album: [] },
-  { initials: "T.R", name: "Théo R.", city: "Paris", event: "Shooting", gradient: "linear-gradient(135deg,#3d001a,#8b0030)", photo: "", album: [] },
-];
+const empty = { name:"", city:"", event_label:"Mariage", photo_url:"", album:[], published:true, sort_order:0 };
+const lines = (arr) => Array.isArray(arr) ? arr.join("\n") : "";
 
-const emptyClient = {
-  initials: "",
-  name: "",
-  city: "",
-  event: "",
-  gradient: "linear-gradient(135deg,#1e3a5f,#2d6a9f)",
-  photo: "",
-  album: [],
-};
-
-const toAlbumText = (album = []) => album.join("\n");
-const fromAlbumText = (value) => value.split("\n").map((line) => line.trim()).filter(Boolean);
-
-const AdminVIPClients = () => {
-  const t = useTr();
-  const [clients, setClients] = useState(() => {
-    const settings = getSettings();
-    return settings.vipClients?.length ? settings.vipClients : defaultClients;
-  });
-  const [selectedIndex, setSelectedIndex] = useState(0);
-  const selectedClient = clients[selectedIndex] || emptyClient;
-
-  const previewAlbum = useMemo(() => selectedClient.album || [], [selectedClient.album]);
-
-  const persist = (nextClients) => {
-    setClients(nextClients);
-    saveSettings({ vipClients: nextClients });
-  };
-
-  const updateClient = (updates) => {
-    const nextClients = clients.map((client, index) => (
-      index === selectedIndex ? { ...client, ...updates } : client
-    ));
-    persist(nextClients);
-  };
-
-  const addClient = () => {
-    const nextClients = [...clients, { ...emptyClient, name: "Nouveau client", initials: "NC" }];
-    persist(nextClients);
-    setSelectedIndex(nextClients.length - 1);
-  };
-
-  const removeClient = () => {
-    if (clients.length <= 1) {
-      alert(t("admin_keep_one_client"));
-      return;
-    }
-    if (!window.confirm(t("admin_confirm_delete_client"))) return;
-    const nextClients = clients.filter((_, index) => index !== selectedIndex);
-    persist(nextClients);
-    setSelectedIndex(Math.max(0, selectedIndex - 1));
-  };
-
-  const resetDefaults = () => {
-    if (!window.confirm(t("admin_confirm_reset_gallery"))) return;
-    persist(defaultClients);
-    setSelectedIndex(0);
-  };
-
-  return (
-    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 320px), 1fr))", gap: "1rem", alignItems: "start" }}>
-      <div className="admin-card">
-        <div style={{ display: "flex", justifyContent: "space-between", gap: "0.75rem", flexWrap: "wrap", marginBottom: "1rem" }}>
-          <div>
-            <h3 className="admin-h3" style={{ margin: 0 }}>{t("admin_client_albums")}</h3>
-            <p className="admin-small" style={{ margin: "0.35rem 0 0" }}>{t("admin_client_albums_help")}</p>
-          </div>
-          <button className="admin-btn" onClick={addClient}>{t("admin_add")}</button>
-        </div>
-
-        <div className="admin-table-wrapper">
-          <table className="admin-table">
-            <thead>
-              <tr>
-                <th>{t("admin_client")}</th>
-                <th>{t("admin_city")}</th>
-                <th>{t("admin_photos")}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {clients.map((client, index) => (
-                <tr
-                  key={`${client.name}-${index}`}
-                  onClick={() => setSelectedIndex(index)}
-                  style={{ cursor: "pointer", background: selectedIndex === index ? "rgba(184,151,62,0.1)" : "transparent" }}>
-                  <td data-label={t("admin_client")}>
-                    <strong>{client.name || t("admin_untitled")}</strong>
-                    <div className="admin-small">{client.event || t("admin_event_to_define")}</div>
-                  </td>
-                  <td data-label={t("admin_city")}>{client.city || "-"}</td>
-                  <td data-label={t("admin_photos")}>{(client.album || []).length}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        <button className="admin-btn-secondary" onClick={resetDefaults} style={{ width: "100%", marginTop: "1rem" }}>
-          {t("admin_reload_base")}
-        </button>
-      </div>
-
-      <div className="admin-card">
-        <h3 className="admin-h3" style={{ marginTop: 0 }}>{t("admin_edit_card")}</h3>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 160px), 1fr))", gap: "1rem" }}>
-          <input className="admin-input" placeholder={t("admin_initials")} value={selectedClient.initials || ""} onChange={(e) => updateClient({ initials: e.target.value })} />
-          <input className="admin-input" placeholder={t("admin_name")} value={selectedClient.name || ""} onChange={(e) => updateClient({ name: e.target.value })} />
-          <input className="admin-input" placeholder={t("admin_city")} value={selectedClient.city || ""} onChange={(e) => updateClient({ city: e.target.value })} />
-          <input className="admin-input" placeholder={t("admin_event")} value={selectedClient.event || ""} onChange={(e) => updateClient({ event: e.target.value })} />
-        </div>
-
-        <div className="admin-form-group" style={{ marginTop: "1rem" }}>
-          <label className="admin-label">{t("admin_main_photo")}</label>
-          <input className="admin-input" placeholder="/images/boris-01.jpg" value={selectedClient.photo || ""} onChange={(e) => updateClient({ photo: e.target.value })} />
-        </div>
-
-        <div className="admin-form-group">
-          <label className="admin-label">{t("admin_background_no_photo")}</label>
-          <input className="admin-input" value={selectedClient.gradient || ""} onChange={(e) => updateClient({ gradient: e.target.value })} />
-        </div>
-
-        <div className="admin-form-group">
-          <label className="admin-label">{t("admin_album_photo_urls")}</label>
-          <textarea
-            className="admin-textarea"
-            rows={8}
-            value={toAlbumText(selectedClient.album)}
-            onChange={(e) => updateClient({ album: fromAlbumText(e.target.value) })}
-            placeholder="/images/photo-01.jpg&#10;/images/photo-02.jpg"
-          />
-        </div>
-
-        {selectedClient.photo && (
-          <div style={{ marginBottom: "1rem" }}>
-            <p className="admin-label">{t("admin_preview")}</p>
-            <img src={selectedClient.photo} alt={selectedClient.name} style={{ width: "100%", maxHeight: "320px", objectFit: "cover", borderRadius: "8px", border: "1px solid var(--gnz-border)" }} />
-          </div>
-        )}
-
-        <p className="admin-small">{t("admin_album_count", previewAlbum.length)}</p>
-        <button className="admin-btn-danger" onClick={removeClient} style={{ width: "100%" }}>
-          {t("admin_delete_card")}
-        </button>
-      </div>
+export default function AdminVIPClients() {
+  const [rows, setRows] = useState([]);
+  const [form, setForm] = useState(empty);
+  const [albumText, setAlbumText] = useState("");
+  const [error, setError] = useState("");
+  const [saving, setSaving] = useState(false);
+  const load = async () => { try { setRows(await listContentTable("vip_clients")); setError(""); } catch (e) { setError(e?.message || "Impossible de charger les clients VIP."); } };
+  useEffect(() => { load(); }, []);
+  const edit = (row) => { setForm(row); setAlbumText(lines(row.album)); };
+  const reset = () => { setForm(empty); setAlbumText(""); };
+  const save = async (e) => { e.preventDefault(); setSaving(true); try { await upsertRow("vip_clients", { ...form, sort_order:Number(form.sort_order||0), album: albumText.split(/\n+/).map((v)=>v.trim()).filter(Boolean) }); await load(); reset(); } catch (e) { setError(e?.message || "Enregistrement impossible."); } finally { setSaving(false); } };
+  return <div>
+    <div className="gnz-page-heading"><div><h1>Clients VIP</h1><p>Gérer les profils et albums visibles dans la galerie VIP du site.</p></div><div className="gnz-page-actions"><button className="gnz-secondary-button" onClick={reset}>Nouveau client</button></div></div>
+    {error && <div className="gnz-alert gnz-alert-error">{error}</div>}
+    <div className="gnz-split">
+      <article className="gnz-card"><div className="gnz-table-wrap"><table className="gnz-table"><thead><tr><th>Client</th><th>Ville</th><th>Événement</th><th>Photos</th><th>Visible</th><th>Action</th></tr></thead><tbody>{rows.length ? rows.map((row) => <tr key={row.id}><td><strong>{row.name}</strong></td><td>{row.city || "—"}</td><td>{row.event_label || "—"}</td><td>{Array.isArray(row.album) ? row.album.length : 0}</td><td><span className={`gnz-status ${row.published ? "success" : "warning"}`}>{row.published ? "Oui" : "Non"}</span></td><td><button className="gnz-secondary-button" onClick={() => edit(row)}>Modifier</button></td></tr>) : <tr><td colSpan="6"><div className="gnz-empty-state">Aucun client VIP enregistré.</div></td></tr>}</tbody></table></div></article>
+      <aside className="gnz-card gnz-editor"><header className="gnz-card-header"><div className="gnz-card-title"><strong>{form.id ? "Modifier le client" : "Ajouter un client"}</strong><span>Utilisez « Médias & photos » pour importer les images puis copiez leurs liens.</span></div></header><form className="gnz-card-body gnz-editor-grid" onSubmit={save}>
+        <label className="gnz-field">Nom<input className="gnz-input" value={form.name || ""} onChange={(e)=>setForm({...form,name:e.target.value})} required/></label>
+        <label className="gnz-field">Ville<input className="gnz-input" value={form.city || ""} onChange={(e)=>setForm({...form,city:e.target.value})}/></label>
+        <label className="gnz-field">Événement<input className="gnz-input" value={form.event_label || ""} onChange={(e)=>setForm({...form,event_label:e.target.value})}/></label>
+        <label className="gnz-field">Photo principale (URL)<input className="gnz-input" value={form.photo_url || ""} onChange={(e)=>setForm({...form,photo_url:e.target.value})}/></label>
+        <label className="gnz-field">Album — une URL par ligne<textarea className="gnz-textarea" style={{minHeight:150}} value={albumText} onChange={(e)=>setAlbumText(e.target.value)} /></label>
+        <label className="gnz-field">Ordre<input className="gnz-input" type="number" value={form.sort_order || 0} onChange={(e)=>setForm({...form,sort_order:e.target.value})}/></label>
+        <label className="gnz-checkbox"><input type="checkbox" checked={Boolean(form.published)} onChange={(e)=>setForm({...form,published:e.target.checked})}/>Afficher sur le site</label>
+        <div className="gnz-editor-actions">{form.id && <button type="button" className="gnz-secondary-button" onClick={reset}>Annuler</button>}<button className="gnz-primary-button" disabled={saving}>{saving ? "Enregistrement…" : "Enregistrer"}</button></div>
+      </form></aside>
     </div>
-  );
-};
-
-export default AdminVIPClients;
+  </div>;
+}
