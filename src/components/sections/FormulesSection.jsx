@@ -78,7 +78,7 @@ const FormulesSection = ({ refEl, onContact }) => {
           <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.4em", color: GOLD, textTransform: "uppercase", marginBottom: "1rem" }}>GASPARDNZ · 2025</p>
           <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(1.6rem, 7vw, 2.2rem)", fontWeight: 300, color: "#f5f0e8", letterSpacing: "0.02em", margin: "0 0 0.6rem" }}>{t("lookbook_title")}</h3>
           <p style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: "italic", fontSize: "0.9rem", color: "rgba(245,240,232,0.62)", marginBottom: "1.6rem" }}>{t("lookbook_desc")}</p>
-          <button type="button" onClick={() => openLookbookCheckout(settings.whatsappNumber)} style={{ display: "inline-flex", alignItems: "center", gap: "10px", background: GOLD, color: "#0d1b3e", border: "none", cursor: "pointer", padding: "1rem 2.2rem", textDecoration: "none", fontFamily: "'Montserrat', sans-serif", fontSize: "11px", letterSpacing: "0.4em", textTransform: "uppercase", fontWeight: 700 }}>Acheter le lookbook · {LOOKBOOK_PRICE_EUR}€</button>
+          <button type="button" onClick={() => openLookbookCheckout(settings)} style={{ display: "inline-flex", alignItems: "center", gap: "10px", background: GOLD, color: "#0d1b3e", border: "none", cursor: "pointer", padding: "1rem 2.2rem", textDecoration: "none", fontFamily: "'Montserrat', sans-serif", fontSize: "11px", letterSpacing: "0.4em", textTransform: "uppercase", fontWeight: 700 }}>{settings.paymentLabel || "Acheter le lookbook"} · {LOOKBOOK_PRICE_EUR}€</button>
         </motion.div>
       </div>
     </section>

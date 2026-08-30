@@ -9,6 +9,8 @@ const defaultSettings = {
   whatsappNumber: `+${WA_NUM}`,
   calendlyUrl: CALENDLY_URL,
   instagramUrl: SOCIAL_LINKS.instagram,
+  stripePaymentUrl: "",
+  paymentLabel: "Payer le lookbook",
   maisonAddress: "Paris, France",
   formulaPrices: {
     formule1: 1500,

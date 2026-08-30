@@ -214,7 +214,7 @@ const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules, 
               [t("nav_showroom"), onShowroom],
               [t("style_month"), onStyleDuMois],
               ["Communauté", onCommunaute],
-              [t("lookbook"), () => openLookbookCheckout(settings.whatsappNumber)],
+              [t("lookbook"), () => openLookbookCheckout(settings)],
             ].map(([label, fn], i) => (
               <motion.button key={label}
                 initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }}

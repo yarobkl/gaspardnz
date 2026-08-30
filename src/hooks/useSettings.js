@@ -29,6 +29,7 @@ async function loadRemoteSettings(base) {
   const map = Object.fromEntries((settingsRes.data || []).map((row) => [row.key, row.value || {}]));
   const contact = map.contact || {};
   const social = map.social_links || {};
+  const payment = map.payment || {};
   const brand = map.brand || {};
   const formulaPrices = { ...(base.formulaPrices || {}) };
   for (const row of packagesRes.data || []) {
@@ -64,6 +65,8 @@ async function loadRemoteSettings(base) {
     tiktokUrl: social.tiktok || base.tiktokUrl,
     facebookUrl: social.facebook || base.facebookUrl,
     youtubeUrl: social.youtube || base.youtubeUrl,
+    stripePaymentUrl: payment.stripe_payment_url || base.stripePaymentUrl || "",
+    paymentLabel: payment.payment_label || base.paymentLabel || "Payer le lookbook",
     formulaPrices,
     vipClients: vipClients.length ? vipClients : base.vipClients,
     weddingInspirations: weddingInspirations.length ? weddingInspirations : base.weddingInspirations,
