@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
-import { getDashboardData } from "../../services/adminData.js";
+import { useCallback, useEffect, useState } from "react";
+import { getDashboardData, getGoogleSnapshots, getIntegrationSettings, subscribeDashboard } from "../../services/adminData.js";
 import { getReportingData } from "../../services/adminReporting.js";
+import { supabase } from "../../services/supabaseClient.js";
 import "../../styles/admin-v2.css";
 
 const fmt = new Intl.NumberFormat("fr-FR");
@@ -26,31 +27,63 @@ const AdminAnalytics = () => {
   const [days, setDays] = useState(30);
   const [data, setData] = useState(null);
   const [report, setReport] = useState(null);
+  const [google, setGoogle] = useState({ integration: null, realtime: null });
   const [loading, setLoading] = useState(true);
+  const [syncingGoogle, setSyncingGoogle] = useState(false);
   const [error, setError] = useState("");
 
-  useEffect(() => {
+  const load = useCallback(() => {
     let active = true;
     setLoading(true);
-    Promise.all([getDashboardData(days), getReportingData(days)])
-      .then(([dashboard, reporting]) => { if (active) { setData(dashboard); setReport(reporting); setError(""); } })
+    Promise.all([getDashboardData(days), getReportingData(days), getIntegrationSettings(), getGoogleSnapshots("google_analytics", 2)])
+      .then(([dashboard, reporting, integrations, snapshots]) => {
+        if (!active) return;
+        setData(dashboard); setReport(reporting);
+        setGoogle({ integration: integrations.find((item) => item.provider === "google_analytics") || null, realtime: snapshots.find((item) => item.dimension_key === "realtime") || null });
+        setError("");
+      })
       .catch((err) => active && setError(err?.message || "Impossible de charger les analytics."))
       .finally(() => active && setLoading(false));
     return () => { active = false; };
   }, [days]);
 
+  useEffect(() => load(), [load]);
+  useEffect(() => subscribeDashboard(() => load()), [load]);
+
+  const syncGoogle = async () => {
+    setSyncingGoogle(true); setError("");
+    try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData?.session?.access_token;
+      if (!token) throw new Error("Session administrateur expirée. Reconnectez-vous.");
+      const response = await fetch("/api/google/sync", { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ days }) });
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(payload.error || payload.analytics?.error || "Synchronisation Google impossible.");
+      load();
+    } catch (err) {
+      setError(err?.message || "Synchronisation Google impossible.");
+    } finally { setSyncingGoogle(false); }
+  };
+
   const k = data?.current || {};
   return (
     <div>
       <div className="gnz-page-heading">
-        <div><h1>Analytics</h1><p>Mesure du comportement réellement capté sur GaspardNZ, sans statistiques simulées.</p></div>
+        <div><h1>Analytics</h1><p>Événements du site en direct et données GA4 officielles, sans chiffres simulés.</p></div>
         <div className="gnz-page-actions">
           <span className="gnz-live-pill"><span className="gnz-live-dot" />{fmt.format(data?.activeVisitors || 0)} actif{data?.activeVisitors === 1 ? "" : "s"}</span>
           <select className="gnz-select" value={days} onChange={(e) => setDays(Number(e.target.value))}><option value="7">7 jours</option><option value="30">30 jours</option><option value="90">90 jours</option></select>
+          {google.integration?.status === "connected" && <button type="button" className="gnz-secondary-button" onClick={syncGoogle} disabled={syncingGoogle}>{syncingGoogle ? "Mise à jour…" : "Actualiser GA4"}</button>}
         </div>
       </div>
       {error && <div className="gnz-alert gnz-alert-error">{error}</div>}
       {loading && !data ? <div className="gnz-empty-state">Chargement…</div> : <>
+        <section className="gnz-card" style={{ marginBottom: 12 }}>
+          <div className="gnz-card-body" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
+            <div><strong>Données Google Analytics 4</strong><div className="gnz-kpi-sub">{google.integration?.status === "connected" ? `Source officielle Google${google.realtime ? ` · ${fmt.format(google.realtime.metrics?.activeUsers || 0)} utilisateurs actifs lors de la dernière mise à jour` : " · en attente de la première synchronisation"}` : "Connexion Google requise : aucun chiffre GA4 n’est affiché ni inventé."}</div></div>
+            <a className="gnz-secondary-button" href="/admin/seo">{google.integration?.status === "connected" ? "Voir le détail Google" : "Connecter Google"}</a>
+          </div>
+        </section>
         <section className="gnz-kpi-grid">
           <article className="gnz-kpi-card"><span className="gnz-kpi-label">Visiteurs uniques</span><div className="gnz-kpi-value">{fmt.format(k.visitors || 0)}</div><div className="gnz-kpi-sub">Identifiants visiteurs distincts</div></article>
           <article className="gnz-kpi-card"><span className="gnz-kpi-label">Sessions</span><div className="gnz-kpi-value">{fmt.format(k.sessions || 0)}</div><div className="gnz-kpi-sub">Sessions enregistrées</div></article>
