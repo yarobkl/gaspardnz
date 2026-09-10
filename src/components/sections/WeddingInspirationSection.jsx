@@ -4,12 +4,22 @@ import { GOLD } from "../../constants.js";
 import { getWeddingInspirations, WA_GNZ } from "../../data/weddingInspirationData.js";
 import { getSettings } from "../../services/settingsService.js";
 import { LangCtx, useTr } from "../../context.jsx";
+import useCompactMobile from "../../hooks/useCompactMobile.js";
 import { HotspotSheet, PhotoHotspots } from "../ui/PhotoHotspots.jsx";
+
+const COPY = {
+  FR: { more: "Voir toutes les inspirations", less: "Réduire les inspirations" },
+  EN: { more: "View all inspirations", less: "Collapse inspirations" },
+  ES: { more: "Ver todas las inspiraciones", less: "Reducir inspiraciones" },
+  ZH: { more: "查看全部婚礼灵感", less: "收起婚礼灵感" },
+};
 
 const WeddingInspirationSection = ({ refEl }) => {
   const t = useTr();
   const { lang } = useContext(LangCtx);
+  const isCompactMobile = useCompactMobile();
   const [inspirations, setInspirations] = useState([]);
+  const [expanded, setExpanded] = useState(false);
 
   useEffect(() => {
     const settings = getSettings();
@@ -25,6 +35,8 @@ const WeddingInspirationSection = ({ refEl }) => {
   }, [lang]);
 
   const INSPIRATIONS = inspirations;
+  const visibleInspirations = isCompactMobile && !expanded ? INSPIRATIONS.slice(0, 1) : INSPIRATIONS;
+  const copy = COPY[lang] || COPY.FR;
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-8% 0px" });
   const [activeSpot, setActiveSpot] = useState(null);
@@ -45,18 +57,18 @@ const WeddingInspirationSection = ({ refEl }) => {
   };
 
   return (
-    <section ref={node => { ref.current = node; if (refEl) refEl.current = node; }} style={{ background: "#0a0602", padding: "4.5rem 0 5rem" }}>
+    <section ref={node => { ref.current = node; if (refEl) refEl.current = node; }} style={{ background: "#0a0602", padding: isCompactMobile ? "3rem 0 3.5rem" : "4.5rem 0 5rem" }}>
       <motion.div
         initial={{ opacity: 0, y: 16 }} animate={inView ? { opacity: 1, y: 0 } : {}}
         transition={{ duration: 0.7 }}
-        style={{ padding: "0 1.4rem", marginBottom: "2rem" }}>
+        style={{ padding: "0 1.4rem", marginBottom: isCompactMobile ? "1.35rem" : "2rem" }}>
         <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.42em", color: GOLD, textTransform: "uppercase", marginBottom: "10px" }}>GASPARDNZ</p>
         <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "28px", fontWeight: 300, color: "#faf7f2", letterSpacing: "0.02em", lineHeight: 1.2, margin: 0 }}>{t("wedding_inspiration")}</p>
         <div style={{ width: "48px", height: "1px", background: `linear-gradient(90deg, ${GOLD}, transparent)`, marginTop: "14px" }} />
       </motion.div>
 
       <div style={{ padding: "0 1.4rem", display: "flex", flexDirection: "column", gap: "1.4rem" }}>
-        {INSPIRATIONS.map((item, i) => (
+        {visibleInspirations.map((item, i) => (
           <motion.div key={i}
             initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-6% 0px" }}
@@ -124,6 +136,17 @@ const WeddingInspirationSection = ({ refEl }) => {
           </motion.div>
         ))}
       </div>
+
+      {isCompactMobile && INSPIRATIONS.length > 1 && (
+        <div style={{ padding: "1.1rem 1.4rem 0", display: "flex", justifyContent: "center" }}>
+          <button
+            type="button"
+            onClick={() => { setExpanded((value) => !value); setActiveSpot(null); }}
+            style={{ minHeight:44, border:"1px solid rgba(184,151,62,.36)", borderRadius:999, background:"rgba(184,151,62,.06)", color:GOLD, padding:"0 1.25rem", fontFamily:"'Montserrat',sans-serif", fontSize:9, fontWeight:600, letterSpacing:".18em", textTransform:"uppercase", cursor:"pointer" }}>
+            {expanded ? copy.less : `${copy.more} · ${INSPIRATIONS.length}`}
+          </button>
+        </div>
+      )}
 
       <HotspotSheet
         spot={activeSpot?.spot || null}
