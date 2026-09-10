@@ -66,6 +66,24 @@ assert.match(
   "un compte Supabase valide hors admin_access doit être déconnecté",
 );
 
+// Le callback Supabase Auth doit rendre immédiatement. Les requêtes asynchrones
+// sont décalées au tick suivant pour éviter le deadlock documenté du verrou auth.
+assert.doesNotMatch(
+  adminAuth,
+  /onAuthStateChange\(async\s*\(/,
+  "onAuthStateChange ne doit pas utiliser un callback async direct",
+);
+assert.match(
+  adminAuth,
+  /onAuthStateChange\([\s\S]*setTimeout\(\(\) => \{[\s\S]*getAccessProfile\(user\)/,
+  "la lecture admin_access doit être différée hors du callback auth",
+);
+assert.match(
+  adminAuth,
+  /const current = \+\+sequence;[\s\S]*if \(current !== sequence\) return;/,
+  "les réponses obsolètes d'événements auth doivent être ignorées",
+);
+
 // ---------------------------------------------------------------------------
 // 3. App.jsx : l'état admin ne peut venir que d'une vérification réseau.
 // ---------------------------------------------------------------------------
