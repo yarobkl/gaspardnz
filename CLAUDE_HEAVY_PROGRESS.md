@@ -369,7 +369,78 @@ application — la migration suppose les colonnes `event_type`, `entity_type`,
 `adminData.js`.
 
 ### Phase 12 — CRM unifié
-- **Statut** : ⏳ NON DÉMARRÉ
+- **Statut** : 🔄 VUES PRÊTES ET TESTÉES LOCALEMENT — non appliquées, interface non branchée
+
+#### Cartographie réelle (déduite du code, faute d'accès à la base)
+
+| Table | Rôle réel | Rattachement |
+|---|---|---|
+| `leads` | Demandes venues du formulaire | — |
+| `bookings` | Réservations | `bookings.lead_id` → `leads.id` (FK réelle, déjà jointe dans `adminData.js`) |
+| `crm_notes` | Notes internes | `crm_notes.lead_id` → `leads.id` |
+| `email_messages` | Emails envoyés | **aucun rattachement** — seulement une adresse `recipient` |
+| `vip_clients` | **Pas du CRM** | Contenus de vitrine (`album`, `photo_url`, `sort_order`) : des visuels, pas des clients |
+| `visitors` | Statistiques de fréquentation | Anonyme |
+
+**Le point de rupture** : `email_messages` n'est relié à rien. Un même contact
+existe donc en plusieurs exemplaires — plusieurs `leads` pour la même adresse,
+des emails orphelins — et l'écran CRM n'affiche aujourd'hui que `leads`.
+
+#### Choix : unifier par des VUES, pas par une migration de données
+
+Une fusion de lignes exigerait de décider quels doublons écraser — une décision
+irréversible, prise sans accès aux données réelles et sans arbitrage métier.
+Deux vues en **lecture seule** font le rapprochement sur l'email normalisé :
+
+- `crm_contacts` — un contact par adresse, avec nom et téléphone les plus
+  récemment renseignés, statut courant et compteurs (demandes, réservations,
+  notes, emails) ;
+- `crm_timeline` — historique unifié des quatre sources.
+
+Aucune ligne n'est déplacée, fusionnée ni supprimée. Si le regroupement se
+révèle imparfait, rien n'est perdu et le rollback est un `drop view`.
+
+#### Le piège évité
+
+Une vue PostgreSQL s'exécute **par défaut avec les droits de son propriétaire**
+et **contourne les politiques RLS** des tables sous-jacentes. Livrée ainsi, une
+vue CRM aurait été une porte dérobée exposant tout le fichier client à n'importe
+quel compte. Les deux vues déclarent donc `security_invoker = true`.
+
+**Contre-preuve exécutée** : la même requête dans une vue sans cette option laisse
+un compte désactivé voir 4 contacts ; avec l'option, il en voit 0.
+
+#### Vérifications exécutées (PostgreSQL 16 local)
+
+| Contrôle | Résultat |
+|---|---|
+| Regroupement malgré casse et doublons (`Claire.Martin@` / `claire.martin@`) | ✅ 1 contact, 2 demandes |
+| Nom et statut les plus récents retenus | ✅ « Claire M. », `qualifie` |
+| Téléphone présent uniquement sur l'ancienne fiche | ✅ Conservé |
+| Historique unifié des 4 sources | ✅ 5 évènements (`booking, email, lead, note`) |
+| Réservation sans email propre | ✅ Rattachée via `lead_id` |
+| Compte désactivé | ✅ 0 contact visible |
+| Viewer légitime | ✅ Contacts visibles |
+| Écriture dans une vue | ✅ Refusée (lecture seule) |
+| Contre-preuve `security_invoker` | ✅ Sans l'option : fuite confirmée |
+| Tables sources après coup | ✅ Intactes |
+| Rollback | ✅ Propre |
+
+**Un bug de rollback trouvé par le harnais** : `email_messages`, ajouté à la
+migration RLS, manquait dans son rollback, qui échouait sur une dépendance. Le
+rollback **déduit désormais la liste du catalogue** au lieu de la recopier —
+une liste recopiée finit toujours par diverger.
+
+#### Ce qui n'est pas fait, et pourquoi
+
+L'écran `AdminCRM` **n'est pas branché** sur ces vues. Le brancher maintenant
+ferait échouer l'interface en production, puisque les vues n'y existent pas
+encore. Le branchement doit suivre l'application de la migration, pas la
+précéder.
+
+Question métier laissée ouverte : le rapprochement se fait sur l'email. Un même
+client avec deux adresses restera vu comme deux contacts. Résoudre cela suppose
+un identifiant client stable — décision qui ne se déduit pas du projet.
 
 ### Phase 13 — Tests automatisés
 - **Statut** : ⏳ NON DÉMARRÉ
@@ -397,8 +468,7 @@ application — la migration suppose les colonnes `event_type`, `entity_type`,
 
 ## Prochaine action exacte
 
-Démarrer la **phase 12 (CRM unifié)** : cartographier d'abord ce qui existe
-réellement — `leads`, `bookings`, `crm_notes`, `email_messages`, `vip_clients`,
-`visitors` — et comment ces tables sont reliées, **avant** toute proposition de
-schéma. Aucune migration destructive : le CRM doit unifier des vues, pas
-supprimer des données.
+Démarrer la **phase 13 (tests automatisés)** : installer un vrai harnais
+(Vitest + Testing Library, et Playwright pour l'E2E), puis convertir les
+vérifications navigateur de `scripts/browser-checks/` — aujourd'hui hors de la
+suite faute de dépendances — en tests exécutables par `npm test`.

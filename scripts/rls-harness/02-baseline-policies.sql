@@ -18,7 +18,7 @@ do $$
 declare t text;
 begin
   foreach t in array array['admin_access','leads','bookings','crm_notes',
-                           'site_settings','site_content','activity_log']
+                           'email_messages','site_settings','site_content','activity_log']
   loop
     execute format('drop policy if exists %I on public.%I', t || '_admin_all', t);
     execute format(

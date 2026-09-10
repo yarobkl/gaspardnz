@@ -2,16 +2,18 @@
 -- Supprime uniquement les politiques créées par cette migration : les
 -- politiques préexistantes ne sont pas touchées, l'accès revient donc
 -- exactement à son état antérieur.
+--
+-- La liste est DÉDUITE du catalogue plutôt que recopiée : une liste recopiée
+-- finit toujours par diverger de la migration (c'est arrivé avec email_messages).
 do $$
-declare t text;
+declare p record;
 begin
-  foreach t in array array['leads','bookings','crm_notes','site_settings',
-                           'site_content','activity_log','admin_access']
+  for p in
+    select schemaname, tablename, policyname
+    from pg_policies
+    where schemaname = 'public'
+      and policyname ~ '^rbac_(read|write|update|delete)_'
   loop
-    if to_regclass('public.' || t) is null then continue; end if;
-    execute format('drop policy if exists %I on public.%I', 'rbac_read_'   || t, t);
-    execute format('drop policy if exists %I on public.%I', 'rbac_write_'  || t, t);
-    execute format('drop policy if exists %I on public.%I', 'rbac_update_' || t, t);
-    execute format('drop policy if exists %I on public.%I', 'rbac_delete_' || t, t);
+    execute format('drop policy if exists %I on %I.%I', p.policyname, p.schemaname, p.tablename);
   end loop;
 end $$;

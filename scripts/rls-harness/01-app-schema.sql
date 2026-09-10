@@ -15,15 +15,23 @@ create table if not exists public.admin_access (
 
 create table if not exists public.leads (
   id uuid primary key default gen_random_uuid(),
-  email text, status text default 'new', created_at timestamptz default now()
+  email text, full_name text, phone text, request_type text, message text,
+  source text, status text default 'new', created_at timestamptz default now()
 );
 create table if not exists public.bookings (
   id uuid primary key default gen_random_uuid(),
-  email text, status text default 'pending', created_at timestamptz default now()
+  lead_id uuid, email text, title text, notes text,
+  starts_at timestamptz, status text default 'pending', created_at timestamptz default now()
 );
 create table if not exists public.crm_notes (
   id uuid primary key default gen_random_uuid(),
-  lead_id uuid, body text, created_at timestamptz default now()
+  lead_id uuid, body text, created_by text, created_at timestamptz default now()
+);
+
+create table if not exists public.email_messages (
+  id uuid primary key default gen_random_uuid(),
+  recipient text, subject text, status text,
+  queued_at timestamptz, sent_at timestamptz, created_at timestamptz default now()
 );
 create table if not exists public.site_settings (
   key text primary key, value jsonb
@@ -38,6 +46,7 @@ create table if not exists public.activity_log (
   actor_email text, created_at timestamptz default now()
 );
 
+alter table public.email_messages enable row level security;
 alter table public.admin_access  enable row level security;
 alter table public.leads         enable row level security;
 alter table public.bookings      enable row level security;

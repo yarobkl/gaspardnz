@@ -22,6 +22,7 @@ begin
       ('leads',            'editor', 'viewer'),
       ('bookings',         'editor', 'viewer'),
       ('crm_notes',        'editor', 'viewer'),
+      ('email_messages',   'admin',  'viewer'),
       ('site_settings',    'admin',  'viewer'),
       ('site_content',     'editor', 'viewer'),
       ('activity_log',     'owner',  'admin')

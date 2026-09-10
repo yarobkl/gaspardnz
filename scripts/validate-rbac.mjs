@@ -109,4 +109,32 @@ assert.match(fns, /grant execute on function private\.has_admin_role\(text\)\s+t
 assert.match(fns, /security\s+definer/i,
   "current_admin_role doit être SECURITY DEFINER pour éviter une récursion RLS");
 
+// ---------------------------------------------------------------------------
+// 6. Les vues CRM ne doivent pas devenir une porte dérobée.
+//    Sans security_invoker, une vue s'exécute avec les droits de son
+//    propriétaire et contourne les politiques RLS des tables sous-jacentes.
+// ---------------------------------------------------------------------------
+const crm = readFileSync("supabase/migrations/20260910120400_crm_unified_views.sql", "utf8");
+const views = [...crm.matchAll(/create or replace view public\.(\w+)([\s\S]{0,120}?)as\b/g)];
+assert.ok(views.length >= 2, "les vues CRM doivent être détectées");
+for (const [, name, opts] of views) {
+  assert.match(opts, /with \(security_invoker = true\)/,
+    `la vue ${name} doit déclarer security_invoker = true, sinon elle contourne RLS`);
+}
+// Lecture seule : aucun droit d'écriture accordé sur les vues.
+assert.doesNotMatch(crm, /grant\s+(insert|update|delete|all)[^;]*on public\.crm_/i,
+  "les vues CRM doivent rester en lecture seule");
+assert.match(crm, /grant select on public\.crm_contacts to authenticated/);
+// Unification par vues, pas par déplacement de données.
+const crmCode = crm.split("\n").filter((l) => !l.trim().startsWith("--")).join("\n");
+for (const [pattern, label] of [
+  [/\binsert\s+into\b/i, "INSERT"],
+  [/\bupdate\s+public\./i, "UPDATE"],
+  [/\bdelete\s+from\b/i, "DELETE"],
+  [/\balter\s+table\b/i, "ALTER TABLE"],
+]) {
+  assert.doesNotMatch(crmCode, pattern,
+    `la migration CRM ne doit déplacer aucune donnée (${label} trouvé)`);
+}
+
 console.log("RBAC validation passed");
