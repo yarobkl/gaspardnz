@@ -1,12 +1,21 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { GOLD, CREAM } from "../constants.js";
 import { useTr } from "../context.jsx";
 import { useFocusTrap } from "../hooks/useFocusTrap.js";
 import { trackPartnerContact, sendPartnerContactEmail } from "../services/partnerTracking.js";
 
+const EMPTY_FORM = {
+  name: "",
+  email: "",
+  phone: "",
+  eventType: "",
+  eventDate: "",
+  message: "",
+};
+
 // Retire les sauts de ligne et caractères de contrôle des champs courts
-// (protection contre l'injection d'en-têtes email côté futur backend)
+// (protection contre l'injection d'en-têtes email côté backend)
 const cleanLine = (value) =>
   String(value)
     .split("")
@@ -17,22 +26,25 @@ const cleanLine = (value) =>
 const PartnersContactModal = ({ isOpen, onClose, partner }) => {
   const t = useTr();
   const focusTrapRef = useFocusTrap(isOpen);
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    eventType: "",
-    eventDate: "",
-    message: "",
-  });
+  const [formData, setFormData] = useState(EMPTY_FORM);
+  const [website, setWebsite] = useState("");
+  const [formStartedAt, setFormStartedAt] = useState(() => Date.now());
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState(null);
 
+  // Chaque ouverture repart avec un challenge temporel neuf et un honeypot vide.
+  // Ces valeurs ne sont pas des données métier et ne sont jamais envoyées au CRM.
+  useEffect(() => {
+    if (!isOpen) return;
+    setWebsite("");
+    setFormStartedAt(Date.now());
+  }, [isOpen]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
-    setError(null); // Clear error on input change
+    setError(null);
   };
 
   const handleSubmit = async (e) => {
@@ -41,7 +53,6 @@ const PartnersContactModal = ({ isOpen, onClose, partner }) => {
     setLoading(true);
 
     try {
-      // Nettoie les champs courts (anti-injection d'en-têtes) avant envoi
       const safeData = {
         ...formData,
         name: cleanLine(formData.name),
@@ -50,22 +61,24 @@ const PartnersContactModal = ({ isOpen, onClose, partner }) => {
         eventType: cleanLine(formData.eventType),
         eventDate: cleanLine(formData.eventDate),
         message: String(formData.message).slice(0, 2000).trim(),
+        website: String(website).slice(0, 200),
+        formStartedAt,
       };
 
-      // Tracker le contact
       const trackResult = await trackPartnerContact(partner.id, safeData);
       if (!trackResult.success) {
         throw new Error("Failed to track contact");
       }
 
-      // Envoyer emails (avec status du partenaire pour router correctement)
       const emailResult = await sendPartnerContactEmail(partner.id, partner.email || "", safeData, partner.status, partner.name);
       if (!emailResult.success) {
         throw new Error(emailResult.error || "Failed to send email");
       }
 
       setSubmitted(true);
-      setFormData({ name: "", email: "", phone: "", eventType: "", eventDate: "", message: "" });
+      setFormData(EMPTY_FORM);
+      setWebsite("");
+      setFormStartedAt(Date.now());
 
       setTimeout(() => {
         setSubmitted(false);
@@ -184,6 +197,21 @@ const PartnersContactModal = ({ isOpen, onClose, partner }) => {
                 </p>
 
                 <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "1.2rem" }}>
+                  <div
+                    aria-hidden="true"
+                    style={{ position: "absolute", left: "-10000px", width: "1px", height: "1px", overflow: "hidden" }}>
+                    <label htmlFor="partner-website">Ne pas remplir ce champ</label>
+                    <input
+                      id="partner-website"
+                      type="text"
+                      name="website"
+                      value={website}
+                      onChange={(e) => setWebsite(e.target.value)}
+                      tabIndex={-1}
+                      autoComplete="off"
+                    />
+                  </div>
+
                   <div>
                     <label htmlFor="partner-name" style={{ display: "block", color: CREAM, fontFamily: "'Montserrat', sans-serif", fontSize: "12px", marginBottom: "0.5rem", letterSpacing: "0.05em", textTransform: "uppercase" }}>
                       {t("partners_form_name") || "Nom"}
