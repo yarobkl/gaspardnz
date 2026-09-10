@@ -54,6 +54,54 @@ jobs:
         run: npm run test:consent
       - name: Verify dependency manifests stay unchanged
         run: git diff --exit-code -- package.json package-lock.json
+      - name: Independently sample mutation-test sentinels
+        shell: bash
+        run: |
+          set -euo pipefail
+          expect_failure() {
+            local label="$1"; shift
+            set +e
+            "$@" >/tmp/mutation.out 2>&1
+            local rc=$?
+            set -e
+            if [ "$rc" -eq 0 ]; then
+              echo "Mutation NOT detected: $label"
+              cat /tmp/mutation.out
+              exit 1
+            fi
+            echo "Mutation detected: $label"
+          }
+
+          printf '\n// audit mutation: forged browser profile must never be authoritative\nconst __auditForgedProfile = localStorage.getItem("gnz-admin-profile");\n' >> src/App.jsx
+          expect_failure "forged admin localStorage read" npm run test:admin-auth
+          git checkout -- src/App.jsx
+
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('supabase/migrations/20260910120100_rbac_restrictive_policies.sql')
+          s=p.read_text()
+          s=s.replace('as restrictive for select to authenticated', 'as permissive for select to authenticated', 1)
+          p.write_text(s)
+          PY
+          expect_failure "restrictive RLS changed to permissive" npm run test:rbac
+          git checkout -- supabase/migrations/20260910120100_rbac_restrictive_policies.sql
+
+          printf '\n// audit mutation\nsupabase.from("activity_log").insert({ event_type: "mutation" });\n' >> src/services/adminData.js
+          expect_failure "client-side activity_log write" npm run test:audit
+          git checkout -- src/services/adminData.js
+
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('capacitor.config.json')
+          data=json.loads(p.read_text())
+          data.setdefault('server', {})['url']='https://example.invalid'
+          p.write_text(json.dumps(data, indent=2)+"\n")
+          PY
+          expect_failure "Capacitor server.url" npm run test:unit
+          git checkout -- capacitor.config.json
+
+          git diff --exit-code
       - name: Prove forged-cache exploit on pre-fix 2e1d0de
         shell: bash
         run: |
