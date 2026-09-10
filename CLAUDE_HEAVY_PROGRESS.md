@@ -147,7 +147,116 @@ complaisant.
   production » : il attend la revue de Work et la stabilisation de la phase 8.
 
 ### Phase 10 — RBAC / rôles / RLS
-- **Statut** : ⏳ NON DÉMARRÉ
+- **Statut** : 🔄 MIGRATIONS PRÊTES ET TESTÉES LOCALEMENT — non appliquées
+
+#### Contrainte d'accès
+
+Ce conteneur n'a **aucun accès** à la base Supabase : pas de CLI `supabase`, pas
+de credentials, pas de serveur MCP Supabase, et le dépôt ne contenait **aucune
+migration locale**. Je n'ai donc pas pu relire les politiques RLS réelles.
+Conformément à la mission, la phase 10 est livrée en **mode préparation** :
+migrations écrites, testées **localement**, non appliquées.
+
+#### Constat vérifié dans le code
+
+Le modèle de rôles existe (`owner` / `admin` / `editor` / `viewer` dans
+`admin_access`, fonction `hasPermission()` dans `adminAuth.js`) mais **il n'est
+appliqué nulle part** :
+
+- `hasPermission()` est exporté et **n'est appelé par aucun composant** ;
+- `AdminLayout.jsx` construit sa navigation depuis un `NAV_GROUPS` **statique** :
+  tout compte authentifié voit toutes les sections, y compris « Utilisateurs » ;
+- `AdminUsers.jsx` laisse choisir le rôle dans un `<select>` et appelle
+  `createUser()` → `INSERT` direct dans `admin_access` avec la clé publishable ;
+- la règle « le dernier propriétaire ne peut pas être désactivé » n'existe que
+  dans le navigateur : un appel REST direct la contourne.
+
+**Conséquence** : la seule barrière possible est RLS. Si les politiques ne
+distinguent pas les rôles, un compte `viewer` peut s'octroyer `owner`.
+
+#### Démonstration (exécutée, pas supposée)
+
+Sur une base PostgreSQL locale reproduisant l'hypothèse la plus probable — une
+politique permissive unique « est-ce un admin ? » — **avant** migration :
+
+```
+AVANT : un viewer a pu écrire dans leads
+AVANT : un viewer a pu créer un compte OWNER (élévation de privilège)
+```
+
+#### Correctif préparé
+
+Trois migrations **additives, idempotentes et réversibles** dans
+`supabase/migrations/` :
+
+| Migration | Contenu |
+|---|---|
+| `20260910120000_rbac_role_functions.sql` | `private.admin_role_rank()`, `private.current_admin_role()`, `private.has_admin_role()` |
+| `20260910120100_rbac_restrictive_policies.sql` | Politiques **RESTRICTIVES** par table et par opération |
+| `20260910120200_admin_access_integrity.sql` | Rôle contraint au modèle, dernier propriétaire protégé, email normalisé |
+
+Rollback correspondant dans `supabase/rollback/`.
+
+**Choix de conception : politiques `RESTRICTIVE`, pas `PERMISSIVE`.** Les
+politiques permissives se combinent en **OU** — en ajouter une ne restreint
+rien. Les restrictives se combinent en **ET**. Le correctif resserre donc
+l'accès **sans supprimer ni même connaître** les politiques existantes. C'est ce
+qui le rend applicable sans risque de destruction et retirable sans trace.
+
+#### Matrice de droits appliquée
+
+| Table | Lecture | Écriture |
+|---|---|---|
+| `leads`, `bookings`, `crm_notes` | viewer | editor |
+| `site_content` | viewer | editor |
+| `site_settings` | viewer | admin |
+| `activity_log` | admin | owner |
+| `admin_access` | admin | **owner** |
+
+Le rôle `anon` n'est visé par aucune de ces politiques : la lecture publique du
+site vitrine est inchangée (vérifié).
+
+#### Vérifications exécutées (PostgreSQL 16 local)
+
+`sudo -u postgres bash scripts/rls-harness/run.sh`
+
+| Contrôle | Résultat |
+|---|---|
+| Faille reproduite sur la baseline (viewer → owner) | ✅ Reproduite |
+| Application des 3 migrations | ✅ Sans erreur |
+| Idempotence (seconde application) | ✅ Rejouables |
+| Matrice de droits, 5 rôles × 6 tables × SELECT/INSERT/UPDATE/DELETE | ✅ Toutes conformes |
+| Compte désactivé (`active = false`) | ✅ Aucun droit |
+| Élévation viewer/editor/admin → owner | ✅ Refusée |
+| Écriture client dans `activity_log` | ✅ Refusée (prépare la phase 11) |
+| Lecture publique `anon` du site vitrine | ✅ Préservée |
+| Dernier propriétaire actif | ✅ Désactivation refusée côté serveur |
+| Rôle inconnu (`superadmin`) | ✅ Refusé |
+| Normalisation de l'email | ✅ `  MiXeD@Test.Local  ` → `mixed@test.local` |
+| Rollback complet | ✅ 0 politique `rbac_*` restante |
+
+**Un bug de ma migration a été trouvé par ce harnais** : `authenticated` recevait
+`EXECUTE` sur les fonctions mais pas `USAGE` sur le schéma `private`. Toutes les
+vérifications de rôle échouaient, ce qui aurait rendu l'administration
+**totalement inaccessible** en production. Corrigé, retesté.
+
+#### Réserves explicites
+
+- **Le harnais ne prouve rien sur la production.**
+  `scripts/rls-harness/02-baseline-policies.sql` est une **hypothèse** de départ.
+  Avant toute application, exécuter
+  `scripts/rls-harness/inspect-production-policies.sql` (lecture seule) dans le
+  SQL Editor Supabase et comparer.
+- Si la production comporte des politiques permissives **plus larges** que
+  l'hypothèse, les restrictives les couvrent quand même — c'est leur intérêt. Si
+  elle en comporte de **plus strictes**, la migration pourrait retirer des droits
+  à des comptes légitimes : d'où la vérification préalable obligatoire.
+- Version : tests sur PostgreSQL 16, production en 17. Sémantique RLS identique.
+- `activity_log` est volontairement fermé en écriture côté client, ce qui
+  **cassera** l'appel `INSERT` présent dans `adminData.js`. C'est intentionnel :
+  un journal d'audit écrit par le client est falsifiable. Le remplacement par une
+  écriture serveur est l'objet de la **phase 11**, qui doit donc être livrée
+  **avec** cette migration, pas après.
 
 ### Phase 11 — Audit log serveur
 - **Statut** : ⏳ NON DÉMARRÉ
@@ -173,11 +282,16 @@ complaisant.
 - **Scénarios auth nécessitant un compte Supabase de test** (B, E, F, G, K) : non
   exécutables sans identifiants dédiés. Non bloquant pour la phase 9 (couverts
   statiquement), à rejouer par Work ou lors de la phase 13.
+- **Aucun accès à la base Supabase depuis ce conteneur** (ni CLI, ni credentials,
+  ni serveur MCP). Les politiques RLS réelles n'ont pas pu être relues : les
+  migrations de la phase 10 sont testées contre une baseline **reconstruite**.
+  Une lecture de la production (`inspect-production-policies.sql`) est un
+  **prérequis obligatoire** avant application.
 
 ## Prochaine action exacte
 
-Démarrer la **phase 10 (RBAC / rôles / RLS)** : inventorier les politiques RLS
-existantes sur les 29 tables, vérifier si elles reposent uniquement sur
-`private.is_admin()` sans distinction de rôle, et préparer — **localement** — des
-migrations additives et idempotentes introduisant la granularité
-owner/admin/editor/viewer, avec stratégie de rollback.
+Appliquer le modèle de rôles **côté interface** (défense en profondeur) :
+`AdminLayout` doit masquer les sections hors du rôle de l'utilisateur, et
+`AdminUsers` ne doit pas proposer d'attribuer un rôle supérieur au sien. Puis
+enchaîner sur la **phase 11 (journal d'audit serveur)**, qui doit être livrée
+avec la migration RLS puisque celle-ci ferme l'écriture cliente d'`activity_log`.
