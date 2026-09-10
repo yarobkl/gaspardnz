@@ -42,5 +42,7 @@ jobs:
         run: npm run test:email-security
       - name: Validate video accessibility
         run: npm run test:video-accessibility
+      - name: Validate consent boundaries
+        run: npm run test:consent
       - name: Verify dependency manifests stay unchanged
         run: git diff --exit-code -- package.json package-lock.json

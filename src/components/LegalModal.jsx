@@ -24,7 +24,7 @@ const s = {
 
 const LEGAL = {
   FR: {
-    updated: "Dernière mise à jour : mai 2026",
+    updated: "Dernière mise à jour : septembre 2026",
     pages: {
       mentions: {
         label: "Mentions légales",
@@ -41,10 +41,10 @@ const LEGAL = {
         label: "Politique de confidentialité",
         sections: [
           ["Responsable du traitement", [`${OWNER} — ${ADRESSE} — ${EMAIL}`]],
-          ["Données collectées", ["Lors de votre utilisation du site, nous pouvons collecter :\n• Données de navigation via Google Analytics 4, avec votre consentement\n• Nom, prénom, email et téléphone lors d'une prise de contact ou réservation"]],
+          ["Données collectées", ["Lors de votre utilisation du site, nous pouvons collecter :\n• Données de navigation et d'interaction, stockées localement et transmises à Supabase et Google Analytics 4 avec votre consentement analytique\n• Nom, prénom, email et téléphone lors d'une prise de contact ou réservation"]],
           ["Finalités", ["Ces données servent à améliorer l'expérience utilisateur, répondre aux demandes de contact, envoyer des notifications si vous les acceptez et mesurer l'audience du site."]],
           ["Durée de conservation", ["Les données de navigation sont conservées 26 mois maximum. Les données de contact sont conservées 3 ans à compter du dernier échange."]],
-          ["Cookies", ["Le site utilise des cookies analytiques uniquement avec votre consentement explicite. Vous pouvez retirer votre consentement à tout moment via la bannière cookies."]],
+          ["Cookies", ["Les réglages nécessaires restent actifs. La mesure d'audience locale, Supabase et Google Analytics 4 ne démarre qu'avec votre accord. Aucun traceur marketing n'est actuellement actif. Vous pouvez retirer votre accord via « Gérer mes cookies » dans le pied de page."]],
           ["Vos droits", [`Conformément au RGPD, vous disposez des droits d'accès, rectification, effacement, opposition et portabilité. Pour exercer ces droits : ${EMAIL}`]],
           ["Réclamation", ["Vous pouvez adresser une réclamation à la CNIL (www.cnil.fr) si vous estimez que vos droits ne sont pas respectés."]],
         ],
@@ -65,7 +65,7 @@ const LEGAL = {
     },
   },
   EN: {
-    updated: "Last update: May 2026",
+    updated: "Last update: September 2026",
     pages: {
       mentions: {
         label: "Legal notice",
@@ -82,10 +82,10 @@ const LEGAL = {
         label: "Privacy policy",
         sections: [
           ["Data controller", [`${OWNER} — ${ADRESSE} — ${EMAIL}`]],
-          ["Collected data", ["When you use the website, we may collect:\n• Browsing data through Google Analytics 4, with your consent\n• First name, last name, email and phone number when you contact or book"]],
+          ["Collected data", ["When you use the website, we may collect:\n• Browsing and interaction data stored locally and sent to Supabase and Google Analytics 4 with your analytics consent\n• First name, last name, email and phone number when you contact or book"]],
           ["Purposes", ["This data is used to improve user experience, answer contact requests, send notifications only if accepted and measure website audience."]],
           ["Retention period", ["Browsing data is kept for a maximum of 26 months. Contact data is kept for 3 years from the last exchange."]],
-          ["Cookies", ["The website uses analytics cookies only with your explicit consent. You can withdraw consent at any time through the cookie banner."]],
+          ["Cookies", ["Necessary settings stay active. Local, Supabase and Google Analytics 4 audience measurement starts only with your permission. No marketing tracker is currently active. You can withdraw permission through “Manage my cookies” in the footer."]],
           ["Your rights", [`Under GDPR, you have rights of access, rectification, deletion, objection and portability. To exercise these rights: ${EMAIL}`]],
           ["Complaint", ["You may lodge a complaint with the CNIL (www.cnil.fr) if you believe your rights are not respected."]],
         ],
@@ -106,7 +106,7 @@ const LEGAL = {
     },
   },
   ES: {
-    updated: "Última actualización: mayo de 2026",
+    updated: "Última actualización: septiembre de 2026",
     pages: {
       mentions: { label: "Aviso legal", sections: [] },
       confidentialite: { label: "Política de privacidad", sections: [] },
@@ -114,7 +114,7 @@ const LEGAL = {
     },
   },
   ZH: {
-    updated: "最后更新：2026年5月",
+    updated: "最后更新：2026年9月",
     pages: {
       mentions: { label: "法律声明", sections: [] },
       confidentialite: { label: "隐私政策", sections: [] },
@@ -133,10 +133,10 @@ LEGAL.ES.pages.mentions.sections = [
 ];
 LEGAL.ES.pages.confidentialite.sections = [
   ["Responsable del tratamiento", [`${OWNER} — ${ADRESSE} — ${EMAIL}`]],
-  ["Datos recopilados", ["Durante el uso del sitio podemos recopilar:\n• Datos de navegación mediante Google Analytics 4, con tu consentimiento\n• Nombre, apellido, email y teléfono al contactar o reservar"]],
+  ["Datos recopilados", ["Durante el uso del sitio podemos recopilar:\n• Datos de navegación e interacción almacenados localmente y enviados a Supabase y Google Analytics 4 con tu consentimiento analítico\n• Nombre, apellido, email y teléfono al contactar o reservar"]],
   ["Finalidades", ["Estos datos se utilizan para mejorar la experiencia, responder solicitudes, enviar notificaciones si las aceptas y medir la audiencia del sitio."]],
   ["Conservación", ["Los datos de navegación se conservan un máximo de 26 meses. Los datos de contacto se conservan 3 años desde el último intercambio."]],
-  ["Cookies", ["El sitio utiliza cookies analíticas solo con tu consentimiento explícito. Puedes retirar tu consentimiento en cualquier momento desde la banda de cookies."]],
+  ["Cookies", ["Los ajustes necesarios permanecen activos. La medición local, Supabase y Google Analytics 4 solo se inicia con tu permiso. Actualmente no hay rastreadores de marketing activos. Puedes retirar el permiso desde «Gestionar mis cookies» en el pie de página."]],
   ["Tus derechos", [`Según el RGPD, tienes derechos de acceso, rectificación, supresión, oposición y portabilidad. Para ejercerlos: ${EMAIL}`]],
   ["Reclamación", ["Puedes presentar una reclamación ante la CNIL (www.cnil.fr) si consideras que tus derechos no se respetan."]],
 ];
@@ -160,10 +160,10 @@ LEGAL.ZH.pages.mentions.sections = [
 ];
 LEGAL.ZH.pages.confidentialite.sections = [
   ["数据控制者", [`${OWNER} — ${ADRESSE} — ${EMAIL}`]],
-  ["收集的数据", ["使用网站时，我们可能收集：\n• 经你同意后，通过 Google Analytics 4 收集的浏览数据\n• 联系或预约时提供的姓名、邮箱和电话"]],
+  ["收集的数据", ["使用网站时，我们可能收集：\n• 经你同意后，在本地存储并发送至 Supabase 和 Google Analytics 4 的浏览与互动数据\n• 联系或预约时提供的姓名、邮箱和电话"]],
   ["用途", ["这些数据用于改善用户体验、回复联系请求、在你同意时发送通知，以及衡量网站访问情况。"]],
   ["保存期限", ["浏览数据最长保存 26 个月。联系数据自最后一次交流起保存 3 年。"]],
-  ["Cookie", ["网站仅在你明确同意后使用分析 Cookie。你可以随时通过 Cookie 横幅撤回同意。"]],
+  ["Cookie", ["必要设置始终启用。本地、Supabase 和 Google Analytics 4 统计仅在你同意后启动。目前未启用营销追踪器。你可通过页脚的“管理我的 Cookie”撤回同意。"]],
   ["你的权利", [`根据 GDPR，你拥有访问、更正、删除、反对和数据可携带权。如需行使权利：${EMAIL}`]],
   ["投诉", ["如果你认为权利未被尊重，可以向 CNIL（www.cnil.fr）提交投诉。"]],
 ];

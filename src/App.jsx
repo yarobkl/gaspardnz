@@ -5,11 +5,13 @@ import { LangCtx } from "./context.jsx";
 
 import NotificationPrompt from "./components/NotificationPrompt.jsx";
 import CookieBanner from "./components/CookieBanner.jsx";
-import { initGAIfConsented } from "./services/analytics.js";
+import { disableGA, initGA } from "./services/analytics.js";
 import { requestNotificationPermission } from "./services/notifications.js";
 import { getSession, initAdminUsers } from "./services/adminAuth.js";
-import { trackPageView, trackEvent } from "./services/adminAnalytics.js";
-import { initializeTracking, trackPageView as trackDetailedPageView } from "./services/analyticsTracking.js";
+import { trackPageView } from "./services/adminAnalytics.js";
+import { clearAllTrackingData, initializeTracking, trackPageView as trackDetailedPageView } from "./services/analyticsTracking.js";
+import { clearSupabaseTrackingData, initializeSupabaseTracking } from "./services/siteTracking.js";
+import { getConsentPreferences, hasConsentDecision, subscribeToConsentChanges } from "./services/consent.js";
 import NavMobile from "./components/NavMobile.jsx";
 import HeroMobile from "./components/HeroMobile.jsx";
 
@@ -249,6 +251,7 @@ export default function App() {
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
   const [adminUser, setAdminUser] = useState(null);
   const [adminSection, setAdminSection] = useState(getAdminSectionFromPath);
+  const [consentPreferences, setConsentPreferences] = useState(getConsentPreferences);
   const finishSplash = useCallback(() => setSplashDone(true), []);
   const [lang, setLang] = useState(() => {
     try {
@@ -323,7 +326,6 @@ export default function App() {
     document.body.style.background = "#0a0602";
     document.body.style.margin = "0";
     document.body.style.overflowX = "hidden";
-    initGAIfConsented();
 
     // Add Schemas for SEO (LocalBusiness, Services, FAQ)
     if (!document.querySelector('script[data-gnz-schema]')) {
@@ -416,13 +418,32 @@ export default function App() {
       });
     }
 
-    // Initialize comprehensive tracking system
-    const cleanupTracking = initializeTracking();
-
-    return () => {
-      if (cleanupTracking) cleanupTracking();
-    };
   }, []);
+
+  useEffect(() => subscribeToConsentChanges(setConsentPreferences), []);
+
+  useEffect(() => {
+    const onAdmin = currentlyOnAdminPath || isAdminPath;
+    if (onAdmin) {
+      disableGA({ clearCookies: false });
+      return undefined;
+    }
+
+    if (!consentPreferences.analytics) {
+      disableGA();
+      clearAllTrackingData();
+      clearSupabaseTrackingData();
+      return undefined;
+    }
+
+    initGA();
+    const cleanupLocalTracking = initializeTracking();
+    const cleanupSupabaseTracking = initializeSupabaseTracking();
+    return () => {
+      cleanupLocalTracking?.();
+      cleanupSupabaseTracking?.();
+    };
+  }, [consentPreferences.analytics, currentlyOnAdminPath, isAdminPath]);
 
   useEffect(() => {
     document.documentElement.lang = HTML_LANG[lang] || "fr";
@@ -452,7 +473,7 @@ export default function App() {
     const already = localStorage.getItem("gnz-notif-asked");
     if (already) return;
     const t = setTimeout(() => {
-      if (!localStorage.getItem("gnz-cookies")) return;
+      if (!hasConsentDecision()) return;
       if (!document.hidden) setNotifPrompt(true);
     }, 14000);
     return () => clearTimeout(t);
@@ -486,11 +507,11 @@ export default function App() {
   }, [currentlyOnAdminPath, isAdminPath]);
 
   useEffect(() => {
-    if (splashDone && !isAdminPath) {
+    if (splashDone && !isAdminPath && consentPreferences.analytics) {
       trackPageView(window.location.pathname);
       trackDetailedPageView(window.location.pathname);
     }
-  }, [splashDone, isAdminPath]);
+  }, [splashDone, isAdminPath, consentPreferences.analytics]);
 
   const scrollTo = (ref) => { ref?.current?.scrollIntoView({ behavior: "smooth", block: "start" }); };
   const openBooking = (boutique = false) => { setBoutiqueMode(boutique); setBookingOpen(true); };

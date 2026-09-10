@@ -70,14 +70,9 @@ export const sendPartnerContactEmail = async (partnerId, partnerEmail, clientDat
       throw new Error(payload.error || `Email sending returned status: ${response.status}`);
     }
 
-    const context = getTrackingContext();
-    await sendPublicEvent("analytics_event", {
-      ...context,
-      event_name: "partner_email_sent",
-      entity_type: "partner",
-      entity_id: partnerId,
-      page_path: window.location.pathname,
-      metadata: { partner_name: partnerName || partnerId },
+    await trackEvent("partner_email_sent", {
+      partner_id: partnerId,
+      partner_name: partnerName || partnerId,
     });
 
     return { success: true };

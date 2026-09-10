@@ -2,7 +2,7 @@
 
 ## Checkpoint
 
-- Date et heure : 2026-09-10 18:06:41 UTC
+- Date et heure : 2026-09-10 18:20:09 UTC
 - Branche active : `hardening/gaspardnz-2026-09`
 - Commit de départ (`main` / `origin/main`) : `9ef4c2776106acd3118c99e778c08e2e25a7830b`
 - Dépôt GitHub : `yarobkl/gaspardnz`
@@ -64,7 +64,7 @@
 
 ## Tâche en cours
 
-- Phase 5 : RGPD et consentement.
+- Phase 5 : correctif RGPD implémenté et validé localement ; publication puis scénarios navigateur refusal/acceptation/modification/retour à contrôler sur la preview.
 
 ## Tâches restantes
 
@@ -91,6 +91,18 @@
 - `index.html`
 - `package.json`
 - `scripts/validate-video-accessibility.mjs`
+- `scripts/validate-consent.mjs`
+- `public/confidentialite.html`
+- `src/App.jsx`
+- `src/components/CookieBanner.jsx`
+- `src/components/FooterMobile.jsx`
+- `src/components/LegalModal.jsx`
+- `src/services/analytics.js`
+- `src/services/analyticsTracking.js`
+- `src/services/consent.js`
+- `src/services/partnerTracking.js`
+- `src/services/siteTracking.js`
+- `src/translations.js`
 - `src/components/Admin/AdminMedia.jsx`
 - `src/components/HeroMobile.jsx`
 - `src/components/sections/ActualitesSection.jsx`
@@ -132,6 +144,11 @@
 - Test sous-titres : piste française chargée (`readyState=2`, mode `showing`) et cue visible à l'écran.
 - Test plein écran : entrée puis sortie testées via le contrôle natif.
 - `playsInline` vérifié sur les lecteurs ; essai Safari/iOS physique réservé au contrôle mobile de phase 14.
+- Reproduction phase 5 avant correctif : la bannière était bien affichée et GA4 absent avant choix, mais `initializeTracking()` créait sans consentement une session et des stockages locaux ; le module Supabase installait aussi ses écouteurs automatiquement.
+- Validation CNIL officielle consultée : consentement préalable, refus aussi simple que l'acceptation et retrait accessible à tout moment retenus comme contraintes d'implémentation.
+- `npm run test:consent` : réussi (refus par défaut, migration de l'ancien choix, persistance, valeur invalide non permissive, GA4 bloqué/activé/retiré et invariants de code).
+- Build et validations SEO, email, vidéo et consentement après correctif RGPD : réussis, 495 modules transformés et 9 routes SEO générées.
+- `git diff --check` : réussi.
 
 ## Résultat du build
 
@@ -143,11 +160,11 @@
 
 ## Dernier commit
 
-- `b25d2005aae8242d9b28e2859b0691df434781f5` (`fix(a11y): restore operable video controls`).
+- `af9f360fe22aa72480cd5a0df54581a899c79ae4` (`docs: record phase 4 browser verification`) ; correctif phase 5 non encore publié.
 
 ## Prochaine action exacte
 
-Auditer `CookieBanner`, GA4, le tracking local et le tracking Supabase afin d'identifier précisément chaque traitement déclenché avant consentement, puis définir et tester les catégories nécessaire, analytics et marketing.
+Committer et pousser le correctif de consentement, attendre la preview Vercel et la CI, puis tester réellement le refus, l'acceptation, la personnalisation, le retrait depuis le footer et la persistance après rechargement.
 
 ## Blocages / précautions
 
