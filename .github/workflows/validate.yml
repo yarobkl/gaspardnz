@@ -19,7 +19,7 @@ concurrency:
 jobs:
   validate:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -38,6 +38,8 @@ jobs:
         run: npm run build
       - name: Validate Capacitor bundle
         run: npm run test:bundle
+      - name: Install Chromium for browser checks
+        run: npx playwright-core install --with-deps chromium
       - name: Run browser checks
         run: npm run test:e2e
       - name: Validate SEO
