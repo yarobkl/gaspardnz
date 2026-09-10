@@ -37,6 +37,9 @@ jobs:
       - name: Require zero high/critical production advisories
         run: npm audit --omit=dev --audit-level=high
 
+      - name: Restore dev dependencies for validation
+        run: npm install --include=dev --no-audit --no-fund
+
       - name: Validate application
         run: |
           npm test
