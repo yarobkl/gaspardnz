@@ -3,12 +3,16 @@
  * Sends the internal notification + client acknowledgement.
  * SMTP gives us a reliable "accepted/sent" state, not inbox delivery/open tracking.
  */
+import { createHash } from "node:crypto";
 import nodemailer from "nodemailer";
 import { createClient } from "@supabase/supabase-js";
 
-const requiredEnvVars = ["EMAIL_FROM", "EMAIL_PASSWORD", "SMTP_HOST", "SMTP_PORT"];
+const requiredEnvVars = ["EMAIL_FROM", "EMAIL_PASSWORD", "SMTP_HOST", "SMTP_PORT", "SUPABASE_SERVICE_ROLE_KEY"];
 const DEFAULT_ALLOWED_RECIPIENTS = ["gaspardnz.contact@gmail.com", "eliebakala@gmail.com"];
 const SUPABASE_URL = process.env.SUPABASE_URL || "https://imvjudhhtcdmtyhfhksm.supabase.co";
+const MAX_REQUEST_BYTES = 16 * 1024;
+const MIN_FORM_AGE_MS = 1200;
+const MAX_FORM_AGE_MS = 2 * 60 * 60 * 1000;
 
 export const sanitizeText = (value, maxLength = 2000) =>
   String(value ?? "")
@@ -66,16 +70,45 @@ export const isAllowedOrigin = (origin) => {
   } catch { return false; }
 };
 
-const rateLimitStore = new Map();
-const isRateLimited = (key) => {
-  const now = Date.now();
-  const windowMs = 10 * 60 * 1000;
-  const maxRequests = 8;
-  const bucket = rateLimitStore.get(key) || [];
-  const recent = bucket.filter((timestamp) => now - timestamp < windowMs);
-  recent.push(now);
-  rateLimitStore.set(key, recent);
-  return recent.length > maxRequests;
+export const isBotSubmission = ({ website, formStartedAt } = {}, now = Date.now()) => {
+  // Honeypot : ce champ est invisible pour un humain mais souvent rempli par les bots.
+  if (sanitizeText(website, 200)) return true;
+
+  // Compatibilité avec un ancien bundle déjà ouvert : timestamp absent => le rate-limit
+  // persistant reste la barrière principale. Lorsqu'il est présent, un envoi quasi
+  // instantané ou vieux de plusieurs heures est refusé.
+  if (formStartedAt === undefined || formStartedAt === null || formStartedAt === "") return false;
+  const startedAt = Number(formStartedAt);
+  if (!Number.isFinite(startedAt)) return true;
+  const age = now - startedAt;
+  return age < MIN_FORM_AGE_MS || age > MAX_FORM_AGE_MS;
+};
+
+export const hashRateLimitKey = (value, salt = process.env.RATE_LIMIT_SALT || process.env.SUPABASE_SERVICE_ROLE_KEY) => {
+  if (!salt) throw new Error("Rate-limit salt unavailable");
+  return createHash("sha256").update(`${salt}:${sanitizeText(value, 500)}`).digest("hex");
+};
+
+export const consumePersistentRateLimit = async (db, { key, action, limit, windowSeconds }) => {
+  if (!db) return { ok: false, allowed: false, reason: "unavailable" };
+  let keyHash;
+  try {
+    keyHash = hashRateLimitKey(key);
+  } catch {
+    return { ok: false, allowed: false, reason: "unavailable" };
+  }
+
+  const { data, error } = await db.rpc("consume_public_rate_limit", {
+    p_key_hash: keyHash,
+    p_action: action,
+    p_limit: limit,
+    p_window_seconds: windowSeconds,
+  });
+  if (error) {
+    console.warn("Persistent rate limit failed", sanitizeText(error.message, 300));
+    return { ok: false, allowed: false, reason: "unavailable" };
+  }
+  return { ok: true, allowed: data === true, reason: data === true ? "allowed" : "limited" };
 };
 
 const validateEnv = () => requiredEnvVars.every((key) => Boolean(process.env[key]));
@@ -121,16 +154,36 @@ export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
   if (!isAllowedOrigin(req.headers.origin)) return res.status(403).json({ error: "Origin not allowed" });
 
-  const clientIp = req.headers["x-forwarded-for"]?.split(",")[0]?.trim() || req.socket?.remoteAddress || "unknown";
-  if (isRateLimited(clientIp)) return res.status(429).json({ error: "Trop de demandes, réessayez plus tard" });
+  const body = req.body || {};
+  let requestBytes = 0;
+  try { requestBytes = Buffer.byteLength(JSON.stringify(body), "utf8"); } catch { return res.status(400).json({ error: "Invalid request" }); }
+  if (requestBytes > MAX_REQUEST_BYTES) return res.status(413).json({ error: "Requête trop volumineuse" });
 
-  const { to, cc, subject, partnerId, partnerName, clientName, clientEmail, clientPhone, eventType, eventDate, message, timestamp, isComingSoon } = req.body || {};
+  const { to, cc, subject, partnerId, partnerName, clientName, clientEmail, clientPhone, eventType, eventDate, message, timestamp, isComingSoon, website, formStartedAt } = body;
   const recipients = resolveRecipients({ to, cc });
   if (!recipients.ok) return res.status(400).json({ error: recipients.error });
   if (!isValidEmail(clientEmail) || !sanitizeText(clientName, 140)) return res.status(400).json({ error: "Données client incomplètes" });
+  if (isBotSubmission({ website, formStartedAt })) return res.status(400).json({ error: "Données client invalides" });
   if (!validateEnv()) return res.status(503).json({ error: "Email service not configured" });
 
   const db = adminDb();
+  const clientIp = sanitizeText(req.headers["x-forwarded-for"]?.split(",")[0]?.trim() || req.socket?.remoteAddress || "unknown", 200);
+  const normalizedClientEmail = normalizeEmail(clientEmail);
+  const limits = [
+    { key: `ip:${clientIp}`, action: "send_email_ip", limit: 8, windowSeconds: 600 },
+    { key: `email:${normalizedClientEmail}`, action: "send_email_client", limit: 6, windowSeconds: 3600 },
+    { key: "global", action: "send_email_global", limit: 120, windowSeconds: 600 },
+  ];
+
+  for (const rule of limits) {
+    const result = await consumePersistentRateLimit(db, rule);
+    if (!result.ok) return res.status(503).json({ error: "Protection anti-abus temporairement indisponible" });
+    if (!result.allowed) {
+      res.setHeader("Retry-After", String(rule.windowSeconds));
+      return res.status(429).json({ error: "Trop de demandes, réessayez plus tard" });
+    }
+  }
+
   const safeSubject = sanitizeText(subject || "Nouvelle demande de contact", 160);
   const internalRecipient = recipients.to[0];
   const internalLogId = await createEmailLog(db, {
@@ -156,7 +209,7 @@ export default async function handler(req, res) {
       subject: safeSubject,
       text: emailBody,
       html: emailBody.split("\n").map(escapeHtml).join("<br>"),
-      replyTo: normalizeEmail(clientEmail),
+      replyTo: normalizedClientEmail,
     });
     await updateEmailLog(db, internalLogId, {
       status: "sent",
@@ -168,7 +221,7 @@ export default async function handler(req, res) {
     const clientBody = formatClientEmailBody({ partnerId, partnerName, clientName, eventType, eventDate });
     const clientInfo = await transporter.sendMail({
       from: process.env.EMAIL_FROM,
-      to: normalizeEmail(clientEmail),
+      to: normalizedClientEmail,
       subject: "Votre demande a bien été reçue - Gaspard NZ",
       text: clientBody,
       html: clientBody.split("\n").map(escapeHtml).join("<br>"),
