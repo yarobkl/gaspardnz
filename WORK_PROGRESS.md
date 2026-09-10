@@ -2,7 +2,7 @@
 
 ## Checkpoint
 
-- Date et heure : 2026-09-10 17:38:53 UTC
+- Date et heure : 2026-09-10 17:48:22 UTC
 - Branche active : `hardening/gaspardnz-2026-09`
 - Commit de départ (`main` / `origin/main`) : `9ef4c2776106acd3118c99e778c08e2e25a7830b`
 - Dépôt GitHub : `yarobkl/gaspardnz`
@@ -43,14 +43,17 @@
 - Phase 0 : écart `main` / production identifié et protégé contre un écrasement accidentel.
 - Phase 0 : santé générale Supabase, tables, migrations, fonctions et advisor sécurité relevés en lecture seule.
 - Branche de travail créée depuis `main`.
+- Phase 1 : `.gitignore` complété pour les environnements locaux, Vercel, builds, couverture, tests, journaux et fichiers système, avec conservation explicite de `.env.example`.
+- Phase 1 : 1 512 blobs texte de l'historique Git contrôlés sans afficher de valeur sensible ; aucun secret privé identifiable trouvé.
+- Phase 1 : clé Supabase embarquée classée `publishable` et placeholders sensibles de `.env.example` confirmés.
+- Phase 1 : archives, snapshots mobiles, AAB et backup CSS inventoriés ; suppression différée jusqu'au checkpoint de conservation de la phase 15.
 
 ## Tâche en cours
 
-- Phase 1 : hygiène du repository.
+- Phase 2 : documentation du projet.
 
 ## Tâches restantes
 
-- Phase 1 : `.gitignore`, recherche de secrets, inventaire des artefacts temporaires.
 - Phase 2 : documentation du projet.
 - Phase 3 : CI/CD.
 - Phase 4 : accessibilité et contrôles vidéo.
@@ -67,7 +70,8 @@
 
 ## Fichiers modifiés
 
-- `WORK_PROGRESS.md` (créé pour le checkpoint de reprise).
+- `.gitignore`
+- `WORK_PROGRESS.md`
 
 ## Tests et vérifications effectués
 
@@ -77,24 +81,31 @@
 - Lecture Vercel du déploiement de production : réussie.
 - Requête HTTP du domaine officiel : HTTP 200.
 - Lecture Supabase du projet, des tables, migrations, fonctions et avis sécurité : réussie.
+- `npm ci` : réussi avec 133 paquets installés depuis le lockfile.
+- `npm run build` : réussi, 494 modules transformés et 9 routes SEO statiques générées.
+- `npm run test:seo` : réussi.
+- `npm run test:email-security` : réussi.
+- Règles `.gitignore` vérifiées avec `git check-ignore` ; `.env.example` reste explicitement autorisé.
+- Recherche de secrets courante et historique : aucun secret privé détecté ; aucune valeur sensible affichée.
 
 ## Résultat du build
 
-- NON EXÉCUTÉ à ce stade : aucun changement applicatif n'a encore été réalisé.
+- RÉUSSI (`vite build` puis génération de 9 routes SEO statiques).
 
 ## URL de preview
 
-- Aucune preview créée à ce stade.
+- En attente du déploiement automatique du commit de phase 1.
 
 ## Dernier commit
 
-- Avant ce fichier : `9ef4c2776106acd3118c99e778c08e2e25a7830b` (`feat(admin): manage Stripe payment link`).
+- `bce51af074d519c6846fa95a4d28b4d418ffeae2` (`chore: record hardening phase 0 checkpoint`).
 
 ## Prochaine action exacte
 
-Auditer `.gitignore`, les fichiers suivis et l'historique Git pour détecter les secrets sans jamais en afficher la valeur, puis inventorier les fichiers temporaires et artefacts sans encore supprimer de média utilisé.
+Relever l'architecture réelle, les scripts, les intégrations et les procédures existantes, puis réécrire `README.md` sans secret avec installation, environnements, Supabase, admin, Vercel, GitHub Actions, Capacitor, sécurité, déploiement et rollback.
 
 ## Blocages / précautions
 
 - Le code exact du déploiement Vercel actif n'est pas reproductible depuis le SHA Git déclaré, car le déploiement a été créé avec un working tree sale et le SHA n'est plus présent sur GitHub.
 - Toute promotion vers la production reste interdite jusqu'à la réconciliation contrôlée de la phase 8.
+- `release/gaspardnz-PlayStore-LOGO-signed.aab`, les deux snapshots JSX, le vieux ZIP mobile et le backup CSS sont sans référence d'exécution. Ils restent conservés jusqu'au nettoyage final afin d'éviter toute perte avant sauvegarde explicite.

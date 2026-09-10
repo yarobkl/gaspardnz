@@ -1,3 +1,19 @@
+# Dependencies and generated builds
 node_modules/
 dist/
-node_modules/
+coverage/
+.vite/
+
+# Local environment and platform state
+.env
+.env.*
+!.env.example
+.vercel/
+
+# Test output
+playwright-report/
+test-results/
+
+# OS and logs
+.DS_Store
+*.log
