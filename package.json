@@ -16,6 +16,7 @@
     "test:unit": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
+    "test:bundle": "npm run build:app && vitest run --config vitest.bundle.config.js",
     "test:e2e": "node scripts/browser-checks/run-all.mjs",
     "test": "npm run test:unit && npm run test:seo && npm run test:email-security && npm run test:video-accessibility && npm run test:consent && npm run test:admin-auth && npm run test:rbac && npm run test:audit",
     "build:app": "BUILD_TARGET=capacitor vite build",

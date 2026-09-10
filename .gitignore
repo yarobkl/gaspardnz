@@ -17,3 +17,15 @@ test-results/
 # OS and logs
 .DS_Store
 *.log
+
+# Signature mobile — ne doit JAMAIS être versionnée.
+# Le keystore Android est le secret le plus lourd du projet : qui le détient
+# peut publier des mises à jour sous l'identité de l'application.
+*.jks
+*.keystore
+*.p12
+*.mobileprovision
+key.properties
+android/key.properties
+android/app/google-services.json
+ios/App/GoogleService-Info.plist

@@ -493,7 +493,77 @@ faisait donc rien, en silence, depuis le début.
 | `npm run test:e2e` (4 scripts navigateur) | ✅ **17 vérifications conformes** |
 
 ### Phase 14 — Capacitor / mobile
-- **Statut** : 🔄 EN COURS
+- **Statut** : ✅ DURCISSEMENT LIVRÉ ET TESTÉ
+
+Aucune publication sur les stores, aucun changement d'`appId` : l'application
+est déjà publiée, changer son identifiant la déréférencerait.
+
+#### Corrigé
+
+| Point | Avant | Après |
+|---|---|---|
+| Contenu distant (`server.url`) | non défini (implicite) | absent **et vérifié par un test** |
+| Schéma Android | implicite | `https` explicite |
+| Trafic en clair | implicite | `cleartext: false` |
+| Contenu mixte | implicite | `allowMixedContent: false` |
+| Débogage distant de la WebView | implicite | `webContentsDebuggingEnabled: false` |
+| Keystore / provisioning dans git | **aucune règle d'exclusion** | `*.jks`, `*.keystore`, `*.p12`, `*.mobileprovision`, `key.properties`, `google-services.json`, `GoogleService-Info.plist` |
+
+Les valeurs implicites correspondaient déjà aux bons défauts de Capacitor 8 ;
+les rendre explicites protège d'un changement de défaut à la prochaine montée de
+version, et un test échoue désormais si quelqu'un les inverse.
+
+L'absence de règle d'exclusion pour le keystore était le point le plus lourd :
+c'est le secret dont la fuite permet de publier des mises à jour sous l'identité
+de l'application. Aucun fichier de ce type n'était versionné — rien à révoquer —
+mais rien n'empêchait de le faire.
+
+#### Vérifications
+
+`tests/unit/mobile.test.js` (16 tests) et `tests/bundle/no-secrets.test.js`
+(6 tests) :
+
+| Contrôle | Résultat |
+|---|---|
+| `server.url` absent, `webDir = dist` | ✅ |
+| Schéma HTTPS, pas de clair, pas de contenu mixte | ✅ |
+| Débogage WebView désactivé | ✅ |
+| `appId` publié inchangé | ✅ |
+| Motifs de signature ignorés par git | ✅ 5/5 |
+| Aucun fichier de signature suivi par git | ✅ |
+| Aucune `VITE_*` exposant un secret serveur | ✅ 4/4 |
+| **Bundle construit** : aucune clé secrète, aucun jeton `service_role`, aucun mot de passe SMTP, aucune clé privée | ✅ |
+| Bundle : clé publishable présente (seule clé légitime) | ✅ |
+
+**Mutations vérifiées** : `server.url` pointant vers une machine de
+développement → détecté ; débogage WebView réactivé → détecté ; clé secrète
+plantée dans le bundle → détectée ; clé privée plantée → détectée.
+
+**Faux positif corrigé** : ma première version du scanner signalait `sb_secret_`
+dans le bundle. Vérification faite **sans afficher la valeur** : il s'agissait de
+`startsWith("sb_secret_")`, du code de `@supabase/supabase-js` qui reconnaît le
+type d'une clé. Aucun secret n'est embarqué. Les motifs cherchent désormais une
+**clé** (préfixe suivi d'au moins 10 caractères), pas une mention — un scanner
+qui crie au loup finit ignoré.
+
+#### Constats laissés à Work
+
+- **L'interface d'administration est embarquée dans le bundle mobile.** Ce n'est
+  pas une faille — l'accès reste soumis à la session Supabase et aux politiques
+  RLS — mais c'est du poids et de la surface inutiles **si** l'administration
+  depuis le téléphone n'est pas voulue. C'est une décision produit : je ne l'ai
+  pas tranchée.
+- **`android/` n'est ni versionné ni ignoré**, alors qu'`ios/` est versionné.
+  Les workflows régénèrent `android/` à chaque build. L'incohérence mérite une
+  décision explicite.
+- **`validate.yml` ne se déclenche que sur `main` et `hardening/**`** : ma branche
+  ne passe pas la CI. C'est du ressort de Work (CI/CD).
+- **`npm test` est désormais réel.** L'étape « Run unit tests » de `validate.yml`
+  ne faisait rien jusqu'ici. Elle exécutera maintenant 62 tests — à surveiller
+  au premier passage.
+- **Ajouter `npm run test:bundle` à la CI après le build** : ces vérifications
+  exigent un `dist/` à jour et ne peuvent donc pas vivre dans `npm test`, que la
+  CI lance avant le build.
 
 ---
 
