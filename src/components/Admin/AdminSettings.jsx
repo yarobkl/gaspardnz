@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { changePassword, getSession } from "../../services/adminAuth.js";
+import { changePassword, refreshSession } from "../../services/adminAuth.js";
 import { getIntegrationSettings } from "../../services/adminData.js";
 import { SUPABASE_URL } from "../../services/supabaseClient.js";
 import "../../styles/admin-v2.css";
@@ -13,7 +13,7 @@ export default function AdminSettings() {
   const [newPassword, setNewPassword] = useState("");
   const [error, setError] = useState("");
   const [toast, setToast] = useState("");
-  useEffect(() => { Promise.all([getSession(), getIntegrationSettings()]).then(([s,i]) => { setSession(s); setIntegrations(i); }).catch((e)=>setError(e?.message || "Impossible de charger les paramètres.")); }, []);
+  useEffect(() => { Promise.all([refreshSession(), getIntegrationSettings()]).then(([s,i]) => { setSession(s); setIntegrations(i); }).catch((e)=>setError(e?.message || "Impossible de charger les paramètres.")); }, []);
   const updatePassword = async (e) => { e.preventDefault(); if (newPassword.length < 10) { setError("Le nouveau mot de passe doit contenir au moins 10 caractères."); return; } const result = await changePassword(session?.userId, oldPassword, newPassword); if (!result.success) { setError(result.error); return; } setOldPassword(""); setNewPassword(""); setError(""); setToast("Mot de passe modifié."); setTimeout(()=>setToast(""),2000); };
 
   return <div>

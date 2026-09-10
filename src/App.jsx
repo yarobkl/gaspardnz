@@ -7,7 +7,8 @@ import NotificationPrompt from "./components/NotificationPrompt.jsx";
 import CookieBanner from "./components/CookieBanner.jsx";
 import { disableGA, initGA } from "./services/analytics.js";
 import { requestNotificationPermission } from "./services/notifications.js";
-import { getSession, initAdminUsers } from "./services/adminAuth.js";
+import { initAdminUsers, onAuthStateChange, refreshSession } from "./services/adminAuth.js";
+import { isPasswordRecoveryLink } from "./services/adminPasswordRecovery.js";
 import { trackPageView } from "./services/adminAnalytics.js";
 import { clearAllTrackingData, initializeTracking, trackPageView as trackDetailedPageView } from "./services/analyticsTracking.js";
 import { clearSupabaseTrackingData, initializeSupabaseTracking } from "./services/siteTracking.js";
@@ -250,6 +251,9 @@ export default function App() {
   const [isAdminPath, setIsAdminPath] = useState(false);
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
   const [adminUser, setAdminUser] = useState(null);
+  // Tant que la session Supabase n'est pas vérifiée, on n'affiche ni l'admin ni le login.
+  const [adminAuthChecking, setAdminAuthChecking] = useState(true);
+  const recoveryFlowRef = useRef(null);
   const [adminSection, setAdminSection] = useState(getAdminSectionFromPath);
   const [consentPreferences, setConsentPreferences] = useState(getConsentPreferences);
   const finishSplash = useCallback(() => setSplashDone(true), []);
@@ -497,13 +501,38 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    if (currentlyOnAdminPath || isAdminPath) {
-      const session = getSession();
-      if (session) {
-        setIsAdminLoggedIn(true);
-        setAdminUser(session);
-      }
+    if (!(currentlyOnAdminPath || isAdminPath)) return undefined;
+
+    // Un lien de récupération ouvre une vraie session Supabase (detectSessionInUrl).
+    // On force alors l'écran dédié pendant toute la durée de ce chargement de page,
+    // sinon le formulaire de réinitialisation serait remplacé par l'interface admin.
+    if (recoveryFlowRef.current === null) recoveryFlowRef.current = isPasswordRecoveryLink();
+    if (recoveryFlowRef.current) {
+      setIsAdminLoggedIn(false);
+      setAdminUser(null);
+      setAdminAuthChecking(false);
+      return undefined;
     }
+
+    let cancelled = false;
+    const applyProfile = (profile) => {
+      if (cancelled) return;
+      setAdminUser(profile);
+      setIsAdminLoggedIn(Boolean(profile));
+      setAdminAuthChecking(false);
+    };
+
+    // Autorité unique : session Supabase vérifiée + admin_access.active.
+    // Le cache localStorage ne donne aucun accès.
+    refreshSession().then(applyProfile).catch(() => applyProfile(null));
+
+    // Réagit à l'expiration, au refresh de token et à une déconnexion faite ailleurs.
+    const { data } = onAuthStateChange(applyProfile);
+
+    return () => {
+      cancelled = true;
+      data?.subscription?.unsubscribe?.();
+    };
   }, [currentlyOnAdminPath, isAdminPath]);
 
   useEffect(() => {
@@ -557,7 +586,7 @@ export default function App() {
       {(splashDone || currentlyOnAdminPath || isAdminPath) && (
         (currentlyOnAdminPath || isAdminPath) ? (
           <Suspense fallback={null}>
-          {isAdminLoggedIn ? (
+          {adminAuthChecking ? null : isAdminLoggedIn ? (
             <AdminLayout
               currentSection={adminSection}
               onSectionChange={(section) => {
@@ -578,6 +607,7 @@ export default function App() {
               onLoginSuccess={(user) => {
                 setAdminUser(user);
                 setIsAdminLoggedIn(true);
+                setAdminAuthChecking(false);
                 setAdminSection("dashboard");
                 window.history.replaceState({}, "", "/admin/dashboard");
               }}
