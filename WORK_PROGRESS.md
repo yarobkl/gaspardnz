@@ -2,7 +2,7 @@
 
 ## Checkpoint
 
-- Date et heure : 2026-09-10 18:01:43 UTC
+- Date et heure : 2026-09-10 18:06:41 UTC
 - Branche active : `hardening/gaspardnz-2026-09`
 - Commit de départ (`main` / `origin/main`) : `9ef4c2776106acd3118c99e778c08e2e25a7830b`
 - Dépôt GitHub : `yarobkl/gaspardnz`
@@ -59,14 +59,15 @@
 - Phase 4 : CSS bloquant retiré ; lecteurs publics étiquetés, pistes WebVTT conservées, métadonnées vidéo préchargées et overlays déplacés hors des contrôles.
 - Phase 4 : vidéo décorative du hero retirée de l'ordre clavier ; previews vidéo admin rendues pilotables.
 - Phase 4 : validation automatique anti-régression ajoutée et réussie localement.
+- Phase 4 : commit `b25d200...` validé par GitHub Actions et déployé en preview Vercel `READY`.
+- Phase 4 : lecture/pause, timeline clavier, volume, sous-titres et entrée/sortie plein écran testés réellement dans Chrome sur la preview.
 
 ## Tâche en cours
 
-- Phase 4 : accessibilité et contrôles vidéo.
+- Phase 5 : RGPD et consentement.
 
 ## Tâches restantes
 
-- Phase 4 : accessibilité et contrôles vidéo.
 - Phase 5 : RGPD et consentement.
 - Phase 6 : SEO statique et routage Vercel.
 - Phase 7 : emails, rate limiting persistant et anti-bot.
@@ -123,6 +124,14 @@
 - `npm run test:video-accessibility` : réussi.
 - Build et validations SEO/email après correctif vidéo : réussis.
 - `package-lock.json` inchangé.
+- GitHub Actions du correctif vidéo : exécution `34511897211`, conclusion `success`.
+- Preview vidéo : déploiement `dpl_AQe2W2T1L9eXqWHQ7ZGFMy3vjsWY` `READY`.
+- Test navigateur : 2 lecteurs de contenu avec contrôles visibles et 1 vidéo hero décorative hors ordre clavier.
+- Test clavier : Espace démarre et met en pause ; flèches gauche/droite déplacent la timeline.
+- Test volume : bouton natif testé, état muet activé puis rétabli.
+- Test sous-titres : piste française chargée (`readyState=2`, mode `showing`) et cue visible à l'écran.
+- Test plein écran : entrée puis sortie testées via le contrôle natif.
+- `playsInline` vérifié sur les lecteurs ; essai Safari/iOS physique réservé au contrôle mobile de phase 14.
 
 ## Résultat du build
 
@@ -130,15 +139,15 @@
 
 ## URL de preview
 
-- `https://gaspardnz-git-hardening-gaspardnz-2026-09-yarobkls-projects.vercel.app/` — phase 3 `READY`; correctif vidéo en attente du prochain déploiement de cette même preview.
+- `https://gaspardnz-git-hardening-gaspardnz-2026-09-yarobkls-projects.vercel.app/` — correctif vidéo testé, déploiement `dpl_AQe2W2T1L9eXqWHQ7ZGFMy3vjsWY` `READY`.
 
 ## Dernier commit
 
-- `0d44d541a9c39ed64a7d571b1f039dd496c7974e` (`ci: make validation deterministic and read-only`).
+- `b25d2005aae8242d9b28e2859b0691df434781f5` (`fix(a11y): restore operable video controls`).
 
 ## Prochaine action exacte
 
-Pousser le correctif vidéo, attendre CI et preview `READY`, puis tester réellement dans le navigateur les contrôles, le clavier, la recherche temporelle, le volume, le plein écran et le chargement des pistes de sous-titres avant de clore la phase 4.
+Auditer `CookieBanner`, GA4, le tracking local et le tracking Supabase afin d'identifier précisément chaque traitement déclenché avant consentement, puis définir et tester les catégories nécessaire, analytics et marketing.
 
 ## Blocages / précautions
 
