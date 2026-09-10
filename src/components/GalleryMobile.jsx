@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { GOLD, SITE_URL } from "../constants.js";
 import { LangCtx, useTr } from "../context.jsx";
 import { getGallerySpots } from "../data/galleryData.js";
+import useCompactMobile from "../hooks/useCompactMobile.js";
 import { usePublicCollection } from "../hooks/usePublicCollection.js";
 import { useSettings } from "../hooks/useSettings.js";
 import { getWhatsappUrl } from "../utils/whatsappUtil.js";
@@ -16,6 +17,13 @@ const fallbackFiles = [
   ["smoking-dore.jpg",683,1200],["veste-navy-soiree.jpg",800,1200],["costume-carreaux-rose.jpg",675,1200],
 ];
 
+const COPY = {
+  FR: { more: "Voir tous les looks", less: "Réduire la galerie" },
+  EN: { more: "View all looks", less: "Collapse gallery" },
+  ES: { more: "Ver todos los looks", less: "Reducir la galería" },
+  ZH: { more: "查看全部造型", less: "收起画廊" },
+};
+
 const absoluteMedia = (src) => {
   if (!src) return "";
   if (/^(https?:|data:|blob:)/i.test(src)) return src;
@@ -26,6 +34,7 @@ export default function GalleryMobile({ refEl }) {
   const t = useTr();
   const { lang } = useContext(LangCtx);
   const settings = useSettings();
+  const isCompactMobile = useCompactMobile();
   const spots = getGallerySpots(lang);
   const fallback = useMemo(() => fallbackFiles.map(([file,width,height], index) => ({
     src: `${import.meta.env.BASE_URL}images/${file}`,
@@ -54,10 +63,13 @@ export default function GalleryMobile({ refEl }) {
     })).filter((item) => item.src);
   }, [rows, fallback, spots]);
 
+  const [expanded, setExpanded] = useState(false);
+  const visibleItems = isCompactMobile && !expanded ? items.slice(0, 4) : items;
+  const copy = COPY[lang] || COPY.FR;
   const [cur, setCur] = useState(0);
   const [activeSpot, setActiveSpot] = useState(null);
   const timerRef = useRef(null);
-  const n = items.length;
+  const n = visibleItems.length;
 
   useEffect(() => { if (cur >= n) setCur(0); }, [n, cur]);
   useEffect(() => {
@@ -67,7 +79,7 @@ export default function GalleryMobile({ refEl }) {
   }, [n, activeSpot]);
 
   if (!n) return null;
-  const current = items[cur];
+  const current = visibleItems[cur];
   const selected = activeSpot !== null ? current?.hotspots?.[activeSpot] : null;
   const go = (direction) => { setActiveSpot(null); setCur((value) => (value + direction + n) % n); };
 
@@ -89,9 +101,9 @@ export default function GalleryMobile({ refEl }) {
   };
 
   return (
-    <section ref={refEl} style={{ background:"#f5f0e8", paddingBottom:"4rem", overflow:"hidden" }}>
+    <section ref={refEl} style={{ background:"#f5f0e8", paddingBottom:isCompactMobile ? "3rem" : "4rem", overflow:"hidden" }}>
       <div style={{ maxWidth:1100, margin:"0 auto" }}>
-        <div style={{ padding:"3rem 1.4rem 1.4rem", display:"flex", alignItems:"end", justifyContent:"space-between", gap:"1rem" }}>
+        <div style={{ padding:isCompactMobile ? "2.2rem 1.4rem 1.15rem" : "3rem 1.4rem 1.4rem", display:"flex", alignItems:"end", justifyContent:"space-between", gap:"1rem" }}>
           <div>
             <p style={{ fontFamily:"'Montserrat',sans-serif", fontSize:10, letterSpacing:".42em", color:GOLD, textTransform:"uppercase", margin:"0 0 .55rem" }}>GASPARDNZ</p>
             <h2 style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:"clamp(42px,12vw,72px)", lineHeight:.9, letterSpacing:".04em", color:"#1c1208", margin:0 }}>{t("nav_galerie")}</h2>
@@ -119,7 +131,18 @@ export default function GalleryMobile({ refEl }) {
           {current.hotspots?.length > 0 && <span style={{ flex:"0 0 auto", color:GOLD, fontFamily:"'Montserrat',sans-serif", fontSize:8, letterSpacing:".2em", textTransform:"uppercase" }}>{t("shop_the_look")}</span>}
         </div>
 
-        <div style={{ display:"flex", justifyContent:"center", flexWrap:"wrap", padding:".25rem 1rem 0" }}>{items.map((_,index) => <button key={index} onClick={() => { setCur(index); setActiveSpot(null); }} aria-label={`Photo ${index + 1}`} style={{ width:36, height:36, border:0, background:"transparent", padding:0, display:"grid", placeItems:"center", cursor:"pointer" }}><span style={{ width:index === cur ? 20 : 5, height:2, borderRadius:2, background:index === cur ? GOLD : "rgba(28,18,8,.2)", transition:"width .25s" }} /></button>)}</div>
+        <div style={{ display:"flex", justifyContent:"center", flexWrap:"wrap", padding:".25rem 1rem 0" }}>{visibleItems.map((_,index) => <button key={index} onClick={() => { setCur(index); setActiveSpot(null); }} aria-label={`Photo ${index + 1}`} style={{ width:36, height:36, border:0, background:"transparent", padding:0, display:"grid", placeItems:"center", cursor:"pointer" }}><span style={{ width:index === cur ? 20 : 5, height:2, borderRadius:2, background:index === cur ? GOLD : "rgba(28,18,8,.2)", transition:"width .25s" }} /></button>)}</div>
+
+        {isCompactMobile && items.length > 4 && (
+          <div style={{ padding:".25rem 1.4rem .1rem", display:"flex", justifyContent:"center" }}>
+            <button
+              type="button"
+              onClick={() => { setExpanded((value) => !value); setCur(0); setActiveSpot(null); }}
+              style={{ minHeight:44, border:"1px solid rgba(184,151,62,.36)", borderRadius:999, background:"rgba(184,151,62,.05)", color:"#876f2f", padding:"0 1.25rem", fontFamily:"'Montserrat',sans-serif", fontSize:9, fontWeight:600, letterSpacing:".18em", textTransform:"uppercase", cursor:"pointer" }}>
+              {expanded ? copy.less : `${copy.more} · ${items.length}`}
+            </button>
+          </div>
+        )}
 
         <div style={{ padding:".45rem 1.4rem 0", display:"flex", justifyContent:"center" }}><button onClick={share} style={{ minHeight:44, border:"1px solid rgba(184,151,62,.28)", background:"transparent", color:"rgba(28,18,8,.72)", padding:"0 1.2rem", fontFamily:"'Montserrat',sans-serif", fontSize:9, letterSpacing:".22em", textTransform:"uppercase", cursor:"pointer" }}>Partager ce look</button></div>
       </div>
