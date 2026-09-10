@@ -1,107 +1,160 @@
--- Phase 12 — CRM unifié, par des VUES.
+-- Phase 12 — CRM unifié par vues, aligné sur le schéma Supabase production.
 --
--- Constat : les données d'un même contact sont déjà présentes, mais éclatées.
---   leads      ← le formulaire du site
---   bookings   ← réservations, reliées par bookings.lead_id (FK réelle)
---   crm_notes  ← notes internes, reliées par crm_notes.lead_id
---   email_messages ← emails, reliés à RIEN : seulement une adresse `recipient`
---   vip_clients    ← malgré son nom, ce n'est PAS du CRM : ce sont des contenus
---                    de vitrine (album, photo_url, sort_order), pas des clients
+-- Relations réelles utilisées :
+--   customers.lead_id
+--   bookings.customer_id / bookings.lead_id
+--   crm_notes.customer_id / crm_notes.lead_id
+--   email_messages.booking_id / email_messages.lead_id
 --
--- Choix : unifier par des VUES en lecture seule, pas par une migration de
--- données. Aucune ligne n'est déplacée, fusionnée ni supprimée — donc rien
--- n'est perdu si le regroupement se révèle imparfait, et le rollback est un
--- simple `drop view`. Le rapprochement se fait sur l'email normalisé, seul
--- identifiant réellement commun aux quatre tables.
+-- Contrairement à l'ancienne version, aucune colonne bookings.email n'est
+-- supposée. L'email est résolu depuis customers/leads, avec recipient comme
+-- dernier recours pour les emails. Aucune donnée n'est déplacée ou supprimée.
 --
--- Additive et idempotente. Rollback : supabase/rollback/20260910120400_*.sql
-
--- security_invoker = true est ESSENTIEL : sans lui, une vue s'exécute avec les
--- droits de son propriétaire et CONTOURNE les politiques RLS des tables
--- sous-jacentes. La vue deviendrait alors une porte dérobée sur tout le CRM.
--- Disponible depuis PostgreSQL 15 ; la production est en 17.
+-- security_invoker = true est obligatoire : les policies RLS des tables
+-- sources restent l'autorité.
 
 create or replace view public.crm_timeline
 with (security_invoker = true) as
+  -- Demandes / leads.
   select
-    lower(l.email)                as contact_email,
-    'lead'::text                  as event_kind,
-    l.created_at                  as occurred_at,
-    coalesce(l.request_type, 'Demande') as title,
-    nullif(l.message, '')         as detail,
-    l.id                          as source_id,
-    'leads'::text                 as source_table
+    lower(nullif(trim(l.email), ''))                         as contact_email,
+    null::uuid                                                as customer_id,
+    l.id                                                      as lead_id,
+    'lead'::text                                              as event_kind,
+    l.created_at                                              as occurred_at,
+    coalesce(nullif(l.request_type, ''), 'Demande')::text     as title,
+    nullif(l.message, '')::text                               as detail,
+    l.id::text                                                as source_id,
+    'leads'::text                                             as source_table
   from public.leads l
-  where l.email is not null
+  where nullif(trim(l.email), '') is not null
 
   union all
 
+  -- Conversion en client.
   select
-    lower(coalesce(b.email, l.email)),
-    'booking',
-    coalesce(b.starts_at, b.created_at),
-    coalesce(b.title, 'Réservation'),
-    nullif(b.notes, ''),
-    b.id,
-    'bookings'
+    lower(nullif(trim(c.email), ''))                          as contact_email,
+    c.id                                                      as customer_id,
+    c.lead_id                                                 as lead_id,
+    'customer'::text                                          as event_kind,
+    c.created_at                                              as occurred_at,
+    'Client créé'::text                                       as title,
+    nullif(c.notes, '')::text                                 as detail,
+    c.id::text                                                as source_id,
+    'customers'::text                                         as source_table
+  from public.customers c
+  where nullif(trim(c.email), '') is not null
+
+  union all
+
+  -- Réservations : l'email n'existe PAS sur bookings en production.
+  select
+    lower(nullif(trim(coalesce(c.email, l.email)), ''))       as contact_email,
+    b.customer_id                                             as customer_id,
+    coalesce(b.lead_id, c.lead_id)                            as lead_id,
+    'booking'::text                                           as event_kind,
+    coalesce(b.starts_at, b.created_at)                       as occurred_at,
+    coalesce(nullif(b.title, ''), 'Réservation')::text        as title,
+    nullif(b.notes, '')::text                                 as detail,
+    b.id::text                                                as source_id,
+    'bookings'::text                                          as source_table
   from public.bookings b
-  left join public.leads l on l.id = b.lead_id
-  where coalesce(b.email, l.email) is not null
+  left join public.customers c on c.id = b.customer_id
+  left join public.leads l on l.id = coalesce(b.lead_id, c.lead_id)
+  where nullif(trim(coalesce(c.email, l.email)), '') is not null
 
   union all
 
+  -- Notes CRM : priorité à customer_id, puis lead_id.
   select
-    lower(l.email),
-    'note',
-    n.created_at,
-    'Note interne',
-    nullif(n.body, ''),
-    n.id,
-    'crm_notes'
+    lower(nullif(trim(coalesce(c.email, l.email)), ''))       as contact_email,
+    n.customer_id                                             as customer_id,
+    coalesce(n.lead_id, c.lead_id)                            as lead_id,
+    'note'::text                                              as event_kind,
+    n.created_at                                              as occurred_at,
+    'Note interne'::text                                      as title,
+    nullif(n.body, '')::text                                  as detail,
+    n.id::text                                                as source_id,
+    'crm_notes'::text                                         as source_table
   from public.crm_notes n
-  join public.leads l on l.id = n.lead_id
-  where l.email is not null
+  left join public.customers c on c.id = n.customer_id
+  left join public.leads l on l.id = coalesce(n.lead_id, c.lead_id)
+  where nullif(trim(coalesce(c.email, l.email)), '') is not null
 
   union all
 
+  -- Emails : suivre d'abord les FK réelles, recipient reste le fallback.
   select
-    lower(e.recipient),
-    'email',
-    coalesce(e.sent_at, e.queued_at, e.created_at),
-    coalesce(e.subject, 'Email'),
-    e.status,
-    e.id,
-    'email_messages'
+    lower(nullif(trim(coalesce(c.email, ld.email, lb.email, e.recipient)), '')) as contact_email,
+    b.customer_id                                             as customer_id,
+    coalesce(e.lead_id, b.lead_id, c.lead_id)                as lead_id,
+    'email'::text                                             as event_kind,
+    coalesce(e.sent_at, e.queued_at, e.created_at)            as occurred_at,
+    coalesce(nullif(e.subject, ''), 'Email')::text            as title,
+    e.status::text                                            as detail,
+    e.id::text                                                as source_id,
+    'email_messages'::text                                    as source_table
   from public.email_messages e
-  where e.recipient is not null;
+  left join public.bookings b on b.id = e.booking_id
+  left join public.customers c on c.id = b.customer_id
+  left join public.leads ld on ld.id = e.lead_id
+  left join public.leads lb on lb.id = coalesce(b.lead_id, c.lead_id)
+  where nullif(trim(coalesce(c.email, ld.email, lb.email, e.recipient)), '') is not null;
 
 comment on view public.crm_timeline is
-  'Historique unifié par contact (email normalisé). Lecture seule, RLS appliquée via security_invoker.';
+  'Historique CRM unifié via FK réelles et email normalisé. Lecture seule ; RLS héritée via security_invoker.';
 
 create or replace view public.crm_contacts
 with (security_invoker = true) as
-  with identite as (
+  with identities as (
     select
-      lower(l.email) as contact_email,
-      -- Le nom et le téléphone les plus récemment renseignés font foi.
-      (array_agg(l.full_name order by l.created_at desc)
-         filter (where nullif(l.full_name, '') is not null))[1] as full_name,
-      (array_agg(l.phone order by l.created_at desc)
-         filter (where nullif(l.phone, '') is not null))[1]     as phone,
-      (array_agg(l.status order by l.created_at desc)
-         filter (where l.status is not null))[1]                as latest_status,
-      (array_agg(l.source order by l.created_at desc)
-         filter (where l.source is not null))[1]                as latest_source,
-      count(*)                as lead_count,
-      min(l.created_at)       as first_seen_at
+      lower(nullif(trim(l.email), '')) as contact_email,
+      nullif(l.full_name, '')::text     as full_name,
+      nullif(l.phone, '')::text         as phone,
+      l.status::text                    as status,
+      l.source::text                    as source,
+      l.created_at                      as seen_at,
+      l.id                              as lead_id,
+      null::uuid                        as customer_id
     from public.leads l
-    where l.email is not null
-    group by lower(l.email)
+    where nullif(trim(l.email), '') is not null
+
+    union all
+
+    select
+      lower(nullif(trim(c.email), '')) as contact_email,
+      nullif(c.full_name, '')::text    as full_name,
+      nullif(c.phone, '')::text        as phone,
+      'client'::text                   as status,
+      c.source::text                   as source,
+      c.created_at                     as seen_at,
+      c.lead_id                        as lead_id,
+      c.id                             as customer_id
+    from public.customers c
+    where nullif(trim(c.email), '') is not null
   ),
-  activite as (
+  identity_summary as (
     select
       contact_email,
-      max(occurred_at)                                       as last_activity_at,
+      (array_agg(full_name order by seen_at desc)
+        filter (where full_name is not null))[1]              as full_name,
+      (array_agg(phone order by seen_at desc)
+        filter (where phone is not null))[1]                  as phone,
+      (array_agg(status order by seen_at desc)
+        filter (where status is not null))[1]                 as latest_status,
+      (array_agg(source order by seen_at desc)
+        filter (where source is not null))[1]                 as latest_source,
+      count(distinct lead_id)                                 as lead_count,
+      count(distinct customer_id)                             as customer_count,
+      min(seen_at)                                            as first_seen_at
+    from identities
+    group by contact_email
+  ),
+  activity as (
+    select
+      contact_email,
+      min(occurred_at)                                        as first_activity_at,
+      max(occurred_at)                                        as last_activity_at,
       count(*) filter (where event_kind = 'booking')          as booking_count,
       count(*) filter (where event_kind = 'note')             as note_count,
       count(*) filter (where event_kind = 'email')            as email_count
@@ -109,26 +162,24 @@ with (security_invoker = true) as
     group by contact_email
   )
   select
-    coalesce(i.contact_email, a.contact_email) as contact_email,
+    coalesce(i.contact_email, a.contact_email)                as contact_email,
     i.full_name,
     i.phone,
     i.latest_status,
     i.latest_source,
-    coalesce(i.lead_count, 0)    as lead_count,
-    coalesce(a.booking_count, 0) as booking_count,
-    coalesce(a.note_count, 0)    as note_count,
-    coalesce(a.email_count, 0)   as email_count,
-    coalesce(i.first_seen_at, a.last_activity_at) as first_seen_at,
+    coalesce(i.lead_count, 0)                                 as lead_count,
+    coalesce(i.customer_count, 0)                             as customer_count,
+    coalesce(a.booking_count, 0)                              as booking_count,
+    coalesce(a.note_count, 0)                                 as note_count,
+    coalesce(a.email_count, 0)                                as email_count,
+    coalesce(i.first_seen_at, a.first_activity_at)            as first_seen_at,
     a.last_activity_at
-  from identite i
-  full outer join activite a on a.contact_email = i.contact_email;
+  from identity_summary i
+  full outer join activity a on a.contact_email = i.contact_email;
 
 comment on view public.crm_contacts is
-  'Un contact par email normalisé, agrégeant leads, réservations, notes et emails. Lecture seule.';
+  'Un contact par email normalisé, utilisant les relations leads/customers/bookings/notes/emails de production.';
 
--- Ces vues sont en LECTURE SEULE : aucun droit d'écriture n'est accordé.
--- Les écritures continuent de passer par les tables, donc par leurs politiques
--- RLS et par les triggers d'audit.
 revoke all on public.crm_contacts from anon, authenticated;
 revoke all on public.crm_timeline from anon, authenticated;
 grant select on public.crm_contacts to authenticated;
