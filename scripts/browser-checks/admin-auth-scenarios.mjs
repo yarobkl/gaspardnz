@@ -1,5 +1,4 @@
-import { chromium } from 'playwright-core';
-import { isolate } from './_helpers.mjs';
+import { isolate, launch } from './_helpers.mjs';
 
 const BASE = process.env.BASE || 'http://127.0.0.1:4210';
 const results = [];
@@ -8,10 +7,7 @@ const record = (id, label, expected, actual, pass) => {
   console.log(`${pass ? '✅' : '❌'} ${id} — ${label}\n     attendu : ${expected}\n     observé : ${actual}`);
 };
 
-const browser = await chromium.launch({
-  executablePath: process.env.CHROMIUM_PATH || '/opt/pw-browsers/chromium-1194/chrome-linux/chrome',
-  args: ['--no-sandbox', '--disable-setuid-sandbox'],
-});
+const browser = await launch();
 
 // Détecte si l'UI admin authentifiée est rendue (sidebar + bouton déconnexion)
 // vs l'écran de login.
@@ -106,4 +102,5 @@ const failed = results.filter(r => !r.pass);
 console.log(`${results.length - failed.length}/${results.length} scénarios conformes`);
 if (failed.length) {
   console.log('VULNÉRABILITÉS CONFIRMÉES : ' + failed.map(f => f.id).join(', '));
+  process.exitCode = 1;
 }
