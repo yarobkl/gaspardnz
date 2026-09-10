@@ -1,0 +1,55 @@
+name: One-time dependency repair
+
+on:
+  push:
+    branches:
+      - "hardening/fix-claude-heavy-2026-09"
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout repair branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Upgrade Nodemailer within major 9
+        run: npm install --save 'nodemailer@^9.1.1'
+
+      - name: Apply non-breaking npm audit fixes
+        run: npm audit fix --omit=dev || true
+
+      - name: Require zero high/critical production advisories
+        run: npm audit --omit=dev --audit-level=high
+
+      - name: Validate application
+        run: |
+          npm test
+          npm run build
+          npm run test:bundle
+
+      - name: Remove this one-time workflow and commit lockfile
+        shell: bash
+        run: |
+          set -euo pipefail
+          git rm .github/workflows/dependency-fix.yml
+          git add package.json package-lock.json
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "fix(deps): resolve production dependency advisories"
+          git push origin HEAD:hardening/fix-claude-heavy-2026-09
