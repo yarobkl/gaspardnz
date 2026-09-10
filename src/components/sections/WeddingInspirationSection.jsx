@@ -1,9 +1,10 @@
 import { useContext, useRef, useState, useEffect } from "react";
-import { motion, useInView, AnimatePresence } from "framer-motion";
+import { motion, useInView } from "framer-motion";
 import { GOLD } from "../../constants.js";
 import { getWeddingInspirations, WA_GNZ } from "../../data/weddingInspirationData.js";
 import { getSettings } from "../../services/settingsService.js";
 import { LangCtx, useTr } from "../../context.jsx";
+import { HotspotSheet, PhotoHotspots } from "../ui/PhotoHotspots.jsx";
 
 const WeddingInspirationSection = ({ refEl }) => {
   const t = useTr();
@@ -31,6 +32,18 @@ const WeddingInspirationSection = ({ refEl }) => {
 
   if (!INSPIRATIONS || INSPIRATIONS.length === 0) return null;
 
+  const askSelected = () => {
+    const spot = activeSpot?.spot;
+    if (!spot) return;
+    const messages = {
+      FR: `Bonjour Gaspard, je suis intéressé(e) par ce look mariage : ${spot.label}`,
+      EN: `Hello Gaspard, I'm interested in this wedding look: ${spot.label}`,
+      ES: `Hola Gaspard, me interesa este look de boda: ${spot.label}`,
+      ZH: `你好 Gaspard，我对这个婚礼造型感兴趣：${spot.label}`,
+    };
+    window.open(`${WA_GNZ}?text=${encodeURIComponent(messages[lang] || messages.FR)}`, "_blank", "noopener,noreferrer");
+  };
+
   return (
     <section ref={node => { ref.current = node; if (refEl) refEl.current = node; }} style={{ background: "#0a0602", padding: "4.5rem 0 5rem" }}>
       <motion.div
@@ -55,6 +68,7 @@ const WeddingInspirationSection = ({ refEl }) => {
               const activePhoto = album[activeIndex] || album[0] || null;
               const activeSrc = activePhoto?.src || item.src;
               const activeSpots = activePhoto?.spots || item.spots || [];
+              const activeIndexForPhoto = activeSpot?.itemIndex === i && activeSpot?.photoIndex === activeIndex ? activeSpot.spotIndex : -1;
 
               return (
               <>
@@ -73,44 +87,14 @@ const WeddingInspirationSection = ({ refEl }) => {
                 </div>
               )}
               {activeSrc && (
-                <>
-                {(activeSpots || []).map((spot, si) => (
-                  <div key={si} style={{ position: "absolute", left: `${spot.x}%`, top: `${spot.y}%`, transform: "translate(-50%,-50%)", zIndex: 2 }}>
-                    <button
-                      aria-label={spot.label}
-                      onClick={e => { e.stopPropagation(); setActiveSpot(activeSpot === `${i}-${si}` ? null : `${i}-${si}`); }}
-                      style={{ width: "44px", height: "44px", borderRadius: "50%", background: "transparent", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", padding: 0 }}>
-                      <span style={{ width: "20px", height: "20px", borderRadius: "50%", background: "rgba(184,151,62,0.2)", border: `1px solid ${GOLD}`, backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                        <span style={{ width: "5px", height: "5px", borderRadius: "50%", background: GOLD }} />
-                      </span>
-                    </button>
-                    <AnimatePresence>
-                      {activeSpot === `${i}-${si}` && (
-                        <motion.div
-                          initial={{ opacity: 0, scale: 0.92 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.92 }}
-                          transition={{ duration: 0.15 }}
-                          onClick={e => e.stopPropagation()}
-                          style={{ position: "absolute", left: spot.x > 55 ? "auto" : "26px", right: spot.x > 55 ? "26px" : "auto", top: spot.y > 60 ? "auto" : "26px", bottom: spot.y > 60 ? "26px" : "auto", width: "150px", background: "rgba(10,8,4,0.95)", border: `1px solid rgba(184,151,62,0.35)`, borderRadius: "8px", padding: "8px 10px", zIndex: 10 }}>
-                          <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7.5px", letterSpacing: "0.1em", color: GOLD, textTransform: "uppercase", marginBottom: "6px", lineHeight: 1.3 }}>{spot.label}</p>
-                          <button
-                            onClick={() => {
-                              const messages = {
-                                FR: `Bonjour Gaspard, je suis intéressé(e) par ce look mariage : ${spot.label}`,
-                                EN: `Hello Gaspard, I'm interested in this wedding look: ${spot.label}`,
-                                ES: `Hola Gaspard, me interesa este look de boda: ${spot.label}`,
-                                ZH: `你好 Gaspard，我对这个婚礼造型感兴趣：${spot.label}`,
-                              };
-                              window.open(`${WA_GNZ}?text=${encodeURIComponent(messages[lang] || messages.FR)}`, "_blank");
-                            }}
-                            style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "9px", letterSpacing: "0.18em", color: GOLD, textTransform: "uppercase", background: "rgba(184,151,62,0.1)", border: `1px solid rgba(184,151,62,0.3)`, borderRadius: "20px", padding: "9px 8px", minHeight: "44px", cursor: "pointer", width: "100%" }}>
-                            {t("ask_availability")}
-                          </button>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </div>
-                ))}
-                </>
+                <PhotoHotspots
+                  spots={activeSpots}
+                  activeIndex={activeIndexForPhoto}
+                  onSelect={(spotIndex, spot) => setActiveSpot((current) => {
+                    const same = current?.itemIndex === i && current?.photoIndex === activeIndex && current?.spotIndex === spotIndex;
+                    return same ? null : { itemIndex: i, photoIndex: activeIndex, spotIndex, spot };
+                  })}
+                />
               )}
               </div>
               {album.length > 1 && (
@@ -140,6 +124,14 @@ const WeddingInspirationSection = ({ refEl }) => {
           </motion.div>
         ))}
       </div>
+
+      <HotspotSheet
+        spot={activeSpot?.spot || null}
+        onClose={() => setActiveSpot(null)}
+        eyebrow={t("shop_the_look")}
+        actionLabel={t("ask_availability")}
+        onAction={askSelected}
+      />
     </section>
   );
 };
