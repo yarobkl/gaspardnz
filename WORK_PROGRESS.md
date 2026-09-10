@@ -2,7 +2,7 @@
 
 ## Checkpoint
 
-- Date et heure : 2026-09-10 17:53:22 UTC
+- Date et heure : 2026-09-10 17:56:39 UTC
 - Branche active : `hardening/gaspardnz-2026-09`
 - Commit de départ (`main` / `origin/main`) : `9ef4c2776106acd3118c99e778c08e2e25a7830b`
 - Dépôt GitHub : `yarobkl/gaspardnz`
@@ -50,14 +50,17 @@
 - Phase 2 : `README.md` réécrit avec l'architecture, l'installation, les variables, Supabase, l'admin, Vercel, GitHub Actions, Capacitor, la sécurité, le déploiement et le rollback.
 - Phase 2 : `.env.example` complété avec toutes les variables réellement référencées par le code, sans secret.
 - Phase 2 : absence actuelle de migrations Supabase locales documentée explicitement.
+- Phase 3 : workflow de validation passé à `contents: read` et `npm ci`; toute modification/poussée automatique du lockfile a été supprimée.
+- Phase 3 : build, SEO, sécurité email, lint conditionnel et tests unitaires conditionnels configurés comme contrôles CI.
+- Phase 3 : workflows Android passés à `npm ci` et permissions minimales.
+- Phase 3 : fallback Vercel épinglé sur la CLI `59.15.1`, avec validation, `vercel build --prod` puis déploiement `--prebuilt`.
 
 ## Tâche en cours
 
-- Phase 3 : CI/CD.
+- Phase 4 : accessibilité et contrôles vidéo.
 
 ## Tâches restantes
 
-- Phase 3 : CI/CD.
 - Phase 4 : accessibilité et contrôles vidéo.
 - Phase 5 : RGPD et consentement.
 - Phase 6 : SEO statique et routage Vercel.
@@ -75,6 +78,10 @@
 - `.gitignore`
 - `.env.example`
 - `README.md`
+- `.github/workflows/validate.yml`
+- `.github/workflows/android-build.yml`
+- `.github/workflows/android-release-signed.yml`
+- `.github/workflows/vercel-deploy.yml`
 - `WORK_PROGRESS.md`
 
 ## Tests et vérifications effectués
@@ -94,6 +101,10 @@
 - Couverture documentaire des variables d'environnement : 18 clés documentées, aucune référence runtime manquante hors variables système.
 - Contrôle du README et de `.env.example` : aucun motif de secret privé détecté.
 - Preview de phase 1 : état `READY`, réponse HTTP 200.
+- Preview de phase 2 : déploiement `dpl_DER5UHhryDGdmDYQfLxmupAg1JtE` `READY`, réponse HTTP 200.
+- Émulation locale du workflow : `npm ci`, build, SEO et sécurité email réussis ; lint et tests unitaires absents donc étapes conditionnelles sans action.
+- Syntaxe YAML des cinq workflows analysée avec succès.
+- Recherche de motifs CI interdits (`contents: write`, `npm install`, commit/push du lockfile) : aucun résultat après correction.
 
 ## Résultat du build
 
@@ -101,15 +112,15 @@
 
 ## URL de preview
 
-- `https://gaspardnz-git-hardening-gaspardnz-2026-09-yarobkls-projects.vercel.app/` — phase 1 testée HTTP 200, déploiement `dpl_13fjfzTBkvLNwAPEeJiZGoKKnr4f` `READY`.
+- `https://gaspardnz-git-hardening-gaspardnz-2026-09-yarobkls-projects.vercel.app/` — phase 2 testée HTTP 200, déploiement `dpl_DER5UHhryDGdmDYQfLxmupAg1JtE` `READY`.
 
 ## Dernier commit
 
-- `8d1322e34c150eca4550f5d84aaffde8fbb05268` (`chore: harden repository hygiene`).
+- `211c59ae00d19db67477b7eb20e1a7866bda6d5d` (`docs: document project operations and security`).
 
 ## Prochaine action exacte
 
-Corriger les workflows GitHub Actions pour utiliser `npm ci`, retirer `contents: write`, interdire toute modification automatique du lockfile, rendre build/SEO/email obligatoires et ajouter une validation de cohérence adaptée aux scripts réellement disponibles.
+Inventorier toutes les balises vidéo et les règles CSS associées, reproduire l'absence de contrôles natifs, puis appliquer le correctif minimal garantissant lecture, pause, volume, timeline, plein écran, clavier, sous-titres et comportement mobile.
 
 ## Blocages / précautions
 

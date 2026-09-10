@@ -2,13 +2,15 @@ name: Validate GaspardNZ
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
+      - "hardening/**"
   pull_request:
     branches: [main]
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: validate-${{ github.ref }}
@@ -27,20 +29,16 @@ jobs:
           node-version: 22
           cache: npm
       - name: Install dependencies
-        run: npm install --no-audit --no-fund
+        run: npm ci --no-audit --no-fund
+      - name: Lint when configured
+        run: npm run lint --if-present
+      - name: Run unit tests when configured
+        run: npm test --if-present
       - name: Build web app
         run: npm run build
       - name: Validate SEO
         run: npm run test:seo
       - name: Validate email API security
         run: npm run test:email-security
-      - name: Synchronize package lock
-        if: github.event_name == 'push'
-        run: |
-          if ! git diff --quiet -- package-lock.json; then
-            git config user.name "github-actions[bot]"
-            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add package-lock.json
-            git commit -m "chore: sync package-lock"
-            git push
-          fi
+      - name: Verify dependency manifests stay unchanged
+        run: git diff --exit-code -- package.json package-lock.json
