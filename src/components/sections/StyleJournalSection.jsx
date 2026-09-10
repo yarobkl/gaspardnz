@@ -3,18 +3,30 @@ import { motion, useInView } from "framer-motion";
 import { GOLD } from "../../constants.js";
 import { getStyleJournalPhotos } from "../../data/journalData.js";
 import { LangCtx, useTr } from "../../context.jsx";
+import useCompactMobile from "../../hooks/useCompactMobile.js";
 import { useSettings } from "../../hooks/useSettings.js";
 import { getWhatsappUrl } from "../../utils/whatsappUtil.js";
 import { HotspotSheet, PhotoHotspots } from "../ui/PhotoHotspots.jsx";
+
+const COPY = {
+  FR: { more: "Voir le journal", less: "Réduire le journal" },
+  EN: { more: "View the journal", less: "Collapse journal" },
+  ES: { more: "Ver el diario", less: "Reducir el diario" },
+  ZH: { more: "查看风格日志", less: "收起风格日志" },
+};
 
 const StyleJournalSection = () => {
   const t = useTr();
   const { lang } = useContext(LangCtx);
   const settings = useSettings();
+  const isCompactMobile = useCompactMobile();
   const styleJournalPhotos = getStyleJournalPhotos(lang);
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-8% 0px" });
   const [activeSpot, setActiveSpot] = useState(null);
+  const [expanded, setExpanded] = useState(false);
+  const copy = COPY[lang] || COPY.FR;
+  const visiblePhotos = isCompactMobile && !expanded ? styleJournalPhotos.slice(0, 1) : styleJournalPhotos;
 
   const askSelected = () => {
     const dot = activeSpot?.spot;
@@ -29,17 +41,17 @@ const StyleJournalSection = () => {
   };
 
   return (
-    <section ref={ref} style={{ background: "#0a0602", paddingTop: "4.5rem" }}>
+    <section ref={ref} style={{ background: "#0a0602", paddingTop: isCompactMobile ? "3rem" : "4.5rem" }}>
       <motion.div initial={{ opacity: 0, y: 16 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.7 }}
-        style={{ padding: "0 1.4rem", marginBottom: "2rem" }}>
+        style={{ padding: "0 1.4rem", marginBottom: isCompactMobile ? "1.35rem" : "2rem" }}>
         <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.42em", color: GOLD, textTransform: "uppercase", marginBottom: "10px" }}>GASPARDNZ</p>
         <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "28px", fontWeight: 300, color: "#faf7f2", letterSpacing: "0.02em", lineHeight: 1.2, margin: 0 }}>{t("style_journal_title")}</p>
         <div style={{ width: "48px", height: "1px", background: `linear-gradient(90deg, ${GOLD}, transparent)`, marginTop: "14px" }} />
         <p style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: "italic", fontSize: "12px", color: "rgba(245,240,232,0.62)", marginTop: "8px" }}>{t("style_journal_hint")}</p>
       </motion.div>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: "12px", paddingBottom: "12px" }}>
-        {styleJournalPhotos.map((photo, i) => (
+      <div style={{ display: "flex", flexDirection: "column", gap: "12px", paddingBottom: isCompactMobile ? "8px" : "12px" }}>
+        {visiblePhotos.map((photo, i) => (
           <motion.article key={i}
             initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-6% 0px" }}
             transition={{ duration: 0.55, delay: i * 0.05, ease: [0.16, 1, 0.3, 1] }}
@@ -68,6 +80,17 @@ const StyleJournalSection = () => {
           </motion.article>
         ))}
       </div>
+
+      {isCompactMobile && styleJournalPhotos.length > 1 && (
+        <div style={{ padding: "1rem 1.4rem 2.1rem", display: "flex", justifyContent: "center" }}>
+          <button
+            type="button"
+            onClick={() => { setExpanded((value) => !value); setActiveSpot(null); }}
+            style={{ minHeight: 44, border: `1px solid rgba(184,151,62,.36)`, borderRadius: 999, background: "rgba(184,151,62,.06)", color: GOLD, padding: "0 1.25rem", fontFamily: "'Montserrat',sans-serif", fontSize: 9, fontWeight: 600, letterSpacing: ".2em", textTransform: "uppercase", cursor: "pointer" }}>
+            {expanded ? copy.less : `${copy.more} · ${styleJournalPhotos.length}`}
+          </button>
+        </div>
+      )}
 
       <HotspotSheet
         spot={activeSpot?.spot || null}
