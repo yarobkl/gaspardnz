@@ -171,3 +171,8 @@ Committer et pousser le correctif de consentement, attendre la preview Vercel et
 - Le code exact du déploiement Vercel actif n'est pas reproductible depuis le SHA Git déclaré, car le déploiement a été créé avec un working tree sale et le SHA n'est plus présent sur GitHub.
 - Toute promotion vers la production reste interdite jusqu'à la réconciliation contrôlée de la phase 8.
 - `release/gaspardnz-PlayStore-LOGO-signed.aab`, les deux snapshots JSX, le vieux ZIP mobile et le backup CSS sont sans référence d'exécution. Ils restent conservés jusqu'au nettoyage final afin d'éviter toute perte avant sauvegarde explicite.
+
+## Nouvelle tentative Vercel — 2026-09-11
+
+- Nouvelle tentative demandée par l'utilisateur pour vérifier si le quota de build Vercel est de nouveau disponible.
+- Commit purement documentaire destiné à redéclencher une preview sur la branche de hardening ; aucune promotion vers `main` ou la production.
