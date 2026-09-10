@@ -1,4 +1,5 @@
 import { chromium } from 'playwright-core';
+import { isolate } from './_helpers.mjs';
 
 const BASE = process.env.BASE || 'http://127.0.0.1:4210';
 const results = [];
@@ -33,8 +34,9 @@ async function probeAdminUi(page) {
 {
   const ctx = await browser.newContext();
   const page = await ctx.newPage();
-  await page.goto(`${BASE}/admin`, { waitUntil: 'load' });
-  await page.waitForTimeout(3000);
+  await isolate(page);
+  await page.goto(`${BASE}/admin`, { waitUntil: 'domcontentloaded' });
+  await page.waitForTimeout(2200);
   const r = await probeAdminUi(page);
   record('A', 'Accès /admin sans connexion',
     'écran de login, aucune UI admin',
@@ -47,6 +49,7 @@ async function probeAdminUi(page) {
 {
   const ctx = await browser.newContext();
   const page = await ctx.newPage();
+  await isolate(page);
   // Injecte un faux profil admin AVANT tout script de l'app
   await page.addInitScript(() => {
     localStorage.setItem('gnz-admin-profile', JSON.stringify({
@@ -58,8 +61,8 @@ async function probeAdminUi(page) {
       displayName: 'ATTAQUANT',
     }));
   });
-  await page.goto(`${BASE}/admin`, { waitUntil: 'load' });
-  await page.waitForTimeout(3500);
+  await page.goto(`${BASE}/admin`, { waitUntil: 'domcontentloaded' });
+  await page.waitForTimeout(2200);
   const r = await probeAdminUi(page);
   // Vérifie aussi qu'il n'existe bien AUCUNE session Supabase
   const supaSession = await page.evaluate(() => localStorage.getItem('gnz-admin-auth'));
@@ -74,6 +77,7 @@ async function probeAdminUi(page) {
 {
   const ctx = await browser.newContext();
   const page = await ctx.newPage();
+  await isolate(page);
   await page.addInitScript(() => {
     localStorage.setItem('gnz-admin-profile', JSON.stringify({
       id: 'stale', userId: 'stale', email: 'ancien-admin@example.com',
@@ -85,8 +89,8 @@ async function probeAdminUi(page) {
       expires_at: Math.floor(Date.now() / 1000) - 86400,
     }));
   });
-  await page.goto(`${BASE}/admin`, { waitUntil: 'load' });
-  await page.waitForTimeout(3500);
+  await page.goto(`${BASE}/admin`, { waitUntil: 'domcontentloaded' });
+  await page.waitForTimeout(2200);
   const r = await probeAdminUi(page);
   record('C', 'Session Supabase expirée + cache profil présent',
     'UI admin refusée après expiration',

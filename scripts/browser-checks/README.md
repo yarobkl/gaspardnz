@@ -33,6 +33,8 @@ Variables d'environnement : `BASE` (URL du serveur de preview) et
 | L | écran de connexion standard intact |
 | PUB | site public rendu, aucune erreur JS |
 | PURGE | l'ancien cache `gnz-admin-profile` est supprimé au chargement |
+| NAV-* | la navigation admin est filtrée selon le rôle (owner / admin / editor / viewer) |
+| URL-* | une section atteinte par URL directe hors du rôle est refusée |
 
 Les invariants statiques correspondants sont figés dans
 `scripts/validate-admin-auth.mjs` (`npm run test:admin-auth`), qui tourne lui

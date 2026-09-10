@@ -443,10 +443,57 @@ client avec deux adresses restera vu comme deux contacts. Résoudre cela suppose
 un identifiant client stable — décision qui ne se déduit pas du projet.
 
 ### Phase 13 — Tests automatisés
-- **Statut** : ⏳ NON DÉMARRÉ
+- **Statut** : ✅ HARNAIS EN PLACE ET VERT
+
+#### Point de départ
+
+Aucun framework de tests. Les quatre `test:*` existants étaient des validateurs
+Node maison. Surtout : `validate.yml` appelait `npm test --if-present` alors
+qu'**aucun script `test` n'existait** — l'étape « Run unit tests » de la CI ne
+faisait donc rien, en silence, depuis le début.
+
+#### Mis en place
+
+| Outil | Usage |
+|---|---|
+| Vitest 3 + jsdom | tests unitaires et de composants |
+| Testing Library (React + user-event + jest-dom) | rendu et interrogation par rôle accessible |
+| Playwright-core | vérifications navigateur, désormais exécutables |
+
+- `vitest.config.js`, `tests/setup.js` (nettoyage entre tests, shims
+  `IntersectionObserver` / `matchMedia`, et **`console.error` transformé en
+  échec** pour qu'un avertissement React ne se perde pas dans la sortie) ;
+- `tests/unit/adminAuth.test.js` — **36 tests** : matrice complète des rôles
+  (4 × 4), rôles non reconnus, refus sans session, refus hors `admin_access`,
+  refus si la lecture échoue, non-persistance du profil, normalisation de
+  l'email, purge de l'ancien cache ;
+- `tests/component/AdminLayout.test.jsx` — **10 tests** : navigation filtrée par
+  rôle, rôle absent ou inconnu ne donnant accès à rien, monotonie des droits
+  (un rôle élevé voit au moins autant qu'un rôle bas), refus des accès par URL
+  directe ;
+- `scripts/browser-checks/run-all.mjs` — démarre la preview, exécute les
+  quatre scripts, arrête la preview ;
+- `npm test` enchaîne désormais Vitest **et** les huit validateurs statiques.
+
+#### Ce qui a été corrigé au passage
+
+- **JSX non transformé** : les tests échouaient sur « React is not defined ».
+  Le plugin React ne s'appliquait pas aux fichiers de test ; réglé par
+  `esbuild: { jsx: "automatic" }` dans `vitest.config.js`.
+- **Vérifications navigateur très lentes** : chaque chargement attendait des
+  polices et scripts externes injoignables depuis le conteneur. Les pages sont
+  désormais isolées du réseau (`_helpers.mjs`), la suite passe de plusieurs
+  minutes à quelques secondes.
+
+#### Résultats
+
+| Suite | Résultat |
+|---|---|
+| `npm test` (Vitest + 8 validateurs) | ✅ **46 tests + 8 validateurs**, en ~4 s |
+| `npm run test:e2e` (4 scripts navigateur) | ✅ **17 vérifications conformes** |
 
 ### Phase 14 — Capacitor / mobile
-- **Statut** : ⏳ NON DÉMARRÉ
+- **Statut** : 🔄 EN COURS
 
 ---
 
@@ -468,7 +515,7 @@ un identifiant client stable — décision qui ne se déduit pas du projet.
 
 ## Prochaine action exacte
 
-Démarrer la **phase 13 (tests automatisés)** : installer un vrai harnais
-(Vitest + Testing Library, et Playwright pour l'E2E), puis convertir les
-vérifications navigateur de `scripts/browser-checks/` — aujourd'hui hors de la
-suite faute de dépendances — en tests exécutables par `npm test`.
+Terminer la **phase 14 (Capacitor / mobile)** : durcir `capacitor.config.json`
+(schéma HTTPS, contenu mixte, débogage WebView), vérifier ce que le bundle
+mobile embarque réellement, et figer ces garanties dans un test. Puis rédiger
+`CLAUDE_HEAVY_REPORT.md` et remettre la branche à Work.
