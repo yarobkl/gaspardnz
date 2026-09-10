@@ -2,7 +2,7 @@
 
 ## Checkpoint
 
-- Date et heure : 2026-09-10 17:48:22 UTC
+- Date et heure : 2026-09-10 17:53:22 UTC
 - Branche active : `hardening/gaspardnz-2026-09`
 - Commit de départ (`main` / `origin/main`) : `9ef4c2776106acd3118c99e778c08e2e25a7830b`
 - Dépôt GitHub : `yarobkl/gaspardnz`
@@ -47,14 +47,16 @@
 - Phase 1 : 1 512 blobs texte de l'historique Git contrôlés sans afficher de valeur sensible ; aucun secret privé identifiable trouvé.
 - Phase 1 : clé Supabase embarquée classée `publishable` et placeholders sensibles de `.env.example` confirmés.
 - Phase 1 : archives, snapshots mobiles, AAB et backup CSS inventoriés ; suppression différée jusqu'au checkpoint de conservation de la phase 15.
+- Phase 2 : `README.md` réécrit avec l'architecture, l'installation, les variables, Supabase, l'admin, Vercel, GitHub Actions, Capacitor, la sécurité, le déploiement et le rollback.
+- Phase 2 : `.env.example` complété avec toutes les variables réellement référencées par le code, sans secret.
+- Phase 2 : absence actuelle de migrations Supabase locales documentée explicitement.
 
 ## Tâche en cours
 
-- Phase 2 : documentation du projet.
+- Phase 3 : CI/CD.
 
 ## Tâches restantes
 
-- Phase 2 : documentation du projet.
 - Phase 3 : CI/CD.
 - Phase 4 : accessibilité et contrôles vidéo.
 - Phase 5 : RGPD et consentement.
@@ -71,6 +73,8 @@
 ## Fichiers modifiés
 
 - `.gitignore`
+- `.env.example`
+- `README.md`
 - `WORK_PROGRESS.md`
 
 ## Tests et vérifications effectués
@@ -87,6 +91,9 @@
 - `npm run test:email-security` : réussi.
 - Règles `.gitignore` vérifiées avec `git check-ignore` ; `.env.example` reste explicitement autorisé.
 - Recherche de secrets courante et historique : aucun secret privé détecté ; aucune valeur sensible affichée.
+- Couverture documentaire des variables d'environnement : 18 clés documentées, aucune référence runtime manquante hors variables système.
+- Contrôle du README et de `.env.example` : aucun motif de secret privé détecté.
+- Preview de phase 1 : état `READY`, réponse HTTP 200.
 
 ## Résultat du build
 
@@ -94,15 +101,15 @@
 
 ## URL de preview
 
-- En attente du déploiement automatique du commit de phase 1.
+- `https://gaspardnz-git-hardening-gaspardnz-2026-09-yarobkls-projects.vercel.app/` — phase 1 testée HTTP 200, déploiement `dpl_13fjfzTBkvLNwAPEeJiZGoKKnr4f` `READY`.
 
 ## Dernier commit
 
-- `bce51af074d519c6846fa95a4d28b4d418ffeae2` (`chore: record hardening phase 0 checkpoint`).
+- `8d1322e34c150eca4550f5d84aaffde8fbb05268` (`chore: harden repository hygiene`).
 
 ## Prochaine action exacte
 
-Relever l'architecture réelle, les scripts, les intégrations et les procédures existantes, puis réécrire `README.md` sans secret avec installation, environnements, Supabase, admin, Vercel, GitHub Actions, Capacitor, sécurité, déploiement et rollback.
+Corriger les workflows GitHub Actions pour utiliser `npm ci`, retirer `contents: write`, interdire toute modification automatique du lockfile, rendre build/SEO/email obligatoires et ajouter une validation de cohérence adaptée aux scripts réellement disponibles.
 
 ## Blocages / précautions
 
