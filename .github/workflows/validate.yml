@@ -40,6 +40,8 @@ jobs:
         run: npm run test:bundle
       - name: Install Chromium for browser checks
         run: npx playwright-core install --with-deps chromium
+      - name: Locate Chromium
+        run: echo "CHROMIUM_PATH=$(find "$HOME/.cache/ms-playwright" -type f -path '*/chrome-linux*/chrome' | head -n 1)" >> "$GITHUB_ENV"
       - name: Run browser checks
         run: npm run test:e2e
       - name: Validate SEO
