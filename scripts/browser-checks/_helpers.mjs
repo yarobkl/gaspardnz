@@ -1,10 +1,43 @@
 // Outils communs aux vérifications navigateur.
 import { chromium } from "playwright-core";
+import { execFileSync } from "node:child_process";
+import { existsSync } from "node:fs";
 
 export const BASE = process.env.BASE || "http://127.0.0.1:4210";
 
+function resolveChromiumPath() {
+  const explicit = process.env.CHROMIUM_PATH;
+  if (explicit) {
+    if (!existsSync(explicit)) {
+      throw new Error(`CHROMIUM_PATH pointe vers un fichier introuvable : ${explicit}`);
+    }
+    return explicit;
+  }
+
+  for (const command of ["chromium", "chromium-browser", "google-chrome", "google-chrome-stable"]) {
+    try {
+      const candidate = execFileSync("which", [command], { encoding: "utf8" }).trim();
+      if (candidate && existsSync(candidate)) return candidate;
+    } catch { /* commande absente */ }
+  }
+
+  for (const candidate of [
+    "/usr/bin/chromium",
+    "/usr/bin/chromium-browser",
+    "/usr/bin/google-chrome",
+    "/usr/bin/google-chrome-stable",
+    "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+  ]) {
+    if (existsSync(candidate)) return candidate;
+  }
+
+  throw new Error(
+    "Chromium/Chrome introuvable. Installez Chromium ou définissez CHROMIUM_PATH avant npm run test:e2e.",
+  );
+}
+
 export const launch = () => chromium.launch({
-  executablePath: process.env.CHROMIUM_PATH || "/opt/pw-browsers/chromium-1194/chrome-linux/chrome",
+  executablePath: resolveChromiumPath(),
   args: ["--no-sandbox", "--disable-setuid-sandbox"],
 });
 
