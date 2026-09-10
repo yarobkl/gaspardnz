@@ -44,7 +44,13 @@ jobs:
         run: sudo systemctl start postgresql.service
 
       - name: Run RLS / audit / CRM SQL harness
-        run: sudo -u postgres bash scripts/rls-harness/run.sh
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo rm -rf /tmp/gaspardnz-rls
+          sudo cp -R "$GITHUB_WORKSPACE" /tmp/gaspardnz-rls
+          sudo chown -R postgres:postgres /tmp/gaspardnz-rls
+          sudo -u postgres bash /tmp/gaspardnz-rls/scripts/rls-harness/run.sh
 
       - name: Build web app
         run: npm run build
