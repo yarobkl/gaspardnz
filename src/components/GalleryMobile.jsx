@@ -102,7 +102,7 @@ export default function GalleryMobile({ refEl }) {
         <div style={{ position:"relative", margin:"0 1.4rem", borderRadius:18, overflow:"hidden", background:"#120c07", boxShadow:"0 24px 70px rgba(28,18,8,.16)" }}>
           <AnimatePresence mode="wait">
             <motion.div key={`${cur}-${current.src}`} initial={{ opacity:0, scale:1.015 }} animate={{ opacity:1, scale:1 }} exit={{ opacity:0, scale:.99 }} transition={{ duration:.35 }} style={{ position:"relative" }}>
-              <img src={current.src} alt={current.label} width={current.width} height={current.height} loading="lazy" decoding="async" style={{ width:"100%", maxHeight:"78vh", minHeight:"54vh", objectFit:"contain", objectPosition:"center", display:"block", background:"#0a0602" }} />
+              <img src={current.src} alt={current.label} width={current.width} height={current.height} loading="lazy" decoding="async" style={{ width:"100%", height:"auto", display:"block", background:"#0a0602" }} />
               <PhotoHotspots
                 spots={current.hotspots || []}
                 activeIndex={activeSpot ?? -1}
