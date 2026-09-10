@@ -194,7 +194,7 @@ end $$;
 do $$
 begin
   begin
-    execute $$insert into public.admin_access (email, role) values ('bidon@test.local', 'superadmin')$$;
+    execute 'insert into public.admin_access (email, role) values (''bidon@test.local'', ''superadmin'')';
     raise exception 'ECHEC — un rôle inconnu a été accepté';
   exception when invalid_text_representation or check_violation then
     raise notice '  OK    rôle inconnu refusé';
