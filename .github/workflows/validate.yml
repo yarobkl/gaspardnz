@@ -55,6 +55,9 @@ jobs:
       - name: Build web app
         run: npm run build
 
+      - name: Validate generated SEO route HTML
+        run: npm run test:seo-built
+
       - name: Validate Capacitor bundle after build
         run: npm run test:bundle
 
