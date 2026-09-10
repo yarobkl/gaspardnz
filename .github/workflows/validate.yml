@@ -19,7 +19,7 @@ concurrency:
 jobs:
   validate:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -42,7 +42,7 @@ jobs:
         run: npx playwright-core install --with-deps chromium
       - name: Locate Chromium
         run: echo "CHROMIUM_PATH=$(find "$HOME/.cache/ms-playwright" -type f -path '*/chrome-linux*/chrome' | head -n 1)" >> "$GITHUB_ENV"
-      - name: Run browser checks
+      - name: Run browser checks on Claude HEAD
         run: npm run test:e2e
       - name: Validate SEO
         run: npm run test:seo
@@ -54,3 +54,30 @@ jobs:
         run: npm run test:consent
       - name: Verify dependency manifests stay unchanged
         run: git diff --exit-code -- package.json package-lock.json
+      - name: Prove forged-cache exploit on pre-fix 2e1d0de
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --depth=1 origin 2e1d0de3762f4901296f3bd6896fda8d6ac505ee
+          git checkout 2e1d0de3762f4901296f3bd6896fda8d6ac505ee -- src
+          npm run build >/tmp/gaspardnz-base-build.log 2>&1
+          npx vite preview --port 4210 --strictPort >/tmp/gaspardnz-base-preview.log 2>&1 &
+          preview_pid=$!
+          trap 'kill "$preview_pid" 2>/dev/null || true' EXIT
+          for i in {1..40}; do
+            if curl -fsS http://127.0.0.1:4210/ >/dev/null; then break; fi
+            sleep 0.25
+          done
+          set +e
+          BASE=http://127.0.0.1:4210 node scripts/browser-checks/admin-auth-scenarios.mjs 2>&1 | tee /tmp/base-auth.txt
+          status=${PIPESTATUS[0]}
+          set -e
+          if ! grep -q '❌ D' /tmp/base-auth.txt; then
+            echo 'Expected scenario D to reproduce the pre-fix forged-cache vulnerability, but it did not.'
+            exit 1
+          fi
+          if [ "$status" -eq 0 ]; then
+            echo 'Pre-fix suite unexpectedly passed despite the expected vulnerability.'
+            exit 1
+          fi
+          echo 'Pre-fix vulnerability independently reproduced: scenario D fails as expected.'
