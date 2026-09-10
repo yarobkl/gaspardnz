@@ -1,18 +1,16 @@
 -- Phase 10 — Intégrité de admin_access, côté serveur.
 --
--- Aujourd'hui, deux règles ne vivent QUE dans le navigateur
--- (src/components/Admin/AdminUsers.jsx) :
---   1. « le dernier propriétaire ne peut pas être désactivé » ;
---   2. le rôle attribué provient d'un <select>, donc d'une valeur choisie par
---      le client, sans validation serveur.
--- Une requête directe vers l'API REST contourne les deux. On les déplace ici.
+-- La production utilise public.admin_role (enum), pas text. Toute fonction
+-- générique de hiérarchie reçoit donc role::text explicitement afin d'éviter
+-- les erreurs de type masquées par une baseline simplifiée.
 --
--- Additive : ajoute une contrainte de validation et un trigger. Ne supprime
+-- Additive : ajoute une contrainte de validation et des triggers. Ne supprime
 -- rien, ne réécrit aucune donnée.
--- Rollback : supabase/rollback/20260910120200_*.sql
+-- Rollback : supabase/rollback/20260910120200_admin_access_integrity.down.sql
 
 -- 1. Le rôle doit appartenir au modèle. `not valid` : les lignes existantes ne
---    sont pas revalidées, la migration ne peut donc pas échouer sur l'existant.
+--    sont pas revalidées immédiatement. L'enum production assure déjà les
+--    valeurs possibles ; cette contrainte garde aussi le contrat explicite.
 do $$
 begin
   if to_regclass('public.admin_access') is null then return; end if;
@@ -22,7 +20,7 @@ begin
   ) then
     alter table public.admin_access
       add constraint admin_access_role_known
-      check (private.admin_role_rank(role) > 0) not valid;
+      check (private.admin_role_rank(role::text) > 0) not valid;
   end if;
 end $$;
 
@@ -36,7 +34,6 @@ as $$
 declare
   remaining integer;
 begin
-  -- Ne se déclenche que si la ligne cesse d'être un owner actif.
   if tg_op = 'UPDATE'
      and old.role = 'owner' and old.active
      and (new.role is distinct from 'owner' or not new.active) then
@@ -72,9 +69,7 @@ begin
     for each row execute function private.enforce_last_owner();
 end $$;
 
--- 3. L'email est normalisé en minuscules : private.current_admin_role() compare
---    à lower(auth.email()), une casse divergente ferait perdre ses droits à un
---    administrateur légitime.
+-- 3. L'email est normalisé en minuscules pour correspondre au JWT.
 create or replace function private.normalize_admin_email()
 returns trigger
 language plpgsql
