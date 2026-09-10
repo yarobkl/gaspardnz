@@ -31,6 +31,7 @@ jobs:
           npm test --if-present
           npm run test:seo
           npm run test:email-security
+          npm run test:video-accessibility
 
       - name: Pull Vercel production settings
         run: npx --yes vercel@59.15.1 pull --yes --environment=production --token="$VERCEL_TOKEN"

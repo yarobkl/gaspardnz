@@ -105,9 +105,9 @@ const VideoSection = () => {
           playsInline
           autoPlay
           muted
-          preload="none"
-          onLoadedMetadata={() => playVideo(false)}
-          onCanPlay={() => playVideo(false)}
+          preload="metadata"
+          aria-label="Sélection de looks GaspardNZ"
+          onVolumeChange={(event) => setSoundEnabled(!event.currentTarget.muted && event.currentTarget.volume > 0)}
           style={{
             width: "100%",
             height: "100%",
@@ -126,7 +126,7 @@ const VideoSection = () => {
             style={{
               position: "absolute",
               left: "50%",
-              bottom: "1rem",
+              bottom: "4rem",
               transform: "translateX(-50%)",
               zIndex: 5,
               border: `1px solid rgba(184,151,62,0.7)`,

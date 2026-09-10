@@ -49,7 +49,7 @@ const ActuCard = ({ item, isMobile = false }) => {
       {(hasVideo || photos.length > 0) && (
         <div style={{ position: "relative", overflow: "hidden", background: "#050301", maxWidth: "100%" }}>
           {hasVideo ? (
-            <video src={item.video} controls playsInline preload="metadata" style={{ width: "100%", aspectRatio: isMobile ? "4 / 5" : "9 / 16", maxHeight: isMobile ? "440px" : "560px", objectFit: "cover", objectPosition: "center", display: "block", background: "#050301" }}>
+            <video src={item.video} controls playsInline preload="metadata" aria-label={`Vidéo : ${item.title}`} style={{ width: "100%", aspectRatio: isMobile ? "4 / 5" : "9 / 16", maxHeight: isMobile ? "440px" : "560px", objectFit: "cover", objectPosition: "center", display: "block", background: "#050301" }}>
               <track kind="captions" src="/captions/jt-sape-fr.vtt" srcLang="fr" label="Français" default />
             </video>
           ) : multi ? (
@@ -66,7 +66,7 @@ const ActuCard = ({ item, isMobile = false }) => {
             <button onClick={() => setPhotoCur(c => Math.max(c - 1, 0))} aria-label={t("previous_photo")} style={{ position: "absolute", left: "8px", top: "50%", transform: "translateY(-50%)", background: "rgba(0,0,0,0.35)", color: "white", border: "none", borderRadius: "50%", width: 44, height: 44, cursor: "pointer", opacity: photoCur === 0 ? 0.3 : 1 }}>‹</button>
             <button onClick={() => setPhotoCur(c => Math.min(c + 1, photos.length - 1))} aria-label={t("next_photo")} style={{ position: "absolute", right: "8px", top: "50%", transform: "translateY(-50%)", background: "rgba(0,0,0,0.35)", color: "white", border: "none", borderRadius: "50%", width: 44, height: 44, cursor: "pointer", opacity: photoCur === photos.length - 1 ? 0.3 : 1 }}>›</button>
           </>}
-          <div style={{ position: "absolute", bottom: multi ? "28px" : "12px", right: "12px", textAlign: "right" }}><p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.2em", color: "rgba(245,240,232,0.7)", margin: 0, textTransform: "uppercase" }}>{item.location} · {item.date}</p></div>
+          <div style={{ position: "absolute", bottom: hasVideo ? "58px" : multi ? "28px" : "12px", right: "12px", textAlign: "right", pointerEvents: "none" }}><p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.2em", color: "rgba(245,240,232,0.7)", margin: 0, textTransform: "uppercase" }}>{item.location} · {item.date}</p></div>
         </div>
       )}
       <div style={{ padding: "1.4rem 1.2rem 1.6rem" }}>

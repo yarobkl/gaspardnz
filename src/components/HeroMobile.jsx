@@ -66,7 +66,7 @@ const HeroVideoLoop = () => {
   };
 
   return <>
-    <video ref={ref} src={videoSrc} autoPlay muted playsInline loop disablePictureInPicture disableRemotePlayback preload="auto" controls={false} x-webkit-airplay="deny" controlsList="nodownload nofullscreen noremoteplayback" onEnded={e => { e.target.currentTime = 0; e.target.play().catch(() => {}); }} style={{ ..._VIDEO_STYLE, background: "#1c1208" }}><track kind="captions" src="/captions/hero-fr.vtt" srcLang="fr" label="Français" /></video>
+    <video ref={ref} src={videoSrc} autoPlay muted playsInline loop aria-hidden="true" tabIndex={-1} disablePictureInPicture disableRemotePlayback preload="auto" controls={false} x-webkit-airplay="deny" controlsList="nodownload nofullscreen noremoteplayback" onEnded={e => { e.target.currentTime = 0; e.target.play().catch(() => {}); }} style={{ ..._VIDEO_STYLE, background: "#1c1208" }}><track kind="captions" src="/captions/hero-fr.vtt" srcLang="fr" label="Français" /></video>
     {showPausedNotice && <button onClick={retryPlay} aria-label={t("hero_video_paused")} style={{ position: "absolute", bottom: "14px", left: "50%", transform: "translateX(-50%)", zIndex: 9, maxWidth: "min(88vw, 420px)", background: "rgba(20,13,6,0.45)", backdropFilter: "blur(2px)", border: "1px solid rgba(184,151,62,0.3)", borderRadius: "999px", padding: "0.5rem 1rem", fontFamily: "'Montserrat', sans-serif", fontSize: "10.5px", lineHeight: 1.4, letterSpacing: "0.02em", color: "rgba(245,240,232,0.85)", textShadow: "0 1px 3px rgba(0,0,0,0.6)", cursor: "pointer", textAlign: "center" }}>{t("hero_video_paused")}</button>}
   </>;
 };

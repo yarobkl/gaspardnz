@@ -2,7 +2,7 @@
 
 ## Checkpoint
 
-- Date et heure : 2026-09-10 17:56:39 UTC
+- Date et heure : 2026-09-10 18:01:43 UTC
 - Branche active : `hardening/gaspardnz-2026-09`
 - Commit de départ (`main` / `origin/main`) : `9ef4c2776106acd3118c99e778c08e2e25a7830b`
 - Dépôt GitHub : `yarobkl/gaspardnz`
@@ -54,6 +54,11 @@
 - Phase 3 : build, SEO, sécurité email, lint conditionnel et tests unitaires conditionnels configurés comme contrôles CI.
 - Phase 3 : workflows Android passés à `npm ci` et permissions minimales.
 - Phase 3 : fallback Vercel épinglé sur la CLI `59.15.1`, avec validation, `vercel build --prod` puis déploiement `--prebuilt`.
+- Phase 3 : exécution GitHub Actions réelle `34511358526` terminée avec la conclusion `success`.
+- Phase 4 : cause reproduite sur la preview — CSS global masquant tous les pseudo-éléments des contrôles vidéo WebKit.
+- Phase 4 : CSS bloquant retiré ; lecteurs publics étiquetés, pistes WebVTT conservées, métadonnées vidéo préchargées et overlays déplacés hors des contrôles.
+- Phase 4 : vidéo décorative du hero retirée de l'ordre clavier ; previews vidéo admin rendues pilotables.
+- Phase 4 : validation automatique anti-régression ajoutée et réussie localement.
 
 ## Tâche en cours
 
@@ -82,6 +87,13 @@
 - `.github/workflows/android-build.yml`
 - `.github/workflows/android-release-signed.yml`
 - `.github/workflows/vercel-deploy.yml`
+- `index.html`
+- `package.json`
+- `scripts/validate-video-accessibility.mjs`
+- `src/components/Admin/AdminMedia.jsx`
+- `src/components/HeroMobile.jsx`
+- `src/components/sections/ActualitesSection.jsx`
+- `src/components/sections/VideoSection.jsx`
 - `WORK_PROGRESS.md`
 
 ## Tests et vérifications effectués
@@ -105,6 +117,12 @@
 - Émulation locale du workflow : `npm ci`, build, SEO et sécurité email réussis ; lint et tests unitaires absents donc étapes conditionnelles sans action.
 - Syntaxe YAML des cinq workflows analysée avec succès.
 - Recherche de motifs CI interdits (`contents: write`, `npm install`, commit/push du lockfile) : aucun résultat après correction.
+- GitHub Actions du commit de phase 3 : succès confirmé.
+- Preview de phase 3 : déploiement `dpl_943FRe1XxNVxZsB6dTtB25RTTqRk` `READY`.
+- Reproduction navigateur avant correctif : 3 vidéos présentes, dont 2 lecteurs de contenu avec `controls`; règle globale de masquage native présente dans le HTML servi.
+- `npm run test:video-accessibility` : réussi.
+- Build et validations SEO/email après correctif vidéo : réussis.
+- `package-lock.json` inchangé.
 
 ## Résultat du build
 
@@ -112,15 +130,15 @@
 
 ## URL de preview
 
-- `https://gaspardnz-git-hardening-gaspardnz-2026-09-yarobkls-projects.vercel.app/` — phase 2 testée HTTP 200, déploiement `dpl_DER5UHhryDGdmDYQfLxmupAg1JtE` `READY`.
+- `https://gaspardnz-git-hardening-gaspardnz-2026-09-yarobkls-projects.vercel.app/` — phase 3 `READY`; correctif vidéo en attente du prochain déploiement de cette même preview.
 
 ## Dernier commit
 
-- `211c59ae00d19db67477b7eb20e1a7866bda6d5d` (`docs: document project operations and security`).
+- `0d44d541a9c39ed64a7d571b1f039dd496c7974e` (`ci: make validation deterministic and read-only`).
 
 ## Prochaine action exacte
 
-Inventorier toutes les balises vidéo et les règles CSS associées, reproduire l'absence de contrôles natifs, puis appliquer le correctif minimal garantissant lecture, pause, volume, timeline, plein écran, clavier, sous-titres et comportement mobile.
+Pousser le correctif vidéo, attendre CI et preview `READY`, puis tester réellement dans le navigateur les contrôles, le clavier, la recherche temporelle, le volume, le plein écran et le chargement des pistes de sous-titres avant de clore la phase 4.
 
 ## Blocages / précautions
 
