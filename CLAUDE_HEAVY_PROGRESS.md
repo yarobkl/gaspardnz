@@ -147,7 +147,7 @@ complaisant.
   production » : il attend la revue de Work et la stabilisation de la phase 8.
 
 ### Phase 10 — RBAC / rôles / RLS
-- **Statut** : 🔄 MIGRATIONS PRÊTES ET TESTÉES LOCALEMENT — non appliquées
+- **Statut** : 🔄 CORRECTIF INTERFACE LIVRÉ — migrations prêtes et testées localement, **non appliquées**
 
 #### Contrainte d'accès
 
@@ -240,6 +240,51 @@ site vitrine est inchangée (vérifié).
 vérifications de rôle échouaient, ce qui aurait rendu l'administration
 **totalement inaccessible** en production. Corrigé, retesté.
 
+#### Application côté interface (défense en profondeur)
+
+Le modèle de rôles est désormais aussi appliqué dans l'interface — **sans jamais
+être présenté comme la sécurité** : masquer un écran n'empêche pas d'appeler
+l'API, seule la base refuse.
+
+- chaque entrée de `NAV_GROUPS` déclare un rôle minimal (`min`) ;
+- la navigation rendue est la version filtrée par `hasPermission()` ;
+- une section atteinte **par URL directe** hors du rôle affiche un refus et ne
+  monte aucun module.
+
+`hasPermission()` était exporté mais appelé nulle part : il est enfin branché.
+
+| Section | Rôle minimal |
+|---|---|
+| Tableau de bord, Analytics, CRM, Réservations, Emails | viewer |
+| SEO, Contenu, Textes, Médias, Galerie, Promotions, Style, VIP, Wedding | editor |
+| Paramètres | admin |
+| Utilisateurs | owner |
+
+Vérifié **dans un vrai navigateur**, réponses Supabase simulées (8/8) :
+
+| Contrôle | Résultat |
+|---|---|
+| Navigation vue par owner / admin / editor / viewer | ✅ 16 / 15 / 14 / 5 entrées, aucune fuite |
+| `/admin/users` en URL directe — viewer, editor, admin | ✅ Refus affiché, module non monté |
+| `/admin/users` — owner | ✅ Module rendu, aucun refus |
+
+Ce test couvre au passage le **scénario B de la phase 9** (session valide →
+interface admin rendue), qui restait non exercé.
+
+Nouveau test statique `npm run test:rbac`, lui aussi **validé par mutation** :
+six régressions réintroduites, six détectées (rôle minimal retiré, navigation
+non filtrée, module rendu malgré le refus, politique repassée en permissive,
+lecture de sa propre ligne supprimée, `DROP TABLE` ajouté dans une migration).
+
+#### Un second défaut trouvé par les tests
+
+La première version de la migration exigeait le rôle `admin` pour **toute**
+lecture de `admin_access`. Or `getAccessProfile()` lit cette table pour établir
+le profil **au moment de la connexion** : les rôles `viewer` et `editor`
+n'auraient plus pu se connecter du tout. Corrigé — chaque compte peut lire sa
+propre ligne, la liste complète reste réservée à `admin` et plus — puis
+retesté (`select propre ligne` → OK, `select ligne d'autrui` → DENY).
+
 #### Réserves explicites
 
 - **Le harnais ne prouve rien sur la production.**
@@ -290,8 +335,9 @@ vérifications de rôle échouaient, ce qui aurait rendu l'administration
 
 ## Prochaine action exacte
 
-Appliquer le modèle de rôles **côté interface** (défense en profondeur) :
-`AdminLayout` doit masquer les sections hors du rôle de l'utilisateur, et
-`AdminUsers` ne doit pas proposer d'attribuer un rôle supérieur au sien. Puis
-enchaîner sur la **phase 11 (journal d'audit serveur)**, qui doit être livrée
-avec la migration RLS puisque celle-ci ferme l'écriture cliente d'`activity_log`.
+Démarrer la **phase 11 (journal d'audit serveur)**. Elle doit être livrée
+**avec** la migration RLS de la phase 10, puisque celle-ci ferme l'écriture
+cliente d'`activity_log` : cartographier les écritures actuelles dans
+`adminData.js`, puis les remplacer par une écriture serveur non falsifiable
+(trigger ou RPC `security definer`), sans jamais journaliser de mot de passe,
+de jeton complet ni de secret d'API.

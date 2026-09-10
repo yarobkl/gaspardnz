@@ -11,6 +11,7 @@
     "test:video-accessibility": "node scripts/validate-video-accessibility.mjs",
     "test:consent": "node scripts/validate-consent.mjs",
     "test:admin-auth": "node scripts/validate-admin-auth.mjs",
+    "test:rbac": "node scripts/validate-rbac.mjs",
     "build:app": "BUILD_TARGET=capacitor vite build",
     "preview": "vite preview",
     "cap:sync": "npm run build:app && npx cap sync",

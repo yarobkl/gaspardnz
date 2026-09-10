@@ -74,10 +74,15 @@ begin
     return;
   end if;
 
+  -- Lecture : la liste complète est réservée aux rôles admin et plus.
+  -- MAIS chaque compte doit pouvoir lire SA PROPRE ligne : la connexion elle-même
+  -- en dépend (getAccessProfile lit admin_access pour établir le profil). Sans
+  -- cette exception, les rôles viewer et editor ne pourraient plus se connecter
+  -- du tout.
   drop policy if exists rbac_read_admin_access on public.admin_access;
   create policy rbac_read_admin_access on public.admin_access
     as restrictive for select to authenticated
-    using (private.has_admin_role('admin'));
+    using (private.has_admin_role('admin') or email = lower(auth.email()));
 
   drop policy if exists rbac_write_admin_access on public.admin_access;
   create policy rbac_write_admin_access on public.admin_access

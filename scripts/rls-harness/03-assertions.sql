@@ -89,12 +89,28 @@ begin
     'delete from public.leads where email = ''nouveau@example.com'''); end loop;
 
   raise notice '';
-  raise notice 'LECTURE admin_access — rôle minimal : admin';
+  raise notice 'LECTURE de la LISTE admin_access — rôle minimal : admin';
+  -- Un viewer/editor ne voit que sa propre ligne : la liste complète (> 1) ne
+  -- doit remonter que pour admin et owner.
   for r in select * from (values
       ('owner@test.local','OK'),('admin@test.local','OK'),
       ('editor@test.local','DENY'),('viewer@test.local','DENY')) as t(who,exp)
-  loop perform pg_temp.check_as('select admin_access', r.who, r.exp, 'read',
-    'select count(*) from public.admin_access'); end loop;
+  loop perform pg_temp.check_as('liste admin_access', r.who, r.exp, 'read',
+    'select count(*) filter (where email <> lower(auth.email())) from public.admin_access'); end loop;
+
+  raise notice '';
+  raise notice 'LECTURE DE SA PROPRE LIGNE admin_access — indispensable a la connexion';
+  for r in select * from (values
+      ('viewer@test.local','OK'),('editor@test.local','OK')) as t(who,exp)
+  loop perform pg_temp.check_as('select propre ligne', r.who, r.exp, 'read',
+    format('select count(*) from public.admin_access where email = %L', r.who)); end loop;
+
+  raise notice '';
+  raise notice 'LECTURE DE LA LIGNE D''UN AUTRE — doit rester refusee';
+  for r in select * from (values
+      ('viewer@test.local','DENY'),('editor@test.local','DENY')) as t(who,exp)
+  loop perform pg_temp.check_as('select ligne d''autrui', r.who, r.exp, 'read',
+    'select count(*) from public.admin_access where email = ''owner@test.local'''); end loop;
 
   raise notice '';
   raise notice 'ELEVATION DE PRIVILEGE — s''octroyer le rôle owner';
