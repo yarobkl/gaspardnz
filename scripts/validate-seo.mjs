@@ -3,6 +3,17 @@ import { readFileSync, existsSync } from "node:fs";
 
 const site = "https://gaspardnz.style";
 const forbidden = ["gaspardnz.ipcjagency.com", "ipcjagency.com", "gaspardnz-style.fr"];
+const seoRoutes = [
+  "/a-propos",
+  "/services",
+  "/lookbook",
+  "/contact",
+  "/galerie",
+  "/videos",
+  "/partenaires",
+  "/style-du-mois",
+  "/actualites",
+];
 
 const files = [
   "index.html",
@@ -13,6 +24,7 @@ const files = [
   "src/App.jsx",
   "src/constants.js",
   "vercel.json",
+  "scripts/generate-static-seo-routes.mjs",
 ];
 
 for (const file of files) {
@@ -36,21 +48,33 @@ assert.match(robots, /Allow: \//);
 assert.match(robots, /Sitemap: https:\/\/gaspardnz\.style\/sitemap\.xml/);
 
 const sitemap = readFileSync("public/sitemap.xml", "utf8");
-[
-  "/",
-  "/a-propos",
-  "/services",
-  "/lookbook",
-  "/contact",
-  "/galerie",
-  "/videos",
-  "/partenaires",
-  "/style-du-mois",
-  "/actualites",
-].forEach((path) => {
+["/", ...seoRoutes].forEach((path) => {
   const url = `${site}${path === "/" ? "/" : path}`;
   assert.equal(sitemap.includes(`<loc>${url}</loc>`), true, `sitemap missing ${url}`);
 });
+
+const generator = readFileSync("scripts/generate-static-seo-routes.mjs", "utf8");
+const vercel = JSON.parse(readFileSync("vercel.json", "utf8"));
+for (const route of seoRoutes) {
+  assert.equal(generator.includes(`"${route}"`), true, `static SEO generator missing ${route}`);
+  const rewrite = (vercel.rewrites || []).find((entry) => entry.source === route);
+  assert.ok(rewrite, `Vercel rewrite missing ${route}`);
+  assert.equal(
+    rewrite.destination,
+    `${route}/index.html`,
+    `${route} must serve its generated route-specific HTML, not the root index.html`,
+  );
+}
+
+const adminRewrite = (vercel.rewrites || []).find((entry) => entry.source === "/admin(.*)");
+assert.equal(adminRewrite?.destination, "/index.html", "admin SPA fallback must remain on root index.html");
+const adminHeaders = (vercel.headers || []).find((entry) => entry.source === "/admin(.*)")?.headers || [];
+assert.equal(
+  adminHeaders.some((header) => header.key === "X-Robots-Tag" && /noindex/.test(header.value)),
+  true,
+  "admin routes must be noindex",
+);
+assert.equal(vercel.trailingSlash, false, "canonical SEO routes must not fork into trailing-slash duplicates");
 
 ["public/favicon.ico", "public/icon.png", "public/icon-192.png", "public/icon-512.png", "public/apple-touch-icon.png"].forEach((file) => {
   assert.equal(existsSync(file), true, `${file} is missing`);
