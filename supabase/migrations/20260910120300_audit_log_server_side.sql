@@ -1,20 +1,14 @@
 -- Phase 11 — Journal d'audit écrit par le serveur.
 --
--- Aujourd'hui, activity_log est alimenté par DEUX appels depuis le navigateur
--- (src/services/adminData.js), et aucun des deux ne renseigne `actor_email` :
--- le journal ne dit donc pas qui a agi, et son contenu est entièrement choisi
--- par le client — donc falsifiable, et donc sans valeur de preuve. La plupart
--- des opérations sensibles (réservations, paramètres, médias, accès) n'y
--- laissent aucune trace.
+-- Aligné sur le vrai schéma de production : activity_log.entity_id est TEXT,
+-- pas UUID. Le journal accepte donc les UUID mais aussi les clés textuelles
+-- (site_settings.key, provider, slug...) sans cast destructeur.
 --
--- Cette migration déplace l'écriture côté serveur, via des triggers. L'acteur
--- est lu dans le JWT, jamais dans la requête.
---
+-- L'acteur vient du JWT ; le navigateur n'écrit jamais directement le journal.
 -- Additive et idempotente. Ne réécrit aucune ligne existante.
--- Rollback : supabase/rollback/20260910120300_*.sql
+-- Rollback : supabase/rollback/20260910120300_audit_log_server_side.down.sql
 -- Prérequis : 20260910120000_rbac_role_functions.sql
 
--- Colonnes dont la valeur ne doit JAMAIS être journalisée.
 create or replace function private.audit_is_sensitive(column_name text)
 returns boolean
 language sql
@@ -23,8 +17,6 @@ as $$
   select lower(column_name) ~ '(password|passwd|secret|token|api_key|apikey|private_key|credential|authorization|session|otp|hash|salt|signature|smtp)';
 $$;
 
--- Libellé lisible d'une ligne, pris dans une liste blanche de colonnes et
--- tronqué. Ne retourne jamais la valeur d'une colonne sensible.
 create or replace function private.audit_label(row_data jsonb)
 returns text
 language plpgsql
@@ -45,9 +37,7 @@ begin
   return null;
 end $$;
 
--- Noms des colonnes modifiées. Des NOMS uniquement, jamais de valeurs : un
--- diff de valeurs finirait par journaliser des données personnelles ou un
--- secret le jour où une colonne sensible est ajoutée.
+-- Noms des colonnes modifiées uniquement ; aucune valeur n'est copiée.
 create or replace function private.audit_changed_columns(before_data jsonb, after_data jsonb)
 returns text
 language sql
@@ -59,9 +49,6 @@ as $$
     and key not in ('updated_at');
 $$;
 
--- Trigger générique. SECURITY DEFINER : l'écriture du journal doit aboutir même
--- quand les politiques RLS interdisent au client d'écrire dans activity_log —
--- c'est précisément ce qui rend le journal non falsifiable.
 create or replace function private.audit_row_change()
 returns trigger
 language plpgsql
@@ -76,21 +63,30 @@ declare
   label       text  := private.audit_label(subject);
   changed     text;
   description text;
+  subject_id  text;
 begin
   if tg_op = 'UPDATE' then
     changed := private.audit_changed_columns(before_data, after_data);
-    -- Une mise à jour qui ne change rien n'a pas à être journalisée.
     if changed is null then return new; end if;
   end if;
 
   description := coalesce(label, '(sans libellé)')
                  || case when changed is not null then ' — champs : ' || changed else '' end;
 
+  -- activity_log.entity_id est text en production. On privilégie id, puis une
+  -- clé métier stable lorsqu'une table (site_settings) n'a pas de colonne id.
+  subject_id := coalesce(
+    nullif(subject ->> 'id', ''),
+    nullif(subject ->> 'key', ''),
+    nullif(subject ->> 'slug', ''),
+    nullif(subject ->> 'provider', '')
+  );
+
   insert into public.activity_log (event_type, entity_type, entity_id, title, description, actor_email)
   values (
     tg_table_name || '_' || lower(tg_op),
     tg_table_name,
-    nullif(subject ->> 'id', '')::uuid,
+    subject_id,
     case tg_op
       when 'INSERT' then 'Création'
       when 'UPDATE' then 'Modification'
@@ -103,7 +99,6 @@ begin
   return case when tg_op = 'DELETE' then old else new end;
 end $$;
 
--- Le journal est en AJOUT SEUL : une trace qu'on peut réécrire ne prouve rien.
 create or replace function private.audit_log_append_only()
 returns trigger
 language plpgsql
@@ -126,9 +121,16 @@ begin
     before update or delete on public.activity_log
     for each row execute function private.audit_log_append_only();
 
-  foreach t in array array['leads','bookings','promotions','site_settings',
-                           'site_content','admin_access','media_assets',
-                           'content_albums','crm_notes']
+  -- Tables réellement modifiables par l'admin dans le schéma production.
+  -- Les tables de télémétrie automatique (analytics_events, sessions,
+  -- visitors, email_events, external_metric_snapshots) sont volontairement
+  -- exclues pour éviter un journal bruyant alimenté par les synchronisations.
+  foreach t in array array[
+    'leads','bookings','customers','crm_notes','email_messages',
+    'promotions','site_settings','site_content','admin_access','media_assets',
+    'content_albums','packages','partners','partner_contacts','news_posts',
+    'vip_clients','wedding_inspirations','style_month','integration_settings'
+  ]
   loop
     if to_regclass('public.' || t) is null then
       raise notice 'table % absente, audit ignoré', t;
@@ -142,14 +144,17 @@ begin
   end loop;
 end $$;
 
--- Le client ne doit plus jamais écrire dans le journal : seuls les triggers le
--- font. Politique restrictive à `false` — elle ne peut que fermer.
+-- Le client ne doit jamais écrire/modifier/supprimer le journal.
 do $$
 begin
   if to_regclass('public.activity_log') is null then return; end if;
-  drop policy if exists rbac_write_activity_log  on public.activity_log;
+
+  drop policy if exists rbac_write_activity_log on public.activity_log;
   drop policy if exists rbac_update_activity_log on public.activity_log;
   drop policy if exists rbac_delete_activity_log on public.activity_log;
+  drop policy if exists audit_no_client_insert on public.activity_log;
+  drop policy if exists audit_no_client_update on public.activity_log;
+  drop policy if exists audit_no_client_delete on public.activity_log;
 
   create policy audit_no_client_insert on public.activity_log
     as restrictive for insert to authenticated with check (false);
@@ -157,6 +162,4 @@ begin
     as restrictive for update to authenticated using (false);
   create policy audit_no_client_delete on public.activity_log
     as restrictive for delete to authenticated using (false);
-exception when duplicate_object then
-  null;
 end $$;
