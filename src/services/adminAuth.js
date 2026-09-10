@@ -78,4 +78,35 @@ export async function changePassword(_userId, oldPassword, newPassword) {
   const { error } = await supabase.auth.updateUser({ password:newPassword });
   return error ? { success:false, error:error.message } : { success:true };
 }
-export function onAuthStateChange(callback) { return supabase.auth.onAuthStateChange(async (_event, session) => { callback(session?.user ? await getAccessProfile(session.user) : null); }); }
+
+/**
+ * Supabase déconseille d'effectuer un nouvel appel asynchrone Supabase
+ * directement dans le callback `onAuthStateChange`, car ce callback s'exécute
+ * pendant la notification interne de l'authentification. On rend donc le
+ * callback immédiatement et on décale la lecture de `admin_access` au tick
+ * suivant. Le compteur empêche une réponse lente d'un ancien événement de
+ * réauthentifier l'interface après une déconnexion plus récente.
+ */
+export function onAuthStateChange(callback) {
+  let sequence = 0;
+  return supabase.auth.onAuthStateChange((_event, session) => {
+    const current = ++sequence;
+    const user = session?.user || null;
+
+    setTimeout(() => {
+      if (current !== sequence) return;
+      if (!user) {
+        callback(null);
+        return;
+      }
+
+      getAccessProfile(user)
+        .then((profile) => {
+          if (current === sequence) callback(profile);
+        })
+        .catch(() => {
+          if (current === sequence) callback(null);
+        });
+    }, 0);
+  });
+}
