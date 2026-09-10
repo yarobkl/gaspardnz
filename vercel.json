@@ -2,17 +2,18 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "framework": "vite",
+  "trailingSlash": false,
   "rewrites": [
     { "source": "/admin(.*)", "destination": "/index.html" },
-    { "source": "/a-propos", "destination": "/index.html" },
-    { "source": "/services", "destination": "/index.html" },
-    { "source": "/lookbook", "destination": "/index.html" },
-    { "source": "/contact", "destination": "/index.html" },
-    { "source": "/galerie", "destination": "/index.html" },
-    { "source": "/videos", "destination": "/index.html" },
-    { "source": "/partenaires", "destination": "/index.html" },
-    { "source": "/style-du-mois", "destination": "/index.html" },
-    { "source": "/actualites", "destination": "/index.html" }
+    { "source": "/a-propos", "destination": "/a-propos/index.html" },
+    { "source": "/services", "destination": "/services/index.html" },
+    { "source": "/lookbook", "destination": "/lookbook/index.html" },
+    { "source": "/contact", "destination": "/contact/index.html" },
+    { "source": "/galerie", "destination": "/galerie/index.html" },
+    { "source": "/videos", "destination": "/videos/index.html" },
+    { "source": "/partenaires", "destination": "/partenaires/index.html" },
+    { "source": "/style-du-mois", "destination": "/style-du-mois/index.html" },
+    { "source": "/actualites", "destination": "/actualites/index.html" }
   ],
   "headers": [
     {
@@ -25,6 +26,14 @@
         { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
         { "key": "Permissions-Policy", "value": "camera=(), microphone=(), geolocation=()" },
         { "key": "X-XSS-Protection", "value": "0" }
+      ]
+    },
+    {
+      "source": "/admin(.*)",
+      "headers": [
+        { "key": "X-Robots-Tag", "value": "noindex, nofollow, noarchive" },
+        { "key": "Cache-Control", "value": "no-store" },
+        { "key": "CDN-Cache-Control", "value": "no-store" }
       ]
     },
     {
