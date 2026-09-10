@@ -87,13 +87,9 @@ export async function listLeads({ status = "all", search = "", limit = 100 } = {
 export async function updateLead(id, patch) {
   const { data, error } = await supabase.from("leads").update(patch).eq("id", id).select().single();
   if (error) throw error;
-  await supabase.from("activity_log").insert({
-    event_type: "lead_updated",
-    entity_type: "lead",
-    entity_id: id,
-    title: "Prospect mis à jour",
-    description: data.full_name || data.email || data.phone || "Prospect",
-  });
+  // La trace d'audit est écrite par le serveur (trigger private.audit_row_change).
+  // Une trace écrite par le navigateur est choisie par le client, donc falsifiable :
+  // voir supabase/migrations/20260910120300_audit_log_server_side.sql
   return data;
 }
 
@@ -150,13 +146,7 @@ export async function savePromotion(input) {
     : supabase.from("promotions").insert(payload);
   const { data, error } = await query.select().single();
   if (error) throw error;
-  await supabase.from("activity_log").insert({
-    event_type: input.id ? "promotion_updated" : "promotion_created",
-    entity_type: "promotion",
-    entity_id: data.id,
-    title: input.id ? "Promotion modifiée" : "Nouvelle promotion",
-    description: data.title,
-  });
+  // Trace d'audit écrite côté serveur (cf. updateLead).
   return data;
 }
 

@@ -127,7 +127,7 @@ begin
       ('viewer@test.local','DENY'),('editor@test.local','DENY'),
       ('admin@test.local','DENY')) as t(who,exp)
   loop perform pg_temp.check_as('insert activity_log', r.who, r.exp, 'write',
-    'insert into public.activity_log (actor_email, action) values (''faux@x.fr'', ''connexion falsifiee'')'); end loop;
+    'insert into public.activity_log (actor_email, event_type) values (''faux@x.fr'', ''connexion_falsifiee'')'); end loop;
 end $$;
 
 -- Le site vitrine ne doit PAS avoir été cassé.

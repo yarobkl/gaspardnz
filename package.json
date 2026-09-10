@@ -12,6 +12,7 @@
     "test:consent": "node scripts/validate-consent.mjs",
     "test:admin-auth": "node scripts/validate-admin-auth.mjs",
     "test:rbac": "node scripts/validate-rbac.mjs",
+    "test:audit": "node scripts/validate-audit.mjs",
     "build:app": "BUILD_TARGET=capacitor vite build",
     "preview": "vite preview",
     "cap:sync": "npm run build:app && npx cap sync",

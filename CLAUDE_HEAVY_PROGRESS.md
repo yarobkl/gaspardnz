@@ -303,8 +303,70 @@ retesté (`select propre ligne` → OK, `select ligne d'autrui` → DENY).
   écriture serveur est l'objet de la **phase 11**, qui doit donc être livrée
   **avec** cette migration, pas après.
 
-### Phase 11 — Audit log serveur
-- **Statut** : ⏳ NON DÉMARRÉ
+### Phase 11 — Journal d'audit serveur
+- **Statut** : 🔄 MIGRATION PRÊTE ET TESTÉE LOCALEMENT — non appliquée
+
+#### Constat vérifié
+
+`activity_log` n'était alimenté que par **deux** appels depuis le navigateur
+(`adminData.js`), et **aucun des deux ne renseignait `actor_email`** : le journal
+ne disait pas qui avait agi. Son contenu étant entièrement choisi par le client,
+il était falsifiable — donc sans valeur de preuve. Les opérations réellement
+sensibles (réservations, paramètres, médias, **attributions d'accès**,
+suppressions) n'y laissaient **aucune trace**.
+
+#### Correctif préparé
+
+`supabase/migrations/20260910120300_audit_log_server_side.sql` :
+
+- trigger générique `private.audit_row_change()` en `SECURITY DEFINER`, posé sur
+  `leads`, `bookings`, `promotions`, `site_settings`, `site_content`,
+  `admin_access`, `media_assets`, `content_albums`, `crm_notes` ;
+- **l'acteur est lu dans le JWT** (`auth.email()`), jamais dans la requête :
+  il ne peut donc pas être usurpé ;
+- **journal en ajout seul** : un trigger refuse `UPDATE` et `DELETE` sur
+  `activity_log`, y compris au propriétaire. Une trace réécrivable ne prouve rien ;
+- **écriture cliente fermée** par politiques restrictives `false` — seul le
+  trigger écrit, ce qui est possible parce qu'il est `SECURITY DEFINER` ;
+- **aucun secret journalisé** : les valeurs ne sont jamais copiées. Une liste
+  blanche fournit un libellé lisible, et une modification journalise les **noms**
+  des champs changés, jamais leurs valeurs. Un filtre reconnaît en plus les
+  colonnes sensibles (mot de passe, jeton, clé d'API, empreinte, signature, SMTP).
+
+Côté client, les deux `INSERT` dans `activity_log` sont retirés d'`adminData.js`
+(la lecture par le tableau de bord est conservée).
+
+#### Vérifications exécutées (PostgreSQL 16 local)
+
+| Contrôle | Résultat |
+|---|---|
+| Une écriture métier produit une trace attribuée au bon acteur | ✅ `leads_insert` / `editor@test.local` |
+| Usurpation d'acteur | ✅ Impossible (acteur pris dans le JWT) |
+| Écriture directe du journal par le client, propriétaire inclus | ✅ Refusée |
+| Réécriture / suppression d'une trace | ✅ Refusées (ajout seul) |
+| Secret présent dans une colonne (`smtp_password`) | ✅ Non journalisé |
+| Reconnaissance des colonnes sensibles | ✅ mot de passe, jeton, clé d'API, empreinte |
+| Modification : champs journalisés, valeurs exclues | ✅ `champs : status`, sans la valeur |
+| Mise à jour sans changement réel | ✅ Aucune trace parasite |
+| Suppression et attribution d'accès | ✅ Tracées |
+| Rollback | ✅ Triggers retirés, **traces conservées** |
+
+Nouveau test statique `npm run test:audit`, **validé par mutation** : sept
+régressions réintroduites, sept détectées (écriture cliente réintroduite, acteur
+repris du client, `token` retiré du filtre, protection ajout-seul supprimée,
+insertion cliente rouverte, `SECURITY DEFINER` retiré, `search_path` non fixé).
+
+Les deux dernières n'étaient **pas** détectées par ma première version du test,
+qui cherchait `security definer` n'importe où dans le fichier : l'assertion a été
+resserrée sur la fonction concernée.
+
+#### Réserve
+
+Même réserve que la phase 10 : testé contre une baseline reconstruite, **pas**
+contre la production. Le schéma réel d'`activity_log` doit être confirmé avant
+application — la migration suppose les colonnes `event_type`, `entity_type`,
+`entity_id`, `title`, `description`, `actor_email`, telles que lues par
+`adminData.js`.
 
 ### Phase 12 — CRM unifié
 - **Statut** : ⏳ NON DÉMARRÉ
@@ -335,9 +397,8 @@ retesté (`select propre ligne` → OK, `select ligne d'autrui` → DENY).
 
 ## Prochaine action exacte
 
-Démarrer la **phase 11 (journal d'audit serveur)**. Elle doit être livrée
-**avec** la migration RLS de la phase 10, puisque celle-ci ferme l'écriture
-cliente d'`activity_log` : cartographier les écritures actuelles dans
-`adminData.js`, puis les remplacer par une écriture serveur non falsifiable
-(trigger ou RPC `security definer`), sans jamais journaliser de mot de passe,
-de jeton complet ni de secret d'API.
+Démarrer la **phase 12 (CRM unifié)** : cartographier d'abord ce qui existe
+réellement — `leads`, `bookings`, `crm_notes`, `email_messages`, `vip_clients`,
+`visitors` — et comment ces tables sont reliées, **avant** toute proposition de
+schéma. Aucune migration destructive : le CRM doit unifier des vues, pas
+supprimer des données.

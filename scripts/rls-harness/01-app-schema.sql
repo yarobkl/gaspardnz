@@ -33,7 +33,9 @@ create table if not exists public.site_content (
 );
 create table if not exists public.activity_log (
   id uuid primary key default gen_random_uuid(),
-  actor_email text, action text, created_at timestamptz default now()
+  event_type text, entity_type text, entity_id uuid,
+  title text, description text,
+  actor_email text, created_at timestamptz default now()
 );
 
 alter table public.admin_access  enable row level security;

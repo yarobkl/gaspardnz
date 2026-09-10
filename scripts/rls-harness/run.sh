@@ -36,6 +36,9 @@ echo "  OK (rejouables sans erreur)"
 echo "--- matrice de droits ---"
 $PSQL -d "$DB" -f "$HERE/03-assertions.sql"
 
+echo "--- journal d'audit ---"
+$PSQL -d "$DB" -f "$HERE/04-audit-assertions.sql"
+
 echo "--- rollback ---"
 for r in $(ls -r "$ROOT"/supabase/rollback/*.down.sql); do
   echo "  $(basename "$r")"
