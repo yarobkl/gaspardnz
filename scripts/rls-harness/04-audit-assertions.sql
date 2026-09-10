@@ -1,56 +1,57 @@
--- Phase 11 — le journal d'audit doit être écrit par le serveur, attribué au
--- bon acteur, non falsifiable et impossible à réécrire.
+-- Phase 11 — journal d'audit serveur : acteur, intégrité, types production.
 
 set client_min_messages = notice;
 
 truncate public.activity_log;
 
--- 1. Une écriture métier produit une trace attribuée à l'auteur réel.
+-- 1. Une écriture métier autorisée produit une trace attribuée au JWT réel.
 do $$
-declare n integer; actor text; ev text; descr text;
+declare n integer; actor text; ev text; descr text; entity text;
 begin
   set local role authenticated;
-  set local request.jwt.claim.email = 'editor@test.local';
+  set local request.jwt.claim.email = 'admin@test.local';
   insert into public.leads (email) values ('trace@example.com');
   reset role;
 
   select count(*) into n from public.activity_log where entity_type = 'leads';
   if n <> 1 then raise exception 'ECHEC — % trace(s) pour une insertion, 1 attendue', n; end if;
 
-  select actor_email, event_type, description into actor, ev, descr
+  select actor_email, event_type, description, entity_id into actor, ev, descr, entity
     from public.activity_log where entity_type = 'leads';
-  if actor <> 'editor@test.local' then
-    raise exception 'ECHEC — acteur journalisé « % », editor@test.local attendu', actor;
+  if actor <> 'admin@test.local' then
+    raise exception 'ECHEC — acteur journalisé « % », admin@test.local attendu', actor;
   end if;
-  raise notice '  OK    trace créée par le serveur : % / acteur=% / %', ev, actor, descr;
+  if entity is null or entity = '' then
+    raise exception 'ECHEC — entity_id absent';
+  end if;
+  raise notice '  OK    trace serveur : % / acteur=% / entity_id=%', ev, actor, entity;
 end $$;
 
--- 2. L'acteur ne peut pas être usurpé : la valeur envoyée par le client est ignorée.
+-- 2. L'acteur ne peut pas être usurpé.
 do $$
 declare actor text;
 begin
   truncate public.activity_log;
   set local role authenticated;
-  set local request.jwt.claim.email = 'editor@test.local';
-  -- Le client tente de se faire passer pour le propriétaire via la ligne métier.
+  set local request.jwt.claim.email = 'admin@test.local';
   insert into public.leads (email) values ('usurpation@example.com');
   reset role;
 
   select actor_email into actor from public.activity_log where entity_type = 'leads';
-  if actor <> 'editor@test.local' then
+  if actor <> 'admin@test.local' then
     raise exception 'ECHEC — usurpation possible : %', actor;
   end if;
-  raise notice '  OK    acteur non usurpable : % (lu dans le JWT, pas dans la requête)', actor;
+  raise notice '  OK    acteur non usurpable : %', actor;
 end $$;
 
--- 3. Le client ne peut pas écrire directement dans le journal.
+-- 3. Même owner ne peut pas écrire directement dans activity_log.
 do $$
 begin
   set local role authenticated;
   set local request.jwt.claim.email = 'owner@test.local';
   begin
-    insert into public.activity_log (event_type, actor_email)
-      values ('faux_evenement', 'quelquun@dautre.fr');
+    insert into public.activity_log (event_type, title, actor_email)
+      values ('faux_evenement', 'Fausse trace', 'quelquun@dautre.fr');
     reset role;
     raise exception 'ECHEC — le client a pu écrire une fausse trace';
   exception when insufficient_privilege then
@@ -59,7 +60,7 @@ begin
   end;
 end $$;
 
--- 4. Le journal est en ajout seul, y compris pour le propriétaire.
+-- 4. Ajout seul, y compris pour le propriétaire de la table.
 do $$
 begin
   begin
@@ -76,7 +77,7 @@ begin
   end;
 end $$;
 
--- 5. Aucun secret ne doit être journalisé.
+-- 5. Aucun secret dans description/title.
 do $$
 declare leaked integer; changed text;
 begin
@@ -87,43 +88,39 @@ begin
 
   select count(*) into leaked from public.activity_log
    where description like '%ULTRA-SECRET%' or title like '%ULTRA-SECRET%';
-  if leaked > 0 then
-    raise exception 'ECHEC — un secret a été journalisé';
-  end if;
+  if leaked > 0 then raise exception 'ECHEC — un secret a été journalisé'; end if;
 
   select description into changed from public.activity_log
    where entity_type = 'site_settings' order by created_at desc limit 1;
-  raise notice '  OK    aucun secret journalisé — trace : %', changed;
+  if changed is null then raise exception 'ECHEC — site_settings non auditée'; end if;
 
-  if private.audit_is_sensitive('smtp_password') is not true then
-    raise exception 'ECHEC — smtp_password n''est pas reconnu comme sensible';
-  end if;
-  if private.audit_is_sensitive('access_token') is not true
+  if private.audit_is_sensitive('smtp_password') is not true
+     or private.audit_is_sensitive('access_token') is not true
      or private.audit_is_sensitive('api_key') is not true
      or private.audit_is_sensitive('password_hash') is not true then
     raise exception 'ECHEC — colonne sensible non reconnue';
   end if;
-  raise notice '  OK    colonnes sensibles reconnues (mot de passe, jeton, clé d''API)';
+  raise notice '  OK    secrets filtrés — trace : %', changed;
 end $$;
 
--- 6. Une modification liste les CHAMPS modifiés, sans leurs valeurs.
+-- 6. Une modification liste seulement les NOMS des champs modifiés.
 do $$
 declare descr text;
 begin
   truncate public.activity_log;
-  update public.leads set status = 'qualifie' where email = 'usurpation@example.com';
+  update public.leads set status = 'qualified' where email = 'usurpation@example.com';
   select description into descr from public.activity_log
    where entity_type = 'leads' order by created_at desc limit 1;
   if descr is null or descr not like '%champs : status%' then
     raise exception 'ECHEC — champs modifiés non journalisés : %', descr;
   end if;
-  if descr like '%qualifie%' then
+  if descr like '%qualified%' then
     raise exception 'ECHEC — la VALEUR modifiée a été journalisée : %', descr;
   end if;
-  raise notice '  OK    champs modifiés journalisés sans leurs valeurs : %', descr;
+  raise notice '  OK    champs modifiés sans valeurs : %', descr;
 end $$;
 
--- 7. Une mise à jour sans changement réel ne pollue pas le journal.
+-- 7. Mise à jour sans changement : aucune trace.
 do $$
 declare n integer;
 begin
@@ -134,7 +131,7 @@ begin
   raise notice '  OK    aucune trace pour une mise à jour sans changement';
 end $$;
 
--- 8. Les suppressions et les changements d'accès sont tracés.
+-- 8. Suppression + changement d'accès tracés.
 do $$
 declare n integer;
 begin
@@ -143,8 +140,22 @@ begin
   insert into public.admin_access (email, role) values ('nouvel-acces@test.local', 'editor');
   select count(*) into n from public.activity_log
    where event_type in ('leads_delete', 'admin_access_insert');
-  if n <> 2 then raise exception 'ECHEC — suppression/attribution d''accès non tracées (% trace(s))', n; end if;
+  if n <> 2 then raise exception 'ECHEC — suppression/accès non tracés (% trace(s))', n; end if;
   raise notice '  OK    suppression et attribution d''accès tracées';
+end $$;
+
+-- 9. Clé métier textuelle : site_settings n'a pas d'id, entity_id doit être key.
+do $$
+declare entity text;
+begin
+  truncate public.activity_log;
+  update public.site_settings set value = '"bronze"'::jsonb where key = 'theme';
+  select entity_id into entity from public.activity_log
+   where entity_type = 'site_settings' order by created_at desc limit 1;
+  if entity is distinct from 'theme' then
+    raise exception 'ECHEC — entity_id site_settings = %, theme attendu', entity;
+  end if;
+  raise notice '  OK    entity_id textuel conservé : %', entity;
 end $$;
 
 \echo ''
