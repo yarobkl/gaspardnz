@@ -87,6 +87,19 @@ const scrollToActiveSection = (attempt = 0) => {
   }
 };
 
+const scrollToExplorer = (attempt = 0) => {
+  if (typeof window === "undefined") return;
+  const target = document.getElementById("gnz-mobile-home");
+  if (target) {
+    const top = target.getBoundingClientRect().top + window.scrollY - 68;
+    window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+    return;
+  }
+  if (attempt < 12) {
+    window.setTimeout(() => scrollToExplorer(attempt + 1), 60);
+  }
+};
+
 export default function MobileHomeCompact({ activeSection, onSelect }) {
   const { lang } = useContext(LangCtx);
   const copy = COPY[lang] || COPY.FR;
@@ -96,6 +109,14 @@ export default function MobileHomeCompact({ activeSection, onSelect }) {
     window.requestAnimationFrame(() => {
       scrollToActiveSection();
       window.setTimeout(() => scrollToActiveSection(), 260);
+    });
+  };
+
+  const closeSection = () => {
+    onSelect(null);
+    window.requestAnimationFrame(() => {
+      scrollToExplorer();
+      window.setTimeout(() => scrollToExplorer(), 220);
     });
   };
 
@@ -176,12 +197,51 @@ export default function MobileHomeCompact({ activeSection, onSelect }) {
           </div>
 
           {activeSection && (
-            <button type="button" onClick={() => onSelect(null)} style={{ marginTop: 14, minHeight: 44, width: "100%", border: 0, background: "transparent", color: "rgba(250,247,242,.55)", fontFamily: "'Montserrat',sans-serif", fontSize: 9, letterSpacing: ".14em", textTransform: "uppercase", cursor: "pointer" }}>
+            <button type="button" onClick={closeSection} style={{ marginTop: 14, minHeight: 44, width: "100%", border: 0, background: "transparent", color: "rgba(250,247,242,.55)", fontFamily: "'Montserrat',sans-serif", fontSize: 9, letterSpacing: ".14em", textTransform: "uppercase", cursor: "pointer" }}>
               {copy.close}
             </button>
           )}
         </div>
       </section>
+
+      {activeSection && (
+        <motion.button
+          type="button"
+          initial={{ opacity: 0, scale: .92, y: -6 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: .92, y: -6 }}
+          whileTap={{ scale: .94 }}
+          onClick={closeSection}
+          aria-label={copy.close}
+          title={copy.close}
+          style={{
+            position: "fixed",
+            top: "calc(env(safe-area-inset-top, 0px) + 82px)",
+            right: 14,
+            zIndex: 120,
+            minWidth: 46,
+            height: 46,
+            borderRadius: 999,
+            border: "1px solid rgba(184,151,62,.58)",
+            background: "rgba(10,6,2,.88)",
+            color: GOLD,
+            boxShadow: "0 8px 28px rgba(0,0,0,.32)",
+            WebkitBackdropFilter: "blur(12px)",
+            backdropFilter: "blur(12px)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "0 14px",
+            fontFamily: "'Montserrat',sans-serif",
+            fontSize: 20,
+            lineHeight: 1,
+            cursor: "pointer",
+            touchAction: "manipulation",
+            WebkitTapHighlightColor: "transparent",
+          }}>
+          ×
+        </motion.button>
+      )}
     </>
   );
 }
