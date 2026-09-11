@@ -4,6 +4,25 @@ import { dirname, join } from "node:path";
 const site = "https://gaspardnz.style";
 const dist = "dist";
 
+const servicesStaticMarkup = `
+<main style="min-height:100vh;background:#0a0602;color:#f5f0e8;padding:64px 20px;font-family:Arial,sans-serif">
+  <div style="max-width:1040px;margin:0 auto">
+    <p style="color:#b8973e;letter-spacing:.18em;text-transform:uppercase;font-size:12px">Paris · Mariages · Galas · Événements</p>
+    <h1 style="font-size:clamp(42px,7vw,84px);line-height:1;margin:18px 0 24px">Styliste mariage &amp; habilleur homme à Paris</h1>
+    <p style="max-width:760px;line-height:1.8;color:rgba(245,240,232,.78)">GaspardNZ accompagne les hommes qui veulent une allure maîtrisée pour un mariage, un gala ou un événement important. Conseil en image, habillage, coordination des tenues et accompagnement événementiel à Paris.</p>
+    <section aria-labelledby="seo-services-title" style="margin-top:48px">
+      <h2 id="seo-services-title" style="font-size:32px">Services d'habillage et de style</h2>
+      <ul style="line-height:2;color:rgba(245,240,232,.78)">
+        <li>Styliste mariage homme à Paris</li>
+        <li>Habilleur mariage et événement</li>
+        <li>Conseil en image masculin</li>
+        <li>Maître de cérémonie</li>
+      </ul>
+    </section>
+    <p style="margin-top:40px"><a href="https://calendly.com/gaspardnz" style="color:#b8973e">Prendre rendez-vous avec GaspardNZ</a></p>
+  </div>
+</main>`;
+
 const routes = {
   "/a-propos": {
     title: "À propos de GaspardNZ | Styliste et Habilleur à Paris",
@@ -77,6 +96,10 @@ for (const [path, seo] of Object.entries(routes)) {
   html = replaceMeta(html, 'name="twitter:description"', seo.description);
   html = replaceAlternate(html, "fr", canonical);
   html = replaceAlternate(html, "x-default", canonical);
+
+  if (path === "/services") {
+    html = html.replace(/<div id="root"([^>]*)><\/div>/, `<div id="root"$1>${servicesStaticMarkup}</div>`);
+  }
 
   const outputPath = join(dist, path, "index.html");
   mkdirSync(dirname(outputPath), { recursive: true });

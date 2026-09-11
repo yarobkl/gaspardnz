@@ -24,11 +24,16 @@ for (const [route, title] of Object.entries(routes)) {
   assert.equal(html.includes(`property="og:url" content="${canonical}"`), true, `${route} has wrong og:url`);
   assert.equal(html.includes(`property="og:title" content="${title}"`), true, `${route} has wrong og:title`);
   assert.equal(html.includes(`<title>GaspardNZ | Styliste Parisien`), false, `${route} fell back to root metadata`);
-
   assert.equal(html.includes(`<link rel="alternate" hreflang="fr" href="${canonical}" />`), true, `${route} has wrong fr hreflang`);
   assert.equal(html.includes(`<link rel="alternate" hreflang="x-default" href="${canonical}" />`), true, `${route} has wrong x-default hreflang`);
   for (const lang of ["en", "es", "zh"]) {
     assert.equal(html.includes(`hreflang="${lang}"`), false, `${route} exposes non-indexable ${lang} hreflang`);
+  }
+
+  if (route === "/services") {
+    assert.equal(html.includes("Styliste mariage &amp; habilleur homme à Paris"), true, "services route is missing static H1 content");
+    assert.equal(html.includes("Habilleur mariage et événement"), true, "services route is missing service intent content");
+    assert.equal(html.includes("https://calendly.com/gaspardnz"), true, "services route is missing booking CTA");
   }
 }
 
