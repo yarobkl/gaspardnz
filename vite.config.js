@@ -13,6 +13,10 @@ export default defineConfig({
       interval: 100,
     },
   },
+  preview: {
+    host: "0.0.0.0",
+    allowedHosts: [".trycloudflare.com"],
+  },
   build: {
     outDir: "dist",
     rollupOptions: {
