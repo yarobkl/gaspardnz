@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import App from "./App.jsx";
 import ServicesRoutePage from "./components/ServicesRoutePage.jsx";
 import SeoRoutePage from "./components/SeoRoutePage.jsx";
+import SecondarySeoRoutePage from "./components/SecondarySeoRoutePage.jsx";
 import MarriageSeoPage from "./components/MarriageSeoPage.jsx";
 import PublicSeoEnvironment from "./components/PublicSeoEnvironment.jsx";
 
@@ -21,12 +22,18 @@ if ("serviceWorker" in navigator && "caches" in window) {
 
 const pathname = window.location.pathname.replace(/\/$/, "") || "/";
 const SEO_ROUTE_PATHS = new Set(["/a-propos", "/lookbook", "/contact", "/galerie"]);
-const isDedicatedSeoRoute = pathname === "/services" || pathname === "/styliste-mariage-homme-paris" || SEO_ROUTE_PATHS.has(pathname);
+const SECONDARY_SEO_ROUTE_PATHS = new Set(["/actualites", "/videos", "/partenaires", "/style-du-mois"]);
+const isDedicatedSeoRoute =
+  pathname === "/services" ||
+  pathname === "/styliste-mariage-homme-paris" ||
+  SEO_ROUTE_PATHS.has(pathname) ||
+  SECONDARY_SEO_ROUTE_PATHS.has(pathname);
 
 let RootComponent = App;
 if (pathname === "/services") RootComponent = ServicesRoutePage;
 else if (pathname === "/styliste-mariage-homme-paris") RootComponent = MarriageSeoPage;
 else if (SEO_ROUTE_PATHS.has(pathname)) RootComponent = SeoRoutePage;
+else if (SECONDARY_SEO_ROUTE_PATHS.has(pathname)) RootComponent = SecondarySeoRoutePage;
 
 const rootElement = document.getElementById("root");
 if (rootElement?.childNodes?.length) rootElement.replaceChildren();

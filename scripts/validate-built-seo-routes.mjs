@@ -14,26 +14,32 @@ const routes = {
   "/style-du-mois": "Style du Mois GaspardNZ | Pièces et Inspirations Premium",
   "/actualites": "Actualités GaspardNZ | Style, Voyages et Événements",
 };
-const richRoutes = new Set(["/a-propos", "/services", "/styliste-mariage-homme-paris", "/lookbook", "/contact", "/galerie"]);
+
 for (const [route, title] of Object.entries(routes)) {
   const file = `dist${route}/index.html`;
   assert.equal(existsSync(file), true, `built SEO page missing: ${file}`);
   const html = readFileSync(file, "utf8");
   const canonical = `${site}${route}`;
+
   assert.equal(html.includes(`<title>${title}</title>`), true, `${route} has wrong title`);
   assert.equal(html.includes(`<link rel="canonical" href="${canonical}" />`), true, `${route} has wrong canonical`);
   assert.equal(html.includes(`property="og:url" content="${canonical}"`), true, `${route} has wrong og:url`);
   assert.equal(html.includes(`<link rel="alternate" hreflang="fr" href="${canonical}" />`), true, `${route} has wrong fr hreflang`);
   assert.equal(html.includes(`<link rel="alternate" hreflang="x-default" href="${canonical}" />`), true, `${route} has wrong x-default hreflang`);
-  for (const lang of ["en", "es", "zh"]) assert.equal(html.includes(`hreflang="${lang}"`), false, `${route} exposes non-indexable ${lang} hreflang`);
-  if (richRoutes.has(route)) {
-    assert.equal(html.includes("<h1"), true, `${route} is missing static H1 content`);
-    assert.equal(html.includes('href="/services"'), true, `${route} is missing internal links`);
-    assert.equal(html.includes("https://calendly.com/gaspardnz"), true, `${route} is missing booking CTA`);
+
+  for (const lang of ["en", "es", "zh"]) {
+    assert.equal(html.includes(`hreflang="${lang}"`), false, `${route} exposes non-indexable ${lang} hreflang`);
   }
+
+  assert.equal(html.includes("<h1"), true, `${route} is missing static H1 content`);
+  assert.equal(html.includes("<h2"), true, `${route} is missing supporting static content`);
+  assert.equal(html.includes('href="/services"'), true, `${route} is missing internal links`);
+  assert.equal(html.includes("https://calendly.com/gaspardnz"), true, `${route} is missing booking CTA`);
+
   if (route === "/styliste-mariage-homme-paris") {
     assert.equal(html.includes("Styliste mariage homme à Paris"), true, "marriage acquisition page is missing target H1");
     assert.equal(html.includes('"@type":"FAQPage"'), true, "marriage acquisition page is missing FAQ schema");
   }
 }
+
 console.log(`Built SEO route validation passed (${Object.keys(routes).length} routes)`);
