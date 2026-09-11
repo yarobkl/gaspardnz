@@ -43,7 +43,7 @@ function AlbumModal({ photos, title, onClose }) {
   </motion.div>;
 }
 
-export default function ShowroomMobile({ refEl, onCatalogue }) {
+export default function ShowroomMobile({ refEl, onCatalogue, compact = false }) {
   const t = useTr();
   const ref = useRef(null);
   const inView = useInView(ref,{once:true,margin:"-10% 0px"});
@@ -69,18 +69,18 @@ export default function ShowroomMobile({ refEl, onCatalogue }) {
 
   return <section ref={refEl} style={{background:"#f5f0e8",overflow:"hidden"}}>
     <AnimatePresence>{albumOpen && <AlbumModal photos={photos} title={title} onClose={()=>setAlbumOpen(false)} />}</AnimatePresence>
-    <div onClick={()=>setAlbumOpen(true)} style={{position:"relative",height:"85vw",minHeight:340,maxHeight:560,overflow:"hidden",cursor:"pointer",background:"#0a0602"}}>
+    <div onClick={()=>setAlbumOpen(true)} style={{position:"relative",height:compact ? "58vw" : "85vw",minHeight:compact ? 220 : 340,maxHeight:compact ? 320 : 560,overflow:"hidden",cursor:"pointer",background:"#0a0602"}}>
       <AnimatePresence mode="wait"><motion.img key={photos[cur]?.src} src={photos[cur]?.src} alt={photos[cur]?.label || title} width="1200" height="1500" initial={{opacity:0,scale:1.02}} animate={{opacity:1,scale:1}} exit={{opacity:0}} transition={{duration:.6}} style={{position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"cover",objectPosition:"center top"}} /></AnimatePresence>
       <div style={{position:"absolute",inset:0,background:"linear-gradient(to bottom,transparent 38%,rgba(0,0,0,.7) 100%)"}} />
       <div style={{position:"absolute",top:"1rem",left:"1.2rem",background:"rgba(28,18,8,.52)",padding:".45rem 1rem",backdropFilter:"blur(5px)"}}><p style={{fontFamily:"'Montserrat',sans-serif",fontSize:9,letterSpacing:".4em",color:GOLD,textTransform:"uppercase",margin:0}}>{t("album_label")}</p></div>
       <button type="button" onClick={(e)=>{e.stopPropagation();setAlbumOpen(true);}} style={{position:"absolute",top:"1rem",right:"1.2rem",minHeight:44,border:"1px solid rgba(184,151,62,.3)",background:"rgba(28,18,8,.55)",color:GOLD,padding:"0 .9rem",fontFamily:"'Montserrat',sans-serif",fontSize:9,letterSpacing:".24em",textTransform:"uppercase",cursor:"pointer"}}>{t("view_album")}</button>
-      <div style={{position:"absolute",left:"1.2rem",right:"1.2rem",bottom:"1.5rem"}}><h3 style={{fontFamily:"'Bebas Neue',sans-serif",fontSize:"clamp(2.5rem,12vw,4.5rem)",letterSpacing:".06em",lineHeight:.9,color:"#faf7f2",margin:0,textShadow:"0 3px 24px rgba(0,0,0,.55)"}}>{title}</h3><p style={{fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",color:GOLD,fontSize:"1rem",margin:".5rem 0 0"}}>{photos[cur]?.label}</p></div>
+      <div style={{position:"absolute",left:"1.2rem",right:"1.2rem",bottom:compact ? "1rem" : "1.5rem"}}><h3 style={{fontFamily:"'Bebas Neue',sans-serif",fontSize:compact ? "clamp(2rem,10vw,3.4rem)" : "clamp(2.5rem,12vw,4.5rem)",letterSpacing:".06em",lineHeight:.9,color:"#faf7f2",margin:0,textShadow:"0 3px 24px rgba(0,0,0,.55)"}}>{title}</h3><p style={{fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",color:GOLD,fontSize:"1rem",margin:".45rem 0 0"}}>{photos[cur]?.label}</p></div>
     </div>
 
-    <div ref={ref} style={{padding:"3rem 1.4rem 4rem",maxWidth:900,margin:"0 auto"}}>
-      <motion.p initial={{opacity:0,y:14}} animate={inView?{opacity:1,y:0}:{}} style={{fontFamily:"'Montserrat',sans-serif",fontSize:10,letterSpacing:".4em",color:GOLD,textTransform:"uppercase",margin:"0 0 1rem"}}>{t("nav_showroom")}</motion.p>
-      <motion.h2 initial={{opacity:0,y:18}} animate={inView?{opacity:1,y:0}:{}} transition={{delay:.1}} style={{fontFamily:"'Bebas Neue',sans-serif",fontSize:"clamp(44px,14vw,76px)",lineHeight:.9,letterSpacing:".04em",color:TEXT,margin:"0 0 1.4rem"}}>{t("custom_art_title")}</motion.h2>
-      <motion.p initial={{opacity:0,y:16}} animate={inView?{opacity:1,y:0}:{}} transition={{delay:.2}} style={{fontFamily:"'Cormorant Garamond',serif",fontSize:"clamp(1rem,4vw,1.2rem)",fontStyle:"italic",lineHeight:1.8,color:"rgba(28,18,8,.75)",margin:"0 0 2rem"}}>{description}</motion.p>
+    <div ref={ref} style={{padding:compact ? "1.6rem 1.4rem 2rem" : "3rem 1.4rem 4rem",maxWidth:900,margin:"0 auto"}}>
+      <motion.p initial={{opacity:0,y:14}} animate={inView?{opacity:1,y:0}:{}} style={{fontFamily:"'Montserrat',sans-serif",fontSize:10,letterSpacing:".4em",color:GOLD,textTransform:"uppercase",margin:"0 0 .8rem"}}>{t("nav_showroom")}</motion.p>
+      <motion.h2 initial={{opacity:0,y:18}} animate={inView?{opacity:1,y:0}:{}} transition={{delay:.1}} style={{fontFamily:"'Bebas Neue',sans-serif",fontSize:compact ? "clamp(34px,10vw,48px)" : "clamp(44px,14vw,76px)",lineHeight:.9,letterSpacing:".04em",color:TEXT,margin:compact ? "0 0 .9rem" : "0 0 1.4rem"}}>{t("custom_art_title")}</motion.h2>
+      {!compact && <motion.p initial={{opacity:0,y:16}} animate={inView?{opacity:1,y:0}:{}} transition={{delay:.2}} style={{fontFamily:"'Cormorant Garamond',serif",fontSize:"clamp(1rem,4vw,1.2rem)",fontStyle:"italic",lineHeight:1.8,color:"rgba(28,18,8,.75)",margin:"0 0 2rem"}}>{description}</motion.p>}
       <motion.button initial={{opacity:0,y:10}} animate={inView?{opacity:1,y:0}:{}} transition={{delay:.3}} onClick={onCatalogue} style={{width:"100%",minHeight:50,border:"1px solid rgba(184,151,62,.45)",background:"transparent",color:GOLD,fontFamily:"'Montserrat',sans-serif",fontSize:9,letterSpacing:".35em",textTransform:"uppercase",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:10}}>{t("showroom_cta")} <SvgArrow size={14}/></motion.button>
     </div>
   </section>;
