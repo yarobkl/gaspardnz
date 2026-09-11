@@ -56,7 +56,7 @@ const StyleJournalSection = () => {
             initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-6% 0px" }}
             transition={{ duration: 0.55, delay: i * 0.05, ease: [0.16, 1, 0.3, 1] }}
             style={{ background: "#111009", overflow: "hidden", borderTop: "1px solid rgba(184,151,62,.1)", borderBottom: "1px solid rgba(184,151,62,.1)" }}>
-            <div style={{ position: "relative", overflow: "hidden" }} onClick={() => setActiveSpot(null)}>
+            <div style={{ position: "relative", overflow: "hidden" }}>
               <img src={photo.src} alt={photo.caption}
                 width="1200" height="1600"
                 loading="lazy" decoding="async"
