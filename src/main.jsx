@@ -6,7 +6,7 @@ import SeoRoutePage from "./components/SeoRoutePage.jsx";
 import MarriageSeoPage from "./components/MarriageSeoPage.jsx";
 
 const CACHE_VERSION_KEY = "gnz_cache_version";
-const CACHE_VERSION = "2026-09-11-acquisition-marriage-v1";
+const CACHE_VERSION = "2026-09-11-home-seo-shell-v1";
 
 if ("serviceWorker" in navigator && "caches" in window) {
   const previousVersion = localStorage.getItem(CACHE_VERSION_KEY);
@@ -23,7 +23,5 @@ else if (pathname === "/styliste-mariage-homme-paris") RootComponent = MarriageS
 else if (SEO_ROUTE_PATHS.has(pathname)) RootComponent = SeoRoutePage;
 
 const rootElement = document.getElementById("root");
-const isDedicatedSeoRoute = pathname === "/services" || pathname === "/styliste-mariage-homme-paris" || SEO_ROUTE_PATHS.has(pathname);
-if (isDedicatedSeoRoute && rootElement?.childNodes?.length) rootElement.replaceChildren();
-
+if (rootElement?.childNodes?.length) rootElement.replaceChildren();
 createRoot(rootElement).render(<StrictMode><RootComponent /></StrictMode>);
