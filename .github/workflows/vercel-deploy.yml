@@ -3,6 +3,7 @@ name: Deploy to Vercel
 # Vercel already deploys this repository through its Git integration.
 # Keep this workflow as a manual fallback so each Git push does not trigger
 # an additional production build and consume the Hobby build quota twice.
+# Production redeploy retry marker: 2026-09-11.
 on:
   workflow_dispatch:
 
