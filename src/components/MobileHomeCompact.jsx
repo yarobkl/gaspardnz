@@ -48,9 +48,30 @@ const COPY = {
 
 const ORDER = ["gallery", "formules", "styleMonth", "wedding", "journal", "heritage", "video", "news", "partners", "vip", "community"];
 
+const scrollToActiveSection = (attempt = 0) => {
+  if (typeof window === "undefined") return;
+  const target = document.getElementById("gnz-mobile-active-section");
+  if (target) {
+    const top = target.getBoundingClientRect().top + window.scrollY - 68;
+    window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+    return;
+  }
+  if (attempt < 12) {
+    window.setTimeout(() => scrollToActiveSection(attempt + 1), 60);
+  }
+};
+
 export default function MobileHomeCompact({ activeSection, onSelect }) {
   const { lang } = useContext(LangCtx);
   const copy = COPY[lang] || COPY.FR;
+
+  const openSection = (key) => {
+    onSelect(key);
+    window.requestAnimationFrame(() => {
+      scrollToActiveSection();
+      window.setTimeout(() => scrollToActiveSection(), 260);
+    });
+  };
 
   return (
     <section id="gnz-mobile-home" aria-label={copy.title} style={{ background: "#0a0602", color: "#faf7f2", padding: "2.25rem 1.15rem 2.5rem" }}>
@@ -66,16 +87,17 @@ export default function MobileHomeCompact({ activeSection, onSelect }) {
               <motion.button
                 key={key}
                 type="button"
-                whileTap={{ scale: .985 }}
-                onClick={() => onSelect(active ? null : key)}
+                whileTap={{ scale: .975 }}
+                onClick={() => openSection(key)}
                 aria-pressed={active}
+                aria-controls="gnz-mobile-active-section"
                 style={{
-                  minHeight: 48,
+                  minHeight: 52,
                   border: `1px solid ${active ? GOLD : "rgba(184,151,62,.28)"}`,
                   borderRadius: 2,
-                  background: active ? "rgba(184,151,62,.14)" : "rgba(255,255,255,.018)",
+                  background: active ? "rgba(184,151,62,.16)" : "rgba(255,255,255,.018)",
                   color: active ? GOLD : "rgba(250,247,242,.88)",
-                  padding: ".7rem .72rem",
+                  padding: ".78rem .78rem",
                   fontFamily: "'Montserrat',sans-serif",
                   fontSize: 9,
                   fontWeight: 600,
@@ -83,6 +105,8 @@ export default function MobileHomeCompact({ activeSection, onSelect }) {
                   textTransform: "uppercase",
                   textAlign: "left",
                   cursor: "pointer",
+                  touchAction: "manipulation",
+                  WebkitTapHighlightColor: "transparent",
                 }}>
                 {copy.items[key]}
               </motion.button>
