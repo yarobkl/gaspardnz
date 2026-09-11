@@ -1,0 +1,25 @@
+name: Build mobile preview artifact
+
+on:
+  push:
+    branches:
+      - hardening/mobile-home-condensed-2026-09
+  workflow_dispatch:
+
+jobs:
+  build-preview:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: gaspardnz-mobile-preview-dist
+          path: dist
+          if-no-files-found: error
+          retention-days: 1
