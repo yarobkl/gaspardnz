@@ -24,6 +24,12 @@ for (const [route, title] of Object.entries(routes)) {
   assert.equal(html.includes(`property="og:url" content="${canonical}"`), true, `${route} has wrong og:url`);
   assert.equal(html.includes(`property="og:title" content="${title}"`), true, `${route} has wrong og:title`);
   assert.equal(html.includes(`<title>GaspardNZ | Styliste Parisien`), false, `${route} fell back to root metadata`);
+
+  assert.equal(html.includes(`<link rel="alternate" hreflang="fr" href="${canonical}" />`), true, `${route} has wrong fr hreflang`);
+  assert.equal(html.includes(`<link rel="alternate" hreflang="en" href="${canonical}?lang=en" />`), true, `${route} has wrong en hreflang`);
+  assert.equal(html.includes(`<link rel="alternate" hreflang="es" href="${canonical}?lang=es" />`), true, `${route} has wrong es hreflang`);
+  assert.equal(html.includes(`<link rel="alternate" hreflang="zh" href="${canonical}?lang=zh" />`), true, `${route} has wrong zh hreflang`);
+  assert.equal(html.includes(`<link rel="alternate" hreflang="x-default" href="${canonical}" />`), true, `${route} has wrong x-default hreflang`);
 }
 
 console.log(`Built SEO route validation passed (${Object.keys(routes).length} routes)`);
