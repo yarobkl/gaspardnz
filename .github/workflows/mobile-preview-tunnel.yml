@@ -1,0 +1,63 @@
+name: Temporary mobile preview tunnel
+
+on:
+  push:
+    branches:
+      - hardening/mobile-home-condensed-2026-09
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 70
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - name: Start local preview
+        run: |
+          unset RUNNER_TRACKING_ID
+          nohup npm run preview -- --host 0.0.0.0 --port 4173 > /tmp/gaspardnz-vite.log 2>&1 &
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:4173/ >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/gaspardnz-vite.log
+          exit 1
+      - name: Start Cloudflare quick tunnel
+        id: tunnel
+        run: |
+          curl -fsSL https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64 -o /tmp/cloudflared
+          chmod +x /tmp/cloudflared
+          unset RUNNER_TRACKING_ID
+          nohup /tmp/cloudflared tunnel --no-autoupdate --url http://127.0.0.1:4173 > /tmp/cloudflared.log 2>&1 &
+          URL=""
+          for i in {1..45}; do
+            URL=$(grep -Eo 'https://[a-z0-9-]+\.trycloudflare\.com' /tmp/cloudflared.log | head -1 || true)
+            if [ -n "$URL" ]; then break; fi
+            sleep 1
+          done
+          if [ -z "$URL" ]; then
+            cat /tmp/cloudflared.log
+            exit 1
+          fi
+          echo "$URL" | tee tunnel-url.txt
+          echo "url=$URL" >> "$GITHUB_OUTPUT"
+          echo "### GaspardNZ mobile preview" >> "$GITHUB_STEP_SUMMARY"
+          echo "$URL" >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: gaspardnz-mobile-preview-url
+          path: tunnel-url.txt
+          retention-days: 1
+      - name: Keep preview online for 60 minutes
+        run: |
+          echo "Preview: ${{ steps.tunnel.outputs.url }}"
+          sleep 3600
