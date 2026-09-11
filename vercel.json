@@ -1,12 +1,15 @@
 {
+  "$schema": "https://openapi.vercel.sh/vercel.json",
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "framework": "vite",
   "trailingSlash": false,
+  "ignoreCommand": "node -e \"process.exit(process.env.VERCEL_PROJECT_ID === 'prj_gQTGmZr0VWHSS5bNgGAR0HxrY2qF' ? 1 : 0)\"",
   "rewrites": [
     { "source": "/admin(.*)", "destination": "/index.html" },
     { "source": "/a-propos", "destination": "/a-propos/index.html" },
     { "source": "/services", "destination": "/services/index.html" },
+    { "source": "/styliste-mariage-homme-paris", "destination": "/styliste-mariage-homme-paris/index.html" },
     { "source": "/lookbook", "destination": "/lookbook/index.html" },
     { "source": "/contact", "destination": "/contact/index.html" },
     { "source": "/galerie", "destination": "/galerie/index.html" },
