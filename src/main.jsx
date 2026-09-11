@@ -2,11 +2,11 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App.jsx";
 import ServicesRoutePage from "./components/ServicesRoutePage.jsx";
+import SeoRoutePage from "./components/SeoRoutePage.jsx";
 
 const CACHE_VERSION_KEY = "gnz_cache_version";
-const CACHE_VERSION = "2026-09-11-services-route-v1";
+const CACHE_VERSION = "2026-09-11-seo-routes-v2";
 
-// Keep cache cleanup bounded to version changes instead of deleting every cache on every visit.
 if ("serviceWorker" in navigator && "caches" in window) {
   const previousVersion = localStorage.getItem(CACHE_VERSION_KEY);
   if (previousVersion !== CACHE_VERSION) {
@@ -18,14 +18,14 @@ if ("serviceWorker" in navigator && "caches" in window) {
 }
 
 const pathname = window.location.pathname.replace(/\/$/, "") || "/";
-const RootComponent = pathname === "/services" ? ServicesRoutePage : App;
-const rootElement = document.getElementById("root");
+const SEO_ROUTE_PATHS = new Set(["/a-propos", "/lookbook", "/contact", "/galerie"]);
+let RootComponent = App;
+if (pathname === "/services") RootComponent = ServicesRoutePage;
+else if (SEO_ROUTE_PATHS.has(pathname)) RootComponent = SeoRoutePage;
 
-// SEO route files may contain server-visible fallback content. React replaces it with
-// the interactive version once JavaScript is ready.
-if (pathname === "/services" && rootElement?.childNodes?.length) {
-  rootElement.replaceChildren();
-}
+const rootElement = document.getElementById("root");
+const isDedicatedSeoRoute = pathname === "/services" || SEO_ROUTE_PATHS.has(pathname);
+if (isDedicatedSeoRoute && rootElement?.childNodes?.length) rootElement.replaceChildren();
 
 createRoot(rootElement).render(
   <StrictMode>
