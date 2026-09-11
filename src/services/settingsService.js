@@ -13,7 +13,7 @@ const defaultSettings = {
   paymentLabel: "Payer le lookbook",
   maisonAddress: "Paris, France",
   formulaPrices: {
-    formule1: 1500,
+    formule1: 1447,
     formule2: 2500,
     formule3: 5000,
   },
