@@ -6,6 +6,7 @@ const forbidden = ["gaspardnz.ipcjagency.com", "ipcjagency.com", "gaspardnz-styl
 const seoRoutes = [
   "/a-propos",
   "/services",
+  "/styliste-mariage-homme-paris",
   "/lookbook",
   "/contact",
   "/galerie",
@@ -36,7 +37,10 @@ for (const file of files) {
 
 const index = readFileSync("index.html", "utf8");
 assert.match(index, /<link rel="canonical" href="https:\/\/gaspardnz\.style\/" \/>/);
-assert.match(index, /GaspardNZ \| Styliste Parisien/);
+assert.match(index, /GaspardNZ \| Styliste Homme, Mariage & Événements à Paris/);
+assert.match(index, /<h1[^>]*>Styliste homme à Paris pour mariages, galas et événements<\/h1>/);
+assert.match(index, /href="\/styliste-mariage-homme-paris"/);
+assert.match(index, /href="\/services"/);
 assert.match(index, /application\/ld\+json/);
 assert.match(index, /"url": "https:\/\/gaspardnz\.style"/);
 assert.match(index, /<link rel="icon"[^>]+\/icon-192\.png/);
