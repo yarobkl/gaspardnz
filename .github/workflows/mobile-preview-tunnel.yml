@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - hardening/mobile-home-condensed-2026-09
+      - hardening/mobile-home-v2-2026-09
   workflow_dispatch:
 
 permissions:
