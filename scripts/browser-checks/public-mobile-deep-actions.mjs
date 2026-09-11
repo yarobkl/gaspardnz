@@ -174,8 +174,10 @@ try {
     const modalOk = await dialog.count() > 0 && await close.count() > 0;
     report.record("DEEP-PARTNER-01", "Partenaires — Prendre contact", "ouvre le formulaire partenaire", `dialog=${modalOk}`, modalOk && errors.length === 0);
     if (modalOk) {
-      await close.click({ force: true }); await wait(80);
-      report.record("DEEP-PARTNER-02", "Partenaires — fermer", "ferme le formulaire partenaire", `dialogs=${await page.getByRole("dialog").count()}`, await page.getByRole("dialog").count() === 0);
+      await close.click({ force: true });
+      await dialog.waitFor({ state: "detached", timeout: 1500 }).catch(() => {});
+      const remainingDialogs = await page.getByRole("dialog").count();
+      report.record("DEEP-PARTNER-02", "Partenaires — fermer", "ferme le formulaire partenaire après son animation de sortie", `dialogs=${remainingDialogs}`, remainingDialogs === 0);
     }
   }
 
