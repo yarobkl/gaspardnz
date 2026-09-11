@@ -5,6 +5,7 @@ import ServicesRoutePage from "./components/ServicesRoutePage.jsx";
 import SeoRoutePage from "./components/SeoRoutePage.jsx";
 import SecondarySeoRoutePage from "./components/SecondarySeoRoutePage.jsx";
 import MarriageSeoPage from "./components/MarriageSeoPage.jsx";
+import ImageConsultingSeoPage from "./components/ImageConsultingSeoPage.jsx";
 import PublicSeoEnvironment from "./components/PublicSeoEnvironment.jsx";
 
 const CACHE_VERSION_KEY = "gnz_cache_version";
@@ -26,12 +27,14 @@ const SECONDARY_SEO_ROUTE_PATHS = new Set(["/actualites", "/videos", "/partenair
 const isDedicatedSeoRoute =
   pathname === "/services" ||
   pathname === "/styliste-mariage-homme-paris" ||
+  pathname === "/conseil-image-homme-paris" ||
   SEO_ROUTE_PATHS.has(pathname) ||
   SECONDARY_SEO_ROUTE_PATHS.has(pathname);
 
 let RootComponent = App;
 if (pathname === "/services") RootComponent = ServicesRoutePage;
 else if (pathname === "/styliste-mariage-homme-paris") RootComponent = MarriageSeoPage;
+else if (pathname === "/conseil-image-homme-paris") RootComponent = ImageConsultingSeoPage;
 else if (SEO_ROUTE_PATHS.has(pathname)) RootComponent = SeoRoutePage;
 else if (SECONDARY_SEO_ROUTE_PATHS.has(pathname)) RootComponent = SecondarySeoRoutePage;
 

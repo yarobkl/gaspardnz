@@ -6,6 +6,7 @@ const routes = {
   "/a-propos": "À propos de GaspardNZ | Styliste et Habilleur à Paris",
   "/services": "Services GaspardNZ | Habillage Mariage, Galas et Événements",
   "/styliste-mariage-homme-paris": "Styliste Mariage Homme Paris | GaspardNZ",
+  "/conseil-image-homme-paris": "Conseil en Image Homme Paris | GaspardNZ",
   "/lookbook": "Lookbook GaspardNZ | Inspirations Style et Habillage Premium",
   "/contact": "Contact GaspardNZ | Rendez-vous Habillage Premium à Paris",
   "/galerie": "Galerie GaspardNZ | Looks, Costumes et Inspirations",
@@ -34,11 +35,18 @@ for (const [route, title] of Object.entries(routes)) {
   assert.equal(html.includes("<h1"), true, `${route} is missing static H1 content`);
   assert.equal(html.includes("<h2"), true, `${route} is missing supporting static content`);
   assert.equal(html.includes('href="/services"'), true, `${route} is missing internal links`);
+  assert.equal(html.includes('href="/conseil-image-homme-paris"'), true, `${route} is missing image-consulting internal link`);
   assert.equal(html.includes("https://calendly.com/gaspardnz"), true, `${route} is missing booking CTA`);
 
   if (route === "/styliste-mariage-homme-paris") {
     assert.equal(html.includes("Styliste mariage homme à Paris"), true, "marriage acquisition page is missing target H1");
     assert.equal(html.includes('"@type":"FAQPage"'), true, "marriage acquisition page is missing FAQ schema");
+  }
+
+  if (route === "/conseil-image-homme-paris") {
+    assert.equal(html.includes("Conseil en image homme à Paris"), true, "image-consulting acquisition page is missing target H1");
+    assert.equal(html.includes('"@type":"FAQPage"'), true, "image-consulting acquisition page is missing FAQ schema");
+    assert.equal(html.includes('"@type":"Service"'), true, "image-consulting acquisition page is missing Service schema");
   }
 }
 

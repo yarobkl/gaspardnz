@@ -10,6 +10,7 @@
     { "source": "/a-propos", "destination": "/a-propos/index.html" },
     { "source": "/services", "destination": "/services/index.html" },
     { "source": "/styliste-mariage-homme-paris", "destination": "/styliste-mariage-homme-paris/index.html" },
+    { "source": "/conseil-image-homme-paris", "destination": "/conseil-image-homme-paris/index.html" },
     { "source": "/lookbook", "destination": "/lookbook/index.html" },
     { "source": "/contact", "destination": "/contact/index.html" },
     { "source": "/galerie", "destination": "/galerie/index.html" },
