@@ -12,7 +12,7 @@ permissions:
 jobs:
   preview:
     runs-on: ubuntu-latest
-    timeout-minutes: 70
+    timeout-minutes: 130
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -57,7 +57,7 @@ jobs:
           name: gaspardnz-mobile-preview-url
           path: tunnel-url.txt
           retention-days: 1
-      - name: Keep preview online for 60 minutes
+      - name: Keep preview online for 120 minutes
         run: |
           echo "Preview: ${{ steps.tunnel.outputs.url }}"
-          sleep 3600
+          sleep 7200
