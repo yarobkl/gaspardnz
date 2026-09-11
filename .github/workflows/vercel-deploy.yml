@@ -1,10 +1,13 @@
 name: Deploy to Vercel
 
-# Vercel already deploys this repository through its Git integration.
-# Keep this workflow as a manual fallback so each Git push does not trigger
-# an additional production build and consume the Hobby build quota twice.
+# TEMPORARY production fallback trigger: automatic Vercel Git builds are
+# currently rate-limited. This push trigger is removed immediately after the
+# fallback deployment finishes.
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - main
 
 permissions:
   contents: read
