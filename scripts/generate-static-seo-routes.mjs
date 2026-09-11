@@ -55,6 +55,18 @@ const replaceMeta = (html, selector, content) => {
   return html.replace(new RegExp(`(<meta ${selector} content=")[^"]*(" \\/>)`), `$1${escaped}$2`);
 };
 
+const replaceAlternate = (html, hreflang, href) =>
+  html.replace(
+    new RegExp(`(<link rel="alternate" hreflang="${hreflang}" href=")[^"]*(" \\/>)`),
+    `$1${escapeAttr(href)}$2`,
+  );
+
+const localizedHref = (path, lang) => {
+  const base = `${site}${path}`;
+  if (lang === "fr" || lang === "x-default") return base;
+  return `${base}?lang=${lang}`;
+};
+
 const source = readFileSync(join(dist, "index.html"), "utf8");
 
 for (const [path, seo] of Object.entries(routes)) {
@@ -69,6 +81,10 @@ for (const [path, seo] of Object.entries(routes)) {
   html = replaceMeta(html, 'property="og:url"', canonical);
   html = replaceMeta(html, 'name="twitter:title"', seo.title);
   html = replaceMeta(html, 'name="twitter:description"', seo.description);
+
+  for (const hreflang of ["fr", "en", "es", "zh", "x-default"]) {
+    html = replaceAlternate(html, hreflang, localizedHref(path, hreflang));
+  }
 
   const outputPath = join(dist, path, "index.html");
   mkdirSync(dirname(outputPath), { recursive: true });
