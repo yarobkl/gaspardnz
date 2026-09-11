@@ -5,6 +5,7 @@ const site = "https://gaspardnz.style";
 const routes = {
   "/a-propos": "À propos de GaspardNZ | Styliste et Habilleur à Paris",
   "/services": "Services GaspardNZ | Habillage Mariage, Galas et Événements",
+  "/styliste-mariage-homme-paris": "Styliste Mariage Homme Paris | GaspardNZ",
   "/lookbook": "Lookbook GaspardNZ | Inspirations Style et Habillage Premium",
   "/contact": "Contact GaspardNZ | Rendez-vous Habillage Premium à Paris",
   "/galerie": "Galerie GaspardNZ | Looks, Costumes et Inspirations",
@@ -13,8 +14,7 @@ const routes = {
   "/style-du-mois": "Style du Mois GaspardNZ | Pièces et Inspirations Premium",
   "/actualites": "Actualités GaspardNZ | Style, Voyages et Événements",
 };
-const richRoutes = new Set(["/a-propos", "/services", "/lookbook", "/contact", "/galerie"]);
-
+const richRoutes = new Set(["/a-propos", "/services", "/styliste-mariage-homme-paris", "/lookbook", "/contact", "/galerie"]);
 for (const [route, title] of Object.entries(routes)) {
   const file = `dist${route}/index.html`;
   assert.equal(existsSync(file), true, `built SEO page missing: ${file}`);
@@ -30,6 +30,10 @@ for (const [route, title] of Object.entries(routes)) {
     assert.equal(html.includes("<h1"), true, `${route} is missing static H1 content`);
     assert.equal(html.includes('href="/services"'), true, `${route} is missing internal links`);
     assert.equal(html.includes("https://calendly.com/gaspardnz"), true, `${route} is missing booking CTA`);
+  }
+  if (route === "/styliste-mariage-homme-paris") {
+    assert.equal(html.includes("Styliste mariage homme à Paris"), true, "marriage acquisition page is missing target H1");
+    assert.equal(html.includes('"@type":"FAQPage"'), true, "marriage acquisition page is missing FAQ schema");
   }
 }
 console.log(`Built SEO route validation passed (${Object.keys(routes).length} routes)`);
