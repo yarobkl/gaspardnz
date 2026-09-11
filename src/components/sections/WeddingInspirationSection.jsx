@@ -1,14 +1,25 @@
 import { useContext, useRef, useState, useEffect } from "react";
-import { motion, useInView, AnimatePresence } from "framer-motion";
+import { motion, useInView } from "framer-motion";
 import { GOLD } from "../../constants.js";
 import { getWeddingInspirations, WA_GNZ } from "../../data/weddingInspirationData.js";
 import { getSettings } from "../../services/settingsService.js";
 import { LangCtx, useTr } from "../../context.jsx";
+import useCompactMobile from "../../hooks/useCompactMobile.js";
+import { HotspotSheet, PhotoHotspots } from "../ui/PhotoHotspots.jsx";
+
+const COPY = {
+  FR: { more: "Voir toutes les inspirations", less: "Réduire les inspirations" },
+  EN: { more: "View all inspirations", less: "Collapse inspirations" },
+  ES: { more: "Ver todas las inspiraciones", less: "Reducir inspiraciones" },
+  ZH: { more: "查看全部婚礼灵感", less: "收起婚礼灵感" },
+};
 
 const WeddingInspirationSection = ({ refEl }) => {
   const t = useTr();
   const { lang } = useContext(LangCtx);
+  const isCompactMobile = useCompactMobile();
   const [inspirations, setInspirations] = useState([]);
+  const [expanded, setExpanded] = useState(false);
 
   useEffect(() => {
     const settings = getSettings();
@@ -24,6 +35,8 @@ const WeddingInspirationSection = ({ refEl }) => {
   }, [lang]);
 
   const INSPIRATIONS = inspirations;
+  const visibleInspirations = isCompactMobile && !expanded ? INSPIRATIONS.slice(0, 1) : INSPIRATIONS;
+  const copy = COPY[lang] || COPY.FR;
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-8% 0px" });
   const [activeSpot, setActiveSpot] = useState(null);
@@ -31,19 +44,31 @@ const WeddingInspirationSection = ({ refEl }) => {
 
   if (!INSPIRATIONS || INSPIRATIONS.length === 0) return null;
 
+  const askSelected = () => {
+    const spot = activeSpot?.spot;
+    if (!spot) return;
+    const messages = {
+      FR: `Bonjour Gaspard, je suis intéressé(e) par ce look mariage : ${spot.label}`,
+      EN: `Hello Gaspard, I'm interested in this wedding look: ${spot.label}`,
+      ES: `Hola Gaspard, me interesa este look de boda: ${spot.label}`,
+      ZH: `你好 Gaspard，我对这个婚礼造型感兴趣：${spot.label}`,
+    };
+    window.open(`${WA_GNZ}?text=${encodeURIComponent(messages[lang] || messages.FR)}`, "_blank", "noopener,noreferrer");
+  };
+
   return (
-    <section ref={node => { ref.current = node; if (refEl) refEl.current = node; }} style={{ background: "#0a0602", padding: "4.5rem 0 5rem" }}>
+    <section ref={node => { ref.current = node; if (refEl) refEl.current = node; }} style={{ background: "#0a0602", padding: isCompactMobile ? "3rem 0 3.5rem" : "4.5rem 0 5rem" }}>
       <motion.div
         initial={{ opacity: 0, y: 16 }} animate={inView ? { opacity: 1, y: 0 } : {}}
         transition={{ duration: 0.7 }}
-        style={{ padding: "0 1.4rem", marginBottom: "2rem" }}>
+        style={{ padding: "0 1.4rem", marginBottom: isCompactMobile ? "1.35rem" : "2rem" }}>
         <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.42em", color: GOLD, textTransform: "uppercase", marginBottom: "10px" }}>GASPARDNZ</p>
         <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "28px", fontWeight: 300, color: "#faf7f2", letterSpacing: "0.02em", lineHeight: 1.2, margin: 0 }}>{t("wedding_inspiration")}</p>
         <div style={{ width: "48px", height: "1px", background: `linear-gradient(90deg, ${GOLD}, transparent)`, marginTop: "14px" }} />
       </motion.div>
 
       <div style={{ padding: "0 1.4rem", display: "flex", flexDirection: "column", gap: "1.4rem" }}>
-        {INSPIRATIONS.map((item, i) => (
+        {visibleInspirations.map((item, i) => (
           <motion.div key={i}
             initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-6% 0px" }}
@@ -55,6 +80,7 @@ const WeddingInspirationSection = ({ refEl }) => {
               const activePhoto = album[activeIndex] || album[0] || null;
               const activeSrc = activePhoto?.src || item.src;
               const activeSpots = activePhoto?.spots || item.spots || [];
+              const activeIndexForPhoto = activeSpot?.itemIndex === i && activeSpot?.photoIndex === activeIndex ? activeSpot.spotIndex : -1;
 
               return (
               <>
@@ -73,44 +99,14 @@ const WeddingInspirationSection = ({ refEl }) => {
                 </div>
               )}
               {activeSrc && (
-                <>
-                {(activeSpots || []).map((spot, si) => (
-                  <div key={si} style={{ position: "absolute", left: `${spot.x}%`, top: `${spot.y}%`, transform: "translate(-50%,-50%)", zIndex: 2 }}>
-                    <button
-                      aria-label={spot.label}
-                      onClick={e => { e.stopPropagation(); setActiveSpot(activeSpot === `${i}-${si}` ? null : `${i}-${si}`); }}
-                      style={{ width: "44px", height: "44px", borderRadius: "50%", background: "transparent", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", padding: 0 }}>
-                      <span style={{ width: "20px", height: "20px", borderRadius: "50%", background: "rgba(184,151,62,0.2)", border: `1px solid ${GOLD}`, backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                        <span style={{ width: "5px", height: "5px", borderRadius: "50%", background: GOLD }} />
-                      </span>
-                    </button>
-                    <AnimatePresence>
-                      {activeSpot === `${i}-${si}` && (
-                        <motion.div
-                          initial={{ opacity: 0, scale: 0.92 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.92 }}
-                          transition={{ duration: 0.15 }}
-                          onClick={e => e.stopPropagation()}
-                          style={{ position: "absolute", left: spot.x > 55 ? "auto" : "26px", right: spot.x > 55 ? "26px" : "auto", top: spot.y > 60 ? "auto" : "26px", bottom: spot.y > 60 ? "26px" : "auto", width: "150px", background: "rgba(10,8,4,0.95)", border: `1px solid rgba(184,151,62,0.35)`, borderRadius: "8px", padding: "8px 10px", zIndex: 10 }}>
-                          <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "7.5px", letterSpacing: "0.1em", color: GOLD, textTransform: "uppercase", marginBottom: "6px", lineHeight: 1.3 }}>{spot.label}</p>
-                          <button
-                            onClick={() => {
-                              const messages = {
-                                FR: `Bonjour Gaspard, je suis intéressé(e) par ce look mariage : ${spot.label}`,
-                                EN: `Hello Gaspard, I'm interested in this wedding look: ${spot.label}`,
-                                ES: `Hola Gaspard, me interesa este look de boda: ${spot.label}`,
-                                ZH: `你好 Gaspard，我对这个婚礼造型感兴趣：${spot.label}`,
-                              };
-                              window.open(`${WA_GNZ}?text=${encodeURIComponent(messages[lang] || messages.FR)}`, "_blank");
-                            }}
-                            style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "9px", letterSpacing: "0.18em", color: GOLD, textTransform: "uppercase", background: "rgba(184,151,62,0.1)", border: `1px solid rgba(184,151,62,0.3)`, borderRadius: "20px", padding: "9px 8px", minHeight: "44px", cursor: "pointer", width: "100%" }}>
-                            {t("ask_availability")}
-                          </button>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </div>
-                ))}
-                </>
+                <PhotoHotspots
+                  spots={activeSpots}
+                  activeIndex={activeIndexForPhoto}
+                  onSelect={(spotIndex, spot) => setActiveSpot((current) => {
+                    const same = current?.itemIndex === i && current?.photoIndex === activeIndex && current?.spotIndex === spotIndex;
+                    return same ? null : { itemIndex: i, photoIndex: activeIndex, spotIndex, spot };
+                  })}
+                />
               )}
               </div>
               {album.length > 1 && (
@@ -140,6 +136,25 @@ const WeddingInspirationSection = ({ refEl }) => {
           </motion.div>
         ))}
       </div>
+
+      {isCompactMobile && INSPIRATIONS.length > 1 && (
+        <div style={{ padding: "1.1rem 1.4rem 0", display: "flex", justifyContent: "center" }}>
+          <button
+            type="button"
+            onClick={() => { setExpanded((value) => !value); setActiveSpot(null); }}
+            style={{ minHeight:44, border:"1px solid rgba(184,151,62,.36)", borderRadius:999, background:"rgba(184,151,62,.06)", color:GOLD, padding:"0 1.25rem", fontFamily:"'Montserrat',sans-serif", fontSize:9, fontWeight:600, letterSpacing:".18em", textTransform:"uppercase", cursor:"pointer" }}>
+            {expanded ? copy.less : `${copy.more} · ${INSPIRATIONS.length}`}
+          </button>
+        </div>
+      )}
+
+      <HotspotSheet
+        spot={activeSpot?.spot || null}
+        onClose={() => setActiveSpot(null)}
+        eyebrow={t("shop_the_look")}
+        actionLabel={t("ask_availability")}
+        onAction={askSelected}
+      />
     </section>
   );
 };

@@ -1,3 +1,31 @@
+# Dependencies and generated builds
 node_modules/
 dist/
-node_modules/
+coverage/
+.vite/
+
+# Local environment and platform state
+.env
+.env.*
+!.env.example
+.vercel/
+
+# Test output
+playwright-report/
+test-results/
+
+# OS and logs
+.DS_Store
+*.log
+
+# Signature mobile — ne doit JAMAIS être versionnée.
+# Le keystore Android est le secret le plus lourd du projet : qui le détient
+# peut publier des mises à jour sous l'identité de l'application.
+*.jks
+*.keystore
+*.p12
+*.mobileprovision
+key.properties
+android/key.properties
+android/app/google-services.json
+ios/App/GoogleService-Info.plist

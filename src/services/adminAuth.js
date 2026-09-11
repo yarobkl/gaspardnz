@@ -1,12 +1,17 @@
 import { supabase } from "./supabaseClient.js";
 
-const PROFILE_KEY = "gnz-admin-profile";
+const LEGACY_PROFILE_KEY = "gnz-admin-profile";
 const ADMIN_URL = "https://gaspardnz.style/admin";
 export const PERMISSIONS = { OWNER: "owner", ADMIN_FULL: "admin", EDITOR: "editor", ADMIN_READ: "viewer" };
-export const initAdminUsers = () => {};
 
-const cacheProfile = (profile) => {
-  try { profile ? localStorage.setItem(PROFILE_KEY, JSON.stringify(profile)) : localStorage.removeItem(PROFILE_KEY); } catch {}
+/**
+ * Le profil admin n'est JAMAIS persisté : un profil stocké côté navigateur est
+ * modifiable par l'utilisateur et ne prouve donc rien. L'unique autorité est
+ * `refreshSession()` (session Supabase vérifiée + `admin_access.active`).
+ * On purge ici l'ancien cache laissé par les versions précédentes.
+ */
+export const initAdminUsers = () => {
+  try { localStorage.removeItem(LEGACY_PROFILE_KEY); } catch {}
 };
 
 async function getAccessProfile(user) {
@@ -22,8 +27,7 @@ export async function login(email, password) {
   const { data, error } = await supabase.auth.signInWithPassword({ email: normalized, password });
   if (error || !data?.user) return { success: false, error: "Email ou mot de passe incorrect" };
   const profile = await getAccessProfile(data.user);
-  if (!profile) { await supabase.auth.signOut(); cacheProfile(null); return { success: false, error: "Ce compte n'est pas autorisé à accéder à l'administration." }; }
-  cacheProfile(profile);
+  if (!profile) { await supabase.auth.signOut(); return { success: false, error: "Ce compte n'est pas autorisé à accéder à l'administration." }; }
   return { success: true, user: profile };
 }
 
@@ -34,25 +38,23 @@ export async function registerAdmin(email, password) {
   if (error) return { success: false, error: error.message };
   if (data?.session && data?.user) {
     const profile = await getAccessProfile(data.user);
-    if (!profile) { await supabase.auth.signOut(); cacheProfile(null); return { success: false, error: "Cette adresse n'est pas autorisée pour l'administration." }; }
-    cacheProfile(profile);
+    if (!profile) { await supabase.auth.signOut(); return { success: false, error: "Cette adresse n'est pas autorisée pour l'administration." }; }
     return { success: true, user: profile, confirmed: true };
   }
   return { success: true, confirmed: false, message: "Un email de confirmation vient de vous être envoyé." };
 }
 
-export async function logout() { cacheProfile(null); await supabase.auth.signOut(); }
+export async function logout() { await supabase.auth.signOut(); }
 
-export function getSession() {
-  try { const raw = localStorage.getItem(PROFILE_KEY); return raw ? JSON.parse(raw) : null; } catch { return null; }
-}
-
+/**
+ * Seule source d'autorité pour l'accès admin : la session Supabase est vérifiée,
+ * puis l'appartenance à `admin_access` avec `active = true` est relue à chaque appel.
+ * Retourne `null` dès que l'une des deux conditions manque.
+ */
 export async function refreshSession() {
   const { data } = await supabase.auth.getSession();
-  if (!data?.session?.user) { cacheProfile(null); return null; }
-  const profile = await getAccessProfile(data.session.user);
-  cacheProfile(profile);
-  return profile;
+  if (!data?.session?.user) return null;
+  return await getAccessProfile(data.session.user);
 }
 
 export async function isAuthenticated() { return Boolean(await refreshSession()); }
@@ -76,4 +78,35 @@ export async function changePassword(_userId, oldPassword, newPassword) {
   const { error } = await supabase.auth.updateUser({ password:newPassword });
   return error ? { success:false, error:error.message } : { success:true };
 }
-export function onAuthStateChange(callback) { return supabase.auth.onAuthStateChange(async (_event, session) => { const profile = session?.user ? await getAccessProfile(session.user) : null; cacheProfile(profile); callback(profile); }); }
+
+/**
+ * Supabase déconseille d'effectuer un nouvel appel asynchrone Supabase
+ * directement dans le callback `onAuthStateChange`, car ce callback s'exécute
+ * pendant la notification interne de l'authentification. On rend donc le
+ * callback immédiatement et on décale la lecture de `admin_access` au tick
+ * suivant. Le compteur empêche une réponse lente d'un ancien événement de
+ * réauthentifier l'interface après une déconnexion plus récente.
+ */
+export function onAuthStateChange(callback) {
+  let sequence = 0;
+  return supabase.auth.onAuthStateChange((_event, session) => {
+    const current = ++sequence;
+    const user = session?.user || null;
+
+    setTimeout(() => {
+      if (current !== sequence) return;
+      if (!user) {
+        callback(null);
+        return;
+      }
+
+      getAccessProfile(user)
+        .then((profile) => {
+          if (current === sequence) callback(profile);
+        })
+        .catch(() => {
+          if (current === sequence) callback(null);
+        });
+    }, 0);
+  });
+}

@@ -1,4 +1,5 @@
 import { sendPublicEvent } from "./supabaseClient.js";
+import { hasConsent } from "./consent.js";
 
 const VISITOR_KEY = "gnz_vid_v2";
 const SESSION_KEY = "gnz_sid_v2";
@@ -79,7 +80,7 @@ function getSessionId() {
 }
 
 export function getTrackingContext() {
-  if (typeof window === "undefined") return {};
+  if (typeof window === "undefined" || !hasConsent("analytics")) return {};
   return {
     visitor_id: getVisitorId(),
     session_id: getSessionId(),
@@ -90,8 +91,7 @@ export function getTrackingContext() {
 
 export async function trackSiteEvent(eventName, options = {}) {
   if (typeof window === "undefined") return;
-  const consent = safeStorage(localStorage, "getItem", "gnz-cookies");
-  if (options.essential !== true && consent !== "accepted") return;
+  if (options.essential !== true && !hasConsent("analytics")) return;
   return sendPublicEvent("analytics_event", {
     ...getTrackingContext(),
     event_name: eventName,
@@ -107,6 +107,7 @@ export function trackPageViewToSupabase(path = window.location.pathname) {
 }
 
 async function recordBookingIntent({ label, href }) {
+  if (!hasConsent("analytics")) return;
   const context = getTrackingContext();
   const provider = /calendly/i.test(href || "") ? "calendly" : /wa\.me|whatsapp/i.test(href || "") ? "whatsapp" : "site";
   const dedupeKey = `${provider}:${href || label || "booking"}`.slice(0, 300);
@@ -128,7 +129,7 @@ async function recordBookingIntent({ label, href }) {
 }
 
 export function initializeSupabaseTracking() {
-  if (typeof window === "undefined" || window.location.pathname.startsWith("/admin")) return () => {};
+  if (typeof window === "undefined" || window.location.pathname.startsWith("/admin") || !hasConsent("analytics")) return () => {};
   let lastPath = `${window.location.pathname}${window.location.search}`;
 
   const clickHandler = (event) => {
@@ -167,8 +168,8 @@ export function initializeSupabaseTracking() {
   };
 }
 
-if (typeof window !== "undefined" && !window.location.pathname.startsWith("/admin")) {
-  queueMicrotask(() => {
-    if (!window.__GNZ_SUPABASE_TRACKING_CLEANUP__) window.__GNZ_SUPABASE_TRACKING_CLEANUP__ = initializeSupabaseTracking();
-  });
+export function clearSupabaseTrackingData() {
+  if (typeof window === "undefined") return;
+  [VISITOR_KEY, ATTRIBUTION_KEY].forEach((key) => safeStorage(localStorage, "removeItem", key));
+  [SESSION_KEY, SESSION_STARTED_KEY, BOOKING_SENT_KEY].forEach((key) => safeStorage(sessionStorage, "removeItem", key));
 }

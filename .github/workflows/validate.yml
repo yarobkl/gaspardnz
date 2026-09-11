@@ -2,13 +2,16 @@ name: Validate GaspardNZ
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
+      - "hardening/**"
+      - "claude/**"
   pull_request:
     branches: [main]
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: validate-${{ github.ref }}
@@ -17,30 +20,59 @@ concurrency:
 jobs:
   validate:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 30
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
       - name: Node
         uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
+
       - name: Install dependencies
-        run: npm install --no-audit --no-fund
+        run: npm ci --no-audit --no-fund
+
+      - name: Lint when configured
+        run: npm run lint --if-present
+
+      - name: Run unit and static validation suites
+        run: npm test
+
+      - name: Start local PostgreSQL
+        run: sudo systemctl start postgresql.service
+
+      - name: Run RLS / audit / CRM SQL harness
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo rm -rf /tmp/gaspardnz-rls
+          sudo cp -R "$GITHUB_WORKSPACE" /tmp/gaspardnz-rls
+          sudo chown -R postgres:postgres /tmp/gaspardnz-rls
+          sudo -u postgres bash /tmp/gaspardnz-rls/scripts/rls-harness/run.sh
+
       - name: Build web app
         run: npm run build
-      - name: Validate SEO
-        run: npm run test:seo
-      - name: Validate email API security
-        run: npm run test:email-security
-      - name: Synchronize package lock
-        if: github.event_name == 'push'
+
+      - name: Validate generated SEO route HTML
+        run: npm run test:seo-built
+
+      - name: Validate Capacitor bundle after build
+        run: npm run test:bundle
+
+      - name: Install Chromium for browser checks
+        run: npx playwright-core install --with-deps chromium
+
+      - name: Locate Chromium
+        shell: bash
         run: |
-          if ! git diff --quiet -- package-lock.json; then
-            git config user.name "github-actions[bot]"
-            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add package-lock.json
-            git commit -m "chore: sync package-lock"
-            git push
-          fi
+          CHROME="$(find "$HOME/.cache/ms-playwright" -type f -path '*/chrome-linux*/chrome' | head -n 1)"
+          test -n "$CHROME"
+          echo "CHROMIUM_PATH=$CHROME" >> "$GITHUB_ENV"
+
+      - name: Run browser checks
+        run: npm run test:e2e
+
+      - name: Verify dependency manifests stay unchanged
+        run: git diff --exit-code -- package.json package-lock.json

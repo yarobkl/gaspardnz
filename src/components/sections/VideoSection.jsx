@@ -1,10 +1,20 @@
-import { useRef, useEffect, useState, useCallback } from "react";
+import { useContext, useRef, useEffect, useState, useCallback } from "react";
 import { motion, useInView } from "framer-motion";
-import { GOLD, TEXT, CDN_BASE } from "../../constants.js";
-import { useTr } from "../../context.jsx";
+import { GOLD, CDN_BASE } from "../../constants.js";
+import { LangCtx, useTr } from "../../context.jsx";
+import useCompactMobile from "../../hooks/useCompactMobile.js";
+
+const COPY = {
+  FR: { more: "Voir la vidéo en plein format", less: "Réduire la vidéo", caption: "Découvrez les derniers looks et inspirations" },
+  EN: { more: "View full video", less: "Collapse video", caption: "Discover the latest looks and inspirations" },
+  ES: { more: "Ver vídeo completo", less: "Reducir vídeo", caption: "Descubre los últimos looks e inspiraciones" },
+  ZH: { more: "查看完整视频", less: "收起视频", caption: "探索最新造型与灵感" },
+};
 
 const VideoSection = () => {
   const t = useTr();
+  const { lang } = useContext(LangCtx);
+  const isCompactMobile = useCompactMobile();
   const videoRef = useRef(null);
   const sectionRef = useRef(null);
   const shouldLoad = useInView(sectionRef, { amount: 0.15, margin: "320px 0px" });
@@ -12,6 +22,8 @@ const VideoSection = () => {
   const [videoSrc, setVideoSrc] = useState("");
   const [soundBlocked, setSoundBlocked] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(false);
+  const [expanded, setExpanded] = useState(false);
+  const copy = COPY[lang] || COPY.FR;
 
   const VIDEO_URL = `${CDN_BASE}/video/upload/Looks_demi-saison_ou_demi-_Dakar_arefgg.mp4`;
 
@@ -62,8 +74,10 @@ const VideoSection = () => {
     return () => document.removeEventListener("visibilitychange", onVisibilityChange);
   }, [isInView, videoSrc, playVideo, soundEnabled]);
 
+  const compactVideo = isCompactMobile && !expanded;
+
   return (
-    <section ref={sectionRef} style={{ background: "#0a0602", padding: "3rem 1.4rem" }}>
+    <section ref={sectionRef} style={{ background: "#0a0602", padding: isCompactMobile ? "2.2rem 1.4rem 2.6rem" : "3rem 1.4rem" }}>
       <motion.p
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
@@ -74,7 +88,7 @@ const VideoSection = () => {
           letterSpacing: "0.4em",
           color: GOLD,
           textTransform: "uppercase",
-          marginBottom: "2rem",
+          marginBottom: isCompactMobile ? "1.35rem" : "2rem",
           textAlign: "center",
         }}
       >
@@ -90,11 +104,12 @@ const VideoSection = () => {
           maxWidth: "100%",
           borderRadius: "12px",
           overflow: "hidden",
-          aspectRatio: "9 / 16",
-          maxHeight: "600px",
+          aspectRatio: compactVideo ? "4 / 5" : "9 / 16",
+          maxHeight: compactVideo ? "480px" : "600px",
           margin: "0 auto",
           boxShadow: "0 8px 40px rgba(184,151,62,0.15)",
           position: "relative",
+          transition: "aspect-ratio .28s ease, max-height .28s ease",
         }}
       >
         <video
@@ -105,9 +120,9 @@ const VideoSection = () => {
           playsInline
           autoPlay
           muted
-          preload="none"
-          onLoadedMetadata={() => playVideo(false)}
-          onCanPlay={() => playVideo(false)}
+          preload="metadata"
+          aria-label="Sélection de looks GaspardNZ"
+          onVolumeChange={(event) => setSoundEnabled(!event.currentTarget.muted && event.currentTarget.volume > 0)}
           style={{
             width: "100%",
             height: "100%",
@@ -126,7 +141,7 @@ const VideoSection = () => {
             style={{
               position: "absolute",
               left: "50%",
-              bottom: "1rem",
+              bottom: "4rem",
               transform: "translateX(-50%)",
               zIndex: 5,
               border: `1px solid rgba(184,151,62,0.7)`,
@@ -158,12 +173,23 @@ const VideoSection = () => {
           fontStyle: "italic",
           color: "rgba(245,240,232,0.65)",
           textAlign: "center",
-          marginTop: "1.6rem",
+          margin: isCompactMobile ? "1.1rem 0 .9rem" : "1.6rem 0 0",
           lineHeight: 1.6,
         }}
       >
-        Découvrez les derniers looks et inspirations
+        {copy.caption}
       </motion.p>
+
+      {isCompactMobile && (
+        <div style={{ display: "flex", justifyContent: "center" }}>
+          <button
+            type="button"
+            onClick={() => setExpanded((value) => !value)}
+            style={{ minHeight:44, border:"1px solid rgba(184,151,62,.36)", borderRadius:999, background:"rgba(184,151,62,.06)", color:GOLD, padding:"0 1.2rem", fontFamily:"'Montserrat',sans-serif", fontSize:9, fontWeight:600, letterSpacing:".18em", textTransform:"uppercase", cursor:"pointer" }}>
+            {expanded ? copy.less : copy.more}
+          </button>
+        </div>
+      )}
     </section>
   );
 };

@@ -10,6 +10,10 @@ on:
         description: "Nom de version visible (ex: 1.0)"
         required: false
         default: "1.0"
+
+permissions:
+  contents: read
+
 jobs:
   build-android:
     name: Build Android APK/AAB
@@ -27,7 +31,7 @@ jobs:
           distribution: "temurin"
           java-version: "21"
       - name: Installer les dépendances
-        run: npm install
+        run: npm ci --no-audit --no-fund
       - name: Build web Capacitor
         run: npm run build:app
       - name: Ajouter ou synchroniser Android

@@ -5,6 +5,7 @@
  */
 
 import { getDeviceInfo, getBrowserName, getOSName, getCountryFromTimezone } from './trackingUtils.js';
+import { hasConsent } from './consent.js';
 
 const TRACKING_CONFIG = {
   clicksKey: "gnz_clicks_tracking",
@@ -28,6 +29,7 @@ const TRACKING_CONFIG = {
 // ============================================================================
 
 export const cleanupTrackingData = () => {
+  if (!hasConsent("analytics")) return;
   try {
     const now = Date.now();
     const maxAgeMs = TRACKING_CONFIG.maxDataAgeDays * 24 * 60 * 60 * 1000;
@@ -75,6 +77,7 @@ const generateSessionId = () => {
 };
 
 const getSessionId = () => {
+  if (!hasConsent("analytics")) return null;
   try {
     let sessionId = sessionStorage.getItem(TRACKING_CONFIG.sessionIdKey);
     if (!sessionId) {
@@ -121,6 +124,7 @@ let lastClickTime = 0;
 const elementClickTimes = new Map();
 
 export const trackClick = (event) => {
+  if (!hasConsent("analytics")) return;
   try {
     const now = Date.now();
 
@@ -188,6 +192,7 @@ const getSectionFromElement = (el) => {
 };
 
 const recordClickData = (clickData) => {
+  if (!hasConsent("analytics")) return;
   try {
     const clicks = localStorage.getItem(TRACKING_CONFIG.clicksKey);
     const clicksList = clicks ? JSON.parse(clicks) : [];
@@ -207,6 +212,7 @@ const recordClickData = (clickData) => {
 // ============================================================================
 
 const updateHeatmapData = (x, y) => {
+  if (!hasConsent("analytics")) return;
   try {
     const heatmap = localStorage.getItem(TRACKING_CONFIG.heatmapKey);
     const heatmapList = heatmap ? JSON.parse(heatmap) : [];
@@ -274,6 +280,7 @@ let scrollTrackingTimeout = null;
 const scrollDepthPerPage = {};
 
 export const initScrollTracking = () => {
+  if (!hasConsent("analytics")) return () => {};
   const trackScroll = () => {
     if (scrollTrackingTimeout) clearTimeout(scrollTrackingTimeout);
 
@@ -303,6 +310,7 @@ export const initScrollTracking = () => {
 // ============================================================================
 
 export const initFormTracking = () => {
+  if (!hasConsent("analytics")) return () => {};
   const handleFormEvent = (event) => {
     const form = event.target.closest("form");
     if (!form) return;
@@ -323,13 +331,14 @@ export const initFormTracking = () => {
   document.addEventListener("input", handleFormEvent, { capture: true, passive: true });
 
   return () => {
-    document.removeEventListener("focus", handleFormEvent);
-    document.removeEventListener("blur", handleFormEvent);
-    document.removeEventListener("input", handleFormEvent);
+    document.removeEventListener("focus", handleFormEvent, { capture: true });
+    document.removeEventListener("blur", handleFormEvent, { capture: true });
+    document.removeEventListener("input", handleFormEvent, { capture: true });
   };
 };
 
 export const trackFormSubmit = (formElement, metadata = {}) => {
+  if (!hasConsent("analytics")) return;
   try {
     recordBehaviorEvent({
       type: "form_submit",
@@ -347,6 +356,7 @@ export const trackFormSubmit = (formElement, metadata = {}) => {
 // ============================================================================
 
 export const trackVideoPlay = (videoElement, metadata = {}) => {
+  if (!hasConsent("analytics")) return;
   try {
     recordBehaviorEvent({
       type: "video_play",
@@ -361,6 +371,7 @@ export const trackVideoPlay = (videoElement, metadata = {}) => {
 };
 
 export const trackVideoPause = (videoElement, metadata = {}) => {
+  if (!hasConsent("analytics")) return;
   try {
     recordBehaviorEvent({
       type: "video_pause",
@@ -376,7 +387,7 @@ export const trackVideoPause = (videoElement, metadata = {}) => {
 };
 
 export const initVideoTracking = (videoElement, metadata = {}) => {
-  if (!videoElement) return () => {};
+  if (!videoElement || !hasConsent("analytics")) return () => {};
 
   const handlePlay = () => trackVideoPlay(videoElement, metadata);
   const handlePause = () => trackVideoPause(videoElement, metadata);
@@ -395,6 +406,7 @@ export const initVideoTracking = (videoElement, metadata = {}) => {
 // ============================================================================
 
 const recordBehaviorEvent = (event) => {
+  if (!hasConsent("analytics")) return;
   try {
     const behaviorEvent = {
       id: "behavior_" + Date.now() + "_" + Math.random().toString(36).slice(2, 8),
@@ -419,6 +431,7 @@ const recordBehaviorEvent = (event) => {
 };
 
 export const trackExit = () => {
+  if (!hasConsent("analytics")) return;
   try {
     recordBehaviorEvent({
       type: "page_exit",
@@ -435,6 +448,7 @@ export const trackExit = () => {
 // ============================================================================
 
 export const trackPageView = (pagePath) => {
+  if (!hasConsent("analytics")) return;
   try {
     recordBehaviorEvent({
       type: "page_view",
@@ -451,9 +465,11 @@ export const trackPageView = (pagePath) => {
 // ============================================================================
 
 let isTrackingInitialized = false;
+let trackingCleanup = null;
 
 export const initializeTracking = () => {
-  if (isTrackingInitialized) return;
+  if (!hasConsent("analytics")) return () => {};
+  if (isTrackingInitialized) return trackingCleanup || (() => {});
   isTrackingInitialized = true;
 
   try {
@@ -470,15 +486,21 @@ export const initializeTracking = () => {
 
     window.addEventListener("beforeunload", trackExit);
 
-    return () => {
+    trackingCleanup = () => {
       document.removeEventListener("click", trackClick);
       clearInterval(cleanupInterval);
       scrollCleanup();
       formCleanup();
       window.removeEventListener("beforeunload", trackExit);
+      isTrackingInitialized = false;
+      trackingCleanup = null;
     };
+    return trackingCleanup;
   } catch (error) {
+    isTrackingInitialized = false;
+    trackingCleanup = null;
     console.error("Failed to initialize tracking:", error);
+    return () => {};
   }
 };
 
@@ -751,9 +773,12 @@ export const clearAllTrackingData = () => {
   try {
     localStorage.removeItem(TRACKING_CONFIG.clicksKey);
     localStorage.removeItem(TRACKING_CONFIG.behaviorKey);
+    localStorage.removeItem(TRACKING_CONFIG.sessionsKey);
     localStorage.removeItem(TRACKING_CONFIG.heatmapKey);
+    localStorage.removeItem(TRACKING_CONFIG.scrollDepthKey);
     sessionStorage.removeItem(TRACKING_CONFIG.sessionIdKey);
     sessionStorage.removeItem(TRACKING_CONFIG.sessionStartKey);
+    Object.keys(scrollDepthPerPage).forEach((page) => delete scrollDepthPerPage[page]);
     return true;
   } catch {
     return false;

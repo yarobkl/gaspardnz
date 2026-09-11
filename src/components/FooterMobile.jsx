@@ -5,6 +5,7 @@ import { useTr } from "../context.jsx";
 import { SvgInstagram, SvgTiktok, SvgYoutube, SvgWhatsapp } from "../icons.jsx";
 import LegalModal from "./LegalModal.jsx";
 import { useSettings } from "../hooks/useSettings.js";
+import { openCookieSettings } from "../services/consent.js";
 
 const FooterMobile = ({ onFormules, onGalerie, onShowroom }) => {
   const t = useTr();
@@ -61,7 +62,7 @@ const FooterMobile = ({ onFormules, onGalerie, onShowroom }) => {
         <div style={{ height: "1px", background: "linear-gradient(90deg, transparent, rgba(184,151,62,0.15), transparent)", marginBottom: "1.4rem" }} />
 
         {/* Legal */}
-        <div style={{ display: "flex", justifyContent: "center", gap: "1.4rem", marginBottom: "1.2rem" }}>
+        <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "0.4rem 1.4rem", marginBottom: "1.2rem" }}>
           {[
             [t("footer_mentions"), "/mentions-legales.html"],
             [t("footer_conf"), "/confidentialite.html"],
@@ -72,6 +73,13 @@ const FooterMobile = ({ onFormules, onGalerie, onShowroom }) => {
               {label}
             </a>
           ))}
+          <button
+            type="button"
+            onClick={openCookieSettings}
+            style={{ background: "none", border: "none", cursor: "pointer", fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.15em", color: "rgba(245,240,232,0.62)", textTransform: "uppercase", padding: "12px 0", minHeight: "44px" }}
+          >
+            {t("cookie_manage")}
+          </button>
         </div>
 
         <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", color: "rgba(245,240,232,0.8)", textAlign: "center", letterSpacing: "0.1em" }}>
