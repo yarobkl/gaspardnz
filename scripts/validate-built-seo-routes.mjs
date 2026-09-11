@@ -26,10 +26,10 @@ for (const [route, title] of Object.entries(routes)) {
   assert.equal(html.includes(`<title>GaspardNZ | Styliste Parisien`), false, `${route} fell back to root metadata`);
 
   assert.equal(html.includes(`<link rel="alternate" hreflang="fr" href="${canonical}" />`), true, `${route} has wrong fr hreflang`);
-  assert.equal(html.includes(`<link rel="alternate" hreflang="en" href="${canonical}?lang=en" />`), true, `${route} has wrong en hreflang`);
-  assert.equal(html.includes(`<link rel="alternate" hreflang="es" href="${canonical}?lang=es" />`), true, `${route} has wrong es hreflang`);
-  assert.equal(html.includes(`<link rel="alternate" hreflang="zh" href="${canonical}?lang=zh" />`), true, `${route} has wrong zh hreflang`);
   assert.equal(html.includes(`<link rel="alternate" hreflang="x-default" href="${canonical}" />`), true, `${route} has wrong x-default hreflang`);
+  for (const lang of ["en", "es", "zh"]) {
+    assert.equal(html.includes(`hreflang="${lang}"`), false, `${route} exposes non-indexable ${lang} hreflang`);
+  }
 }
 
 console.log(`Built SEO route validation passed (${Object.keys(routes).length} routes)`);
