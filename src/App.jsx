@@ -15,6 +15,8 @@ import { clearSupabaseTrackingData, initializeSupabaseTracking } from "./service
 import { getConsentPreferences, hasConsentDecision, subscribeToConsentChanges } from "./services/consent.js";
 import NavMobile from "./components/NavMobile.jsx";
 import HeroMobile from "./components/HeroMobile.jsx";
+import useCompactMobile from "./hooks/useCompactMobile.js";
+import MobileHomeCompact from "./components/MobileHomeCompact.jsx";
 
 import SectionDivider from "./components/ui/SectionDivider.jsx";
 
@@ -256,6 +258,8 @@ export default function App() {
   const recoveryFlowRef = useRef(null);
   const [adminSection, setAdminSection] = useState(getAdminSectionFromPath);
   const [consentPreferences, setConsentPreferences] = useState(getConsentPreferences);
+  const isCompactMobile = useCompactMobile();
+  const [mobileSection, setMobileSection] = useState(null);
   const finishSplash = useCallback(() => setSplashDone(true), []);
   const [lang, setLang] = useState(() => {
     try {
@@ -543,6 +547,20 @@ export default function App() {
   }, [splashDone, isAdminPath, consentPreferences.analytics]);
 
   const scrollTo = (ref) => { ref?.current?.scrollIntoView({ behavior: "smooth", block: "start" }); };
+  const handleMobileSectionSelect = (key) => {
+    setMobileSection(key);
+    if (!key) return;
+    window.setTimeout(() => {
+      document.getElementById("gnz-mobile-active-section")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 80);
+  };
+  const openMobileSection = (key, ref) => {
+    if (!isCompactMobile) {
+      scrollTo(ref);
+      return;
+    }
+    handleMobileSectionSelect(key);
+  };
   const openBooking = (boutique = false) => { setBoutiqueMode(boutique); setBookingOpen(true); };
 
   const handleNotifAccept = async () => {
@@ -623,55 +641,89 @@ export default function App() {
             }}>
             <NavMobile
               onShowroom={() => scrollTo(showroomRef)}
-              onGalerie={() => scrollTo(galleryRef)}
+              onGalerie={() => openMobileSection("gallery", galleryRef)}
               onContact={() => window.open(`https://wa.me/33664826920?text=${encodeURIComponent((APP_COPY[lang] || APP_COPY.FR).waContact)}`, "_blank")}
               onCatalogue={() => openBooking(true)}
-              onFormules={() => scrollTo(formulesRef)}
-              onBiographie={() => scrollTo(heritageRef)}
+              onFormules={() => openMobileSection("formules", formulesRef)}
+              onBiographie={() => openMobileSection("heritage", heritageRef)}
               onReserver={() => openBooking(false)}
-              onStyleDuMois={() => scrollTo(styleDuMoisRef)}
-              onPartenaires={() => scrollTo(partenairesRef)}
-              onStyleJournal={() => scrollTo(styleJournalRef)}
-              onVideo={() => scrollTo(videoRef)}
-              onWedding={() => scrollTo(weddingRef)}
-              onActualites={() => scrollTo(actualitesRef)}
-              onVIP={() => scrollTo(vipRef)}
-              onCommunaute={() => scrollTo(communauteRef)}
+              onStyleDuMois={() => openMobileSection("styleMonth", styleDuMoisRef)}
+              onPartenaires={() => openMobileSection("partners", partenairesRef)}
+              onStyleJournal={() => openMobileSection("journal", styleJournalRef)}
+              onVideo={() => openMobileSection("video", videoRef)}
+              onWedding={() => openMobileSection("wedding", weddingRef)}
+              onActualites={() => openMobileSection("news", actualitesRef)}
+              onVIP={() => openMobileSection("vip", vipRef)}
+              onCommunaute={() => openMobileSection("community", communauteRef)}
               highContrast={highContrast}
               onToggleContrast={() => setHighContrast(v => !v)}
               lightMode={lightMode}
               onToggleDark={() => setLightMode(v => !v)}
             />
 
-            <HeroMobile onScrollDown={() => scrollTo(heritageRef)} />
+            <HeroMobile onScrollDown={() => isCompactMobile ? document.getElementById("gnz-mobile-home")?.scrollIntoView({ behavior: "smooth", block: "start" }) : scrollTo(heritageRef)} />
             <Suspense fallback={null}>
-            <AboutSection />
-            <SectionDivider from="#1c1208" to="#f5f0e8" />
-            <HeritageMobile refEl={heritageRef} />
-            <SectionDivider from="#f5f0e8" to="#0a0602" />
-            <div ref={styleJournalRef}><StyleJournalSection /></div>
-            <SectionDivider from="#0a0602" to="#f5f0e8" />
-            <GalleryMobile refEl={galleryRef} />
-            <SectionDivider from="#f5f0e8" to="#0a0602" />
-            <div ref={videoRef}><VideoSection /></div>
-            <SectionDivider from="#0a0602" to="#0a0602" />
-            <WeddingInspirationSection refEl={weddingRef} />
-            <SectionDivider from="#0a0602" to="#0d1b3e" />
-            <FormulesSection refEl={formulesRef} onContact={() => window.open(`https://wa.me/33664826920?text=${encodeURIComponent((APP_COPY[lang] || APP_COPY.FR).waFormula)}`, "_blank")} />
-            <SectionDivider from="#0d1b3e" to="#0a0602" />
-            <PartnersSection refEl={partenairesRef} />
-            <SectionDivider from="#0a0602" to="#0a0602" />
-            <div ref={actualitesRef}><ActualitesSection /></div>
-            <div ref={vipRef}><VIPClientsSection /></div>
-            <SectionDivider from="#0f0a04" to="#f5f0e8" />
-            <ShowroomMobile refEl={showroomRef} onCatalogue={() => openBooking(true)} onGalerie={() => scrollTo(galleryRef)} onFlammes={() => scrollTo(galleryRef)} />
-            <InstagramSection />
-            <SectionDivider from="#faf7f2" to="#0a0602" />
-            <StyleDuMoisSection refEl={styleDuMoisRef} />
-            <div ref={communauteRef}><CommunauteSection /></div>
-            <FooterMobile onFormules={() => scrollTo(formulesRef)} onGalerie={() => scrollTo(galleryRef)} onShowroom={() => scrollTo(showroomRef)} />
+            {isCompactMobile ? (
+              <>
+                <MobileHomeCompact activeSection={mobileSection} onSelect={handleMobileSectionSelect} />
+
+                {mobileSection && (
+                  <div id="gnz-mobile-active-section">
+                    {mobileSection === "heritage" && (
+                      <>
+                        <AboutSection />
+                        <SectionDivider from="#1c1208" to="#f5f0e8" />
+                        <HeritageMobile refEl={heritageRef} />
+                      </>
+                    )}
+                    {mobileSection === "journal" && <div ref={styleJournalRef}><StyleJournalSection /></div>}
+                    {mobileSection === "gallery" && <GalleryMobile refEl={galleryRef} />}
+                    {mobileSection === "video" && <div ref={videoRef}><VideoSection /></div>}
+                    {mobileSection === "wedding" && <WeddingInspirationSection refEl={weddingRef} />}
+                    {mobileSection === "formules" && <FormulesSection refEl={formulesRef} onContact={() => window.open(`https://wa.me/33664826920?text=${encodeURIComponent((APP_COPY[lang] || APP_COPY.FR).waFormula)}`, "_blank")} />}
+                    {mobileSection === "partners" && <PartnersSection refEl={partenairesRef} />}
+                    {mobileSection === "news" && <div ref={actualitesRef}><ActualitesSection /></div>}
+                    {mobileSection === "vip" && <div ref={vipRef}><VIPClientsSection /></div>}
+                    {mobileSection === "styleMonth" && <StyleDuMoisSection refEl={styleDuMoisRef} />}
+                    {mobileSection === "community" && <div ref={communauteRef}><CommunauteSection /></div>}
+                  </div>
+                )}
+
+                <SectionDivider from="#0a0602" to="#f5f0e8" />
+                <ShowroomMobile refEl={showroomRef} onCatalogue={() => openBooking(true)} onGalerie={() => openMobileSection("gallery", galleryRef)} onFlammes={() => openMobileSection("gallery", galleryRef)} />
+                <FooterMobile onFormules={() => openMobileSection("formules", formulesRef)} onGalerie={() => openMobileSection("gallery", galleryRef)} onShowroom={() => scrollTo(showroomRef)} />
+              </>
+            ) : (
+              <>
+                <AboutSection />
+                <SectionDivider from="#1c1208" to="#f5f0e8" />
+                <HeritageMobile refEl={heritageRef} />
+                <SectionDivider from="#f5f0e8" to="#0a0602" />
+                <div ref={styleJournalRef}><StyleJournalSection /></div>
+                <SectionDivider from="#0a0602" to="#f5f0e8" />
+                <GalleryMobile refEl={galleryRef} />
+                <SectionDivider from="#f5f0e8" to="#0a0602" />
+                <div ref={videoRef}><VideoSection /></div>
+                <SectionDivider from="#0a0602" to="#0a0602" />
+                <WeddingInspirationSection refEl={weddingRef} />
+                <SectionDivider from="#0a0602" to="#0d1b3e" />
+                <FormulesSection refEl={formulesRef} onContact={() => window.open(`https://wa.me/33664826920?text=${encodeURIComponent((APP_COPY[lang] || APP_COPY.FR).waFormula)}`, "_blank")} />
+                <SectionDivider from="#0d1b3e" to="#0a0602" />
+                <PartnersSection refEl={partenairesRef} />
+                <SectionDivider from="#0a0602" to="#0a0602" />
+                <div ref={actualitesRef}><ActualitesSection /></div>
+                <div ref={vipRef}><VIPClientsSection /></div>
+                <SectionDivider from="#0f0a04" to="#f5f0e8" />
+                <ShowroomMobile refEl={showroomRef} onCatalogue={() => openBooking(true)} onGalerie={() => scrollTo(galleryRef)} onFlammes={() => scrollTo(galleryRef)} />
+                <InstagramSection />
+                <SectionDivider from="#faf7f2" to="#0a0602" />
+                <StyleDuMoisSection refEl={styleDuMoisRef} />
+                <div ref={communauteRef}><CommunauteSection /></div>
+                <FooterMobile onFormules={() => scrollTo(formulesRef)} onGalerie={() => scrollTo(galleryRef)} onShowroom={() => scrollTo(showroomRef)} />
+              </>
+            )}
             <BookingModal isOpen={bookingOpen} onClose={() => setBookingOpen(false)} boutiqueMode={boutiqueMode} onSwitchToBooking={() => setBoutiqueMode(false)} />
-            <ChatBot onReserver={() => openBooking(false)} onGalerie={() => scrollTo(galleryRef)} onShowroom={() => scrollTo(showroomRef)} onFormules={() => scrollTo(formulesRef)} />
+            <ChatBot onReserver={() => openBooking(false)} onGalerie={() => openMobileSection("gallery", galleryRef)} onShowroom={() => scrollTo(showroomRef)} onFormules={() => openMobileSection("formules", formulesRef)} />
             </Suspense>
           </div>
         )
