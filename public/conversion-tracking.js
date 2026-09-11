@@ -25,28 +25,27 @@
       const href = target.getAttribute?.("href") || "";
       const trackedName = target.getAttribute?.("data-track");
       const label = safeText(target);
+      let automaticEvent = null;
+      let automaticParams = {};
+
+      if (/calendly\.com/i.test(href)) {
+        automaticEvent = "booking_start";
+        automaticParams = { booking_provider: "calendly", cta_label: label || "Calendly" };
+      } else if (/wa\.me|whatsapp\.com/i.test(href)) {
+        automaticEvent = "whatsapp_click";
+        automaticParams = { contact_channel: "whatsapp", cta_label: label || "WhatsApp" };
+      }
 
       if (trackedName) {
         sendEvent(trackedName, { cta_label: label });
       }
 
-      if (/calendly\.com/i.test(href)) {
-        sendEvent("booking_start", {
-          booking_provider: "calendly",
-          cta_label: label || "Calendly",
-        });
+      if (automaticEvent) {
+        if (trackedName !== automaticEvent) sendEvent(automaticEvent, automaticParams);
         return;
       }
 
-      if (/wa\.me|whatsapp\.com/i.test(href)) {
-        sendEvent("whatsapp_click", {
-          contact_channel: "whatsapp",
-          cta_label: label || "WhatsApp",
-        });
-        return;
-      }
-
-      if (/prendre\s+(un\s+)?rendez[- ]?vous|r[ée]server|rendez[- ]?vous/i.test(label)) {
+      if (!trackedName && /prendre\s+(un\s+)?rendez[- ]?vous|r[ée]server|rendez[- ]?vous/i.test(label)) {
         sendEvent("booking_cta_click", { cta_label: label });
       }
     },
