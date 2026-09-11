@@ -1,0 +1,85 @@
+name: Apply true compact mobile homepage
+
+on:
+  push:
+    branches:
+      - hardening/mobile-home-condensed-2026-09
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: hardening/mobile-home-condensed-2026-09
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Patch App mobile composition
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('src/App.jsx')
+          s = p.read_text()
+
+          s = s.replace(
+            'import HeroMobile from "./components/HeroMobile.jsx";\n\nimport SectionDivider from "./components/ui/SectionDivider.jsx";',
+            'import HeroMobile from "./components/HeroMobile.jsx";\nimport useCompactMobile from "./hooks/useCompactMobile.js";\nimport MobileHomeCompact from "./components/MobileHomeCompact.jsx";\n\nimport SectionDivider from "./components/ui/SectionDivider.jsx";'
+          )
+
+          s = s.replace(
+            '  const [consentPreferences, setConsentPreferences] = useState(getConsentPreferences);\n  const finishSplash = useCallback(() => setSplashDone(true), []);',
+            '  const [consentPreferences, setConsentPreferences] = useState(getConsentPreferences);\n  const isCompactMobile = useCompactMobile();\n  const [mobileSection, setMobileSection] = useState(null);\n  const finishSplash = useCallback(() => setSplashDone(true), []);'
+          )
+
+          s = s.replace(
+            '  const scrollTo = (ref) => { ref?.current?.scrollIntoView({ behavior: "smooth", block: "start" }); };\n  const openBooking = (boutique = false) => { setBoutiqueMode(boutique); setBookingOpen(true); };',
+            '''  const scrollTo = (ref) => { ref?.current?.scrollIntoView({ behavior: "smooth", block: "start" }); };\n  const handleMobileSectionSelect = (key) => {\n    setMobileSection(key);\n    if (!key) return;\n    window.setTimeout(() => {\n      document.getElementById("gnz-mobile-active-section")?.scrollIntoView({ behavior: "smooth", block: "start" });\n    }, 80);\n  };\n  const openMobileSection = (key, ref) => {\n    if (!isCompactMobile) {\n      scrollTo(ref);\n      return;\n    }\n    handleMobileSectionSelect(key);\n  };\n  const openBooking = (boutique = false) => { setBoutiqueMode(boutique); setBookingOpen(true); };'''
+          )
+
+          replacements = {
+            'onGalerie={() => scrollTo(galleryRef)}': 'onGalerie={() => openMobileSection("gallery", galleryRef)}',
+            'onFormules={() => scrollTo(formulesRef)}': 'onFormules={() => openMobileSection("formules", formulesRef)}',
+            'onBiographie={() => scrollTo(heritageRef)}': 'onBiographie={() => openMobileSection("heritage", heritageRef)}',
+            'onStyleDuMois={() => scrollTo(styleDuMoisRef)}': 'onStyleDuMois={() => openMobileSection("styleMonth", styleDuMoisRef)}',
+            'onPartenaires={() => scrollTo(partenairesRef)}': 'onPartenaires={() => openMobileSection("partners", partenairesRef)}',
+            'onStyleJournal={() => scrollTo(styleJournalRef)}': 'onStyleJournal={() => openMobileSection("journal", styleJournalRef)}',
+            'onVideo={() => scrollTo(videoRef)}': 'onVideo={() => openMobileSection("video", videoRef)}',
+            'onWedding={() => scrollTo(weddingRef)}': 'onWedding={() => openMobileSection("wedding", weddingRef)}',
+            'onActualites={() => scrollTo(actualitesRef)}': 'onActualites={() => openMobileSection("news", actualitesRef)}',
+            'onVIP={() => scrollTo(vipRef)}': 'onVIP={() => openMobileSection("vip", vipRef)}',
+            'onCommunaute={() => scrollTo(communauteRef)}': 'onCommunaute={() => openMobileSection("community", communauteRef)}',
+          }
+          for old, new in replacements.items():
+            s = s.replace(old, new)
+
+          s = s.replace(
+            '<HeroMobile onScrollDown={() => scrollTo(heritageRef)} />',
+            '<HeroMobile onScrollDown={() => isCompactMobile ? document.getElementById("gnz-mobile-home")?.scrollIntoView({ behavior: "smooth", block: "start" }) : scrollTo(heritageRef)} />'
+          )
+
+          old = '''            <Suspense fallback={null}>\n            <AboutSection />\n            <SectionDivider from="#1c1208" to="#f5f0e8" />\n            <HeritageMobile refEl={heritageRef} />\n            <SectionDivider from="#f5f0e8" to="#0a0602" />\n            <div ref={styleJournalRef}><StyleJournalSection /></div>\n            <SectionDivider from="#0a0602" to="#f5f0e8" />\n            <GalleryMobile refEl={galleryRef} />\n            <SectionDivider from="#f5f0e8" to="#0a0602" />\n            <div ref={videoRef}><VideoSection /></div>\n            <SectionDivider from="#0a0602" to="#0a0602" />\n            <WeddingInspirationSection refEl={weddingRef} />\n            <SectionDivider from="#0a0602" to="#0d1b3e" />\n            <FormulesSection refEl={formulesRef} onContact={() => window.open(`https://wa.me/33664826920?text=${encodeURIComponent((APP_COPY[lang] || APP_COPY.FR).waFormula)}`, "_blank")} />\n            <SectionDivider from="#0d1b3e" to="#0a0602" />\n            <PartnersSection refEl={partenairesRef} />\n            <SectionDivider from="#0a0602" to="#0a0602" />\n            <div ref={actualitesRef}><ActualitesSection /></div>\n            <div ref={vipRef}><VIPClientsSection /></div>\n            <SectionDivider from="#0f0a04" to="#f5f0e8" />\n            <ShowroomMobile refEl={showroomRef} onCatalogue={() => openBooking(true)} onGalerie={() => openMobileSection("gallery", galleryRef)} onFlammes={() => scrollTo(galleryRef)} />\n            <InstagramSection />\n            <SectionDivider from="#faf7f2" to="#0a0602" />\n            <StyleDuMoisSection refEl={styleDuMoisRef} />\n            <div ref={communauteRef}><CommunauteSection /></div>\n            <FooterMobile onFormules={() => openMobileSection("formules", formulesRef)} onGalerie={() => openMobileSection("gallery", galleryRef)} onShowroom={() => scrollTo(showroomRef)} />\n            <BookingModal isOpen={bookingOpen} onClose={() => setBookingOpen(false)} boutiqueMode={boutiqueMode} onSwitchToBooking={() => setBoutiqueMode(false)} />\n            <ChatBot onReserver={() => openBooking(false)} onGalerie={() => openMobileSection("gallery", galleryRef)} onShowroom={() => scrollTo(showroomRef)} onFormules={() => openMobileSection("formules", formulesRef)} />\n            </Suspense>'''
+
+          new = '''            <Suspense fallback={null}>\n            {isCompactMobile ? (\n              <>\n                <MobileHomeCompact activeSection={mobileSection} onSelect={handleMobileSectionSelect} />\n\n                {mobileSection && (\n                  <div id="gnz-mobile-active-section">\n                    {mobileSection === "heritage" && (\n                      <>\n                        <AboutSection />\n                        <SectionDivider from="#1c1208" to="#f5f0e8" />\n                        <HeritageMobile refEl={heritageRef} />\n                      </>\n                    )}\n                    {mobileSection === "journal" && <div ref={styleJournalRef}><StyleJournalSection /></div>}\n                    {mobileSection === "gallery" && <GalleryMobile refEl={galleryRef} />}\n                    {mobileSection === "video" && <div ref={videoRef}><VideoSection /></div>}\n                    {mobileSection === "wedding" && <WeddingInspirationSection refEl={weddingRef} />}\n                    {mobileSection === "formules" && <FormulesSection refEl={formulesRef} onContact={() => window.open(`https://wa.me/33664826920?text=${encodeURIComponent((APP_COPY[lang] || APP_COPY.FR).waFormula)}`, "_blank")} />}\n                    {mobileSection === "partners" && <PartnersSection refEl={partenairesRef} />}\n                    {mobileSection === "news" && <div ref={actualitesRef}><ActualitesSection /></div>}\n                    {mobileSection === "vip" && <div ref={vipRef}><VIPClientsSection /></div>}\n                    {mobileSection === "styleMonth" && <StyleDuMoisSection refEl={styleDuMoisRef} />}\n                    {mobileSection === "community" && <div ref={communauteRef}><CommunauteSection /></div>}\n                  </div>\n                )}\n\n                <SectionDivider from="#0a0602" to="#f5f0e8" />\n                <ShowroomMobile refEl={showroomRef} onCatalogue={() => openBooking(true)} onGalerie={() => openMobileSection("gallery", galleryRef)} onFlammes={() => openMobileSection("gallery", galleryRef)} />\n                <FooterMobile onFormules={() => openMobileSection("formules", formulesRef)} onGalerie={() => openMobileSection("gallery", galleryRef)} onShowroom={() => scrollTo(showroomRef)} />\n              </>\n            ) : (\n              <>\n                <AboutSection />\n                <SectionDivider from="#1c1208" to="#f5f0e8" />\n                <HeritageMobile refEl={heritageRef} />\n                <SectionDivider from="#f5f0e8" to="#0a0602" />\n                <div ref={styleJournalRef}><StyleJournalSection /></div>\n                <SectionDivider from="#0a0602" to="#f5f0e8" />\n                <GalleryMobile refEl={galleryRef} />\n                <SectionDivider from="#f5f0e8" to="#0a0602" />\n                <div ref={videoRef}><VideoSection /></div>\n                <SectionDivider from="#0a0602" to="#0a0602" />\n                <WeddingInspirationSection refEl={weddingRef} />\n                <SectionDivider from="#0a0602" to="#0d1b3e" />\n                <FormulesSection refEl={formulesRef} onContact={() => window.open(`https://wa.me/33664826920?text=${encodeURIComponent((APP_COPY[lang] || APP_COPY.FR).waFormula)}`, "_blank")} />\n                <SectionDivider from="#0d1b3e" to="#0a0602" />\n                <PartnersSection refEl={partenairesRef} />\n                <SectionDivider from="#0a0602" to="#0a0602" />\n                <div ref={actualitesRef}><ActualitesSection /></div>\n                <div ref={vipRef}><VIPClientsSection /></div>\n                <SectionDivider from="#0f0a04" to="#f5f0e8" />\n                <ShowroomMobile refEl={showroomRef} onCatalogue={() => openBooking(true)} onGalerie={() => scrollTo(galleryRef)} onFlammes={() => scrollTo(galleryRef)} />\n                <InstagramSection />\n                <SectionDivider from="#faf7f2" to="#0a0602" />\n                <StyleDuMoisSection refEl={styleDuMoisRef} />\n                <div ref={communauteRef}><CommunauteSection /></div>\n                <FooterMobile onFormules={() => scrollTo(formulesRef)} onGalerie={() => scrollTo(galleryRef)} onShowroom={() => scrollTo(showroomRef)} />\n              </>\n            )}\n            <BookingModal isOpen={bookingOpen} onClose={() => setBookingOpen(false)} boutiqueMode={boutiqueMode} onSwitchToBooking={() => setBoutiqueMode(false)} />\n            <ChatBot onReserver={() => openBooking(false)} onGalerie={() => openMobileSection("gallery", galleryRef)} onShowroom={() => scrollTo(showroomRef)} onFormules={() => openMobileSection("formules", formulesRef)} />\n            </Suspense>'''
+
+          if old not in s:
+            raise SystemExit('public homepage block not found; refusing unsafe patch')
+          s = s.replace(old, new)
+          p.write_text(s)
+          PY
+      - run: npm ci
+      - run: npm run build
+      - run: npm test
+      - name: Commit verified compact homepage
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/App.jsx
+          git commit -m "feat(mobile): make homepage genuinely short by default"
+          git push origin HEAD:hardening/mobile-home-condensed-2026-09
