@@ -14,8 +14,8 @@ const defaultSettings = {
   maisonAddress: "Paris, France",
   formulaPrices: {
     formule1: 1447,
-    formule2: 2500,
-    formule3: 5000,
+    formule2: null,
+    formule3: null,
   },
   weddingInspirations: [],
   vipClients: [],
