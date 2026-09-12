@@ -17,33 +17,66 @@ const FormulesSection = ({ refEl, onContact }) => {
 
   const legacyFormules = useMemo(() => [
     {
-      id: "prestige", slug: "prestige", titre: t("formule_prestige_titre"), tag: t("tag_premium"), tagline: t("formule1_tagline"),
+      id: "prestige",
+      slug: "prestige",
+      titre: t("formule_prestige_titre"),
+      tag: t("tag_premium"),
+      tagline: t("formule1_tagline"),
+      officialBreakdown: true,
+      officialTotal: 1447,
       looks: [
-        { nom: t("look_mairie"), items: [{ label: t("item_costume") },{ label: t("item_chemise") },{ label: t("item_cravate") },{ label: t("item_boutons") },{ label: t("item_chaussettes") },{ label: t("item_chaussures_opt") }] },
-        { nom: t("look_soiree"), tag: t("tag_smoking"), items: [{ label: t("item_smoking") },{ label: t("item_noeud") },{ label: t("item_plastron") },{ label: t("item_boutons") },{ label: t("item_chaussettes") }] },
+        {
+          nom: t("look_mairie"),
+          subtotal: 601,
+          items: [
+            { label: t("item_costume"), price: 449 },
+            { label: t("item_chemise"), price: 69 },
+            { label: t("item_cravate"), price: 35 },
+            { label: t("item_boutons"), price: 29 },
+            { label: t("item_chaussettes"), price: 19 },
+            { label: t("item_chaussures_opt"), priceFrom: 315 },
+          ],
+        },
+        {
+          nom: t("look_soiree"),
+          tag: t("tag_smoking"),
+          subtotal: 846,
+          items: [
+            { label: t("item_smoking"), price: 600 },
+            { label: t("item_noeud"), price: 49 },
+            { label: t("item_plastron"), price: 149 },
+            { label: t("item_boutons"), price: 29 },
+            { label: t("item_chaussettes"), price: 19 },
+          ],
+        },
       ],
     },
     {
-      id: "gnz", slug: "gnz-signature", titre: t("formule_gnz_titre"), tag: t("tag_signature"), tagline: t("formule2_tagline"),
+      id: "gnz",
+      slug: "gnz-signature",
+      titre: t("formule_gnz_titre"),
+      tag: t("tag_signature"),
+      tagline: t("formule2_tagline"),
       looks: [
-        { nom: t("look_mairie"), items: [{ label: t("item_costume") },{ label: t("item_chemise") },{ label: t("item_cravate") },{ label: t("item_boutons") },{ label: t("item_chaussettes") },{ label: t("item_chaussures_opt") }] },
-        { nom: t("look_soiree"), tag: t("tag_smoking"), items: [{ label: t("item_smoking") },{ label: t("item_noeud") },{ label: t("item_plastron") },{ label: t("item_boutons") },{ label: t("item_chaussettes") }] },
+        { nom: t("look_mairie"), items: [{ label: t("item_costume") }, { label: t("item_chemise") }, { label: t("item_cravate") }, { label: t("item_boutons") }, { label: t("item_chaussettes") }, { label: t("item_chaussures_opt") }] },
+        { nom: t("look_soiree"), tag: t("tag_smoking"), items: [{ label: t("item_smoking") }, { label: t("item_noeud") }, { label: t("item_plastron") }, { label: t("item_boutons") }, { label: t("item_chaussettes") }] },
       ],
     },
   ], [t]);
 
   const formules = useMemo(() => legacyFormules.map((legacy) => {
     const remote = packageSource === "supabase" ? packageRows.find((row) => row.slug === legacy.slug) : null;
+    const price = remote ? remote.price : (legacy.slug === "prestige" ? 1447 : null);
     return {
       ...legacy,
       titre: remote?.name || legacy.titre,
-      tagline: remote?.description || remote?.subtitle || legacy.tagline,
-      tag: remote?.featured ? t("tag_premium") : legacy.tag,
-      price: remote?.price ?? settings.formulaPrices?.[legacy.slug === "prestige" ? "formule1" : "formule2"] ?? null,
+      tagline: legacy.officialBreakdown ? legacy.tagline : (remote?.description || remote?.subtitle || legacy.tagline),
+      tag: legacy.tag,
+      price,
       currency: remote?.currency || "EUR",
       ctaLabel: remote?.cta_label || t("btn_reveler"),
     };
-  }), [legacyFormules, packageRows, packageSource, settings.formulaPrices, t]);
+  }), [legacyFormules, packageRows, packageSource, t]);
 
   const formatPrice = (price, currency) => {
     if (price === null || price === undefined || Number.isNaN(Number(price))) return t("prix_sur_demande");
@@ -62,13 +95,31 @@ const FormulesSection = ({ refEl, onContact }) => {
           {formules.map((f, fi) => (
             <motion.div key={f.id} initial={{ opacity: 0, y: 30 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ delay: 0.15 + fi * 0.08, duration: 0.55 }} style={{ border: `1px solid rgba(184,151,62,${selected === f.id ? "0.5" : "0.18"})`, background: selected === f.id ? "rgba(184,151,62,0.05)" : "rgba(255,255,255,0.02)", transition: "all 0.3s" }}>
               <button onClick={() => setSelected(selected === f.id ? null : f.id)} aria-expanded={selected === f.id} aria-controls={`formule-content-${f.id}`} style={{ width: "100%", background: "none", border: "none", cursor: "pointer", padding: "1.6rem 1.4rem", display: "flex", justifyContent: "space-between", alignItems: "flex-start", textAlign: "left" }}>
-                <div><div style={{ display: "flex", alignItems: "center", gap: "0.6rem", marginBottom: "0.5rem" }}><span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.4em", color: GOLD, textTransform: "uppercase", border: `1px solid rgba(184,151,62,0.3)`, padding: "3px 8px" }}>{f.tag}</span></div><p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(1.3rem, 5.5vw, 1.7rem)", color: "#f5f0e8", fontWeight: 400, letterSpacing: "0.02em", margin: 0 }}>{f.titre}</p><p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.3em", color: "rgba(184,151,62,0.8)", textTransform: "uppercase", marginTop: "6px" }}>{formatPrice(f.price, f.currency)}</p></div>
+                <div>
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", marginBottom: "0.5rem" }}><span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.4em", color: GOLD, textTransform: "uppercase", border: "1px solid rgba(184,151,62,0.3)", padding: "3px 8px" }}>{f.tag}</span></div>
+                  <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(1.3rem, 5.5vw, 1.7rem)", color: "#f5f0e8", fontWeight: 400, letterSpacing: "0.02em", margin: 0 }}>{f.titre}</p>
+                  <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.3em", color: "rgba(184,151,62,0.8)", textTransform: "uppercase", marginTop: "6px" }}>{formatPrice(f.price, f.currency)}{f.officialBreakdown ? ` · ${t("hors_chaussures")}` : ""}</p>
+                </div>
                 <motion.div animate={{ rotate: selected === f.id ? 45 : 0 }} transition={{ duration: 0.3 }} style={{ color: GOLD, marginTop: "0.5rem", flexShrink: 0 }}><SvgArrow size={16} /></motion.div>
               </button>
 
               <AnimatePresence>{selected === f.id && <motion.div id={`formule-content-${f.id}`} initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }} style={{ overflow: "hidden" }}><div style={{ padding: "0 1.4rem 1.8rem", borderTop: "1px solid rgba(184,151,62,0.1)" }}>
-                {f.looks.map((look, li) => <div key={li} style={{ marginTop: "1.4rem" }}><div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.9rem" }}><div style={{ height: "1px", width: "20px", background: GOLD }} /><p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.4em", color: GOLD, textTransform: "uppercase" }}>{look.nom}{look.tag ? ` — ${look.tag}` : ""}</p></div>{look.items.map((item, ii) => <div key={ii} style={{ padding: "0.45rem 0", borderBottom: "1px solid rgba(255,255,255,0.04)" }}><p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", color: "rgba(245,240,232,0.6)", fontWeight: 300, margin: 0 }}>{item.label}</p></div>)}</div>)}
-                <div style={{ marginTop: "1.4rem", padding: "1.2rem", background: "rgba(184,151,62,0.08)", border: `1px solid rgba(184,151,62,0.25)`, textAlign: "center" }}><p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "0.85rem", color: "rgba(245,240,232,0.75)", fontStyle: "italic", marginBottom: "1.2rem" }}>{f.tagline}</p><button onClick={onContact} data-track="booking_click" style={{ width: "100%", background: "none", border: `1px solid rgba(184,151,62,0.5)`, color: GOLD, padding: "0.9rem", fontFamily: "'Montserrat', sans-serif", fontSize: "11px", letterSpacing: "0.4em", textTransform: "uppercase", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}>{f.ctaLabel} <SvgArrow size={13} /></button></div>
+                {f.looks.map((look, li) => (
+                  <div key={li} style={{ marginTop: "1.4rem" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.9rem" }}><div style={{ height: "1px", width: "20px", background: GOLD }} /><p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.4em", color: GOLD, textTransform: "uppercase" }}>{look.nom}{look.tag ? ` — ${look.tag}` : ""}</p></div>
+                    {look.items.map((item, ii) => (
+                      <div key={ii} style={{ padding: "0.5rem 0", borderBottom: "1px solid rgba(255,255,255,0.04)", display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: "1rem" }}>
+                        <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", color: "rgba(245,240,232,0.65)", fontWeight: 300, margin: 0 }}>{item.label}</p>
+                        {(item.price !== undefined || item.priceFrom !== undefined) && <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", color: GOLD, whiteSpace: "nowrap", margin: 0 }}>{item.priceFrom !== undefined ? t("item_chaussures_prix") : formatPrice(item.price, f.currency)}</p>}
+                      </div>
+                    ))}
+                    {look.subtotal !== undefined && <div style={{ display: "flex", justifyContent: "space-between", gap: "1rem", padding: "0.85rem 0 0", fontFamily: "'Montserrat', sans-serif", fontSize: "10px", color: "#f5f0e8", textTransform: "uppercase", letterSpacing: "0.08em" }}><span>{t("sous_total_lbl")} · {look.nom}</span><strong style={{ color: GOLD }}>{formatPrice(look.subtotal, f.currency)}</strong></div>}
+                  </div>
+                ))}
+
+                {f.officialBreakdown && <div style={{ marginTop: "1.5rem", padding: "1rem", borderTop: "1px solid rgba(184,151,62,0.35)", borderBottom: "1px solid rgba(184,151,62,0.35)", display: "flex", justifyContent: "space-between", gap: "1rem", alignItems: "center" }}><span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.16em", color: "#f5f0e8", textTransform: "uppercase" }}>{t("total_lbl")} · {t("hors_chaussures")}</span><strong style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1.35rem", color: GOLD }}>{formatPrice(f.officialTotal, f.currency)}</strong></div>}
+
+                <div style={{ marginTop: "1.4rem", padding: "1.2rem", background: "rgba(184,151,62,0.08)", border: "1px solid rgba(184,151,62,0.25)", textAlign: "center" }}><p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "0.85rem", color: "rgba(245,240,232,0.75)", fontStyle: "italic", marginBottom: "1.2rem" }}>{f.tagline}</p><button onClick={onContact} data-track="booking_click" style={{ width: "100%", background: "none", border: "1px solid rgba(184,151,62,0.5)", color: GOLD, padding: "0.9rem", fontFamily: "'Montserrat', sans-serif", fontSize: "11px", letterSpacing: "0.4em", textTransform: "uppercase", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}>{f.ctaLabel} <SvgArrow size={13} /></button></div>
               </div></motion.div>}</AnimatePresence>
             </motion.div>
           ))}
