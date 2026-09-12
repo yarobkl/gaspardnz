@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build && node scripts/generate-static-seo-routes.mjs && node scripts/fix-static-seo-meta.mjs",
+    "build": "vite build && node scripts/generate-static-seo-routes.mjs && node scripts/fix-static-seo-meta.mjs && node scripts/enrich-acquisition-seo.mjs",
     "test:seo": "node scripts/validate-seo.mjs",
     "test:seo-built": "node scripts/validate-built-seo-routes.mjs",
     "test:email-security": "node scripts/validate-email-api-security.mjs",
