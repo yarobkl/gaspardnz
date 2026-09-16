@@ -43,9 +43,11 @@
     "crypto-js": "^4.2.0",
     "framer-motion": "^11.0.0",
     "nodemailer": "^9.1.1",
+    "raw-body": "^4.0.0",
     "react": "^18.3.0",
     "react-dom": "^18.3.0",
-    "react-onesignal": "^3.5.1"
+    "react-onesignal": "^3.5.1",
+    "stripe": "^22.6.2"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^7.0.1",

@@ -10,7 +10,7 @@ export default defineConfig({
     globals: true,
     setupFiles: ["./tests/setup.js"],
     // tests/bundle/ exige un build préalable : exécuté par `npm run test:bundle`.
-    include: ["tests/unit/**/*.test.{js,jsx}", "tests/component/**/*.test.{js,jsx}"],
+    include: ["tests/unit/**/*.test.{js,jsx}", "tests/component/**/*.test.{js,jsx}", "tests/api/**/*.test.js"],
     // Les vérifications Playwright vivent dans scripts/browser-checks/ et
     // tournent via `npm run test:e2e`, pas dans le runner unitaire.
     exclude: ["node_modules/**", "dist/**", "scripts/**"],
