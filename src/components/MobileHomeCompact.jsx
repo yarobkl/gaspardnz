@@ -26,7 +26,7 @@ const COPY = {
       formules: "Formules",
       partners: "Partenaires",
       news: "Actualités",
-      vip: "VIP",
+      vip: "Habillés par GaspardNZ",
       styleMonth: "Style du mois",
       community: "Communauté",
     },
@@ -42,7 +42,7 @@ const COPY = {
     attractionPrimary: "Discover packages",
     attractionSecondary: "Talk to Gaspard",
     whatsapp: "Hello Gaspard, I would like support for my event.",
-    items: { heritage: "The House", journal: "Style Journal", gallery: "Looks", video: "Videos", wedding: "Wedding", formules: "Packages", partners: "Partners", news: "News", vip: "VIP", styleMonth: "Style of the month", community: "Community" },
+    items: { heritage: "The House", journal: "Style Journal", gallery: "Looks", video: "Videos", wedding: "Wedding", formules: "Packages", partners: "Partners", news: "News", vip: "Dressed by GaspardNZ", styleMonth: "Style of the month", community: "Community" },
   },
   ES: {
     eyebrow: "GASPARDNZ · PARIS",
@@ -55,7 +55,7 @@ const COPY = {
     attractionPrimary: "Descubrir las fórmulas",
     attractionSecondary: "Hablar con Gaspard",
     whatsapp: "Hola Gaspard, me gustaría recibir acompañamiento para mi evento.",
-    items: { heritage: "La Casa", journal: "Style Journal", gallery: "Looks", video: "Vídeos", wedding: "Boda", formules: "Fórmulas", partners: "Socios", news: "Noticias", vip: "VIP", styleMonth: "Estilo del mes", community: "Comunidad" },
+    items: { heritage: "La Casa", journal: "Style Journal", gallery: "Looks", video: "Vídeos", wedding: "Boda", formules: "Fórmulas", partners: "Socios", news: "Noticias", vip: "Vestidos por GaspardNZ", styleMonth: "Estilo del mes", community: "Comunidad" },
   },
   ZH: {
     eyebrow: "GASPARDNZ · PARIS",
@@ -68,7 +68,7 @@ const COPY = {
     attractionPrimary: "查看服务方案",
     attractionSecondary: "联系 Gaspard",
     whatsapp: "你好 Gaspard，我想咨询我的活动造型服务。",
-    items: { heritage: "品牌故事", journal: "风格日志", gallery: "造型", video: "视频", wedding: "婚礼", formules: "服务方案", partners: "合作伙伴", news: "动态", vip: "VIP", styleMonth: "本月风格", community: "社区" },
+    items: { heritage: "品牌故事", journal: "风格日志", gallery: "造型", video: "视频", wedding: "婚礼", formules: "服务方案", partners: "合作伙伴", news: "动态", vip: "GaspardNZ 造型客户", styleMonth: "本月风格", community: "社区" },
   },
 };
 
