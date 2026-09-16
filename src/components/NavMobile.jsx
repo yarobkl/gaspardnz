@@ -214,7 +214,7 @@ const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules, 
               [t("nav_showroom"), onShowroom],
               [t("style_month"), onStyleDuMois],
               ["Communauté", onCommunaute],
-              [t("lookbook"), settings.stripePaymentUrl?.trim() ? () => openLookbookCheckout(settings) : null],
+              [t("lookbook"), (settings.stripePaymentUrl?.trim() && !settings.lookbookHidden) ? () => openLookbookCheckout(settings) : null],
             ].map(([label, fn], i) => (
               <motion.button key={label}
                 initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }}
@@ -228,7 +228,7 @@ const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules, 
                     cliquable : « À venir » à la place du prix. Réapparaît seule
                     dès qu'un lien est collé dans l'admin (Contenu du site →
                     Liens & paiement). */}
-                {label}{label === t("lookbook") && <span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "9px", letterSpacing: "0.3em", marginLeft: "10px", opacity: 0.7 }}>{fn ? `${LOOKBOOK_PRICE_EUR}€ · Stripe` : t("lookbook_soon")}</span>}
+                {label}{label === t("lookbook") && <span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "9px", letterSpacing: "0.3em", marginLeft: "10px", opacity: 0.7 }}>{fn ? `${LOOKBOOK_PRICE_EUR}€ · Stripe` : (settings.lookbookHiddenMessage?.trim() || t("lookbook_soon"))}</span>}
               </motion.button>
             ))}
 

@@ -67,6 +67,10 @@ async function loadRemoteSettings(base) {
     youtubeUrl: social.youtube || base.youtubeUrl,
     stripePaymentUrl: payment.stripe_payment_url || base.stripePaymentUrl || "",
     paymentLabel: payment.payment_label || base.paymentLabel || "Payer le lookbook",
+    // Bascule manuelle, indépendante du lien Stripe : Gaspard peut retirer le
+    // bouton de vente sans effacer le lien enregistré.
+    lookbookHidden: Boolean(payment.lookbook_hidden),
+    lookbookHiddenMessage: payment.lookbook_hidden_message || base.lookbookHiddenMessage || "",
     formulaPrices,
     vipClients: vipClients.length ? vipClients : base.vipClients,
     weddingInspirations: weddingInspirations.length ? weddingInspirations : base.weddingInspirations,

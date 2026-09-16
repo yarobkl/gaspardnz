@@ -129,13 +129,14 @@ const FormulesSection = ({ refEl, onContact }) => {
           <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.4em", color: GOLD, textTransform: "uppercase", marginBottom: "1rem" }}>GASPARDNZ · 2025</p>
           <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(1.6rem, 7vw, 2.2rem)", fontWeight: 300, color: "#f5f0e8", letterSpacing: "0.02em", margin: "0 0 0.6rem" }}>{t("lookbook_title")}</h3>
           <p style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: "italic", fontSize: "0.9rem", color: "rgba(245,240,232,0.62)", marginBottom: "1.6rem" }}>{t("lookbook_desc")}</p>
-          {settings.stripePaymentUrl?.trim()
+          {settings.stripePaymentUrl?.trim() && !settings.lookbookHidden
             ? <button type="button" onClick={() => openLookbookCheckout(settings)} style={{ display: "inline-flex", alignItems: "center", gap: "10px", background: GOLD, color: "#0d1b3e", border: "none", cursor: "pointer", padding: "1rem 2.2rem", textDecoration: "none", fontFamily: "'Montserrat', sans-serif", fontSize: "11px", letterSpacing: "0.4em", textTransform: "uppercase", fontWeight: 700 }}>{settings.paymentLabel || "Acheter le lookbook"} · {LOOKBOOK_PRICE_EUR}€</button>
-            /* Aucun lien Stripe enregistré (site_settings.payment.stripe_payment_url) :
-               le bouton d'achat n'est pas affiché. Dès qu'un lien est collé et
-               enregistré dans l'admin, il réapparaît automatiquement — rien à
-               republier, la donnée est lue en direct depuis Supabase. */
-            : <span aria-disabled="true" style={{ display: "inline-flex", alignItems: "center", gap: "10px", border: "1px solid rgba(245,240,232,0.22)", color: "rgba(245,240,232,0.5)", padding: "1rem 2.2rem", fontFamily: "'Montserrat', sans-serif", fontSize: "11px", letterSpacing: "0.4em", textTransform: "uppercase", fontWeight: 700 }}>{t("lookbook_soon")}</span>}
+            /* Bouton absent dans deux cas : aucun lien Stripe enregistré, ou
+               retiré volontairement par Gaspard (case « Masquer le bouton »,
+               qui laisse le lien Stripe intact). Dès que l'un des deux
+               redevient favorable, le bouton réapparaît automatiquement —
+               rien à republier, la donnée est lue en direct depuis Supabase. */
+            : <span aria-disabled="true" style={{ display: "inline-flex", alignItems: "center", gap: "10px", border: "1px solid rgba(245,240,232,0.22)", color: "rgba(245,240,232,0.5)", padding: "1rem 2.2rem", fontFamily: "'Montserrat', sans-serif", fontSize: "11px", letterSpacing: "0.4em", textTransform: "uppercase", fontWeight: 700 }}>{settings.lookbookHiddenMessage?.trim() || t("lookbook_soon")}</span>}
         </motion.div>
       </div>
     </section>

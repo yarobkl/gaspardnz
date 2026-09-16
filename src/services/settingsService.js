@@ -11,6 +11,8 @@ const defaultSettings = {
   instagramUrl: SOCIAL_LINKS.instagram,
   stripePaymentUrl: "",
   paymentLabel: "Payer le lookbook",
+  lookbookHidden: false,
+  lookbookHiddenMessage: "",
   maisonAddress: "Paris, France",
   formulaPrices: {
     formule1: 1447,

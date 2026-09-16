@@ -7,7 +7,7 @@ import { isolate, BASE, launch, reporter } from './_helpers.mjs';
 const browser = await launch();
 const { record, finish } = reporter();
 
-async function open({ stripeUrl }) {
+async function open({ stripeUrl, hidden = false, hiddenMessage = "" }) {
   const ctx = await browser.newContext();
   const page = await ctx.newPage();
   await isolate(page);
@@ -27,7 +27,9 @@ async function open({ stripeUrl }) {
     status: 200,
     headers: { 'content-type': 'application/json', 'access-control-allow-origin': '*' },
     body: JSON.stringify([
-      { key: 'payment', value: stripeUrl ? { stripe_payment_url: stripeUrl, payment_label: 'Acheter le lookbook' } : {} },
+      { key: 'payment', value: stripeUrl
+        ? { stripe_payment_url: stripeUrl, payment_label: 'Acheter le lookbook', lookbook_hidden: hidden, lookbook_hidden_message: hiddenMessage }
+        : {} },
     ]),
   }));
 
@@ -59,6 +61,7 @@ async function readFormulesState(page) {
     return {
       soon: /à venir/i.test(txt),
       buyLabel: /acheter le lookbook/i.test(txt),
+      texte: txt.replace(/\s+/g, ' ').trim(),
     };
   });
 }
@@ -107,6 +110,23 @@ async function readNavState(page) {
     'badge prix « € · Stripe », bouton actif',
     JSON.stringify(nav),
     Boolean(nav && /€ · Stripe/i.test(nav.texte) && !nav.desactive));
+  await ctx.close();
+}
+
+// ---------- Lien Stripe présent, mais masqué manuellement ----------
+{
+  const { ctx, page } = await open({ stripeUrl: 'https://buy.stripe.com/test_exemple', hidden: true, hiddenMessage: 'Bientôt disponible' });
+  const formules = await readFormulesState(page);
+  record('FORMULES-masque-manuel', "section Formules avec lien Stripe mais case « Masquer » cochée",
+    'message personnalisé « Bientôt disponible » affiché, pas de bouton d\'achat',
+    JSON.stringify(formules),
+    !formules?.buyLabel && /bientôt disponible/i.test(formules?.texte || ''));
+
+  const nav = await readNavState(page);
+  record('NAV-masque-manuel', "entrée Lookbook du menu, masquée manuellement",
+    'texte contenant le message personnalisé, bouton désactivé',
+    JSON.stringify(nav),
+    Boolean(nav && /bientôt disponible/i.test(nav.texte) && nav.desactive));
   await ctx.close();
 }
 
