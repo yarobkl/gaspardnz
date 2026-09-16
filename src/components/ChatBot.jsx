@@ -241,9 +241,9 @@ const ChatBot = ({ onReserver, onGalerie, onShowroom, onFormules }) => {
                           else if (btn === labels.showroom) { setOpen(false); onShowroom?.(); }
                           else if (btn === labels.whatsapp) { window.open(getWhatsappUrl(settings.whatsappNumber), "_blank"); }
                           else if (btn === "Instagram") { window.open(settings.instagramUrl || SOCIAL_LINKS.instagram, "_blank"); }
-                          else if (btn === "TikTok") { window.open(SOCIAL_LINKS.tiktok, "_blank"); }
-                          else if (btn === "Facebook") { window.open(SOCIAL_LINKS.facebook, "_blank"); }
-                          else if (btn === "YouTube") { window.open(SOCIAL_LINKS.youtube, "_blank"); }
+                          else if (btn === "TikTok") { window.open(settings.tiktokUrl || SOCIAL_LINKS.tiktok, "_blank"); }
+                          else if (btn === "Facebook") { window.open(settings.facebookUrl || SOCIAL_LINKS.facebook, "_blank"); }
+                          else if (btn === "YouTube") { window.open(settings.youtubeUrl || SOCIAL_LINKS.youtube, "_blank"); }
                           else handleAction(btn);
                         }}
                           style={{ background: "none", border: `1px solid rgba(184,151,62,0.5)`, color: GOLD, padding: "0.65rem 0.85rem", minHeight: "44px", fontFamily: "'Montserrat', sans-serif", fontSize: "9px", letterSpacing: "0.15em", cursor: "pointer", borderRadius: "20px", transition: "all 0.2s", whiteSpace: "nowrap" }}>

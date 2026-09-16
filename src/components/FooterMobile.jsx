@@ -2,7 +2,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { GOLD, SOCIAL_LINKS } from "../constants.js";
 import { useTr } from "../context.jsx";
-import { SvgInstagram, SvgTiktok, SvgYoutube, SvgWhatsapp } from "../icons.jsx";
+import { SvgFacebook, SvgInstagram, SvgTiktok, SvgYoutube, SvgWhatsapp } from "../icons.jsx";
 import LegalModal from "./LegalModal.jsx";
 import { useSettings } from "../hooks/useSettings.js";
 import { openCookieSettings } from "../services/consent.js";
@@ -31,7 +31,7 @@ const FooterMobile = ({ onFormules, onGalerie, onShowroom }) => {
             [t("nav_galerie"), onGalerie],
             [t("nav_formules"), onFormules],
             ["Instagram", () => window.open(settings.instagramUrl || SOCIAL_LINKS.instagram, "_blank")],
-            ["TikTok", () => window.open(SOCIAL_LINKS.tiktok, "_blank")],
+            ["TikTok", () => window.open(settings.tiktokUrl || SOCIAL_LINKS.tiktok, "_blank")],
           ].map(([label, fn]) => (
             <button key={label} onClick={fn}
               style={{ background: "none", border: "none", cursor: "pointer", fontFamily: "'Montserrat', sans-serif", fontSize: "11px", letterSpacing: "0.2em", color: "rgba(245,240,232,0.7)", textTransform: "uppercase", padding: "12px 0", minHeight: "44px", minWidth: "44px", transition: "color 0.3s" }}
@@ -45,8 +45,9 @@ const FooterMobile = ({ onFormules, onGalerie, onShowroom }) => {
         <div style={{ display: "flex", justifyContent: "center", gap: "1.4rem", marginBottom: "2rem" }}>
           {[
             [SvgInstagram, settings.instagramUrl || SOCIAL_LINKS.instagram, "Instagram Gaspard NZ"],
-            [SvgTiktok, SOCIAL_LINKS.tiktok, "TikTok Gaspard NZ"],
-            [SvgYoutube, SOCIAL_LINKS.youtube, "YouTube Gaspard NZ"],
+            [SvgTiktok, settings.tiktokUrl || SOCIAL_LINKS.tiktok, "TikTok Gaspard NZ"],
+            [SvgFacebook, settings.facebookUrl || SOCIAL_LINKS.facebook, "Facebook Gaspard NZ"],
+            [SvgYoutube, settings.youtubeUrl || SOCIAL_LINKS.youtube, "YouTube Gaspard NZ"],
           ].map(([Icon, href, label], i) => (
             <motion.a key={i} href={href} target="_blank" rel="noopener noreferrer"
               aria-label={label}
