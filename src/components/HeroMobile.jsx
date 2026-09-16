@@ -42,7 +42,26 @@ const HeroVideoLoop = () => {
     window.addEventListener("focus", play);
     document.addEventListener("touchstart", play, { once: true });
     document.addEventListener("visibilitychange", onVis);
-    playIntervalRef.current = setInterval(() => { if (!document.hidden && v.paused && readyRef.current) v.play().catch(() => {}); if (!v.paused) setShowPausedNotice(false); }, 500);
+
+    // Filet de secours au tout début de la lecture : une fois la vidéo stable
+    // depuis 3 secondes, les écouteurs ci-dessus (pause/stalled/visibilitychange/
+    // focus) suffisent à la relancer si besoin. Continuer à vérifier toutes les
+    // 500 ms pour le reste de la session — y compris longtemps après que le hero
+    // soit sorti de l'écran — ne sert plus à rien et tourne pour rien en fond.
+    let stableChecks = 0;
+    playIntervalRef.current = setInterval(() => {
+      if (!document.hidden && v.paused && readyRef.current) v.play().catch(() => {});
+      if (!v.paused) {
+        setShowPausedNotice(false);
+        stableChecks += 1;
+        if (stableChecks >= 6 && playIntervalRef.current) {
+          clearInterval(playIntervalRef.current);
+          playIntervalRef.current = null;
+        }
+      } else {
+        stableChecks = 0;
+      }
+    }, 500);
 
     return () => {
       v.removeEventListener("canplay", onCanPlay);

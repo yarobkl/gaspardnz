@@ -1,9 +1,13 @@
-import { useContext } from "react";
+import { Suspense, lazy, useContext } from "react";
 import { motion } from "framer-motion";
 import { GOLD } from "../constants.js";
 import { LangCtx } from "../context.jsx";
-import HeritageMobile from "./HeritageMobile.jsx";
-import PartnersSection from "./sections/PartnersSection.jsx";
+// Chargées en différé même si elles s'affichent tout de suite ici : ça sort
+// leur code du paquet principal, téléchargé et exécuté par TOUT visiteur.
+// App.jsx les charge déjà ainsi pour la mise en page large — un import
+// statique ici annulait ce découpage pour tout le monde, mobile compris.
+const HeritageMobile = lazy(() => import("./HeritageMobile.jsx"));
+const PartnersSection = lazy(() => import("./sections/PartnersSection.jsx"));
 
 const COPY = {
   FR: {
@@ -122,7 +126,7 @@ export default function MobileHomeCompact({ activeSection, onSelect }) {
 
   return (
     <>
-      <HeritageMobile />
+      <Suspense fallback={null}><HeritageMobile /></Suspense>
 
       <section aria-label={copy.attractionTitle} style={{ background: "#0a0602", color: "#faf7f2", padding: "3.2rem 1.25rem 3.4rem", borderTop: "1px solid rgba(184,151,62,.16)" }}>
         <motion.div
@@ -153,7 +157,7 @@ export default function MobileHomeCompact({ activeSection, onSelect }) {
       </section>
 
       {activeSection !== "partners" && (
-        <PartnersSection compact onShowAll={() => openSection("partners")} />
+        <Suspense fallback={null}><PartnersSection compact onShowAll={() => openSection("partners")} /></Suspense>
       )}
 
       <section id="gnz-mobile-home" aria-label={copy.title} style={{ background: "#0a0602", color: "#faf7f2", padding: "2.6rem 1.15rem 2.8rem", borderTop: "1px solid rgba(184,151,62,.12)" }}>

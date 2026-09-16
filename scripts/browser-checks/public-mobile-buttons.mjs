@@ -124,7 +124,7 @@ try {
     "Vidéos",
     "Actualités",
     "Partenaires",
-    "VIP",
+    "Habillés par GaspardNZ",
     "Communauté",
   ];
 
@@ -230,10 +230,19 @@ try {
       ok = ok && top < 900;
       observed = `top showroom=${Math.round(top)}px`;
     } else if (item.kind === "external") {
+      // Le lookbook est désactivé tant qu'aucun lien Stripe n'est enregistré
+      // (ou masqué à la main) : dans ce cas, aucune navigation n'est le bon
+      // résultat, pas un échec.
+      const disabled = await button.isDisabled().catch(() => false);
       const urls = await openedUrls();
       const last = urls.at(-1) || "";
-      ok = ok && /^https?:\/\//.test(last);
-      observed = `url=${last || "aucune"}`;
+      if (disabled) {
+        ok = ok && !last;
+        observed = `bouton désactivé, url=${last || "aucune (attendu)"}`;
+      } else {
+        ok = ok && /^https?:\/\//.test(last);
+        observed = `url=${last || "aucune"}`;
+      }
     }
     report.record(`MENU-${String(i + 1).padStart(2, "0")}`, `Menu — ${item.label}`, "le bouton déclenche l'action attendue", `texte="${actualLabel}", ${observed}`, ok);
   }
