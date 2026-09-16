@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { listContentTable, setPublished, upsertRow } from "../../services/adminData.js";
 import { scrollToAdminEditor } from "./scrollToEditor.js";
+import MediaUploadField from "./MediaUploadField.jsx";
 import "../../styles/admin-v2.css";
 
 const empty = { name:"", city:"", event_label:"Mariage", photo_url:"", album:[], published:true, sort_order:0 };
@@ -27,7 +28,7 @@ export default function AdminVIPClients() {
         <label className="gnz-field">Nom<input className="gnz-input" value={form.name || ""} onChange={(e)=>setForm({...form,name:e.target.value})} required/></label>
         <label className="gnz-field">Ville<input className="gnz-input" value={form.city || ""} onChange={(e)=>setForm({...form,city:e.target.value})}/></label>
         <label className="gnz-field">Événement<input className="gnz-input" value={form.event_label || ""} onChange={(e)=>setForm({...form,event_label:e.target.value})}/></label>
-        <label className="gnz-field">Photo principale (URL)<input className="gnz-input" value={form.photo_url || ""} onChange={(e)=>setForm({...form,photo_url:e.target.value})}/></label>
+        <MediaUploadField label="Photo principale" value={form.photo_url} onChange={(url) => setForm({...form,photo_url:url})} uploadSection="vip" />
         <label className="gnz-field">Album — une URL par ligne<textarea className="gnz-textarea" style={{minHeight:150}} value={albumText} onChange={(e)=>setAlbumText(e.target.value)} /></label>
         <label className="gnz-field">Ordre<input className="gnz-input" type="number" value={form.sort_order || 0} onChange={(e)=>setForm({...form,sort_order:e.target.value})}/></label>
         <label className="gnz-checkbox"><input type="checkbox" checked={Boolean(form.published)} onChange={(e)=>setForm({...form,published:e.target.checked})}/>Afficher sur le site</label>

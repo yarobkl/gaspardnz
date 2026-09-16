@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { listPromotions, removePromotion, savePromotion, setPublished } from "../../services/adminData.js";
 import { scrollToAdminEditor } from "./scrollToEditor.js";
+import MediaUploadField from "./MediaUploadField.jsx";
 import "../../styles/admin-v2.css";
 
 const empty = { title: "", subtitle: "", description: "", image_url: "", cta_label: "Découvrir", cta_url: "", placement: "home", status: "draft", starts_at: "", ends_at: "", priority: 0, published: false };
@@ -37,7 +38,7 @@ export default function AdminPromotions() {
         <label className="gnz-field">Titre<input className="gnz-input" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} required /></label>
         <label className="gnz-field">Sous-titre<input className="gnz-input" value={form.subtitle || ""} onChange={(e) => setForm({ ...form, subtitle: e.target.value })} /></label>
         <label className="gnz-field">Description<textarea className="gnz-textarea" value={form.description || ""} onChange={(e) => setForm({ ...form, description: e.target.value })} /></label>
-        <label className="gnz-field">URL de l'image<input className="gnz-input" value={form.image_url || ""} onChange={(e) => setForm({ ...form, image_url: e.target.value })} placeholder="Copiez une URL depuis Médias & photos" /></label>
+        <MediaUploadField label="Image" value={form.image_url} onChange={(url) => setForm({ ...form, image_url: url })} uploadSection="promotions" />
         <div className="gnz-section-grid" style={{ marginTop: 0 }}><label className="gnz-field gnz-col-6">Texte du bouton<input className="gnz-input" value={form.cta_label || ""} onChange={(e) => setForm({ ...form, cta_label: e.target.value })} /></label><label className="gnz-field gnz-col-6">Lien du bouton<input className="gnz-input" value={form.cta_url || ""} onChange={(e) => setForm({ ...form, cta_url: e.target.value })} /></label></div>
         <div className="gnz-section-grid" style={{ marginTop: 0 }}><label className="gnz-field gnz-col-6">Début<input className="gnz-input" type="datetime-local" value={form.starts_at || ""} onChange={(e) => setForm({ ...form, starts_at: e.target.value })} /></label><label className="gnz-field gnz-col-6">Fin<input className="gnz-input" type="datetime-local" value={form.ends_at || ""} onChange={(e) => setForm({ ...form, ends_at: e.target.value })} /></label></div>
         <label className="gnz-field">Emplacement<select className="gnz-select" value={form.placement} onChange={(e) => setForm({ ...form, placement: e.target.value })}><option value="home">Accueil</option><option value="packages">Formules</option><option value="gallery">Galerie</option><option value="global">Bandeau global</option></select></label>

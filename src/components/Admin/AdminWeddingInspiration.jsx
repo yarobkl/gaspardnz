@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { listContentTable, setPublished, upsertRow } from "../../services/adminData.js";
 import { scrollToAdminEditor } from "./scrollToEditor.js";
+import MediaUploadField from "./MediaUploadField.jsx";
 import "../../styles/admin-v2.css";
 
 const empty = { title:"", description:"", color_label:"", style_label:"", occasion_label:"", cover_url:"", album:[], published:true, sort_order:0 };
@@ -37,7 +38,7 @@ export default function AdminWeddingInspiration() {
         <label className="gnz-field">Titre<input className="gnz-input" value={form.title || ""} onChange={(e)=>setForm({...form,title:e.target.value})} required/></label>
         <label className="gnz-field">Description<textarea className="gnz-textarea" value={form.description || ""} onChange={(e)=>setForm({...form,description:e.target.value})}/></label>
         <div className="gnz-section-grid" style={{marginTop:0}}><label className="gnz-field gnz-col-4">Couleur<input className="gnz-input" value={form.color_label || ""} onChange={(e)=>setForm({...form,color_label:e.target.value})}/></label><label className="gnz-field gnz-col-4">Style<input className="gnz-input" value={form.style_label || ""} onChange={(e)=>setForm({...form,style_label:e.target.value})}/></label><label className="gnz-field gnz-col-4">Occasion<input className="gnz-input" value={form.occasion_label || ""} onChange={(e)=>setForm({...form,occasion_label:e.target.value})}/></label></div>
-        <label className="gnz-field">Photo principale (URL)<input className="gnz-input" value={form.cover_url || ""} onChange={(e)=>setForm({...form,cover_url:e.target.value})}/></label>
+        <MediaUploadField label="Photo principale" value={form.cover_url} onChange={(url) => setForm({...form,cover_url:url})} uploadSection="wedding" />
         <label className="gnz-field">Album — une URL par ligne<textarea className="gnz-textarea" style={{minHeight:150}} value={albumText} onChange={(e)=>setAlbumText(e.target.value)}/></label>
         <label className="gnz-field">Ordre<input className="gnz-input" type="number" value={form.sort_order || 0} onChange={(e)=>setForm({...form,sort_order:e.target.value})}/></label>
         <label className="gnz-checkbox"><input type="checkbox" checked={Boolean(form.published)} onChange={(e)=>setForm({...form,published:e.target.checked})}/>Afficher sur le site</label>

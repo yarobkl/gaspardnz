@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { listContentTable, setPublished, upsertRow } from "../../services/adminData.js";
 import { scrollToAdminEditor } from "./scrollToEditor.js";
+import MediaUploadField from "./MediaUploadField.jsx";
 import "../../styles/admin-v2.css";
 
 const empty = { title:"", description:"", cover_url:"", album:[], hotspots:[], starts_at:"", ends_at:"", published:true, metadata:{} };
@@ -50,7 +51,7 @@ export default function AdminStyleMonth() {
       <aside className="gnz-card gnz-editor" id="gnz-admin-editor"><header className="gnz-card-header"><div className="gnz-card-title"><strong>{form.id ? "Modifier le style" : "Créer un style"}</strong><span>Les changements publiés sont lus directement par le site.</span></div></header><form className="gnz-card-body gnz-editor-grid" onSubmit={save}>
         <label className="gnz-field">Titre<input className="gnz-input" value={form.title || ""} onChange={(e)=>setForm({...form,title:e.target.value})} required/></label>
         <label className="gnz-field">Description<textarea className="gnz-textarea" value={form.description || ""} onChange={(e)=>setForm({...form,description:e.target.value})}/></label>
-        <label className="gnz-field">Photo principale (URL)<input className="gnz-input" value={form.cover_url || ""} onChange={(e)=>setForm({...form,cover_url:e.target.value})}/></label>
+        <MediaUploadField label="Photo principale" value={form.cover_url} onChange={(url) => setForm({...form,cover_url:url})} uploadSection="style-month" />
         <label className="gnz-field">Album — une URL par ligne<textarea className="gnz-textarea" value={albumText} onChange={(e)=>setAlbumText(e.target.value)} /></label>
         <label className="gnz-field">Points cliquables — X|Y|Libellé<textarea className="gnz-textarea" value={spotsText} onChange={(e)=>setSpotsText(e.target.value)} placeholder="68|38|Veste terracotta"/></label>
         <div className="gnz-section-grid" style={{marginTop:0}}><label className="gnz-field gnz-col-6">Début<input className="gnz-input" type="date" value={form.starts_at || ""} onChange={(e)=>setForm({...form,starts_at:e.target.value})}/></label><label className="gnz-field gnz-col-6">Fin<input className="gnz-input" type="date" value={form.ends_at || ""} onChange={(e)=>setForm({...form,ends_at:e.target.value})}/></label></div>
