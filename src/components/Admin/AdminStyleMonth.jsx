@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { listContentTable, upsertRow } from "../../services/adminData.js";
+import { listContentTable, setPublished, upsertRow } from "../../services/adminData.js";
+import { scrollToAdminEditor } from "./scrollToEditor.js";
 import "../../styles/admin-v2.css";
 
 const empty = { title:"", description:"", cover_url:"", album:[], hotspots:[], starts_at:"", ends_at:"", published:true, metadata:{} };
@@ -21,8 +22,9 @@ export default function AdminStyleMonth() {
 
   const load = async () => { try { setRows(await listContentTable("style_month")); setError(""); } catch (e) { setError(e?.message || "Impossible de charger le Style du mois."); } };
   useEffect(() => { load(); }, []);
-  const reset = () => { setForm(empty); setAlbumText(""); setSpotsText(""); };
-  const edit = (row) => { setForm({ ...row, starts_at: row.starts_at || "", ends_at: row.ends_at || "" }); setAlbumText(urlsToText(row.album)); setSpotsText(spotsToText(row.hotspots)); };
+  const reset = () => { setForm(empty); setAlbumText(""); setSpotsText(""); scrollToAdminEditor(); };
+  const edit = (row) => { setForm({ ...row, starts_at: row.starts_at || "", ends_at: row.ends_at || "" }); setAlbumText(urlsToText(row.album)); setSpotsText(spotsToText(row.hotspots)); scrollToAdminEditor(); };
+  const toggle = async (row) => { try { await setPublished("style_month", row.id, !row.published); await load(); } catch (e) { setError(e?.message || "Impossible de changer la visibilité."); } };
   const flash = (msg) => { setToast(msg); setTimeout(() => setToast(""), 2200); };
 
   const save = async (e) => {
@@ -44,8 +46,8 @@ export default function AdminStyleMonth() {
     <div className="gnz-page-heading"><div><h1>Style du mois</h1><p>Préparer, programmer et publier le look mis en avant sur le site.</p></div><div className="gnz-page-actions"><button className="gnz-secondary-button" onClick={reset}>Nouveau style</button></div></div>
     {error && <div className="gnz-alert gnz-alert-error">{error}</div>}
     <div className="gnz-split">
-      <article className="gnz-card"><div className="gnz-table-wrap"><table className="gnz-table"><thead><tr><th>Style</th><th>Période</th><th>Photos</th><th>État</th><th>Action</th></tr></thead><tbody>{rows.length ? rows.map((row) => <tr key={row.id}><td><strong>{row.title}</strong><span className="gnz-table-sub">{row.description?.slice(0,80)}</span></td><td>{row.starts_at || "—"} → {row.ends_at || "∞"}</td><td>{Array.isArray(row.album) ? row.album.length : 0}</td><td><span className={`gnz-status ${row.published ? "success" : "warning"}`}>{row.published ? "Publié" : "Masqué"}</span></td><td><button className="gnz-secondary-button" onClick={() => edit(row)}>Modifier</button></td></tr>) : <tr><td colSpan="5"><div className="gnz-empty-state">Aucun Style du mois enregistré.</div></td></tr>}</tbody></table></div></article>
-      <aside className="gnz-card gnz-editor"><header className="gnz-card-header"><div className="gnz-card-title"><strong>{form.id ? "Modifier le style" : "Créer un style"}</strong><span>Les changements publiés sont lus directement par le site.</span></div></header><form className="gnz-card-body gnz-editor-grid" onSubmit={save}>
+      <article className="gnz-card"><div className="gnz-table-wrap"><table className="gnz-table"><thead><tr><th>Style</th><th>Période</th><th>Photos</th><th>État</th><th>Action</th></tr></thead><tbody>{rows.length ? rows.map((row) => <tr key={row.id}><td><strong>{row.title}</strong><span className="gnz-table-sub">{row.description?.slice(0,80)}</span></td><td>{row.starts_at || "—"} → {row.ends_at || "∞"}</td><td>{Array.isArray(row.album) ? row.album.length : 0}</td><td><span className={`gnz-status ${row.published ? "success" : "warning"}`}>{row.published ? "Publié" : "Masqué"}</span></td><td><div className="gnz-page-actions"><button className="gnz-secondary-button" onClick={() => edit(row)}>Modifier</button><button className={`gnz-secondary-button gnz-toggle-button${row.published ? "" : " is-hidden"}`} onClick={() => toggle(row)}>{row.published ? "Masquer" : "Afficher"}</button></div></td></tr>) : <tr><td colSpan="5"><div className="gnz-empty-state">Aucun Style du mois enregistré.</div></td></tr>}</tbody></table></div></article>
+      <aside className="gnz-card gnz-editor" id="gnz-admin-editor"><header className="gnz-card-header"><div className="gnz-card-title"><strong>{form.id ? "Modifier le style" : "Créer un style"}</strong><span>Les changements publiés sont lus directement par le site.</span></div></header><form className="gnz-card-body gnz-editor-grid" onSubmit={save}>
         <label className="gnz-field">Titre<input className="gnz-input" value={form.title || ""} onChange={(e)=>setForm({...form,title:e.target.value})} required/></label>
         <label className="gnz-field">Description<textarea className="gnz-textarea" value={form.description || ""} onChange={(e)=>setForm({...form,description:e.target.value})}/></label>
         <label className="gnz-field">Photo principale (URL)<input className="gnz-input" value={form.cover_url || ""} onChange={(e)=>setForm({...form,cover_url:e.target.value})}/></label>

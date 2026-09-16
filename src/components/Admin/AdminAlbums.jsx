@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../../services/supabaseClient.js";
+import { setPublished } from "../../services/adminData.js";
+import { scrollToAdminEditor } from "./scrollToEditor.js";
 import "../../styles/admin-v2.css";
 
 const empty = { id:null, section_key:"gallery", slug:"", title:"", description:"", published:true, sort_order:0, items:[] };
@@ -18,8 +20,9 @@ export default function AdminAlbums() {
   };
   useEffect(()=>{load();},[]);
 
-  const edit = (row) => setForm({...row,items:Array.isArray(row.items)?row.items:[]});
-  const reset = () => setForm(empty);
+  const edit = (row) => { setForm({...row,items:Array.isArray(row.items)?row.items:[]}); scrollToAdminEditor(); };
+  const toggle = async (row) => { try { await setPublished("content_albums", row.id, !row.published); await load(); } catch (e) { setError(e?.message || "Impossible de changer la visibilité."); } };
+  const reset = () => { setForm(empty); scrollToAdminEditor(); };
   const updateItem = (index,key,value) => setForm((current)=>({...current,items:current.items.map((item,i)=>i===index?{...item,[key]:value}:item)}));
   const move = (index,direction) => setForm((current)=>{const next=[...current.items];const target=index+direction;if(target<0||target>=next.length)return current;[next[index],next[target]]=[next[target],next[index]];return {...current,items:next};});
   const removeItem = (index) => setForm((current)=>({...current,items:current.items.filter((_,i)=>i!==index)}));
@@ -39,8 +42,8 @@ export default function AdminAlbums() {
     <div className="gnz-page-heading"><div><h1>Galerie & Showroom</h1><p>Remplacer, ajouter et réordonner les photos visibles sur le site sans toucher au code.</p></div><div className="gnz-page-actions"><button className="gnz-secondary-button" onClick={reset}>Nouvel album</button></div></div>
     {error&&<div className="gnz-alert gnz-alert-error">{error}</div>}
     <div className="gnz-split">
-      <article className="gnz-card"><div className="gnz-table-wrap"><table className="gnz-table"><thead><tr><th>Album</th><th>Rubrique</th><th>Photos</th><th>Visible</th><th></th></tr></thead><tbody>{rows.length?rows.map((row)=><tr key={row.id}><td><strong>{row.title}</strong><span className="gnz-table-sub">{row.slug}</span></td><td>{row.section_key==="gallery"?"Galerie":"Showroom"}</td><td>{Array.isArray(row.items)?row.items.length:0}</td><td><span className={`gnz-status ${row.published?"success":"warning"}`}>{row.published?"Oui":"Non"}</span></td><td><button className="gnz-secondary-button" onClick={()=>edit(row)}>Modifier</button></td></tr>):<tr><td colSpan="5"><div className="gnz-empty-state">Aucun album.</div></td></tr>}</tbody></table></div></article>
-      <aside className="gnz-card gnz-editor"><header className="gnz-card-header"><div className="gnz-card-title"><strong>{form.id?"Modifier l'album":"Créer un album"}</strong><span>Chaque modification publiée est reprise automatiquement par le site.</span></div></header><form className="gnz-card-body gnz-editor-grid" onSubmit={save}>
+      <article className="gnz-card"><div className="gnz-table-wrap"><table className="gnz-table"><thead><tr><th>Album</th><th>Rubrique</th><th>Photos</th><th>Visible</th><th></th></tr></thead><tbody>{rows.length?rows.map((row)=><tr key={row.id}><td><strong>{row.title}</strong><span className="gnz-table-sub">{row.slug}</span></td><td>{row.section_key==="gallery"?"Galerie":"Showroom"}</td><td>{Array.isArray(row.items)?row.items.length:0}</td><td><span className={`gnz-status ${row.published?"success":"warning"}`}>{row.published?"Oui":"Non"}</span></td><td><div className="gnz-page-actions"><button className="gnz-secondary-button" onClick={()=>edit(row)}>Modifier</button><button className={`gnz-secondary-button gnz-toggle-button${row.published ? "" : " is-hidden"}`} onClick={()=>toggle(row)}>{row.published ? "Masquer" : "Afficher"}</button></div></td></tr>):<tr><td colSpan="5"><div className="gnz-empty-state">Aucun album.</div></td></tr>}</tbody></table></div></article>
+      <aside className="gnz-card gnz-editor" id="gnz-admin-editor"><header className="gnz-card-header"><div className="gnz-card-title"><strong>{form.id?"Modifier l'album":"Créer un album"}</strong><span>Chaque modification publiée est reprise automatiquement par le site.</span></div></header><form className="gnz-card-body gnz-editor-grid" onSubmit={save}>
         <label className="gnz-field">Rubrique<select className="gnz-select" value={form.section_key} onChange={(e)=>setForm({...form,section_key:e.target.value})}><option value="gallery">Galerie</option><option value="showroom">Showroom</option></select></label>
         <label className="gnz-field">Titre<input className="gnz-input" value={form.title||""} onChange={(e)=>setForm({...form,title:e.target.value})} required/></label>
         <label className="gnz-field">Description<textarea className="gnz-textarea" value={form.description||""} onChange={(e)=>setForm({...form,description:e.target.value})}/></label>

@@ -18,6 +18,9 @@ globalThis.matchMedia ??= (query) => ({
   addListener() {}, removeListener() {}, dispatchEvent() { return false; },
 });
 globalThis.scrollTo ??= () => {};
+// jsdom ne fournit pas scrollIntoView (utilisé pour amener le formulaire
+// d'édition admin dans le champ visible sur mobile).
+Element.prototype.scrollIntoView ??= function () {};
 vi.spyOn(console, "error").mockImplementation((...args) => {
   // Une erreur React non attendue doit faire échouer le test, pas se perdre
   // dans la sortie.

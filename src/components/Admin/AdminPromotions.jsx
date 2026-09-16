@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { listPromotions, removePromotion, savePromotion } from "../../services/adminData.js";
+import { listPromotions, removePromotion, savePromotion, setPublished } from "../../services/adminData.js";
+import { scrollToAdminEditor } from "./scrollToEditor.js";
 import "../../styles/admin-v2.css";
 
 const empty = { title: "", subtitle: "", description: "", image_url: "", cta_label: "Découvrir", cta_url: "", placement: "home", status: "draft", starts_at: "", ends_at: "", priority: 0, published: false };
@@ -14,7 +15,7 @@ export default function AdminPromotions() {
   const load = async () => { try { setRows(await listPromotions()); setError(""); } catch (e) { setError(e?.message || "Impossible de charger les promotions."); } };
   useEffect(() => { load(); }, []);
 
-  const edit = (row) => setForm({ ...row, starts_at: toLocal(row.starts_at), ends_at: toLocal(row.ends_at) });
+  const edit = (row) => { setForm({ ...row, starts_at: toLocal(row.starts_at), ends_at: toLocal(row.ends_at) }); scrollToAdminEditor(); };
   const save = async (e) => {
     e.preventDefault(); if (!form.title.trim()) return;
     setSaving(true); setError("");
@@ -25,13 +26,14 @@ export default function AdminPromotions() {
     finally { setSaving(false); }
   };
   const archive = async (row) => { if (!window.confirm(`Retirer « ${row.title} » ?`)) return; try { await removePromotion(row.id); await load(); } catch (e) { setError(e?.message || "Impossible de retirer cette promotion."); } };
+  const toggle = async (row) => { try { await setPublished("promotions", row.id, !row.published); await load(); setToast(row.published ? "Masquée du site." : "Remise en ligne."); setTimeout(() => setToast(""), 2200); } catch (e) { setError(e?.message || "Impossible de changer la visibilité."); } };
 
   return <div>
     <div className="gnz-page-heading"><div><h1>Promotions</h1><p>Créer, programmer, mettre en avant ou retirer une offre sans toucher au code.</p></div></div>
     {error && <div className="gnz-alert gnz-alert-error">{error}</div>}
     <div className="gnz-split">
-      <article className="gnz-card"><header className="gnz-card-header"><div className="gnz-card-title"><strong>Campagnes</strong><span>{rows.length} promotion{rows.length > 1 ? "s" : ""} enregistrée{rows.length > 1 ? "s" : ""}</span></div></header><div className="gnz-table-wrap"><table className="gnz-table"><thead><tr><th>Promotion</th><th>Emplacement</th><th>Statut</th><th>Période</th><th>Actions</th></tr></thead><tbody>{rows.length ? rows.map((row) => <tr key={row.id}><td><strong>{row.title}</strong><span className="gnz-table-sub">{row.subtitle || row.description || "—"}</span></td><td>{row.placement}</td><td><span className={`gnz-status ${row.status}`}>{row.published ? row.status : "brouillon"}</span></td><td>{row.starts_at ? new Date(row.starts_at).toLocaleDateString("fr-FR") : "Maintenant"} → {row.ends_at ? new Date(row.ends_at).toLocaleDateString("fr-FR") : "Sans fin"}</td><td><div className="gnz-page-actions"><button className="gnz-secondary-button" onClick={() => edit(row)}>Modifier</button><button className="gnz-danger-button" onClick={() => archive(row)}>Retirer</button></div></td></tr>) : <tr><td colSpan="5"><div className="gnz-empty-state">Aucune promotion. Créez la première depuis le formulaire.</div></td></tr>}</tbody></table></div></article>
-      <aside className="gnz-card gnz-editor"><header className="gnz-card-header"><div className="gnz-card-title"><strong>{form.id ? "Modifier la promotion" : "Nouvelle promotion"}</strong><span>Les promotions publiées seront récupérées par le site.</span></div></header><form className="gnz-card-body gnz-editor-grid" onSubmit={save}>
+      <article className="gnz-card"><header className="gnz-card-header"><div className="gnz-card-title"><strong>Campagnes</strong><span>{rows.length} promotion{rows.length > 1 ? "s" : ""} enregistrée{rows.length > 1 ? "s" : ""}</span></div></header><div className="gnz-table-wrap"><table className="gnz-table"><thead><tr><th>Promotion</th><th>Emplacement</th><th>Statut</th><th>Période</th><th>Actions</th></tr></thead><tbody>{rows.length ? rows.map((row) => <tr key={row.id}><td><strong>{row.title}</strong><span className="gnz-table-sub">{row.subtitle || row.description || "—"}</span></td><td>{row.placement}</td><td><span className={`gnz-status ${row.status}`}>{row.published ? row.status : "brouillon"}</span></td><td>{row.starts_at ? new Date(row.starts_at).toLocaleDateString("fr-FR") : "Maintenant"} → {row.ends_at ? new Date(row.ends_at).toLocaleDateString("fr-FR") : "Sans fin"}</td><td><div className="gnz-page-actions"><button className="gnz-secondary-button" onClick={() => edit(row)}>Modifier</button><button className={`gnz-secondary-button gnz-toggle-button${row.published ? "" : " is-hidden"}`} onClick={() => toggle(row)}>{row.published ? "Masquer" : "Afficher"}</button><button className="gnz-danger-button" onClick={() => archive(row)}>Retirer</button></div></td></tr>) : <tr><td colSpan="5"><div className="gnz-empty-state">Aucune promotion. Créez la première depuis le formulaire.</div></td></tr>}</tbody></table></div></article>
+      <aside className="gnz-card gnz-editor" id="gnz-admin-editor"><header className="gnz-card-header"><div className="gnz-card-title"><strong>{form.id ? "Modifier la promotion" : "Nouvelle promotion"}</strong><span>Les promotions publiées seront récupérées par le site.</span></div></header><form className="gnz-card-body gnz-editor-grid" onSubmit={save}>
         <label className="gnz-field">Titre<input className="gnz-input" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} required /></label>
         <label className="gnz-field">Sous-titre<input className="gnz-input" value={form.subtitle || ""} onChange={(e) => setForm({ ...form, subtitle: e.target.value })} /></label>
         <label className="gnz-field">Description<textarea className="gnz-textarea" value={form.description || ""} onChange={(e) => setForm({ ...form, description: e.target.value })} /></label>

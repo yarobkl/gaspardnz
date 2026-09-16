@@ -259,3 +259,11 @@ export async function saveSiteSetting(key, value, description = "") {
   if (error) throw error;
   return data;
 }
+
+export async function setPublished(table, id, published) {
+  const allowed = new Set(["packages", "partners", "news_posts", "vip_clients", "wedding_inspirations", "style_month", "promotions", "media_assets", "content_albums"]);
+  if (!allowed.has(table)) throw new Error("Unsupported content table");
+  const { data, error } = await supabase.from(table).update({ published }).eq("id", id).select().single();
+  if (error) throw error;
+  return data;
+}

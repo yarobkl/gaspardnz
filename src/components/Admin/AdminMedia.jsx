@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { deleteMedia, listMedia, uploadMedia } from "../../services/adminData.js";
+import { deleteMedia, listMedia, setPublished, uploadMedia } from "../../services/adminData.js";
 import "../../styles/admin-v2.css";
 
 const SECTIONS = ["hero","gallery","style-journal","wedding","vip","showroom","actualites","style-month","partners","promotions","other"];
@@ -37,6 +37,8 @@ export default function AdminMedia() {
 
   const copy = async (url) => { try { await navigator.clipboard.writeText(url); setToast("Lien copié."); setTimeout(() => setToast(""), 1800); } catch {} };
 
+  const toggle = async (asset) => { try { const updated = await setPublished("media_assets", asset.id, !asset.published); setRows((r) => r.map((x) => x.id === asset.id ? updated : x)); } catch (e) { setError(e?.message || "Impossible de changer la visibilité."); } };
+
   return <div>
     <div className="gnz-page-heading"><div><h1>Médias & photos</h1><p>Bibliothèque centralisée Supabase Storage : photos, vidéos et documents du site.</p></div><div className="gnz-page-actions"><button className="gnz-secondary-button" onClick={load}>Actualiser</button></div></div>
     {error && <div className="gnz-alert gnz-alert-error">{error}</div>}
@@ -52,7 +54,7 @@ export default function AdminMedia() {
     <div className="gnz-toolbar"><select className="gnz-select" value={section} onChange={(e) => setSection(e.target.value)}><option value="all">Toutes les sections</option>{SECTIONS.map((s) => <option key={s} value={s}>{s}</option>)}</select><span className="gnz-status">{rows.length} média{rows.length > 1 ? "s" : ""}</span></div>
     {rows.length ? <div className="gnz-media-grid">{rows.map((asset) => <article className="gnz-media-card" key={asset.id}>
       <div className="gnz-media-preview">{asset.media_type === "image" ? <img src={asset.public_url} alt={asset.alt_text || asset.title || "Média"} loading="lazy" /> : asset.media_type === "video" ? <video src={asset.public_url} controls playsInline preload="metadata" aria-label={`Aperçu vidéo : ${asset.title || "média"}`} /> : <div className="gnz-empty-state">PDF</div>}</div>
-      <div className="gnz-media-meta"><strong>{asset.title || "Sans titre"}</strong><span>{asset.section_key} · {asset.media_type}</span><div className="gnz-page-actions" style={{ marginTop: 9 }}><button className="gnz-secondary-button" onClick={() => copy(asset.public_url)}>Copier le lien</button><button className="gnz-danger-button" onClick={() => remove(asset)}>Supprimer</button></div></div>
+      <div className="gnz-media-meta"><strong>{asset.title || "Sans titre"}</strong><span>{asset.section_key} · {asset.media_type} · <span className={`gnz-status ${asset.published ? "success" : "warning"}`}>{asset.published ? "Visible" : "Masqué"}</span></span><div className="gnz-page-actions" style={{ marginTop: 9 }}><button className={`gnz-secondary-button gnz-toggle-button${asset.published ? "" : " is-hidden"}`} onClick={() => toggle(asset)}>{asset.published ? "Masquer" : "Afficher"}</button><button className="gnz-secondary-button" onClick={() => copy(asset.public_url)}>Copier le lien</button><button className="gnz-danger-button" onClick={() => remove(asset)}>Supprimer</button></div></div>
     </article>)}</div> : <div className="gnz-card"><div className="gnz-empty-state">Aucun média dans cette section. Importez une photo pour commencer.</div></div>}
     {toast && <div className="gnz-toast">{toast}</div>}
   </div>;

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { getSiteSettings, listContentTable, saveSiteSetting, upsertRow } from "../../services/adminData.js";
+import { getSiteSettings, listContentTable, saveSiteSetting, setPublished, upsertRow } from "../../services/adminData.js";
+import { scrollToAdminEditor } from "./scrollToEditor.js";
 import "../../styles/admin-v2.css";
 
 const slugify = (value) => String(value || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0,100);
@@ -44,6 +45,12 @@ export default function AdminContent() {
     } catch (e) { setError(e?.message || "Enregistrement impossible."); } finally { setSaving(false); }
   };
 
+  const toggle = async (row) => {
+    try { await setPublished(tableForTab, row.id, !row.published); await load(); flash(row.published ? "Masqué du site." : "Remis en ligne."); }
+    catch (e) { setError(e?.message || "Impossible de changer la visibilité."); }
+  };
+  const openForm = (row) => { setForm(row); scrollToAdminEditor(); };
+
   const contact = settings.contact?.value || {};
   const social = settings.social_links?.value || {};
   const payment = settings.payment?.value || {};
@@ -62,8 +69,8 @@ export default function AdminContent() {
     </div>}
 
     {tab !== "general" && <div className="gnz-split">
-      <article className="gnz-card"><header className="gnz-card-header"><div className="gnz-card-title"><strong>{tab === "packages" ? "Formules" : tab === "partners" ? "Partenaires" : "Actualités"}</strong><span>{rows.length} élément{rows.length > 1 ? "s" : ""}</span></div><button className="gnz-primary-button" onClick={() => setForm(tab === "packages" ? emptyPackage : tab === "partners" ? emptyPartner : emptyNews)}>Ajouter</button></header><div className="gnz-table-wrap"><table className="gnz-table"><thead><tr><th>Nom</th><th>État</th><th>Détail</th><th>Action</th></tr></thead><tbody>{rows.length ? rows.map((row) => <tr key={row.id || row.slug}><td><strong>{row.name || row.title}</strong><span className="gnz-table-sub">{row.slug}</span></td><td><span className={`gnz-status ${row.published ? "success" : "warning"}`}>{row.published ? "Publié" : "Masqué"}</span></td><td>{tab === "packages" ? `${row.price ?? "—"} ${row.currency || "EUR"}` : tab === "partners" ? row.category || "—" : row.published_at ? new Date(row.published_at).toLocaleDateString("fr-FR") : "Brouillon"}</td><td><button className="gnz-secondary-button" onClick={() => setForm({ ...row, published_at: row.published_at ? new Date(row.published_at).toISOString().slice(0,16) : "" })}>Modifier</button></td></tr>) : <tr><td colSpan="4"><div className="gnz-empty-state">Aucun contenu dans cette rubrique.</div></td></tr>}</tbody></table></div></article>
-      <aside className="gnz-card gnz-editor"><header className="gnz-card-header"><div className="gnz-card-title"><strong>{form ? (form.id ? "Modifier" : "Ajouter") : "Éditeur"}</strong><span>Formulaire simplifié pour l'administrateur</span></div></header><div className="gnz-card-body">{form ? <form className="gnz-editor-grid" onSubmit={saveEntity}>{tab === "packages" ? <PackageFields form={form} setForm={setForm}/> : tab === "partners" ? <PartnerFields form={form} setForm={setForm}/> : <NewsFields form={form} setForm={setForm}/>}<div className="gnz-editor-actions"><button type="button" className="gnz-secondary-button" onClick={() => setForm(null)}>Annuler</button><button className="gnz-primary-button" disabled={saving}>{saving ? "Enregistrement…" : "Enregistrer"}</button></div></form> : <div className="gnz-empty-state">Cliquez sur « Ajouter » ou « Modifier ».</div>}</div></aside>
+      <article className="gnz-card"><header className="gnz-card-header"><div className="gnz-card-title"><strong>{tab === "packages" ? "Formules" : tab === "partners" ? "Partenaires" : "Actualités"}</strong><span>{rows.length} élément{rows.length > 1 ? "s" : ""}</span></div><button className="gnz-primary-button" onClick={() => openForm(tab === "packages" ? emptyPackage : tab === "partners" ? emptyPartner : emptyNews)}>Ajouter</button></header><div className="gnz-table-wrap"><table className="gnz-table"><thead><tr><th>Nom</th><th>État</th><th>Détail</th><th>Action</th></tr></thead><tbody>{rows.length ? rows.map((row) => <tr key={row.id || row.slug}><td><strong>{row.name || row.title}</strong><span className="gnz-table-sub">{row.slug}</span></td><td><span className={`gnz-status ${row.published ? "success" : "warning"}`}>{row.published ? "Publié" : "Masqué"}</span></td><td>{tab === "packages" ? `${row.price ?? "—"} ${row.currency || "EUR"}` : tab === "partners" ? row.category || "—" : row.published_at ? new Date(row.published_at).toLocaleDateString("fr-FR") : "Brouillon"}</td><td><div className="gnz-page-actions"><button className="gnz-secondary-button" onClick={() => openForm({ ...row, published_at: row.published_at ? new Date(row.published_at).toISOString().slice(0,16) : "" })}>Modifier</button><button className={`gnz-secondary-button gnz-toggle-button${row.published ? "" : " is-hidden"}`} onClick={() => toggle(row)}>{row.published ? "Masquer" : "Afficher"}</button></div></td></tr>) : <tr><td colSpan="4"><div className="gnz-empty-state">Aucun contenu dans cette rubrique.</div></td></tr>}</tbody></table></div></article>
+      <aside className="gnz-card gnz-editor" id="gnz-admin-editor"><header className="gnz-card-header"><div className="gnz-card-title"><strong>{form ? (form.id ? "Modifier" : "Ajouter") : "Éditeur"}</strong><span>Formulaire simplifié pour l'administrateur</span></div></header><div className="gnz-card-body">{form ? <form className="gnz-editor-grid" onSubmit={saveEntity}>{tab === "packages" ? <PackageFields form={form} setForm={setForm}/> : tab === "partners" ? <PartnerFields form={form} setForm={setForm}/> : <NewsFields form={form} setForm={setForm}/>}<div className="gnz-editor-actions"><button type="button" className="gnz-secondary-button" onClick={() => setForm(null)}>Annuler</button><button className="gnz-primary-button" disabled={saving}>{saving ? "Enregistrement…" : "Enregistrer"}</button></div></form> : <div className="gnz-empty-state">Cliquez sur « Ajouter » ou « Modifier ».</div>}</div></aside>
     </div>}
     {toast && <div className="gnz-toast">{toast}</div>}
   </div>;

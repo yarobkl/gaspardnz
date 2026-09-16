@@ -177,6 +177,14 @@ body:has(.gnz-admin-shell), body:has(.gnz-login-shell) { background: var(--gnz-b
 .gnz-checkbox { display: flex; align-items: center; gap: 8px; color: var(--gnz-muted); font-size: 11px; }
 .gnz-checkbox input { accent-color: var(--gnz-gold); }
 
+/* Bouton bascule visible/masqué : un clic, réversible, sans passer par le formulaire. */
+.gnz-toggle-button.is-hidden { color: #dfbd78; border-color: rgba(214,169,84,.35); background: rgba(214,169,84,.07); }
+@media (max-width: 1180px) {
+  /* Le formulaire d'édition passe sous le tableau : on lui laisse un peu d'air
+     au-dessus pour que le défilement automatique ne le colle pas en haut d'écran. */
+  #gnz-admin-editor { scroll-margin-top: 14px; }
+}
+
 .gnz-media-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(180px,1fr)); gap: 10px; }
 .gnz-media-card { position: relative; min-width: 0; overflow: hidden; border: 1px solid rgba(255,255,255,.06); border-radius: 13px; background: #0c0b09; }
 .gnz-media-preview { aspect-ratio: 4/3; background: #070604; overflow: hidden; }
