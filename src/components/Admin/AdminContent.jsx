@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getSiteSettings, listContentTable, saveSiteSetting, setPublished, upsertRow } from "../../services/adminData.js";
+import { getSiteSettings, listContentTable, saveSiteSetting, setPublished, uploadMedia, upsertRow } from "../../services/adminData.js";
 import { scrollToAdminEditor } from "./scrollToEditor.js";
 import "../../styles/admin-v2.css";
 
@@ -64,6 +64,7 @@ export default function AdminContent() {
   const social = settings.social_links?.value || {};
   const payment = settings.payment?.value || {};
   const brand = settings.brand?.value || {};
+  const lookbook = settings.lookbook?.value || {};
 
   return <div>
     <div className="gnz-page-heading"><div><h1>Contenu du site</h1><p>Modifier les informations publiques sans GitHub ni code.</p></div></div>
@@ -75,6 +76,7 @@ export default function AdminContent() {
       <article className="gnz-card gnz-col-4"><header className="gnz-card-header"><div className="gnz-card-title"><strong>Contact</strong><span>Coordonnées utilisées par le site</span></div></header><GeneralEditor initial={contact} fields={["email","whatsapp","calendly"]} labels={{email:"Email",whatsapp:"WhatsApp",calendly:"Calendly"}} disabled={saving} onSave={(v) => saveGeneral("contact",v,"Coordonnées publiques")} /></article>
       <article className="gnz-card gnz-col-4"><header className="gnz-card-header"><div className="gnz-card-title"><strong>Réseaux sociaux</strong><span>Liens publics</span></div></header><GeneralEditor initial={social} fields={["instagram","tiktok","facebook","youtube"]} labels={{instagram:"Instagram",tiktok:"TikTok",facebook:"Facebook",youtube:"YouTube"}} disabled={saving} onSave={(v) => saveGeneral("social_links",v,"Réseaux sociaux")} /></article>
       <article className="gnz-card gnz-col-4"><header className="gnz-card-header"><div className="gnz-card-title"><strong>Liens & paiement</strong><span>Stripe et liens d'encaissement publics</span></div></header><GeneralEditor initial={payment} fields={["stripe_payment_url","payment_label","lookbook_hidden_message"]} checkboxFields={["lookbook_hidden"]} labels={{stripe_payment_url:"Lien de paiement Stripe",payment_label:"Texte du bouton de paiement",lookbook_hidden_message:"Message affiché si masqué",lookbook_hidden:"Masquer le bouton du lookbook (le lien Stripe reste enregistré, rien n'est perdu)"}} placeholders={{stripe_payment_url:"https://buy.stripe.com/...",payment_label:"Payer le lookbook",lookbook_hidden_message:"Bientôt disponible"}} help="Collez un lien créé dans Stripe. Aucune clé Stripe ni donnée bancaire n'est enregistrée ici. Cochez la case pour retirer temporairement le bouton d'achat sans effacer le lien." disabled={saving} onSave={(v) => saveGeneral("payment",v,"Liens de paiement publics")} /></article>
+      <article className="gnz-card gnz-col-4"><header className="gnz-card-header"><div className="gnz-card-title"><strong>Fichier du lookbook</strong><span>Le PDF envoyé au client après achat</span></div></header><LookbookFileEditor lookbook={lookbook} onSaved={load} /></article>
     </div>}
 
     {tab !== "general" && <div className="gnz-split">
@@ -82,6 +84,48 @@ export default function AdminContent() {
       <aside className="gnz-card gnz-editor" id="gnz-admin-editor"><header className="gnz-card-header"><div className="gnz-card-title"><strong>{form ? (form.id ? "Modifier" : "Ajouter") : "Éditeur"}</strong><span>Formulaire simplifié pour l'administrateur</span></div></header><div className="gnz-card-body">{form ? <form className="gnz-editor-grid" onSubmit={saveEntity}>{tab === "packages" ? <PackageFields form={form} setForm={setForm}/> : tab === "partners" ? <PartnerFields key={form.id || "new"} form={form} setForm={setForm} categories={partnerCategories}/> : <NewsFields form={form} setForm={setForm}/>}<div className="gnz-editor-actions"><button type="button" className="gnz-secondary-button" onClick={() => setForm(null)}>Annuler</button><button className="gnz-primary-button" disabled={saving}>{saving ? "Enregistrement…" : "Enregistrer"}</button></div></form> : <div className="gnz-empty-state">Cliquez sur « Ajouter » ou « Modifier ».</div>}</div></aside>
     </div>}
     {toast && <div className="gnz-toast">{toast}</div>}
+  </div>;
+}
+
+// Le PDF vendu depuis le site : stocké comme un média (Supabase Storage),
+// pointé par site_settings.lookbook. Remplacer dépose un NOUVEAU fichier et ne
+// touche pas à l'ancien : rien n'est supprimé, l'historique reste consultable
+// dans « Médias & photos ». C'est ce pointeur que lira l'envoi automatique par
+// email après paiement Stripe, une fois cette pièce branchée.
+function LookbookFileEditor({ lookbook, onSaved }) {
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleFile = async (file) => {
+    if (!file) return;
+    if (file.type !== "application/pdf") { setError("Le fichier doit être un PDF."); return; }
+    setBusy(true); setError("");
+    try {
+      const asset = await uploadMedia(file, "lookbook", { title: file.name, published: true });
+      await saveSiteSetting("lookbook", {
+        pdf_url: asset.public_url,
+        pdf_filename: file.name,
+        updated_at: new Date().toISOString(),
+      }, "Fichier du lookbook envoyé au client après achat");
+      await onSaved();
+    } catch (e) { setError(e?.message || "Import impossible."); }
+    finally { setBusy(false); }
+  };
+
+  return <div className="gnz-card-body gnz-editor-grid">
+    {lookbook.pdf_url
+      ? <div className="gnz-field">
+          <span>Fichier actuel</span>
+          <span className="gnz-table-sub">{lookbook.pdf_filename || "lookbook.pdf"}{lookbook.updated_at ? ` · déposé le ${new Date(lookbook.updated_at).toLocaleDateString("fr-FR")}` : ""}</span>
+          <a className="gnz-text-button" href={lookbook.pdf_url} target="_blank" rel="noreferrer" style={{ margin: "6px 0 0", display: "inline-block" }}>Voir le fichier actuel →</a>
+        </div>
+      : <span className="gnz-muted" style={{ fontSize: 11 }}>Aucun fichier déposé pour l'instant. Le client ne recevra rien tant qu'un PDF n'est pas importé ici.</span>}
+    {error && <div className="gnz-alert gnz-alert-error">{error}</div>}
+    <label className="gnz-primary-button" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", cursor: busy ? "wait" : "pointer" }}>
+      {busy ? "Import en cours…" : lookbook.pdf_url ? "Remplacer le fichier" : "Déposer le PDF du lookbook"}
+      <input type="file" accept="application/pdf" hidden disabled={busy} onChange={(e) => { handleFile(e.target.files?.[0]); e.target.value = ""; }} />
+    </label>
+    <span className="gnz-muted" style={{ fontSize: 10 }}>PDF uniquement, 15 Mo maximum. L'ancien fichier reste dans « Médias & photos » : rien n'est supprimé.</span>
   </div>;
 }
 

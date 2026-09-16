@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { deleteMedia, listMedia, setPublished, uploadMedia } from "../../services/adminData.js";
 import "../../styles/admin-v2.css";
 
-const SECTIONS = ["hero","gallery","style-journal","wedding","vip","showroom","actualites","style-month","partners","promotions","other"];
+const SECTIONS = ["hero","gallery","style-journal","wedding","vip","showroom","actualites","style-month","partners","promotions","lookbook","other"];
 
 export default function AdminMedia() {
   const [section, setSection] = useState("all");
