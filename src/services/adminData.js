@@ -267,3 +267,30 @@ export async function setPublished(table, id, published) {
   if (error) throw error;
   return data;
 }
+
+export async function updateMediaMeta(id, patch) {
+  const { data, error } = await supabase.from("media_assets").update(patch).eq("id", id).select().single();
+  if (error) throw error;
+  return data;
+}
+
+// Écrase le fichier AU MÊME EMPLACEMENT (upsert sur le storage_path existant),
+// donc avec la MÊME public_url. Indispensable : ce lien est copié-collé à la
+// main dans d'autres fiches (logo d'un partenaire, photo VIP...) ; en changer
+// casserait toutes ces références. cacheControl réduit par rapport à un import
+// neuf (300 s au lieu de 3600 s) pour limiter la fenêtre où un navigateur
+// affiche encore l'ancienne image en cache après un remplacement.
+export async function replaceMediaFile(asset, file) {
+  if (!asset?.storage_path) throw new Error("Ce média n'a pas de fichier de stockage à remplacer.");
+  const { error: uploadError } = await supabase.storage.from("site-media").upload(asset.storage_path, file, {
+    cacheControl: "300",
+    upsert: true,
+    contentType: file.type || undefined,
+  });
+  if (uploadError) throw uploadError;
+  const { data, error } = await supabase.from("media_assets").update({
+    media_type: file.type?.startsWith("video/") ? "video" : file.type === "application/pdf" ? "document" : "image",
+  }).eq("id", asset.id).select().single();
+  if (error) throw error;
+  return data;
+}
