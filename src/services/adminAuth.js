@@ -110,3 +110,26 @@ export function onAuthStateChange(callback) {
     }, 0);
   });
 }
+
+// Crée un compte déjà actif AVEC un mot de passe généré (aucune inscription à
+// faire par la personne), ou régénère le mot de passe d'un accès existant.
+// Passe par une fonction serveur : créer un compte Supabase Auth déjà
+// confirmé exige la clé service_role, qui ne doit jamais atteindre ce fichier
+// ni le navigateur. Voir api/admin-create-user.js.
+export async function generateUserAccess(email, displayName, role) {
+  const { data } = await supabase.auth.getSession();
+  const token = data?.session?.access_token;
+  if (!token) return { success: false, error: "Session administrateur expirée. Reconnectez-vous." };
+  try {
+    const response = await fetch("/api/admin-create-user", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ email, displayName, role }),
+    });
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok || !payload.success) return { success: false, error: payload.error || "Impossible de générer l'accès." };
+    return { success: true, password: payload.password, created: payload.created };
+  } catch {
+    return { success: false, error: "Connexion impossible. Réessayez." };
+  }
+}
