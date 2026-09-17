@@ -64,7 +64,7 @@ const FormulesSection = ({ refEl, onContact }) => {
           nom: t("look_mairie"),
           subtotal: 474,
           items: [
-            { label: t("item_costume"), price: 345 },
+            { label: t("item_costume"), price: 349 },
             { label: t("item_chemise"), price: 60 },
             { label: t("item_cravate"), price: 30 },
             { label: t("item_boutons"), price: 20 },
