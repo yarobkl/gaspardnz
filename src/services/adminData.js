@@ -359,9 +359,15 @@ export async function listTailors() {
 // Prévient Gaspard en temps réel dès qu'un couturier fait avancer une
 // commande — les deux comptes sont côte à côte dans leurs bureaux respectifs,
 // pas besoin d'email ni de SMS pour ça.
+// Un nom de canal fixe cassait l'écran : AdminLayout (notification à Gaspard)
+// et AdminTailoringOrders (rafraîchissement de la liste) s'abonnaient TOUS
+// LES DEUX à "gnz-tailoring-orders" en même temps dès qu'on ouvrait l'écran —
+// deux abonnements Realtime sur le même topic depuis le même client, ce que
+// Supabase gère mal (le second reste bloqué en "joining"). Chaque appelant
+// reçoit maintenant son propre canal, comme subscribePackagePricing.
 export function subscribeTailoringOrders(onChange) {
   const channel = supabase
-    .channel("gnz-tailoring-orders")
+    .channel(`gnz-tailoring-orders-${Math.random().toString(36).slice(2)}`)
     .on("postgres_changes", { event: "UPDATE", schema: "public", table: "tailoring_orders" }, onChange)
     .on("postgres_changes", { event: "INSERT", schema: "public", table: "tailoring_orders" }, onChange)
     .subscribe();

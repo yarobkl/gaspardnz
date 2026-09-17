@@ -18,9 +18,12 @@ vi.mock("../../src/services/supabaseClient.js", () => ({
       onAuthStateChange: () => ({ data: { subscription: { unsubscribe() {} } } }),
     },
     from: () => emptyQuery,
+    // Le nom du canal inclut un suffixe aléatoire depuis la correction du
+    // blocage à l'ouverture de l'écran (deux abonnements simultanés sur un
+    // même topic figé) : on reconnaît le canal par préfixe, pas par égalité.
     channel: (name) => ({
       on(_event, _filter, callback) {
-        if (name === "gnz-tailoring-orders") capturedCallback = callback;
+        if (name.startsWith("gnz-tailoring-orders")) capturedCallback = callback;
         return this;
       },
       subscribe() { return this; },
