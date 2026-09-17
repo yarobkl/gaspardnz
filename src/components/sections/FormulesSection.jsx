@@ -57,16 +57,40 @@ const FormulesSection = ({ refEl, onContact }) => {
       titre: t("formule_gnz_titre"),
       tag: t("tag_signature"),
       tagline: t("formule2_tagline"),
+      officialBreakdown: true,
+      officialTotal: 1086,
       looks: [
-        { nom: t("look_mairie"), items: [{ label: t("item_costume") }, { label: t("item_chemise") }, { label: t("item_cravate") }, { label: t("item_boutons") }, { label: t("item_chaussettes") }, { label: t("item_chaussures_opt") }] },
-        { nom: t("look_soiree"), tag: t("tag_smoking"), items: [{ label: t("item_smoking") }, { label: t("item_noeud") }, { label: t("item_plastron") }, { label: t("item_boutons") }, { label: t("item_chaussettes") }] },
+        {
+          nom: t("look_mairie"),
+          subtotal: 474,
+          items: [
+            { label: t("item_costume"), price: 345 },
+            { label: t("item_chemise"), price: 60 },
+            { label: t("item_cravate"), price: 30 },
+            { label: t("item_boutons"), price: 20 },
+            { label: t("item_chaussettes"), price: 19 },
+            { label: t("item_chaussures_opt"), priceFrom: 315 },
+          ],
+        },
+        {
+          nom: t("look_soiree"),
+          tag: t("tag_smoking"),
+          subtotal: 612,
+          items: [
+            { label: t("item_smoking"), price: 449 },
+            { label: t("item_noeud"), price: 29 },
+            { label: t("item_plastron"), price: 99 },
+            { label: t("item_boutons"), price: 20 },
+            { label: t("item_chaussettes"), price: 15 },
+          ],
+        },
       ],
     },
   ], [t]);
 
   const formules = useMemo(() => legacyFormules.map((legacy) => {
     const remote = packageSource === "supabase" ? packageRows.find((row) => row.slug === legacy.slug) : null;
-    const price = remote ? remote.price : (legacy.slug === "prestige" ? 1447 : null);
+    const price = remote ? remote.price : (legacy.officialTotal ?? null);
     return {
       ...legacy,
       titre: remote?.name || legacy.titre,
