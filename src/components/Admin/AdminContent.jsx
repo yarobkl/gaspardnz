@@ -2,10 +2,10 @@ import { useEffect, useState } from "react";
 import { getSiteSettings, listContentTable, saveSiteSetting, setPublished, uploadMedia, upsertRow } from "../../services/adminData.js";
 import { scrollToAdminEditor } from "./scrollToEditor.js";
 import MediaUploadField from "./MediaUploadField.jsx";
+import AdminFormulesPricing from "./AdminFormulesPricing.jsx";
 import "../../styles/admin-v2.css";
 
 const slugify = (value) => String(value || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0,100);
-const emptyPackage = { slug:"", name:"", subtitle:"", description:"", price:"", currency:"EUR", cta_label:"Réserver", published:true, featured:false, sort_order:0, features:[] };
 const emptyPartner = { slug:"", name:"", category:"", description:"", logo_url:"", website_url:"", email:"", phone:"", address:"", status:"active", commission_percent:"", client_discount_percent:"", published:true, featured:false, sort_order:0 };
 // Liste de départ : les catégories déjà utilisées sur le site. Elle s'enrichit
 // ensuite toute seule avec celles que Gaspard tape via « + Ajouter une nouvelle
@@ -27,7 +27,9 @@ export default function AdminContent() {
   const load = async () => {
     try {
       if (tab === "general") setSettings(await getSiteSettings());
-      else setRows(await listContentTable(tableForTab));
+      // "Formules" a son propre écran (AdminFormulesPricing) avec son propre
+      // chargement imbriqué (menus + articles) : pas besoin de la table plate ici.
+      else if (tab !== "packages") setRows(await listContentTable(tableForTab));
       setError("");
     } catch (e) { setError(e?.message || "Impossible de charger le contenu."); }
   };
@@ -44,7 +46,6 @@ export default function AdminContent() {
     try {
       const row = { ...form };
       if (!row.slug && (row.name || row.title)) row.slug = slugify(row.name || row.title);
-      if (tab === "packages") { row.price = row.price === "" ? null : Number(row.price); row.sort_order = Number(row.sort_order || 0); }
       if (tab === "partners") { row.sort_order = Number(row.sort_order || 0); row.commission_percent = row.commission_percent === "" ? null : Number(row.commission_percent); row.client_discount_percent = row.client_discount_percent === "" ? null : Number(row.client_discount_percent); }
       if (tab === "news" && row.published && !row.published_at) row.published_at = new Date().toISOString();
       await upsertRow(tableForTab, row, "slug"); await load(); setForm(null); flash("Modification publiée dans la base.");
@@ -80,9 +81,11 @@ export default function AdminContent() {
       <article className="gnz-card gnz-col-4"><header className="gnz-card-header"><div className="gnz-card-title"><strong>Fichier du lookbook</strong><span>Le PDF envoyé au client après achat</span></div></header><LookbookFileEditor lookbook={lookbook} onSaved={load} /></article>
     </div>}
 
-    {tab !== "general" && <div className="gnz-split">
-      <article className="gnz-card"><header className="gnz-card-header"><div className="gnz-card-title"><strong>{tab === "packages" ? "Formules" : tab === "partners" ? "Partenaires" : "Actualités"}</strong><span>{rows.length} élément{rows.length > 1 ? "s" : ""}</span></div><button className="gnz-primary-button" onClick={() => openForm(tab === "packages" ? emptyPackage : tab === "partners" ? emptyPartner : emptyNews)}>Ajouter</button></header><div className="gnz-table-wrap"><table className="gnz-table"><thead><tr><th>Nom</th><th>État</th><th>Détail</th><th>Action</th></tr></thead><tbody>{rows.length ? rows.map((row) => <tr key={row.id || row.slug}><td><strong>{row.name || row.title}</strong><span className="gnz-table-sub">{row.slug}</span></td><td><span className={`gnz-status ${row.published ? "success" : "warning"}`}>{row.published ? "Publié" : "Masqué"}</span></td><td>{tab === "packages" ? `${row.price ?? "—"} ${row.currency || "EUR"}` : tab === "partners" ? row.category || "—" : row.published_at ? new Date(row.published_at).toLocaleDateString("fr-FR") : "Brouillon"}</td><td><div className="gnz-page-actions"><button className="gnz-secondary-button" onClick={() => openForm({ ...row, published_at: row.published_at ? new Date(row.published_at).toISOString().slice(0,16) : "" })}>Modifier</button><button className={`gnz-secondary-button gnz-toggle-button${row.published ? "" : " is-hidden"}`} onClick={() => toggle(row)}>{row.published ? "Masquer" : "Afficher"}</button></div></td></tr>) : <tr><td colSpan="4"><div className="gnz-empty-state">Aucun contenu dans cette rubrique.</div></td></tr>}</tbody></table></div></article>
-      <aside className="gnz-card gnz-editor" id="gnz-admin-editor"><header className="gnz-card-header"><div className="gnz-card-title"><strong>{form ? (form.id ? "Modifier" : "Ajouter") : "Éditeur"}</strong><span>Formulaire simplifié pour l'administrateur</span></div></header><div className="gnz-card-body">{form ? <form className="gnz-editor-grid" onSubmit={saveEntity}>{tab === "packages" ? <PackageFields form={form} setForm={setForm}/> : tab === "partners" ? <PartnerFields key={form.id || "new"} form={form} setForm={setForm} categories={partnerCategories}/> : <NewsFields form={form} setForm={setForm}/>}<div className="gnz-editor-actions"><button type="button" className="gnz-secondary-button" onClick={() => setForm(null)}>Annuler</button><button className="gnz-primary-button" disabled={saving}>{saving ? "Enregistrement…" : "Enregistrer"}</button></div></form> : <div className="gnz-empty-state">Cliquez sur « Ajouter » ou « Modifier ».</div>}</div></aside>
+    {tab === "packages" && <AdminFormulesPricing />}
+
+    {tab !== "general" && tab !== "packages" && <div className="gnz-split">
+      <article className="gnz-card"><header className="gnz-card-header"><div className="gnz-card-title"><strong>{tab === "partners" ? "Partenaires" : "Actualités"}</strong><span>{rows.length} élément{rows.length > 1 ? "s" : ""}</span></div><button className="gnz-primary-button" onClick={() => openForm(tab === "partners" ? emptyPartner : emptyNews)}>Ajouter</button></header><div className="gnz-table-wrap"><table className="gnz-table"><thead><tr><th>Nom</th><th>État</th><th>Détail</th><th>Action</th></tr></thead><tbody>{rows.length ? rows.map((row) => <tr key={row.id || row.slug}><td><strong>{row.name || row.title}</strong><span className="gnz-table-sub">{row.slug}</span></td><td><span className={`gnz-status ${row.published ? "success" : "warning"}`}>{row.published ? "Publié" : "Masqué"}</span></td><td>{tab === "partners" ? row.category || "—" : row.published_at ? new Date(row.published_at).toLocaleDateString("fr-FR") : "Brouillon"}</td><td><div className="gnz-page-actions"><button className="gnz-secondary-button" onClick={() => openForm({ ...row, published_at: row.published_at ? new Date(row.published_at).toISOString().slice(0,16) : "" })}>Modifier</button><button className={`gnz-secondary-button gnz-toggle-button${row.published ? "" : " is-hidden"}`} onClick={() => toggle(row)}>{row.published ? "Masquer" : "Afficher"}</button></div></td></tr>) : <tr><td colSpan="4"><div className="gnz-empty-state">Aucun contenu dans cette rubrique.</div></td></tr>}</tbody></table></div></article>
+      <aside className="gnz-card gnz-editor" id="gnz-admin-editor"><header className="gnz-card-header"><div className="gnz-card-title"><strong>{form ? (form.id ? "Modifier" : "Ajouter") : "Éditeur"}</strong><span>Formulaire simplifié pour l'administrateur</span></div></header><div className="gnz-card-body">{form ? <form className="gnz-editor-grid" onSubmit={saveEntity}>{tab === "partners" ? <PartnerFields key={form.id || "new"} form={form} setForm={setForm} categories={partnerCategories}/> : <NewsFields form={form} setForm={setForm}/>}<div className="gnz-editor-actions"><button type="button" className="gnz-secondary-button" onClick={() => setForm(null)}>Annuler</button><button className="gnz-primary-button" disabled={saving}>{saving ? "Enregistrement…" : "Enregistrer"}</button></div></form> : <div className="gnz-empty-state">Cliquez sur « Ajouter » ou « Modifier ».</div>}</div></aside>
     </div>}
     {toast && <div className="gnz-toast">{toast}</div>}
   </div>;
@@ -140,7 +143,6 @@ function GeneralEditor({ initial, fields, labels, placeholders = {}, help, onSav
     <button className="gnz-primary-button" disabled={disabled} onClick={() => onSave(value)}>Enregistrer</button>
   </div>;
 }
-function PackageFields({ form, setForm }) { return <><label className="gnz-field">Nom<input className="gnz-input" value={form.name || ""} onChange={(e) => setForm({...form,name:e.target.value})} required/></label><label className="gnz-field">Sous-titre<input className="gnz-input" value={form.subtitle || ""} onChange={(e) => setForm({...form,subtitle:e.target.value})}/></label><label className="gnz-field">Description<textarea className="gnz-textarea" value={form.description || ""} onChange={(e) => setForm({...form,description:e.target.value})}/></label><label className="gnz-field">Prix (€)<input className="gnz-input" type="number" min="0" value={form.price ?? ""} onChange={(e) => setForm({...form,price:e.target.value})}/></label><label className="gnz-field">Texte du bouton<input className="gnz-input" value={form.cta_label || ""} onChange={(e) => setForm({...form,cta_label:e.target.value})}/></label><label className="gnz-checkbox"><input type="checkbox" checked={Boolean(form.featured)} onChange={(e) => setForm({...form,featured:e.target.checked})}/>Mettre en avant</label><label className="gnz-checkbox"><input type="checkbox" checked={Boolean(form.published)} onChange={(e) => setForm({...form,published:e.target.checked})}/>Visible sur le site</label></>; }
 export function PartnerFields({ form, setForm, categories = [] }) {
   // Une catégorie déjà enregistrée mais absente de la liste (tapée à la main
   // avant l'existence de ce menu) ne doit jamais être effacée au premier

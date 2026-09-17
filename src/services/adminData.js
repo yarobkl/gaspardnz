@@ -367,3 +367,11 @@ export function subscribeTailoringOrders(onChange) {
     .subscribe();
   return () => { supabase.removeChannel(channel); };
 }
+
+// Détail des formules (menus + articles) : voir services/packagePricing.js,
+// partagé avec le site public (FormulesSection.jsx affiche les mêmes données).
+export {
+  createPackageGroup, createPackageItem, deletePackageGroup, deletePackageItem,
+  listArticleLabels, listPackagesWithBreakdown, restorePackage, softDeletePackage,
+  subscribePackagePricing, sumGroupItems, sumPackageTotal, updatePackageGroup, updatePackageItem,
+} from "./packagePricing.js";

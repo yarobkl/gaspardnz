@@ -13,7 +13,6 @@ const waitForAnimationFrame = () => new Promise((resolve) => requestAnimationFra
 // supposition sur ce que le code est censé faire.
 const FIXTURES = {
   partners: [{ id: "p1", slug: "palais-groupe", name: "Palais Groupe", category: "Événementiel", description: "", logo_url: "", website_url: "", email: "", phone: "", address: "", status: "active", commission_percent: null, client_discount_percent: null, published: true, featured: false, sort_order: 0 }],
-  packages: [{ id: "k1", slug: "sur-mesure", name: "Sur-mesure", subtitle: "", description: "", price: 100, currency: "EUR", cta_label: "Réserver", published: true, featured: false, sort_order: 0, features: [] }],
   news_posts: [{ id: "n1", slug: "annonce", title: "Une annonce", excerpt: "", body: "", cover_url: "", published: true, published_at: new Date().toISOString(), locale: "FR", gallery: [] }],
   promotions: [{ id: "pr1", title: "Soldes de saison", subtitle: "", description: "", image_url: "", cta_label: "", cta_url: "", placement: "home", status: "active", starts_at: null, ends_at: null, priority: 0, published: true }],
   content_albums: [{ id: "a1", section_key: "gallery", slug: "showroom", title: "Showroom", description: "", published: true, sort_order: 0, items: [] }],
@@ -87,9 +86,12 @@ describe("Contenu du site — Partenaires", () => {
   });
 
   it("fait défiler vers le formulaire au clic sur « Ajouter »", async () => {
+    // Le détail des formules (onglet « Formules ») a son propre écran
+    // (AdminFormulesPricing) sans ce bouton générique depuis la phase 16 :
+    // « Actualités » exerce le même code partagé (AdminContent) que ce test visait.
     const user = userEvent.setup();
     render(<AdminContent />);
-    await user.click(await screen.findByRole("button", { name: "Formules" }));
+    await user.click(await screen.findByRole("button", { name: "Actualités" }));
     await user.click(await screen.findByRole("button", { name: "Ajouter" }));
     await waitForAnimationFrame();
     expect(scrollSpy).toHaveBeenCalled();

@@ -7,13 +7,36 @@ export function createFakeSupabaseTables(initial = {}) {
   const state = {};
   for (const [table, rows] of Object.entries(initial)) state[table] = rows.map((r) => ({ ...r }));
 
+  // Embed manuel pour le seul cas imbriqué du projet (packages -> groupes ->
+  // articles) : PostgREST le ferait par une vraie jointure, cette fausse base
+  // n'a pas de moteur de requête générique — un couple de tables connu suffit
+  // plutôt que d'écrire un simulateur de jointure complet.
+  const NESTED_EMBEDS = {
+    packages: { relation: "package_groups", fk: "package_id",
+      child: { relation: "package_items", fk: "group_id" } },
+  };
+
   function makeQuery(table) {
     let mode = "select";
     let payload = null;
     const filters = [];
     let single = false;
+    let selectStr = "*";
 
     const matches = (row) => filters.every(([col, val]) => row[col] === val);
+
+    const embed = (rows) => {
+      const spec = NESTED_EMBEDS[table];
+      if (!spec || !selectStr.includes(spec.relation)) return rows;
+      return rows.map((row) => ({
+        ...row,
+        [spec.relation]: (state[spec.relation] || [])
+          .filter((child) => child[spec.fk] === row.id)
+          .map((child) => (spec.child && selectStr.includes(spec.child.relation)
+            ? { ...child, [spec.child.relation]: (state[spec.child.relation] || []).filter((g) => g[spec.child.fk] === child.id) }
+            : { ...child })),
+      }));
+    };
 
     const run = async () => {
       const rows = state[table] || (state[table] = []);
@@ -33,12 +56,12 @@ export function createFakeSupabaseTables(initial = {}) {
         state[table] = rows.filter((r) => !matches(r));
         return { data: null, error: null };
       }
-      const filtered = rows.filter(matches);
+      const filtered = embed(rows.filter(matches));
       return single ? { data: filtered[0] || null, error: null } : { data: filtered, error: null };
     };
 
     const api = {
-      select() { return api; },
+      select(str) { selectStr = str || "*"; return api; },
       order() { return api; },
       gte() { return api; },
       lt() { return api; },

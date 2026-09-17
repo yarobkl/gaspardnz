@@ -290,3 +290,15 @@ body:has(.gnz-admin-shell), body:has(.gnz-login-shell) { background: var(--gnz-b
   .gnz-print-sheet, .gnz-print-sheet * { visibility: visible; }
   .gnz-print-sheet { position: absolute; top: 0; left: 0; width: 100%; }
 }
+
+/* Éditeur du détail des formules (menus + articles). */
+.gnz-pricing-group { border: 1px solid rgba(255,255,255,.08); border-radius: 12px; padding: 12px; margin-bottom: 12px; }
+.gnz-pricing-group-header { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
+.gnz-pricing-group-edit { display: flex; gap: 8px; flex-wrap: wrap; }
+.gnz-pricing-group-edit .gnz-input { width: auto; min-width: 140px; }
+.gnz-pricing-item, .gnz-pricing-add-group { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; flex-wrap: wrap; }
+.gnz-pricing-item .gnz-input:first-child, .gnz-pricing-add-group .gnz-input:first-child { flex: 2 1 200px; }
+.gnz-pricing-item .gnz-input[type="number"], .gnz-pricing-add-group .gnz-input[type="number"] { flex: 0 1 110px; }
+.gnz-pricing-add-group .gnz-input:nth-child(2) { flex: 1 1 160px; }
+.gnz-pricing-total { display: flex; justify-content: space-between; align-items: center; margin-top: 16px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,.1); font-size: 13px; }
+.gnz-pricing-total strong { color: var(--gnz-gold); font-size: 16px; }
