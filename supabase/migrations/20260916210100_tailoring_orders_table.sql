@@ -49,6 +49,7 @@ grant usage, select on public.tailoring_order_number_seq to authenticated;
 create or replace function private.generate_tailoring_order_number()
 returns trigger
 language plpgsql
+set search_path = public, pg_temp
 as $$
 begin
   if new.order_number is null then
@@ -142,6 +143,7 @@ create or replace function private.audit_label(row_data jsonb)
 returns text
 language plpgsql
 immutable
+set search_path = public, pg_temp
 as $$
 declare
   candidate text;
