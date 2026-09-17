@@ -98,6 +98,11 @@ describe("filtrage de la navigation admin par rôle", () => {
     }
     expect(counts[3]).toBeGreaterThan(counts[0]);
   });
+
+  it("le couturier ne voit QUE « Commandes sur-mesure », rien d'autre — pas même le tableau de bord", () => {
+    const labels = navFor("couturier");
+    expect(labels).toEqual(["Commandes sur-mesure"]);
+  });
 });
 
 describe("accès par URL directe", () => {

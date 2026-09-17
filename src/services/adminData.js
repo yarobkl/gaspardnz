@@ -294,3 +294,76 @@ export async function replaceMediaFile(asset, file) {
   if (error) throw error;
   return data;
 }
+
+// Commandes sur-mesure (mesures Gaspard → couturier). L'accès réel est décidé
+// par les politiques RLS (supabase/migrations/20260916210*.sql) : un couturier
+// ne reçoit jamais que ses propres commandes, quelle que soit la requête
+// envoyée depuis ce fichier.
+export async function listTailoringOrders() {
+  const { data, error } = await supabase
+    .from("tailoring_orders")
+    .select("*")
+    .order("created_at", { ascending: false });
+  if (error) throw error;
+  return data || [];
+}
+
+export async function createTailoringOrder(input) {
+  const { data: user } = await supabase.auth.getUser();
+  const payload = {
+    client_name: input.clientName,
+    client_phone: input.clientPhone || null,
+    client_email: input.clientEmail || null,
+    tailor_email: String(input.tailorEmail || "").trim().toLowerCase() || null,
+    measurements: input.measurements || {},
+    notes: input.notes || null,
+    created_by: user?.user?.email || null,
+  };
+  const { data, error } = await supabase.from("tailoring_orders").insert(payload).select().single();
+  if (error) throw error;
+  return data;
+}
+
+// Réservé au personnel (editor et plus) : modifier les mesures, les
+// coordonnées client ou l'affectation d'une commande déjà créée.
+export async function updateTailoringOrder(id, patch) {
+  const { data, error } = await supabase.from("tailoring_orders").update(patch).eq("id", id).select().single();
+  if (error) throw error;
+  return data;
+}
+
+// Utilisable par le couturier lui-même : la base (trigger
+// private.protect_tailoring_order_fields) ignore silencieusement toute
+// tentative de modifier autre chose que le statut et ses propres notes,
+// même si cette fonction recevait par erreur d'autres champs.
+export async function updateTailoringOrderStatus(id, status, tailorNotes) {
+  const patch = { status };
+  if (tailorNotes !== undefined) patch.tailor_notes = tailorNotes;
+  const { data, error } = await supabase.from("tailoring_orders").update(patch).eq("id", id).select().single();
+  if (error) throw error;
+  return data;
+}
+
+// Liste des couturiers actifs, pour le menu d'affectation d'une commande.
+export async function listTailors() {
+  const { data, error } = await supabase
+    .from("admin_access")
+    .select("id,email,display_name")
+    .eq("role", "couturier")
+    .eq("active", true)
+    .order("display_name");
+  if (error) throw error;
+  return data || [];
+}
+
+// Prévient Gaspard en temps réel dès qu'un couturier fait avancer une
+// commande — les deux comptes sont côte à côte dans leurs bureaux respectifs,
+// pas besoin d'email ni de SMS pour ça.
+export function subscribeTailoringOrders(onChange) {
+  const channel = supabase
+    .channel("gnz-tailoring-orders")
+    .on("postgres_changes", { event: "UPDATE", schema: "public", table: "tailoring_orders" }, onChange)
+    .on("postgres_changes", { event: "INSERT", schema: "public", table: "tailoring_orders" }, onChange)
+    .subscribe();
+  return () => { supabase.removeChannel(channel); };
+}

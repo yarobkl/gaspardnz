@@ -42,6 +42,9 @@ $PSQL -d "$DB" -f "$HERE/04-audit-assertions.sql"
 echo "--- CRM unifié ---"
 $PSQL -d "$DB" -f "$HERE/05-crm-assertions.sql"
 
+echo "--- commandes sur-mesure ---"
+$PSQL -d "$DB" -f "$HERE/06-tailoring-assertions.sql"
+
 echo "--- rollback ---"
 for r in $(ls -r "$ROOT"/supabase/rollback/*.down.sql); do
   echo "  $(basename "$r")"

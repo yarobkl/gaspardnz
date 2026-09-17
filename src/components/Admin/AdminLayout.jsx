@@ -1,5 +1,6 @@
-import { cloneElement, isValidElement, useState } from "react";
+import { cloneElement, isValidElement, useEffect, useRef, useState } from "react";
 import { hasPermission, logout } from "../../services/adminAuth.js";
+import { subscribeTailoringOrders } from "../../services/adminData.js";
 import AdminSEO from "./AdminSEO.jsx";
 import AdminBookings from "./AdminBookings.jsx";
 import AdminEmails from "./AdminEmails.jsx";
@@ -9,6 +10,7 @@ import AdminPromotions from "./AdminPromotions.jsx";
 import AdminStyleMonth from "./AdminStyleMonth.jsx";
 import AdminAlbums from "./AdminAlbums.jsx";
 import AdminTexts from "./AdminTexts.jsx";
+import AdminTailoringOrders from "./AdminTailoringOrders.jsx";
 import "../../styles/admin-v2.css";
 
 // `min` = rôle minimal requis. Ce filtrage est une défense en profondeur, PAS
@@ -36,18 +38,26 @@ const NAV_GROUPS = [
     { id: "vip", label: "Clients VIP", icon: "☆", min: "editor" },
     { id: "wedding", label: "Wedding Inspiration", icon: "♢", min: "editor" },
   ]},
+  // Le couturier est un rôle À PART (rang 0, comme un rôle inconnu) : il ne
+  // satisfait jamais un `min` normal. `alsoFor` lui ouvre CETTE seule entrée,
+  // sans toucher au reste de la hiérarchie owner > admin > editor > viewer.
+  { label: "Atelier", items: [
+    { id: "commandes", label: "Commandes sur-mesure", icon: "✂", min: "editor", alsoFor: ["couturier"] },
+  ]},
   { label: "Administration", items: [
     { id: "users", label: "Utilisateurs", icon: "♙", min: "owner" },
     { id: "settings", label: "Paramètres", icon: "⚙", min: "admin" },
   ]},
 ];
 const allItems = NAV_GROUPS.flatMap((group) => group.items);
-const standalone = new Set(["seo","bookings","emails","content","texts","media","albums","promotions","style"]);
+const standalone = new Set(["seo","bookings","emails","content","texts","media","albums","promotions","style","commandes"]);
 
 const AdminLayout = ({ children, currentSection, onSectionChange, user }) => {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [orderNotice, setOrderNotice] = useState(null);
+  const notifiedOrderIds = useRef(new Set());
   const role = user?.role || user?.permission || null;
-  const allowed = (item) => hasPermission(item.min || "viewer", role);
+  const allowed = (item) => hasPermission(item.min || "viewer", role) || (item.alsoFor || []).includes(role);
   const visibleGroups = NAV_GROUPS
     .map((group) => ({ ...group, items: group.items.filter(allowed) }))
     .filter((group) => group.items.length > 0);
@@ -64,6 +74,22 @@ const AdminLayout = ({ children, currentSection, onSectionChange, user }) => {
   const navigate = (section) => { onSectionChange(section); setMenuOpen(false); };
   const handleLogout = async () => { await logout(); window.location.assign("/admin"); };
 
+  // Prévient Gaspard (et le reste du personnel) dès qu'un couturier valide
+  // une commande — les deux comptes sont côte à côte dans leurs bureaux
+  // respectifs, une notification visible dans l'admin suffit, pas besoin
+  // d'email ni de SMS. Le couturier lui-même n'a pas besoin d'être notifié
+  // de sa propre validation.
+  useEffect(() => {
+    if (role === "couturier" || !hasPermission("editor", role)) return undefined;
+    return subscribeTailoringOrders((payload) => {
+      const order = payload?.new;
+      if (!order || order.status !== "terminee" || notifiedOrderIds.current.has(order.id)) return;
+      notifiedOrderIds.current.add(order.id);
+      setOrderNotice(`Commande ${order.order_number} terminée par le couturier.`);
+      setTimeout(() => setOrderNotice(null), 6000);
+    });
+  }, [role]);
+
   let rendered = sectionRefused ? null : children;
   if (effectiveSection === "seo") rendered = <AdminSEO />;
   else if (effectiveSection === "bookings") rendered = <AdminBookings />;
@@ -74,6 +100,7 @@ const AdminLayout = ({ children, currentSection, onSectionChange, user }) => {
   else if (effectiveSection === "albums") rendered = <AdminAlbums />;
   else if (effectiveSection === "promotions") rendered = <AdminPromotions />;
   else if (effectiveSection === "style") rendered = <AdminStyleMonth />;
+  else if (effectiveSection === "commandes") rendered = <AdminTailoringOrders user={user} />;
   else if (effectiveSection === "dashboard" && isValidElement(children)) rendered = cloneElement(children, { onNavigate: navigate });
   else if (standalone.has(effectiveSection)) rendered = null;
 
@@ -86,6 +113,7 @@ const AdminLayout = ({ children, currentSection, onSectionChange, user }) => {
         <div className="gnz-sidebar-footer"><div className="gnz-user-chip"><strong>{user?.displayName || user?.email || "Administrateur"}</strong><span>{user?.role || user?.permission || "admin"}</span></div><button type="button" className="gnz-secondary-button" style={{ width:"100%" }} onClick={handleLogout}>Se déconnecter</button></div>
       </aside>
       <main className="gnz-admin-main">
+        {orderNotice && <button type="button" className="gnz-toast" style={{ position: "fixed", top: 14, right: 20, bottom: "auto", left: "auto", cursor: "pointer", border: "1px solid var(--gnz-border-strong)" }} onClick={() => { navigate("commandes"); setOrderNotice(null); }}>✂ {orderNotice}</button>}
         <header className="gnz-topbar"><button type="button" className="gnz-icon-button gnz-mobile-menu" onClick={() => setMenuOpen(true)} aria-label="Ouvrir le menu">☰</button><div className="gnz-topbar-title"><strong>{current.label}</strong><span>GaspardNZ · données opérationnelles</span></div><div className="gnz-topbar-actions"><span className="gnz-live-pill"><span className="gnz-live-dot" />Synchronisation active</span></div></header>
         <div className="gnz-admin-content">{sectionRefused ? <div className="gnz-card"><div className="gnz-empty-state">Cette section n'est pas accessible avec votre rôle{role ? ` (${role})` : ""}.</div></div> : rendered || <div className="gnz-card"><div className="gnz-empty-state">Module en cours de chargement.</div></div>}</div>
       </main>
