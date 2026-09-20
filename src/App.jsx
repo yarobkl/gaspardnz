@@ -17,6 +17,7 @@ import NavMobile from "./components/NavMobile.jsx";
 import HeroMobile from "./components/HeroMobile.jsx";
 import useCompactMobile from "./hooks/useCompactMobile.js";
 import MobileHomeCompact from "./components/MobileHomeCompact.jsx";
+import CommunityWhatsAppLink from "./components/CommunityWhatsAppLink.jsx";
 
 import SectionDivider from "./components/ui/SectionDivider.jsx";
 
@@ -729,6 +730,7 @@ export default function App() {
                 <Suspense fallback={null}>
                   <SectionDivider from="#0a0602" to="#f5f0e8" />
                   <ShowroomMobile refEl={showroomRef} onCatalogue={() => openBooking(true)} onGalerie={() => openMobileSection("gallery", galleryRef)} onFlammes={() => openMobileSection("gallery", galleryRef)} />
+                  <CommunityWhatsAppLink />
                   <FooterMobile onFormules={() => openMobileSection("formules", formulesRef)} onGalerie={() => openMobileSection("gallery", galleryRef)} onShowroom={() => scrollTo(showroomRef)} />
                 </Suspense>
               </>

@@ -9,6 +9,7 @@ const defaultSettings = {
   whatsappNumber: `+${WA_NUM}`,
   calendlyUrl: CALENDLY_URL,
   instagramUrl: SOCIAL_LINKS.instagram,
+  whatsappCommunityUrl: "",
   stripePaymentUrl: "",
   paymentLabel: "Payer le lookbook",
   lookbookHidden: false,
