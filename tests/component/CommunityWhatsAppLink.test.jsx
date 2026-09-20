@@ -26,13 +26,14 @@ const setupFake = (socialLinks) => { fake = createFakeSupabaseTables(cloneFixtur
 describe("Raccourci communauté WhatsApp", () => {
   beforeEach(() => setupFake({}));
 
-  it("n'affiche rien tant qu'aucun lien de groupe n'est enregistré", async () => {
+  it("reprend le lien de groupe déjà utilisé par la rubrique Communauté tant que rien n'est enregistré dans l'admin", async () => {
+    const { WA_CHANNEL_URL } = await import("../../src/data/styleDuMoisData.js");
     render(<CommunityWhatsAppLink />);
     await act(async () => { await new Promise((r) => setTimeout(r, 50)); });
-    expect(screen.queryByRole("link")).not.toBeInTheDocument();
+    expect(screen.getByRole("link")).toHaveAttribute("href", WA_CHANNEL_URL);
   });
 
-  it("affiche le lien vers le groupe une fois enregistré dans l'admin", async () => {
+  it("suit un lien différent une fois enregistré dans l'admin", async () => {
     setupFake({ whatsapp_community: "https://chat.whatsapp.com/ABC123groupe" });
     render(<CommunityWhatsAppLink />);
     await waitFor(() => expect(screen.getByRole("link")).toHaveAttribute("href", "https://chat.whatsapp.com/ABC123groupe"));

@@ -2,16 +2,17 @@ import { GOLD } from "../constants.js";
 import { useTr } from "../context.jsx";
 import { useSettings } from "../hooks/useSettings.js";
 import { SvgWhatsapp } from "../icons.jsx";
+import { WA_CHANNEL_URL } from "../data/styleDuMoisData.js";
 
 // Raccourci discret vers le GROUPE WhatsApp communautaire — distinct du
 // numéro de contact 1:1 utilisé partout ailleurs sur le site (booking,
-// formules, chatbot). N'affiche rien tant que Gaspard n'a pas collé son lien
-// d'invitation dans l'admin (Contenu du site → Réseaux sociaux) : jamais de
-// lien factice ou de bouton qui ne mène nulle part.
+// formules, chatbot). Reprend le lien de groupe déjà utilisé par la rubrique
+// "Communauté" par défaut ; un lien collé dans l'admin (Contenu du site →
+// Réseaux sociaux) le remplace si Gaspard veut en changer sans redéploiement.
 const CommunityWhatsAppLink = () => {
   const t = useTr();
   const settings = useSettings();
-  const url = settings.whatsappCommunityUrl?.trim();
+  const url = settings.whatsappCommunityUrl?.trim() || WA_CHANNEL_URL;
   if (!url) return null;
 
   return (
