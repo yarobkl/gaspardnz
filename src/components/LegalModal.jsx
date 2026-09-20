@@ -53,7 +53,7 @@ const LEGAL = {
         label: "Conditions générales de vente",
         sections: [
           ["Vendeur", [`${OWNER} — SIRET ${SIRET} — ${ADRESSE}\nEmail : ${EMAIL} — Tél : ${TEL}`]],
-          ["Services proposés", ["Gaspardnz propose des prestations de conseil en style, d'habillage sur-mesure, de personal shopping et d'accompagnement vestimentaire pour mariages, galas et événements."]],
+          ["Services proposés", ["Gaspardnz propose des prestations de conseil en style, d'habillage sur-mesure et d'accompagnement vestimentaire pour mariages, galas et événements."]],
           ["Commande et réservation", ["Toute réservation est confirmée par échange écrit, email ou WhatsApp. La prestation est considérée comme confirmée après réception d'un acompte de 30 % du montant total."]],
           ["Tarifs", [`Les tarifs sont indiqués en euros TTC. TVA non applicable selon l'article 293 B du CGI. ${OWNER} se réserve le droit de modifier ses tarifs à tout moment, sans effet sur les prestations déjà confirmées.`]],
           ["Paiement", ["Le paiement s'effectue par virement bancaire, PayPal ou en espèces selon accord préalable. Le solde restant est dû au plus tard le jour de la prestation."]],
@@ -94,7 +94,7 @@ const LEGAL = {
         label: "Terms and conditions",
         sections: [
           ["Seller", [`${OWNER} — SIRET ${SIRET} — ${ADRESSE}\nEmail: ${EMAIL} — Phone: ${TEL}`]],
-          ["Services offered", ["Gaspardnz provides style consulting, bespoke dressing, personal shopping and styling support for weddings, galas and events."]],
+          ["Services offered", ["Gaspardnz provides style consulting, bespoke dressing and styling support for weddings, galas and events."]],
           ["Order and booking", ["Any booking is confirmed by written exchange, email or WhatsApp. The service is considered confirmed after receipt of a 30% deposit."]],
           ["Prices", [`Prices are indicated in euros including tax. VAT is not applicable under article 293 B of the French Tax Code. ${OWNER} may change prices at any time, without affecting already confirmed services.`]],
           ["Payment", ["Payment is made by bank transfer, PayPal or cash by prior agreement. The remaining balance is due no later than the day of the service."]],
@@ -142,7 +142,7 @@ LEGAL.ES.pages.confidentialite.sections = [
 ];
 LEGAL.ES.pages.cgv.sections = [
   ["Vendedor", [`${OWNER} — SIRET ${SIRET} — ${ADRESSE}\nEmail: ${EMAIL} — Tel: ${TEL}`]],
-  ["Servicios propuestos", ["Gaspardnz ofrece asesoría de estilo, vestimenta a medida, personal shopping y acompañamiento para bodas, galas y eventos."]],
+  ["Servicios propuestos", ["Gaspardnz ofrece asesoría de estilo, vestimenta a medida y acompañamiento para bodas, galas y eventos."]],
   ["Pedido y reserva", ["Toda reserva se confirma por escrito, email o WhatsApp. La prestación se considera confirmada tras recibir un depósito del 30 %."]],
   ["Precios", [`Los precios están indicados en euros con impuestos incluidos. IVA no aplicable según el artículo 293 B del CGI. ${OWNER} puede modificar sus tarifas sin afectar prestaciones ya confirmadas.`]],
   ["Pago", ["El pago se realiza por transferencia bancaria, PayPal o efectivo según acuerdo previo. El saldo restante vence como máximo el día de la prestación."]],
@@ -169,7 +169,7 @@ LEGAL.ZH.pages.confidentialite.sections = [
 ];
 LEGAL.ZH.pages.cgv.sections = [
   ["卖方", [`${OWNER} — SIRET ${SIRET} — ${ADRESSE}\n邮箱：${EMAIL} — 电话：${TEL}`]],
-  ["服务内容", ["Gaspardnz 提供风格咨询、定制着装、私人购物和婚礼、晚会及活动造型陪同服务。"]],
+  ["服务内容", ["Gaspardnz 提供风格咨询、定制着装和婚礼、晚会及活动造型陪同服务。"]],
   ["订单与预约", ["所有预约均通过书面交流、邮件或 WhatsApp 确认。收到总金额 30% 定金后，服务视为确认。"]],
   ["价格", [`价格以欧元含税标示。根据法国税法第 293 B 条，增值税不适用。${OWNER} 可随时调整价格，但不影响已确认服务。`]],
   ["付款", ["付款可通过银行转账、PayPal 或经事先同意的现金方式完成。余款最迟于服务当天支付。"]],
