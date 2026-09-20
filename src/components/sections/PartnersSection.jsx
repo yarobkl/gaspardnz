@@ -8,6 +8,18 @@ import PartnersContactModal from "../PartnersContactModal.jsx";
 
 const SHOW_PARTNER_DISCOUNT_BADGE = false;
 
+// Monogramme pour une catégorie "à venir" (pas encore de vrai partenaire) :
+// un sigle plutôt qu'un "?", moins anxiogène et lisible d'un coup d'œil.
+// Un mot déjà écrit en sigle (ex. "DJ") est repris tel quel plutôt que
+// réduit à sa première lettre.
+const categoryInitials = (label = "") => {
+  const words = label.split(/[\s/&]+/).filter((w) => /[A-Za-zÀ-ÿ]/.test(w));
+  if (!words.length) return "—";
+  const acronym = words.find((w) => w.length <= 3 && w === w.toUpperCase());
+  if (acronym) return acronym;
+  return words.slice(0, 2).map((w) => w[0]).join("").toUpperCase();
+};
+
 const mapRemotePartner = (partner) => ({
   id: partner.slug || partner.id,
   name: partner.name,
@@ -105,8 +117,8 @@ const PartnersSection = ({ refEl, compact = false, onShowAll }) => {
                     <img src={partner.logo} alt={partner.name} loading="lazy" decoding="async" style={{ maxHeight: "100%", maxWidth: "100%", objectFit: "contain" }} />
                   </div>
                 ) : (
-                  <div style={{ height: compact ? "58px" : "100px", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: compact ? ".8rem" : "1.5rem", background: "rgba(184,151,62,0.1)", borderRadius: "4px", color: GOLD, fontFamily: "'Montserrat', sans-serif", fontSize: compact ? "18px" : "24px", opacity: partner.placeholder ? 0.5 : 1 }}>
-                    {partner.placeholder ? "?" : "GNZ"}
+                  <div style={{ height: compact ? "58px" : "100px", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: compact ? ".8rem" : "1.5rem", background: "rgba(184,151,62,0.1)", borderRadius: "4px", color: GOLD, fontFamily: "'Montserrat', sans-serif", fontSize: compact ? "18px" : "24px", letterSpacing: partner.placeholder ? "0.08em" : 0, opacity: partner.placeholder ? 0.6 : 1 }}>
+                    {partner.placeholder ? categoryInitials(getPartnerText(partner, "category", "")) : "GNZ"}
                   </div>
                 )}
 
