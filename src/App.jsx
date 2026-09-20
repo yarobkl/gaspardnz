@@ -52,6 +52,39 @@ const FONTS_CSS = "";
 const SPLASH_MAX_MS = 700;
 const ADMIN_SECTIONS = ["dashboard", "analytics", "crm", "vip", "users", "wedding", "settings"];
 const isAdminRoute = () => typeof window !== "undefined" && window.location.pathname.startsWith("/admin");
+
+// Repli d'une rubrique mobile pendant que son code se charge (premier clic
+// de la session sur cette rubrique). Avant, une seule frontière Suspense
+// couvrait toute la page : ouvrir UNE rubrique faisait disparaître la grille
+// "Explorer l'univers", le pied de page et le chatbot le temps du
+// téléchargement, pas seulement le contenu concerné.
+const SectionFallback = () => (
+  <div style={{ minHeight: "46vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#0a0602" }}>
+    <div className="gnz-section-spinner" aria-hidden="true" />
+  </div>
+);
+
+// Fait défiler vers une rubrique mobile une fois sa mise en page stable —
+// pas à un délai fixe deviné à l'avance. Une rubrique ouverte pour la
+// première fois charge son code en différé (import lazy) : un scroll lancé
+// trop tôt vise un espace encore vide, et un second scroll concurrent lancé
+// "au cas où" annule le premier en plein vol (defilement saccadé, l'ouverture
+// d'une rubrique n'était pas fluide). On attend deux images consécutives où
+// la position de la cible n'a pas bougé avant de lancer UN SEUL scroll fluide.
+const scrollToStableTarget = (id, attempt = 0, lastTop = null) => {
+  if (typeof window === "undefined") return;
+  const el = document.getElementById(id);
+  if (!el) {
+    if (attempt < 40) window.requestAnimationFrame(() => scrollToStableTarget(id, attempt + 1, lastTop));
+    return;
+  }
+  const top = el.getBoundingClientRect().top;
+  if (lastTop !== null && Math.abs(top - lastTop) < 1) {
+    window.scrollTo({ top: Math.max(0, top + window.scrollY - 68), behavior: "smooth" });
+    return;
+  }
+  if (attempt < 40) window.requestAnimationFrame(() => scrollToStableTarget(id, attempt + 1, top));
+};
 const getAdminSectionFromPath = () => {
   if (typeof window === "undefined") return "dashboard";
   const section = window.location.pathname.split("/").filter(Boolean)[1];
@@ -549,10 +582,7 @@ export default function App() {
   const scrollTo = (ref) => { ref?.current?.scrollIntoView({ behavior: "smooth", block: "start" }); };
   const handleMobileSectionSelect = (key) => {
     setMobileSection(key);
-    if (!key) return;
-    window.setTimeout(() => {
-      document.getElementById("gnz-mobile-active-section")?.scrollIntoView({ behavior: "smooth", block: "start" });
-    }, 80);
+    window.requestAnimationFrame(() => scrollToStableTarget(key ? "gnz-mobile-active-section" : "gnz-mobile-home"));
   };
   const openMobileSection = (key, ref) => {
     if (!isCompactMobile) {
@@ -595,6 +625,8 @@ export default function App() {
         ${lightMode ? `
           [data-gnz-mode="light"] section { filter: brightness(1.18) saturate(0.82); }
         ` : ""}
+        @keyframes gnz-spin { to { transform: rotate(360deg); } }
+        .gnz-section-spinner { width: 32px; height: 32px; border-radius: 50%; border: 2px solid rgba(184,151,62,.25); border-top-color: ${GOLD}; animation: gnz-spin .8s linear infinite; }
       `}</style>
 
       <AnimatePresence mode="wait">
@@ -662,39 +694,46 @@ export default function App() {
             />
 
             <HeroMobile onScrollDown={() => isCompactMobile ? document.getElementById("gnz-mobile-home")?.scrollIntoView({ behavior: "smooth", block: "start" }) : scrollTo(heritageRef)} />
-            <Suspense fallback={null}>
             {isCompactMobile ? (
               <>
                 <MobileHomeCompact activeSection={mobileSection} onSelect={handleMobileSectionSelect} />
 
+                {/* Frontière Suspense dédiée à la rubrique ouverte : le premier
+                    chargement d'une rubrique (import différé) ne fait plus
+                    disparaître la grille au-dessus ni le pied de page en dessous,
+                    seulement ce bloc affiche un repli le temps du téléchargement. */}
                 {mobileSection && (
                   <div id="gnz-mobile-active-section">
-                    {mobileSection === "heritage" && (
-                      <>
-                        <AboutSection />
-                        <SectionDivider from="#1c1208" to="#f5f0e8" />
-                        <HeritageMobile refEl={heritageRef} />
-                      </>
-                    )}
-                    {mobileSection === "journal" && <div ref={styleJournalRef}><StyleJournalSection /></div>}
-                    {mobileSection === "gallery" && <GalleryMobile refEl={galleryRef} />}
-                    {mobileSection === "video" && <div ref={videoRef}><VideoSection /></div>}
-                    {mobileSection === "wedding" && <WeddingInspirationSection refEl={weddingRef} />}
-                    {mobileSection === "formules" && <FormulesSection refEl={formulesRef} onContact={() => window.open(`https://wa.me/33664826920?text=${encodeURIComponent((APP_COPY[lang] || APP_COPY.FR).waFormula)}`, "_blank")} />}
-                    {mobileSection === "partners" && <PartnersSection refEl={partenairesRef} />}
-                    {mobileSection === "news" && <div ref={actualitesRef}><ActualitesSection /></div>}
-                    {mobileSection === "vip" && <div ref={vipRef}><VIPClientsSection /></div>}
-                    {mobileSection === "styleMonth" && <StyleDuMoisSection refEl={styleDuMoisRef} />}
-                    {mobileSection === "community" && <div ref={communauteRef}><CommunauteSection /></div>}
+                    <Suspense fallback={<SectionFallback />}>
+                      {mobileSection === "heritage" && (
+                        <>
+                          <AboutSection />
+                          <SectionDivider from="#1c1208" to="#f5f0e8" />
+                          <HeritageMobile refEl={heritageRef} />
+                        </>
+                      )}
+                      {mobileSection === "journal" && <div ref={styleJournalRef}><StyleJournalSection /></div>}
+                      {mobileSection === "gallery" && <GalleryMobile refEl={galleryRef} />}
+                      {mobileSection === "video" && <div ref={videoRef}><VideoSection /></div>}
+                      {mobileSection === "wedding" && <WeddingInspirationSection refEl={weddingRef} />}
+                      {mobileSection === "formules" && <FormulesSection refEl={formulesRef} onContact={() => window.open(`https://wa.me/33664826920?text=${encodeURIComponent((APP_COPY[lang] || APP_COPY.FR).waFormula)}`, "_blank")} />}
+                      {mobileSection === "partners" && <PartnersSection refEl={partenairesRef} />}
+                      {mobileSection === "news" && <div ref={actualitesRef}><ActualitesSection /></div>}
+                      {mobileSection === "vip" && <div ref={vipRef}><VIPClientsSection /></div>}
+                      {mobileSection === "styleMonth" && <StyleDuMoisSection refEl={styleDuMoisRef} />}
+                      {mobileSection === "community" && <div ref={communauteRef}><CommunauteSection /></div>}
+                    </Suspense>
                   </div>
                 )}
 
-                <SectionDivider from="#0a0602" to="#f5f0e8" />
-                <ShowroomMobile refEl={showroomRef} onCatalogue={() => openBooking(true)} onGalerie={() => openMobileSection("gallery", galleryRef)} onFlammes={() => openMobileSection("gallery", galleryRef)} />
-                <FooterMobile onFormules={() => openMobileSection("formules", formulesRef)} onGalerie={() => openMobileSection("gallery", galleryRef)} onShowroom={() => scrollTo(showroomRef)} />
+                <Suspense fallback={null}>
+                  <SectionDivider from="#0a0602" to="#f5f0e8" />
+                  <ShowroomMobile refEl={showroomRef} onCatalogue={() => openBooking(true)} onGalerie={() => openMobileSection("gallery", galleryRef)} onFlammes={() => openMobileSection("gallery", galleryRef)} />
+                  <FooterMobile onFormules={() => openMobileSection("formules", formulesRef)} onGalerie={() => openMobileSection("gallery", galleryRef)} onShowroom={() => scrollTo(showroomRef)} />
+                </Suspense>
               </>
             ) : (
-              <>
+              <Suspense fallback={null}>
                 <AboutSection />
                 <SectionDivider from="#1c1208" to="#f5f0e8" />
                 <HeritageMobile refEl={heritageRef} />
@@ -720,10 +759,11 @@ export default function App() {
                 <StyleDuMoisSection refEl={styleDuMoisRef} />
                 <div ref={communauteRef}><CommunauteSection /></div>
                 <FooterMobile onFormules={() => scrollTo(formulesRef)} onGalerie={() => scrollTo(galleryRef)} onShowroom={() => scrollTo(showroomRef)} />
-              </>
+              </Suspense>
             )}
-            <BookingModal isOpen={bookingOpen} onClose={() => setBookingOpen(false)} boutiqueMode={boutiqueMode} onSwitchToBooking={() => setBoutiqueMode(false)} />
-            <ChatBot onReserver={() => openBooking(false)} onGalerie={() => openMobileSection("gallery", galleryRef)} onShowroom={() => scrollTo(showroomRef)} onFormules={() => openMobileSection("formules", formulesRef)} />
+            <Suspense fallback={null}>
+              <BookingModal isOpen={bookingOpen} onClose={() => setBookingOpen(false)} boutiqueMode={boutiqueMode} onSwitchToBooking={() => setBoutiqueMode(false)} />
+              <ChatBot onReserver={() => openBooking(false)} onGalerie={() => openMobileSection("gallery", galleryRef)} onShowroom={() => scrollTo(showroomRef)} onFormules={() => openMobileSection("formules", formulesRef)} />
             </Suspense>
           </div>
         )

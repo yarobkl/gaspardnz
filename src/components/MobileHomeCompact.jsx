@@ -78,51 +78,16 @@ const COPY = {
 
 const ORDER = ["formules", "gallery", "wedding", "styleMonth", "journal", "heritage", "video", "news", "partners", "vip", "community"];
 
-const scrollToActiveSection = (attempt = 0) => {
-  if (typeof window === "undefined") return;
-  const target = document.getElementById("gnz-mobile-active-section");
-  if (target) {
-    const top = target.getBoundingClientRect().top + window.scrollY - 68;
-    window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
-    return;
-  }
-  if (attempt < 12) {
-    window.setTimeout(() => scrollToActiveSection(attempt + 1), 60);
-  }
-};
-
-const scrollToExplorer = (attempt = 0) => {
-  if (typeof window === "undefined") return;
-  const target = document.getElementById("gnz-mobile-home");
-  if (target) {
-    const top = target.getBoundingClientRect().top + window.scrollY - 68;
-    window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
-    return;
-  }
-  if (attempt < 12) {
-    window.setTimeout(() => scrollToExplorer(attempt + 1), 60);
-  }
-};
-
 export default function MobileHomeCompact({ activeSection, onSelect }) {
   const { lang } = useContext(LangCtx);
   const copy = COPY[lang] || COPY.FR;
 
-  const openSection = (key) => {
-    onSelect(key);
-    window.requestAnimationFrame(() => {
-      scrollToActiveSection();
-      window.setTimeout(() => scrollToActiveSection(), 260);
-    });
-  };
-
-  const closeSection = () => {
-    onSelect(null);
-    window.requestAnimationFrame(() => {
-      scrollToExplorer();
-      window.setTimeout(() => scrollToExplorer(), 220);
-    });
-  };
+  // Le défilement (attendre que la rubrique soit réellement montée avant de
+  // lancer un seul scroll fluide) est géré une fois pour toutes par
+  // App.jsx/handleMobileSectionSelect — le dupliquer ici les faisait
+  // concurrencer, ce qui rendait l'ouverture saccadée.
+  const openSection = (key) => onSelect(key);
+  const closeSection = () => onSelect(null);
 
   return (
     <>
