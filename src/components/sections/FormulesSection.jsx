@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence, useInView } from "framer-motion";
 import { GOLD, CREAM } from "../../constants.js";
-import { SvgArrow } from "../../icons.jsx";
+import { SvgArrow, SvgLock } from "../../icons.jsx";
 import { useTr } from "../../context.jsx";
 import { useSettings } from "../../hooks/useSettings.js";
 import { listPackagesWithBreakdown, subscribePackagePricing, sumGroupItems, sumPackageTotal } from "../../services/packagePricing.js";
@@ -110,21 +110,12 @@ const FormulesSection = ({ refEl, onContact }) => {
           <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.4em", color: GOLD, textTransform: "uppercase", marginBottom: "1rem" }}>GASPARDNZ · 2025</p>
           <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(1.6rem, 7vw, 2.2rem)", fontWeight: 300, color: CREAM, letterSpacing: "0.02em", margin: "0 0 0.6rem" }}>{t("lookbook_title")}</h3>
           <p style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: "italic", fontSize: "0.9rem", color: "rgba(245,240,232,0.62)", marginBottom: "1.6rem" }}>{t("lookbook_desc")}</p>
-          {/* Le paiement Stripe est mis de côté pour l'instant : le lookbook
-              se télécharge gratuitement dès qu'un PDF est déposé dans l'admin
-              (Contenu du site → Général → Fichier du lookbook). Rien n'est
-              perdu côté Stripe — la bascule vers un lookbook payant se refera
-              ici plus tard sans redéploiement.
-              Le PDF est sur un autre domaine (Supabase Storage) : un simple
-              <a download> y navigue au lieu de télécharger. On le récupère
-              donc en mémoire (blob) pour proposer le téléchargement sans
-              jamais quitter la page. */}
-          {settings.lookbookPdfUrl?.trim() && !settings.lookbookHidden
-            ? <>
-                <button type="button" onClick={handleLookbookDownload} disabled={lookbookDownload === "busy"} data-track="lookbook_download" style={{ display: "inline-flex", alignItems: "center", gap: "10px", background: GOLD, color: "#0d1b3e", border: "none", cursor: lookbookDownload === "busy" ? "wait" : "pointer", padding: "1rem 2.2rem", fontFamily: "'Montserrat', sans-serif", fontSize: "11px", letterSpacing: "0.4em", textTransform: "uppercase", fontWeight: 700 }}>{lookbookDownload === "busy" ? t("lookbook_download_loading") : t("lookbook_download")}</button>
-                {lookbookDownload === "error" && <p style={{ marginTop: "0.8rem", color: "#e39a9a", fontFamily: "'Montserrat', sans-serif", fontSize: "11px" }}>{t("lookbook_download_error")}</p>}
-              </>
-            : <span aria-disabled="true" style={{ display: "inline-flex", alignItems: "center", gap: "10px", border: "1px solid rgba(245,240,232,0.22)", color: "rgba(245,240,232,0.5)", padding: "1rem 2.2rem", fontFamily: "'Montserrat', sans-serif", fontSize: "11px", letterSpacing: "0.4em", textTransform: "uppercase", fontWeight: 700 }}>{settings.lookbookHiddenMessage?.trim() || t("lookbook_soon")}</span>}
+          {/* Téléchargement gratuit temporairement désactivé (le PDF et la
+              logique de téléchargement en place restent prêts — cf.
+              handleLookbookDownload / downloadFile — pour une réactivation
+              rapide, il suffira de retirer ce `disabled`). */}
+          <button type="button" onClick={handleLookbookDownload} disabled aria-disabled="true" data-track="lookbook_download" style={{ display: "inline-flex", alignItems: "center", gap: "10px", background: GOLD, color: "#0d1b3e", border: "none", opacity: 0.45, cursor: "not-allowed", padding: "1rem 2.2rem", fontFamily: "'Montserrat', sans-serif", fontSize: "11px", letterSpacing: "0.4em", textTransform: "uppercase", fontWeight: 700 }}>{t("lookbook_download")}</button>
+          <p style={{ marginTop: "0.9rem", display: "flex", alignItems: "center", justifyContent: "center", gap: "7px", color: "rgba(245,240,232,0.55)", fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.25em", textTransform: "uppercase" }}><SvgLock size={12} />{settings.lookbookHiddenMessage?.trim() || t("lookbook_soon")}</p>
         </motion.div>
       </div>
     </section>
