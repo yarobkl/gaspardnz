@@ -13,6 +13,7 @@ create or replace function private.audit_is_sensitive(column_name text)
 returns boolean
 language sql
 immutable
+set search_path = public, pg_temp
 as $$
   select lower(column_name) ~ '(password|passwd|secret|token|api_key|apikey|private_key|credential|authorization|session|otp|hash|salt|signature|smtp)';
 $$;
@@ -42,6 +43,7 @@ create or replace function private.audit_changed_columns(before_data jsonb, afte
 returns text
 language sql
 immutable
+set search_path = public, pg_temp
 as $$
   select nullif(string_agg(key, ', ' order by key), '')
   from jsonb_each(after_data)
@@ -102,6 +104,7 @@ end $$;
 create or replace function private.audit_log_append_only()
 returns trigger
 language plpgsql
+set search_path = public, pg_temp
 as $$
 begin
   raise exception 'activity_log est en ajout seul : % interdit', tg_op

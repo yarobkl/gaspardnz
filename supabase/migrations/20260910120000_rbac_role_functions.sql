@@ -17,6 +17,7 @@ create or replace function private.admin_role_rank(role_name text)
 returns integer
 language sql
 immutable
+set search_path = public, pg_temp
 as $$
   select case lower(coalesce(role_name, ''))
            when 'owner'  then 4
@@ -50,6 +51,7 @@ create or replace function private.has_admin_role(min_role text)
 returns boolean
 language sql
 stable
+set search_path = public, pg_temp
 as $$
   with ranks as (
     select

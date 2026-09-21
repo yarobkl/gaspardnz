@@ -73,6 +73,7 @@ end $$;
 create or replace function private.normalize_admin_email()
 returns trigger
 language plpgsql
+set search_path = public, pg_temp
 as $$
 begin
   new.email := lower(trim(new.email));
