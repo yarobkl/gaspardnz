@@ -5,7 +5,6 @@ import { SvgArrow } from "../../icons.jsx";
 import { useTr } from "../../context.jsx";
 import { useSettings } from "../../hooks/useSettings.js";
 import { listPackagesWithBreakdown, subscribePackagePricing, sumGroupItems, sumPackageTotal } from "../../services/packagePricing.js";
-import { LOOKBOOK_PRICE_EUR, openLookbookCheckout } from "../../utils/lookbookCheckout.js";
 
 // Les formules (menus, articles, prix) viennent entièrement de Supabase —
 // plus rien n'est codé en dur ici. Gaspard peut créer, modifier ou retirer
@@ -99,13 +98,13 @@ const FormulesSection = ({ refEl, onContact }) => {
           <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.4em", color: GOLD, textTransform: "uppercase", marginBottom: "1rem" }}>GASPARDNZ · 2025</p>
           <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(1.6rem, 7vw, 2.2rem)", fontWeight: 300, color: CREAM, letterSpacing: "0.02em", margin: "0 0 0.6rem" }}>{t("lookbook_title")}</h3>
           <p style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: "italic", fontSize: "0.9rem", color: "rgba(245,240,232,0.62)", marginBottom: "1.6rem" }}>{t("lookbook_desc")}</p>
-          {settings.stripePaymentUrl?.trim() && !settings.lookbookHidden
-            ? <button type="button" onClick={() => openLookbookCheckout(settings)} style={{ display: "inline-flex", alignItems: "center", gap: "10px", background: GOLD, color: "#0d1b3e", border: "none", cursor: "pointer", padding: "1rem 2.2rem", textDecoration: "none", fontFamily: "'Montserrat', sans-serif", fontSize: "11px", letterSpacing: "0.4em", textTransform: "uppercase", fontWeight: 700 }}>{settings.paymentLabel || "Acheter le lookbook"} · {LOOKBOOK_PRICE_EUR}€</button>
-            /* Bouton absent dans deux cas : aucun lien Stripe enregistré, ou
-               retiré volontairement par Gaspard (case « Masquer le bouton »,
-               qui laisse le lien Stripe intact). Dès que l'un des deux
-               redevient favorable, le bouton réapparaît automatiquement —
-               rien à republier, la donnée est lue en direct depuis Supabase. */
+          {/* Le paiement Stripe est mis de côté pour l'instant : le lookbook
+              se télécharge gratuitement dès qu'un PDF est déposé dans l'admin
+              (Contenu du site → Général → Fichier du lookbook). Rien n'est
+              perdu côté Stripe — la bascule vers un lookbook payant se refera
+              ici plus tard sans redéploiement. */}
+          {settings.lookbookPdfUrl?.trim() && !settings.lookbookHidden
+            ? <a href={settings.lookbookPdfUrl} download target="_blank" rel="noopener noreferrer" data-track="lookbook_download" style={{ display: "inline-flex", alignItems: "center", gap: "10px", background: GOLD, color: "#0d1b3e", border: "none", cursor: "pointer", padding: "1rem 2.2rem", textDecoration: "none", fontFamily: "'Montserrat', sans-serif", fontSize: "11px", letterSpacing: "0.4em", textTransform: "uppercase", fontWeight: 700 }}>{t("lookbook_download")}</a>
             : <span aria-disabled="true" style={{ display: "inline-flex", alignItems: "center", gap: "10px", border: "1px solid rgba(245,240,232,0.22)", color: "rgba(245,240,232,0.5)", padding: "1rem 2.2rem", fontFamily: "'Montserrat', sans-serif", fontSize: "11px", letterSpacing: "0.4em", textTransform: "uppercase", fontWeight: 700 }}>{settings.lookbookHiddenMessage?.trim() || t("lookbook_soon")}</span>}
         </motion.div>
       </div>

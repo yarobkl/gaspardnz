@@ -15,6 +15,7 @@ const defaultSettings = {
   paymentLabel: "Payer le lookbook",
   lookbookHidden: false,
   lookbookHiddenMessage: "",
+  lookbookPdfUrl: "",
   maisonAddress: "Paris, France",
   formulaPrices: {
     formule1: 1447,

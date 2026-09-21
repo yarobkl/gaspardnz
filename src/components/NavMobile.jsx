@@ -4,7 +4,6 @@ import { GOLD, CREAM, SOCIAL_LINKS, TEXT } from "../constants.js";
 import { LangCtx, useTr } from "../context.jsx";
 import { SvgFacebook, SvgInstagram, SvgTiktok, SvgYoutube, SvgBag } from "../icons.jsx";
 import { useSettings } from "../hooks/useSettings.js";
-import { LOOKBOOK_PRICE_EUR, openLookbookCheckout } from "../utils/lookbookCheckout.js";
 
 const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules, highContrast, onToggleContrast, onBiographie, onReserver, lightMode, onToggleDark, onStyleDuMois, onPartenaires, onStyleJournal, onVideo, onWedding, onActualites, onVIP, onCommunaute }) => {
   const { lang, setLang } = useContext(LangCtx);
@@ -214,7 +213,7 @@ const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules, 
               [t("nav_showroom"), onShowroom],
               [t("style_month"), onStyleDuMois],
               ["Communauté", onCommunaute],
-              [t("lookbook"), (settings.stripePaymentUrl?.trim() && !settings.lookbookHidden) ? () => openLookbookCheckout(settings) : null],
+              [t("lookbook"), (settings.lookbookPdfUrl?.trim() && !settings.lookbookHidden) ? () => window.open(settings.lookbookPdfUrl, "_blank", "noopener,noreferrer") : null],
             ].map(([label, fn], i) => (
               <motion.button key={label}
                 initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }}
@@ -224,11 +223,11 @@ const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules, 
                 aria-disabled={label === t("lookbook") && !fn ? "true" : undefined}
                 style={{ display: "block", width: "100%", background: "none", border: "none", textAlign: "left", cursor: label === t("lookbook") && !fn ? "default" : "pointer", padding: "1.1rem 0", fontFamily: "'Cormorant Garamond', serif", fontSize: "1.8rem", letterSpacing: "0.08em", color: label === t("lookbook") ? (fn ? GOLD : "rgba(28,18,8,0.35)") : TEXT, borderBottom: "1px solid rgba(28,18,8,0.07)" }}
               >
-                {/* Sans lien Stripe enregistré, l'entrée reste visible mais non
-                    cliquable : « À venir » à la place du prix. Réapparaît seule
-                    dès qu'un lien est collé dans l'admin (Contenu du site →
-                    Liens & paiement). */}
-                {label}{label === t("lookbook") && <span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "9px", letterSpacing: "0.3em", marginLeft: "10px", opacity: 0.7 }}>{fn ? `${LOOKBOOK_PRICE_EUR}€ · Stripe` : (settings.lookbookHiddenMessage?.trim() || t("lookbook_soon"))}</span>}
+                {/* Sans PDF déposé, l'entrée reste visible mais non cliquable :
+                    « À venir » à la place du prix. Réapparaît seule dès qu'un
+                    fichier est déposé dans l'admin (Contenu du site →
+                    Général → Fichier du lookbook). */}
+                {label}{label === t("lookbook") && <span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "9px", letterSpacing: "0.3em", marginLeft: "10px", opacity: 0.7 }}>{fn ? t("lookbook_download") : (settings.lookbookHiddenMessage?.trim() || t("lookbook_soon"))}</span>}
               </motion.button>
             ))}
 

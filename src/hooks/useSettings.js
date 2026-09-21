@@ -31,6 +31,7 @@ async function loadRemoteSettings(base) {
   const social = map.social_links || {};
   const payment = map.payment || {};
   const brand = map.brand || {};
+  const lookbook = map.lookbook || {};
   const formulaPrices = { ...(base.formulaPrices || {}) };
   for (const row of packagesRes.data || []) {
     const key = packageKey(row);
@@ -75,6 +76,7 @@ async function loadRemoteSettings(base) {
     // bouton de vente sans effacer le lien enregistré.
     lookbookHidden: Boolean(payment.lookbook_hidden),
     lookbookHiddenMessage: payment.lookbook_hidden_message || base.lookbookHiddenMessage || "",
+    lookbookPdfUrl: lookbook.pdf_url || base.lookbookPdfUrl || "",
     formulaPrices,
     vipClients: vipClients.length ? vipClients : base.vipClients,
     weddingInspirations: weddingInspirations.length ? weddingInspirations : base.weddingInspirations,

@@ -37,3 +37,23 @@ describe("Formules — repli si aucune donnée ne charge", () => {
     expect(screen.queryByText(/momentanément indisponibles/)).not.toBeInTheDocument();
   });
 });
+
+describe("Formules — lookbook gratuit (Stripe mis de côté)", () => {
+  it("propose un téléchargement gratuit dès qu'un PDF est déposé, sans passer par Stripe", async () => {
+    fake = createFakeSupabaseTables({
+      packages: [],
+      site_settings: [{ key: "lookbook", value: { pdf_url: "https://example.test/lookbook.pdf", pdf_filename: "lookbook.pdf" }, is_public: true }],
+    });
+    render(<FormulesSection onContact={() => {}} />);
+    const link = await screen.findByRole("link", { name: "Télécharger gratuitement" });
+    expect(link).toHaveAttribute("href", "https://example.test/lookbook.pdf");
+    expect(screen.queryByText("À venir")).not.toBeInTheDocument();
+  });
+
+  it("affiche « À venir » tant qu'aucun PDF n'est déposé", async () => {
+    fake = createFakeSupabaseTables({ packages: [], site_settings: [] });
+    render(<FormulesSection onContact={() => {}} />);
+    expect(await screen.findByText("À venir")).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Télécharger gratuitement" })).not.toBeInTheDocument();
+  });
+});
