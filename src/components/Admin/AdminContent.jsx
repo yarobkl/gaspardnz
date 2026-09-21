@@ -175,4 +175,49 @@ export function PartnerFields({ form, setForm, categories = [] }) {
           </select>}
         </label>
         <label className="gnz-field">Description<textarea className="gnz-textarea" value={form.description || ""} onChange={(e) => setForm({...form,description:e.target.value})}/></label><MediaUploadField label="Logo" value={form.logo_url} onChange={(url) => setForm({...form,logo_url:url})} uploadSection="partners" />{form.id && <PartnerPhotosManager partnerId={form.id} partnerName={form.name} />}<label className="gnz-field">Site web<input className="gnz-input" value={form.website_url || ""} onChange={(e) => setForm({...form,website_url:e.target.value})}/></label><label className="gnz-field">Email<input className="gnz-input" type="email" value={form.email || ""} onChange={(e) => setForm({...form,email:e.target.value})}/></label><label className="gnz-field">Téléphone<input className="gnz-input" value={form.phone || ""} onChange={(e) => setForm({...form,phone:e.target.value})}/></label><label className="gnz-field">Adresse<input className="gnz-input" value={form.address || ""} onChange={(e) => setForm({...form,address:e.target.value})}/></label><div className="gnz-section-grid" style={{marginTop:0}}><label className="gnz-field gnz-col-6">Commission %<input className="gnz-input" type="number" step="0.1" value={form.commission_percent ?? ""} onChange={(e) => setForm({...form,commission_percent:e.target.value})}/></label><label className="gnz-field gnz-col-6">Remise client %<input className="gnz-input" type="number" step="0.1" value={form.client_discount_percent ?? ""} onChange={(e) => setForm({...form,client_discount_percent:e.target.value})}/></label></div><label className="gnz-field">Statut<select className="gnz-select" value={form.status || "active"} onChange={(e) => setForm({...form,status:e.target.value})}><option value="active">Actif</option><option value="coming_soon">À venir</option><option value="inactive">Inactif</option></select></label><label className="gnz-checkbox"><input type="checkbox" checked={Boolean(form.featured)} onChange={(e) => setForm({...form,featured:e.target.checked})}/>Mettre en avant</label><label className="gnz-checkbox"><input type="checkbox" checked={Boolean(form.published)} onChange={(e) => setForm({...form,published:e.target.checked})}/>Visible sur le site</label></>; }
-function NewsFields({ form, setForm }) { return <><label className="gnz-field">Titre<input className="gnz-input" value={form.title || ""} onChange={(e) => setForm({...form,title:e.target.value})} required/></label><label className="gnz-field">Résumé<textarea className="gnz-textarea" value={form.excerpt || ""} onChange={(e) => setForm({...form,excerpt:e.target.value})}/></label><label className="gnz-field">Article<textarea className="gnz-textarea" style={{minHeight:180}} value={form.body || ""} onChange={(e) => setForm({...form,body:e.target.value})}/></label><label className="gnz-field">Image de couverture (URL)<input className="gnz-input" value={form.cover_url || ""} onChange={(e) => setForm({...form,cover_url:e.target.value})}/></label><label className="gnz-field">Langue<select className="gnz-select" value={form.locale || "FR"} onChange={(e) => setForm({...form,locale:e.target.value})}><option>FR</option><option>EN</option><option>ES</option><option>ZH</option></select></label><label className="gnz-checkbox"><input type="checkbox" checked={Boolean(form.published)} onChange={(e) => setForm({...form,published:e.target.checked})}/>Publier l'actualité</label></>; }
+function NewsFields({ form, setForm }) {
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+
+  // La galerie (plusieurs photos d'un même événement) n'a, contrairement à
+  // l'image de couverture, jamais eu de champ dédié — seul le site public
+  // savait déjà la lire (ActualitesSection). On ajoute ici l'import direct,
+  // sur le même principe que la galerie des partenaires.
+  const addPhotos = async (files) => {
+    const list = Array.from(files || []);
+    if (!list.length) return;
+    setBusy(true); setError("");
+    try {
+      const uploaded = [];
+      for (const file of list) uploaded.push((await uploadMedia(file, "actualites", { title: file.name })).public_url);
+      setForm((f) => ({ ...f, gallery: [...(f.gallery || []), ...uploaded] }));
+    } catch (e) { setError(e?.message || "Import impossible."); }
+    finally { setBusy(false); }
+  };
+  const removePhoto = (url) => setForm((f) => ({ ...f, gallery: (f.gallery || []).filter((u) => u !== url) }));
+
+  return <>
+    <label className="gnz-field">Titre<input className="gnz-input" value={form.title || ""} onChange={(e) => setForm({...form,title:e.target.value})} required/></label>
+    <label className="gnz-field">Résumé<textarea className="gnz-textarea" value={form.excerpt || ""} onChange={(e) => setForm({...form,excerpt:e.target.value})}/></label>
+    <label className="gnz-field">Article<textarea className="gnz-textarea" style={{minHeight:180}} value={form.body || ""} onChange={(e) => setForm({...form,body:e.target.value})}/></label>
+    <MediaUploadField label="Image de couverture" value={form.cover_url} onChange={(url) => setForm({...form,cover_url:url})} uploadSection="actualites" />
+    <div className="gnz-field">
+      <span>Galerie photos (plusieurs)</span>
+      {error && <div className="gnz-alert gnz-alert-error">{error}</div>}
+      {(form.gallery || []).length > 0 && <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(72px,1fr))", gap: 8, marginTop: 8 }}>
+        {(form.gallery || []).map((url) => (
+          <div key={url} style={{ position: "relative" }}>
+            <img src={url} alt="" style={{ width: "100%", aspectRatio: "1/1", objectFit: "cover", borderRadius: 6 }} />
+            <button type="button" onClick={() => removePhoto(url)} aria-label="Retirer cette photo" style={{ position: "absolute", top: 2, right: 2, background: "rgba(0,0,0,0.6)", color: "#fff", border: "none", borderRadius: "50%", width: 20, height: 20, cursor: "pointer", lineHeight: 1, fontSize: 12 }}>×</button>
+          </div>
+        ))}
+      </div>}
+      <label className="gnz-secondary-button" style={{ display: "inline-flex", alignItems: "center", marginTop: 8, cursor: busy ? "wait" : "pointer" }}>
+        {busy ? "Import…" : "Ajouter des photos"}
+        <input type="file" accept="image/*" multiple hidden disabled={busy} onChange={(e) => { addPhotos(e.target.files); e.target.value = ""; }} />
+      </label>
+    </div>
+    <label className="gnz-field">Langue<select className="gnz-select" value={form.locale || "FR"} onChange={(e) => setForm({...form,locale:e.target.value})}><option>FR</option><option>EN</option><option>ES</option><option>ZH</option></select></label>
+    <label className="gnz-checkbox"><input type="checkbox" checked={Boolean(form.published)} onChange={(e) => setForm({...form,published:e.target.checked})}/>Publier l'actualité</label>
+  </>;
+}
