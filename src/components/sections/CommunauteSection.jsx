@@ -81,7 +81,7 @@ const CommunauteSection = () => {
         </p>
 
         <div style={{ display: "inline-flex", alignItems: "center", gap: "12px", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "40px", padding: "0.85rem 1.4rem", marginBottom: "2.4rem" }}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="#b8973e">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill={GOLD}>
             <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/>
           </svg>
           <div style={{ textAlign: "left" }}>

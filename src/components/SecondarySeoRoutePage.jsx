@@ -1,4 +1,4 @@
-import { CALENDLY_URL } from "../constants.js";
+import { CALENDLY_URL, GOLD, CREAM } from "../constants.js";
 
 const ROUTES = {
   "/actualites": {
@@ -75,10 +75,10 @@ export default function SecondarySeoRoutePage() {
   const page = ROUTES[path] || ROUTES["/actualites"];
 
   return (
-    <main style={{ minHeight: "100vh", background: "#0a0602", color: "#f5f0e8" }}>
+    <main style={{ minHeight: "100vh", background: "#0a0602", color: CREAM }}>
       <header style={{ borderBottom: "1px solid rgba(184,151,62,.2)", padding: "1rem 1.25rem" }}>
         <div style={{ maxWidth: 1120, margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 16 }}>
-          <a href="/" style={{ color: "#f5f0e8", textDecoration: "none", fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.7rem", letterSpacing: ".14em" }}>GASPARDNZ</a>
+          <a href="/" style={{ color: CREAM, textDecoration: "none", fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.7rem", letterSpacing: ".14em" }}>GASPARDNZ</a>
           <nav aria-label="Navigation principale" style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: 18 }}>
             <a href="/services" style={navLink}>Services</a>
             <a href="/styliste-mariage-homme-paris" style={navLink}>Mariage</a>
@@ -89,7 +89,7 @@ export default function SecondarySeoRoutePage() {
       </header>
 
       <section style={{ maxWidth: 1050, margin: "0 auto", padding: "clamp(4rem,9vw,7.5rem) 1.25rem 3.5rem" }}>
-        <p style={{ color: "#b8973e", fontFamily: "'Montserrat', sans-serif", fontSize: 11, letterSpacing: ".26em", textTransform: "uppercase", margin: "0 0 1rem" }}>{page.eyebrow}</p>
+        <p style={{ color: GOLD, fontFamily: "'Montserrat', sans-serif", fontSize: 11, letterSpacing: ".26em", textTransform: "uppercase", margin: "0 0 1rem" }}>{page.eyebrow}</p>
         <h1 style={{ maxWidth: 900, fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(3rem,7vw,6rem)", fontWeight: 300, lineHeight: 1, margin: 0 }}>{page.title}</h1>
         <p style={{ maxWidth: 780, color: "rgba(245,240,232,.76)", fontFamily: "'Montserrat', sans-serif", fontSize: "clamp(.95rem,2vw,1.05rem)", lineHeight: 1.9, margin: "2rem 0 0" }}>{page.intro}</p>
       </section>
@@ -97,20 +97,20 @@ export default function SecondarySeoRoutePage() {
       <section style={{ maxWidth: 1050, margin: "0 auto", padding: "0 1.25rem 4rem", display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(240px,1fr))", gap: 16 }}>
         {page.blocks.map(([title, text], index) => (
           <article key={title} style={{ border: "1px solid rgba(184,151,62,.22)", padding: "1.5rem", background: "rgba(255,255,255,.025)" }}>
-            <span style={{ color: "#b8973e", fontFamily: "'Montserrat', sans-serif", fontSize: 10, letterSpacing: ".18em" }}>0{index + 1}</span>
+            <span style={{ color: GOLD, fontFamily: "'Montserrat', sans-serif", fontSize: 10, letterSpacing: ".18em" }}>0{index + 1}</span>
             <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1.65rem", fontWeight: 500, margin: ".65rem 0 .75rem" }}>{title}</h2>
             <p style={{ color: "rgba(245,240,232,.68)", fontFamily: "'Montserrat', sans-serif", fontSize: ".88rem", lineHeight: 1.75, margin: 0 }}>{text}</p>
           </article>
         ))}
       </section>
 
-      <section style={{ background: "#f5f0e8", color: "#1c1208" }}>
+      <section style={{ background: CREAM, color: "#1c1208" }}>
         <div style={{ maxWidth: 900, margin: "0 auto", padding: "4.5rem 1.25rem", textAlign: "center" }}>
           <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(2.4rem,6vw,4rem)", fontWeight: 400, margin: 0 }}>Transformez l’inspiration en projet</h2>
           <p style={{ maxWidth: 650, margin: "1rem auto 2rem", fontFamily: "'Montserrat', sans-serif", color: "rgba(28,18,8,.68)", lineHeight: 1.75 }}>Découvrez les services GaspardNZ ou choisissez un créneau pour parler de votre mariage, gala ou événement.</p>
           <div style={{ display: "flex", justifyContent: "center", flexWrap: "wrap", gap: 12 }}>
             <a href="/services" style={{ ...button, color: "#1c1208", border: "1px solid rgba(28,18,8,.3)" }}>Voir les services</a>
-            <a href={CALENDLY_URL} target="_blank" rel="noopener noreferrer" data-track="booking_start" style={{ ...button, background: "#b8973e", border: "1px solid #b8973e", color: "#1c1208" }}>Prendre rendez-vous</a>
+            <a href={CALENDLY_URL} target="_blank" rel="noopener noreferrer" data-track="booking_start" style={{ ...button, background: GOLD, border: `1px solid ${GOLD}`, color: "#1c1208" }}>Prendre rendez-vous</a>
           </div>
         </div>
       </section>

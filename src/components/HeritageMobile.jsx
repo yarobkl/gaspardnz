@@ -1,6 +1,6 @@
 import { useRef } from "react";
 import { motion, useInView } from "framer-motion";
-import { GOLD } from "../constants.js";
+import { GOLD, CREAM } from "../constants.js";
 import { useTr } from "../context.jsx";
 
 const HeritageMobile = ({ refEl }) => {
@@ -9,7 +9,7 @@ const HeritageMobile = ({ refEl }) => {
   const inView = useInView(ref, { once: true, margin: "-8% 0px" });
 
   return (
-    <section ref={refEl} style={{ background: "#f5f0e8", overflow: "hidden" }}>
+    <section ref={refEl} style={{ background: CREAM, overflow: "hidden" }}>
       <motion.div
         ref={ref}
         initial={{ opacity: 0, scale: 1.04 }}
@@ -26,7 +26,7 @@ const HeritageMobile = ({ refEl }) => {
           decoding="async"
           style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center top", display: "block" }}
         />
-        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, #f5f0e8 0%, transparent 25%, transparent 45%, rgba(245,240,232,0.7) 80%, #f5f0e8 100%)" }} />
+        <div style={{ position: "absolute", inset: 0, background: `linear-gradient(to bottom, ${CREAM} 0%, transparent 25%, transparent 45%, rgba(245,240,232,0.7) 80%, ${CREAM} 100%)` }} />
         <motion.div
           initial={{ opacity: 0, x: -12 }} animate={inView ? { opacity: 1, x: 0 } : {}}
           transition={{ delay: 0.5, duration: 0.5 }}

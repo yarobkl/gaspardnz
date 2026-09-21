@@ -1,4 +1,4 @@
-import { CALENDLY_URL, WA_NUM } from "../constants.js";
+import { CALENDLY_URL, WA_NUM, GOLD, CREAM } from "../constants.js";
 
 const waHref = `https://wa.me/${WA_NUM}?text=${encodeURIComponent("Bonjour Gaspard, je prépare un mariage et je souhaite être accompagné pour ma tenue et mon style.")}`;
 
@@ -14,10 +14,10 @@ const FAQ = [
 
 export default function MarriageSeoPage() {
   return (
-    <main style={{ minHeight: "100vh", background: "#0a0602", color: "#f5f0e8" }}>
+    <main style={{ minHeight: "100vh", background: "#0a0602", color: CREAM }}>
       <header style={{ borderBottom: "1px solid rgba(184,151,62,.2)", padding: "1rem 1.25rem" }}>
         <div style={{ maxWidth: 1120, margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 16 }}>
-          <a href="/" style={{ color: "#f5f0e8", textDecoration: "none", fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.7rem", letterSpacing: ".14em" }}>GASPARDNZ</a>
+          <a href="/" style={{ color: CREAM, textDecoration: "none", fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.7rem", letterSpacing: ".14em" }}>GASPARDNZ</a>
           <nav aria-label="Navigation principale" style={{ display: "flex", flexWrap: "wrap", gap: 17 }}>
             <a href="/services" style={navStyle}>Services</a><a href="/lookbook" style={navStyle}>Lookbook</a><a href="/galerie" style={navStyle}>Galerie</a><a href="/contact" style={navStyle}>Contact</a>
           </nav>
@@ -25,12 +25,12 @@ export default function MarriageSeoPage() {
       </header>
 
       <section style={{ maxWidth: 1100, margin: "0 auto", padding: "clamp(4rem,9vw,8rem) 1.25rem 4rem" }}>
-        <p style={{ color: "#b8973e", fontFamily: "'Montserrat', sans-serif", fontSize: 11, letterSpacing: ".28em", textTransform: "uppercase", margin: "0 0 1rem" }}>Mariage · Paris · Conseil en style homme</p>
+        <p style={{ color: GOLD, fontFamily: "'Montserrat', sans-serif", fontSize: 11, letterSpacing: ".28em", textTransform: "uppercase", margin: "0 0 1rem" }}>Mariage · Paris · Conseil en style homme</p>
         <h1 style={{ maxWidth: 920, fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(3.2rem,8vw,6.8rem)", fontWeight: 300, lineHeight: .96, margin: 0 }}>Styliste mariage homme à Paris</h1>
         <p style={{ maxWidth: 790, color: "rgba(245,240,232,.77)", fontFamily: "'Montserrat', sans-serif", fontSize: "clamp(.96rem,2vw,1.06rem)", lineHeight: 1.9, margin: "2rem 0 0" }}>Pour un mariage, une tenue ne se résume pas au costume. Il faut penser la coupe, les proportions, la chemise, les chaussures, les accessoires, les couleurs et surtout la cohérence avec le lieu, la saison et votre rôle. GaspardNZ accompagne les hommes qui veulent construire une allure précise et élégante, sans se perdre dans une accumulation de choix.</p>
         <div style={{ display: "flex", flexWrap: "wrap", gap: 12, marginTop: "2rem" }}>
-          <a href={CALENDLY_URL} target="_blank" rel="noopener noreferrer" data-track="booking_start" style={{ ...buttonStyle, background: "#b8973e", color: "#1c1208", border: "1px solid #b8973e" }}>Prendre rendez-vous</a>
-          <a href={waHref} target="_blank" rel="noopener noreferrer" data-track="whatsapp_click" style={{ ...buttonStyle, color: "#f5f0e8", border: "1px solid rgba(245,240,232,.3)" }}>Parler du mariage sur WhatsApp</a>
+          <a href={CALENDLY_URL} target="_blank" rel="noopener noreferrer" data-track="booking_start" style={{ ...buttonStyle, background: GOLD, color: "#1c1208", border: `1px solid ${GOLD}` }}>Prendre rendez-vous</a>
+          <a href={waHref} target="_blank" rel="noopener noreferrer" data-track="whatsapp_click" style={{ ...buttonStyle, color: CREAM, border: "1px solid rgba(245,240,232,.3)" }}>Parler du mariage sur WhatsApp</a>
         </div>
       </section>
 
@@ -43,11 +43,11 @@ export default function MarriageSeoPage() {
             ["02", "Composer la silhouette", "Coupes, couleurs, matières, chemise, accessoires et chaussures sont choisis comme un ensemble."],
             ["03", "Prévoir les transitions", "Lorsque plusieurs looks sont utiles, ils sont pensés pour rester cohérents entre mairie, cérémonie et soirée."],
             ["04", "Sécuriser le jour J", "Selon la formule, l’accompagnement peut aller jusqu’à l’habillage et la vérification des détails au moment clé."],
-          ].map(([n, title, text]) => <article key={n} style={{ border: "1px solid rgba(184,151,62,.22)", padding: "1.5rem", background: "rgba(255,255,255,.025)" }}><span style={{ color: "#b8973e", fontFamily: "'Montserrat', sans-serif", fontSize: 10, letterSpacing: ".18em" }}>{n}</span><h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1.55rem", margin: ".7rem 0" }}>{title}</h3><p style={{ fontFamily: "'Montserrat', sans-serif", color: "rgba(245,240,232,.67)", fontSize: ".87rem", lineHeight: 1.75, margin: 0 }}>{text}</p></article>)}
+          ].map(([n, title, text]) => <article key={n} style={{ border: "1px solid rgba(184,151,62,.22)", padding: "1.5rem", background: "rgba(255,255,255,.025)" }}><span style={{ color: GOLD, fontFamily: "'Montserrat', sans-serif", fontSize: 10, letterSpacing: ".18em" }}>{n}</span><h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1.55rem", margin: ".7rem 0" }}>{title}</h3><p style={{ fontFamily: "'Montserrat', sans-serif", color: "rgba(245,240,232,.67)", fontSize: ".87rem", lineHeight: 1.75, margin: 0 }}>{text}</p></article>)}
         </div>
       </section>
 
-      <section style={{ background: "#f5f0e8", color: "#1c1208" }}>
+      <section style={{ background: CREAM, color: "#1c1208" }}>
         <div style={{ maxWidth: 1040, margin: "0 auto", padding: "4.8rem 1.25rem" }}>
           <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(2.4rem,5.5vw,4.4rem)", fontWeight: 400, margin: 0 }}>À qui s’adresse cet accompagnement ?</h2>
           <p style={{ maxWidth: 790, fontFamily: "'Montserrat', sans-serif", lineHeight: 1.85, color: "rgba(28,18,8,.72)", margin: "1.2rem 0" }}>Au marié qui veut une vision claire plutôt qu’une suite d’achats isolés, mais aussi au témoin, au père du marié, à un proche ou à un invité qui occupe une place importante. L’accompagnement est particulièrement utile lorsque vous hésitez entre plusieurs niveaux de formalité, lorsque vous souhaitez deux silhouettes dans la journée, ou lorsque vous avez déjà certaines pièces mais ne savez pas comment les coordonner.</p>
@@ -64,7 +64,7 @@ export default function MarriageSeoPage() {
       <section style={{ maxWidth: 860, margin: "0 auto", padding: "1rem 1.25rem 5.5rem", textAlign: "center" }}>
         <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(2.4rem,6vw,4.4rem)", fontWeight: 300, margin: 0 }}>Préparons votre allure pour le jour J</h2>
         <p style={{ maxWidth: 650, margin: "1.25rem auto 2rem", fontFamily: "'Montserrat', sans-serif", color: "rgba(245,240,232,.7)", lineHeight: 1.8 }}>Présentez la date, le déroulé et vos premières idées. Le premier échange permettra de définir la manière la plus utile de vous accompagner.</p>
-        <a href={CALENDLY_URL} target="_blank" rel="noopener noreferrer" data-track="booking_start" style={{ ...buttonStyle, background: "#b8973e", color: "#1c1208", border: "1px solid #b8973e" }}>Choisir un créneau</a>
+        <a href={CALENDLY_URL} target="_blank" rel="noopener noreferrer" data-track="booking_start" style={{ ...buttonStyle, background: GOLD, color: "#1c1208", border: `1px solid ${GOLD}` }}>Choisir un créneau</a>
       </section>
     </main>
   );

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useContext } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { GOLD, SOCIAL_LINKS, TEXT } from "../constants.js";
+import { GOLD, CREAM, SOCIAL_LINKS, TEXT } from "../constants.js";
 import { LangCtx, useTr } from "../context.jsx";
 import { SvgFacebook, SvgInstagram, SvgTiktok, SvgYoutube, SvgBag } from "../icons.jsx";
 import { useSettings } from "../hooks/useSettings.js";
@@ -61,7 +61,7 @@ const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules, 
   };
 
   const navLight = !scrolled && !open;
-  const navTextColor = navLight ? "#f5f0e8" : TEXT;
+  const navTextColor = navLight ? CREAM : TEXT;
 
   return (
     <>
@@ -70,7 +70,7 @@ const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules, 
         paddingTop: "calc(env(safe-area-inset-top) + 0.85rem)",
         paddingBottom: "0.85rem", paddingLeft: compactNav ? "1rem" : "1.4rem", paddingRight: compactNav ? "0.85rem" : "1.4rem",
         display: "flex", justifyContent: "space-between", alignItems: "center",
-        background: scrolled || open ? "#f5f0e8" : "transparent",
+        background: scrolled || open ? CREAM : "transparent",
         borderBottom: scrolled || open ? "1px solid rgba(184,151,62,0.25)" : "1px solid transparent",
         transition: "background 0.4s, border 0.4s, color 0.4s",
         }}>

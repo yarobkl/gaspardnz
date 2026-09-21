@@ -1,6 +1,6 @@
 import { useRef } from "react";
 import { motion, useInView } from "framer-motion";
-import { SOCIAL_LINKS, TEXT } from "../../constants.js";
+import { SOCIAL_LINKS, TEXT, GOLD } from "../../constants.js";
 import { useTr } from "../../context.jsx";
 import { useSettings } from "../../hooks/useSettings.js";
 
@@ -54,7 +54,7 @@ const InstagramSection = () => {
         style={{ textAlign: "center", marginTop: "1.6rem", padding: "0 1.4rem" }}>
         <motion.a href={igUrl} target="_blank" rel="noopener noreferrer"
           whileTap={{ scale: 0.97 }}
-          style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "9.5px", letterSpacing: "0.2em", color: TEXT, textTransform: "uppercase", textDecoration: "none", borderBottom: "1px solid #b8973e", padding: "12px 0", minHeight: "44px", display: "inline-flex", alignItems: "center" }}>
+          style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "9.5px", letterSpacing: "0.2em", color: TEXT, textTransform: "uppercase", textDecoration: "none", borderBottom: `1px solid ${GOLD}`, padding: "12px 0", minHeight: "44px", display: "inline-flex", alignItems: "center" }}>
           {t("ig_all")}
         </motion.a>
       </motion.div>

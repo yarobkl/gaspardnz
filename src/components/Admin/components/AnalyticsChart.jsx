@@ -1,3 +1,4 @@
+import { GOLD } from "../../../constants.js";
 import { useTr } from "../../../context.jsx";
 import "../../../styles/analytics.css";
 
@@ -30,7 +31,7 @@ const AnalyticsChart = ({ type, data, dataKey, labelKey, xKey, color, height = 2
   return null;
 };
 
-const LineChart = ({ data, dataKey, xKey, color = "#b8973e", height = 250 }) => {
+const LineChart = ({ data, dataKey, xKey, color = GOLD, height = 250 }) => {
   if (data.length === 0) return null;
 
   const padding = { top: 20, right: 20, bottom: 30, left: 50 };
@@ -126,7 +127,7 @@ const LineChart = ({ data, dataKey, xKey, color = "#b8973e", height = 250 }) => 
   );
 };
 
-const BarChart = ({ data, dataKey, labelKey, color = "#b8973e", height = 250 }) => {
+const BarChart = ({ data, dataKey, labelKey, color = GOLD, height = 250 }) => {
   if (data.length === 0) return null;
 
   const padding = { top: 20, right: 20, bottom: 40, left: 50 };
@@ -199,7 +200,7 @@ const BarChart = ({ data, dataKey, labelKey, color = "#b8973e", height = 250 }) 
   );
 };
 
-const PieChart = ({ data, color = "#b8973e" }) => {
+const PieChart = ({ data, color = GOLD }) => {
   if (data.length === 0) return null;
 
   const size = 250;
@@ -208,7 +209,7 @@ const PieChart = ({ data, color = "#b8973e" }) => {
   const centerY = size / 2;
 
   const total = data.reduce((sum, d) => sum + d.value, 0);
-  const colors = ["#b8973e", "#d4ae5a", "#916f2f", "#8b6f47", "#a78a3d", "#c9a960"];
+  const colors = [GOLD, "#d4ae5a", "#916f2f", "#8b6f47", "#a78a3d", "#c9a960"];
 
   let currentAngle = -Math.PI / 2;
   const slices = data.map((d, i) => {

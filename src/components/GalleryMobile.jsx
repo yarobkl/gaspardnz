@@ -1,6 +1,6 @@
 import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { GOLD, SITE_URL } from "../constants.js";
+import { GOLD, CREAM, SITE_URL } from "../constants.js";
 import { LangCtx, useTr } from "../context.jsx";
 import { getGallerySpots } from "../data/galleryData.js";
 import useCompactMobile from "../hooks/useCompactMobile.js";
@@ -101,7 +101,7 @@ export default function GalleryMobile({ refEl }) {
   };
 
   return (
-    <section ref={refEl} style={{ background:"#f5f0e8", paddingBottom:isCompactMobile ? "3rem" : "4rem", overflow:"hidden" }}>
+    <section ref={refEl} style={{ background:CREAM, paddingBottom:isCompactMobile ? "3rem" : "4rem", overflow:"hidden" }}>
       <div style={{ maxWidth:1100, margin:"0 auto" }}>
         <div style={{ padding:isCompactMobile ? "2.2rem 1.4rem 1.15rem" : "3rem 1.4rem 1.4rem", display:"flex", alignItems:"end", justifyContent:"space-between", gap:"1rem" }}>
           <div>

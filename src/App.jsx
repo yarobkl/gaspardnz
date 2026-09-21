@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect, useRef, lazy, Suspense } from "react";
 import { motion, AnimatePresence, MotionConfig } from "framer-motion";
-import { GOLD } from "./constants.js";
+import { GOLD, CREAM } from "./constants.js";
 import { LangCtx } from "./context.jsx";
 import { APP_COPY } from "./data/appCopy.js";
 
@@ -323,7 +323,7 @@ export default function App() {
                       {mobileSection === "heritage" && (
                         <>
                           <AboutSection />
-                          <SectionDivider from="#1c1208" to="#f5f0e8" />
+                          <SectionDivider from="#1c1208" to={CREAM} />
                           <HeritageMobile refEl={heritageRef} />
                         </>
                       )}
@@ -342,7 +342,7 @@ export default function App() {
                 )}
 
                 <Suspense fallback={null}>
-                  <SectionDivider from="#0a0602" to="#f5f0e8" />
+                  <SectionDivider from="#0a0602" to={CREAM} />
                   <ShowroomMobile refEl={showroomRef} onCatalogue={() => openBooking(true)} onGalerie={() => openMobileSection("gallery", galleryRef)} onFlammes={() => openMobileSection("gallery", galleryRef)} />
                   <CommunityWhatsAppLink />
                   <FooterMobile onFormules={() => openMobileSection("formules", formulesRef)} onGalerie={() => openMobileSection("gallery", galleryRef)} onShowroom={() => scrollTo(showroomRef)} />
@@ -351,13 +351,13 @@ export default function App() {
             ) : (
               <Suspense fallback={null}>
                 <AboutSection />
-                <SectionDivider from="#1c1208" to="#f5f0e8" />
+                <SectionDivider from="#1c1208" to={CREAM} />
                 <HeritageMobile refEl={heritageRef} />
-                <SectionDivider from="#f5f0e8" to="#0a0602" />
+                <SectionDivider from={CREAM} to="#0a0602" />
                 <div ref={styleJournalRef}><StyleJournalSection /></div>
-                <SectionDivider from="#0a0602" to="#f5f0e8" />
+                <SectionDivider from="#0a0602" to={CREAM} />
                 <GalleryMobile refEl={galleryRef} />
-                <SectionDivider from="#f5f0e8" to="#0a0602" />
+                <SectionDivider from={CREAM} to="#0a0602" />
                 <div ref={videoRef}><VideoSection /></div>
                 <SectionDivider from="#0a0602" to="#0a0602" />
                 <WeddingInspirationSection refEl={weddingRef} />
@@ -368,7 +368,7 @@ export default function App() {
                 <SectionDivider from="#0a0602" to="#0a0602" />
                 <div ref={actualitesRef}><ActualitesSection /></div>
                 <div ref={vipRef}><VIPClientsSection /></div>
-                <SectionDivider from="#0f0a04" to="#f5f0e8" />
+                <SectionDivider from="#0f0a04" to={CREAM} />
                 <ShowroomMobile refEl={showroomRef} onCatalogue={() => openBooking(true)} onGalerie={() => scrollTo(galleryRef)} onFlammes={() => scrollTo(galleryRef)} />
                 <InstagramSection />
                 <SectionDivider from="#faf7f2" to="#0a0602" />

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion, useInView } from "framer-motion";
-import { GOLD, TEXT } from "../constants.js";
+import { GOLD, CREAM, TEXT } from "../constants.js";
 import { useTr } from "../context.jsx";
 import { useFocusTrap } from "../hooks/useFocusTrap.js";
 import { usePublicCollection } from "../hooks/usePublicCollection.js";
@@ -74,7 +74,7 @@ export default function ShowroomMobile({ refEl, onCatalogue }) {
   },[isCompactMobile,photos.length]);
   if (!photos.length && showAlbumShowcase) return null;
 
-  return <section ref={refEl} style={{background:"#f5f0e8",overflow:"hidden"}}>
+  return <section ref={refEl} style={{background:CREAM,overflow:"hidden"}}>
     <AnimatePresence>{showAlbumShowcase && albumOpen && <AlbumModal photos={photos} title={title} onClose={()=>setAlbumOpen(false)} />}</AnimatePresence>
 
     {showAlbumShowcase && (
