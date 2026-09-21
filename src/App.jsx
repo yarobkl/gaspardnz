@@ -1,14 +1,18 @@
 import { useState, useCallback, useEffect, useRef, lazy, Suspense } from "react";
 import { motion, AnimatePresence, MotionConfig } from "framer-motion";
-import { GOLD, CREAM, SOCIAL_LINKS, SITE_URL } from "./constants.js";
+import { GOLD } from "./constants.js";
 import { LangCtx } from "./context.jsx";
+import { APP_COPY } from "./data/appCopy.js";
 
 import NotificationPrompt from "./components/NotificationPrompt.jsx";
 import CookieBanner from "./components/CookieBanner.jsx";
+import SplashScreen from "./components/SplashScreen.jsx";
+import AdminRoot from "./components/AdminRoot.jsx";
+import useAdminSession from "./hooks/useAdminSession.js";
+import useSeoMeta from "./hooks/useSeoMeta.js";
+import useStructuredData from "./hooks/useStructuredData.js";
 import { disableGA, initGA } from "./services/analytics.js";
 import { requestNotificationPermission } from "./services/notifications.js";
-import { initAdminUsers, onAuthStateChange, refreshSession } from "./services/adminAuth.js";
-import { isPasswordRecoveryLink } from "./services/adminPasswordRecovery.js";
 import { trackPageView } from "./services/adminAnalytics.js";
 import { clearAllTrackingData, initializeTracking, trackPageView as trackDetailedPageView } from "./services/analyticsTracking.js";
 import { clearSupabaseTrackingData, initializeSupabaseTracking } from "./services/siteTracking.js";
@@ -22,15 +26,6 @@ import CommunityWhatsAppLink from "./components/CommunityWhatsAppLink.jsx";
 import SectionDivider from "./components/ui/SectionDivider.jsx";
 
 const AboutSection = lazy(() => import("./components/sections/AboutSection.jsx"));
-const AdminLogin = lazy(() => import("./components/Admin/AdminLogin.jsx"));
-const AdminLayout = lazy(() => import("./components/Admin/AdminLayout.jsx"));
-const AdminDashboard = lazy(() => import("./components/Admin/AdminDashboard.jsx"));
-const AdminAnalytics = lazy(() => import("./components/Admin/AdminAnalytics.jsx"));
-const AdminCRM = lazy(() => import("./components/Admin/AdminCRM.jsx"));
-const AdminVIPClients = lazy(() => import("./components/Admin/AdminVIPClients.jsx"));
-const AdminUsers = lazy(() => import("./components/Admin/AdminUsers.jsx"));
-const AdminWeddingInspiration = lazy(() => import("./components/Admin/AdminWeddingInspiration.jsx"));
-const AdminSettings = lazy(() => import("./components/Admin/AdminSettings.jsx"));
 const HeritageMobile = lazy(() => import("./components/HeritageMobile.jsx"));
 const ShowroomMobile = lazy(() => import("./components/ShowroomMobile.jsx"));
 const GalleryMobile = lazy(() => import("./components/GalleryMobile.jsx"));
@@ -46,13 +41,11 @@ const StyleDuMoisSection = lazy(() => import("./components/sections/StyleDuMoisS
 const VideoSection = lazy(() => import("./components/sections/VideoSection.jsx"));
 const WeddingInspirationSection = lazy(() => import("./components/sections/WeddingInspirationSection.jsx"));
 const FooterMobile = lazy(() => import("./components/FooterMobile.jsx"));
-const WhatsAppCTA = lazy(() => import("./components/WhatsAppCTA.jsx"));
 const PartnersSection = lazy(() => import("./components/sections/PartnersSection.jsx"));
 
 const FONTS_CSS = "";
-const SPLASH_MAX_MS = 700;
-const ADMIN_SECTIONS = ["dashboard", "analytics", "crm", "vip", "users", "wedding", "settings"];
-const isAdminRoute = () => typeof window !== "undefined" && window.location.pathname.startsWith("/admin");
+const SUPPORTED_LANGS = ["FR", "EN", "ES", "ZH"];
+const HTML_LANG = { FR: "fr", EN: "en", ES: "es", ZH: "zh" };
 
 // Repli d'une rubrique mobile pendant que son code se charge (premier clic
 // de la session sur cette rubrique). Avant, une seule frontière Suspense
@@ -86,180 +79,6 @@ const scrollToStableTarget = (id, attempt = 0, lastTop = null) => {
   }
   if (attempt < 40) window.requestAnimationFrame(() => scrollToStableTarget(id, attempt + 1, top));
 };
-const getAdminSectionFromPath = () => {
-  if (typeof window === "undefined") return "dashboard";
-  const section = window.location.pathname.split("/").filter(Boolean)[1];
-  return ADMIN_SECTIONS.includes(section) ? section : "dashboard";
-};
-
-const _SPLASH_IMG = (typeof import.meta !== "undefined" ? (import.meta.env.BASE_URL || "/") : "/") + "images/style-parisien.jpg";
-const SUPPORTED_LANGS = ["FR", "EN", "ES", "ZH"];
-const HTML_LANG = { FR: "fr", EN: "en", ES: "es", ZH: "zh" };
-const SEO_ROUTES = {
-  "/": {
-    title: "GaspardNZ | Styliste Parisien pour Mariages, Galas et Événements",
-    description: "GaspardNZ est un styliste parisien spécialisé dans l'habillage premium pour mariages, galas et événements. Découvrez ses formules, son lookbook et prenez rendez-vous.",
-    canonicalPath: "/",
-  },
-  "/a-propos": {
-    title: "À propos de GaspardNZ | Styliste et Habilleur à Paris",
-    description: "Découvrez l'univers de GaspardNZ, styliste parisien spécialisé dans l'habillage premium, les mariages, les galas et le conseil en image.",
-    canonicalPath: "/a-propos",
-  },
-  "/services": {
-    title: "Services GaspardNZ | Habillage Mariage, Galas et Événements",
-    description: "Formules d'habillage premium, conseil en image, accompagnement mariage et maître de cérémonie à Paris avec GaspardNZ.",
-    canonicalPath: "/services",
-  },
-  "/lookbook": {
-    title: "Lookbook GaspardNZ | Inspirations Style et Habillage Premium",
-    description: "Découvrez le lookbook GaspardNZ, les inspirations style, les silhouettes premium et les tenues pour mariages, galas et événements.",
-    canonicalPath: "/lookbook",
-  },
-  "/contact": {
-    title: "Contact GaspardNZ | Rendez-vous Habillage Premium à Paris",
-    description: "Contactez GaspardNZ pour un rendez-vous, une formule mariage, un gala ou un accompagnement d'habillage premium à Paris.",
-    canonicalPath: "/contact",
-  },
-  "/galerie": {
-    title: "Galerie GaspardNZ | Looks, Costumes et Inspirations",
-    description: "Explorez la galerie GaspardNZ avec des looks, costumes, détails de style et inspirations d'habillage premium.",
-    canonicalPath: "/galerie",
-  },
-  "/videos": {
-    title: "Vidéos GaspardNZ | Style, Mariage et Événements",
-    description: "Retrouvez les vidéos GaspardNZ autour du style, des événements, des mariages et de l'univers premium de la marque.",
-    canonicalPath: "/videos",
-  },
-  "/partenaires": {
-    title: "Partenaires GaspardNZ | Prestataires Mariage et Événement",
-    description: "Découvrez les partenaires GaspardNZ pour organiser un mariage, un gala ou un événement avec des prestataires sélectionnés.",
-    canonicalPath: "/partenaires",
-  },
-  "/style-du-mois": {
-    title: "Style du Mois GaspardNZ | Pièces et Inspirations Premium",
-    description: "Découvrez le style du mois GaspardNZ, une sélection de pièces et d'inspirations pour composer une allure premium.",
-    canonicalPath: "/style-du-mois",
-  },
-  "/actualites": {
-    title: "Actualités GaspardNZ | Style, Voyages et Événements",
-    description: "Suivez les actualités de GaspardNZ, ses inspirations, ses voyages, ses événements et ses nouveautés style.",
-    canonicalPath: "/actualites",
-  },
-};
-const APP_COPY = {
-  FR: {
-    loading: "Chargement...",
-    title: SEO_ROUTES["/"].title,
-    description: SEO_ROUTES["/"].description,
-    ogDescription: SEO_ROUTES["/"].description,
-    waContact: "Bonjour Gaspard, je souhaite vous contacter.",
-    waFormula: "Bonjour Gaspard, je souhaite réserver une formule. Pouvez-vous me recontacter ?",
-  },
-  EN: {
-    loading: "Loading...",
-    title: "GaspardNZ | Parisian Stylist for Weddings, Galas and Events",
-    description: "Gaspardnz is a Parisian stylist specializing in bespoke dressing for weddings, galas and events. Discover the packages and book an appointment.",
-    ogDescription: "Bespoke suits, event looks and style advice. Paris.",
-    waContact: "Hello Gaspard, I would like to contact you.",
-    waFormula: "Hello Gaspard, I would like to book a package. Could you contact me back?",
-  },
-  ES: {
-    loading: "Cargando...",
-    title: "GaspardNZ | Estilista Parisino para Bodas, Galas y Eventos",
-    description: "Gaspardnz es un estilista parisino especializado en vestimenta a medida para bodas, galas y eventos. Descubre los paquetes y reserva una cita.",
-    ogDescription: "Trajes a medida, looks para eventos y asesoría de estilo. París.",
-    waContact: "Hola Gaspard, me gustaría contactarte.",
-    waFormula: "Hola Gaspard, me gustaría reservar un paquete. ¿Podrías contactarme?",
-  },
-  ZH: {
-    loading: "加载中...",
-    title: "GaspardNZ | 巴黎婚礼、晚宴与活动造型师",
-    description: "Gaspardnz 是巴黎造型师，专注婚礼、晚会和活动的定制着装。探索套餐并预约。",
-    ogDescription: "定制西装、活动造型与风格建议。巴黎。",
-    waContact: "你好 Gaspard，我想联系你。",
-    waFormula: "你好 Gaspard，我想预约一个套餐。可以联系我吗？",
-  },
-};
-
-const SplashScreen = ({ onDone, loading }) => {
-  useEffect(() => {
-    const fallback = setTimeout(onDone, SPLASH_MAX_MS);
-    return () => clearTimeout(fallback);
-  }, [onDone]);
-
-  return (
-    <motion.div
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-      style={{ position: "fixed", inset: 0, zIndex: 9999, background: "#070400", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "2.4rem", overflow: "hidden" }}>
-
-    {/* Photo de fond */}
-    <motion.img
-      src={_SPLASH_IMG}
-      width="1200"
-      height="1600"
-      alt="Gaspardnz splash screen background - styliste parisien"
-      initial={{ opacity: 0, scale: 1.06 }}
-      animate={{ opacity: 0.45, scale: 1 }}
-      transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-      style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center top" }}
-    />
-    {/* Overlay sombre */}
-    <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(4,2,0,0.5) 0%, rgba(4,2,0,0.3) 40%, rgba(4,2,0,0.6) 100%)" }} />
-
-    {/* Bouton Passer */}
-    <motion.button
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 2, duration: 0.6 }}
-      onClick={onDone}
-      aria-label="Skip splash screen"
-      style={{ position: "absolute", top: "2rem", right: "2rem", zIndex: 10, background: "rgba(184,151,62,0.15)", border: "1px solid rgba(184,151,62,0.4)", color: "rgba(245,240,232,0.88)", padding: "0.7rem 1.2rem", minHeight: "44px", minWidth: "44px", fontFamily: "'Montserrat', sans-serif", fontSize: "11px", letterSpacing: "0.05em", textTransform: "uppercase", cursor: "pointer", borderRadius: "2px", transition: "all 0.3s ease" }}
-      onHoverStart={{ background: "rgba(184,151,62,0.25)" }}>
-      Passer
-    </motion.button>
-
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 1.4, ease: [0.16, 1, 0.3, 1] }}
-      style={{ textAlign: "center", position: "relative", zIndex: 1 }}>
-      <motion.p
-        initial={{ letterSpacing: "0.12em", opacity: 0 }}
-        animate={{ letterSpacing: "0.38em", opacity: 1 }}
-        transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-        style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "3.5rem", color: "#faf7f2", margin: 0, lineHeight: 1, textShadow: "0 2px 20px rgba(0,0,0,0.6)" }}>
-        GASPARDNZ
-      </motion.p>
-      <motion.p
-        initial={{ opacity: 0, letterSpacing: "0.3em" }}
-        animate={{ opacity: 1, letterSpacing: "0.44em" }}
-        transition={{ duration: 0.75, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
-        style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", color: GOLD, textTransform: "uppercase", marginTop: "10px" }}>
-        Paris
-      </motion.p>
-    </motion.div>
-
-    <div style={{ width: "140px", height: "1px", background: "rgba(184,151,62,0.15)", position: "relative", overflow: "hidden", zIndex: 1 }}>
-      <motion.div
-        initial={{ scaleX: 0 }}
-        animate={{ scaleX: 1 }}
-        transition={{ duration: 1.05, delay: 0.2, ease: [0.4, 0, 0.2, 1] }}
-        onAnimationComplete={onDone}
-        style={{ position: "absolute", inset: 0, background: `linear-gradient(90deg, ${GOLD}, #d4ae5a)`, transformOrigin: "left" }} />
-    </div>
-
-    <motion.p
-      initial={{ opacity: 0 }}
-      animate={{ opacity: [0, 0.45, 0.25, 0.45] }}
-      transition={{ duration: 1.2, delay: 0.25, times: [0, 0.3, 0.6, 1] }}
-      style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "9px", letterSpacing: "0.42em", color: "rgba(245,240,232,0.7)", textTransform: "uppercase", position: "relative", zIndex: 1 }}>
-      {loading}
-    </motion.p>
-    </motion.div>
-  );
-};
 
 export default function App() {
   const [splashDone, setSplashDone] = useState(true);
@@ -284,13 +103,10 @@ export default function App() {
       return false;
     }
   });
-  const [isAdminPath, setIsAdminPath] = useState(false);
-  const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
-  const [adminUser, setAdminUser] = useState(null);
-  // Tant que la session Supabase n'est pas vérifiée, on n'affiche ni l'admin ni le login.
-  const [adminAuthChecking, setAdminAuthChecking] = useState(true);
-  const recoveryFlowRef = useRef(null);
-  const [adminSection, setAdminSection] = useState(getAdminSectionFromPath);
+  const {
+    currentlyOnAdminPath, isAdminPath, isAdminLoggedIn, adminUser,
+    adminAuthChecking, adminSection, onSectionChange: onAdminSectionChange, onLoginSuccess,
+  } = useAdminSession();
   const [consentPreferences, setConsentPreferences] = useState(getConsentPreferences);
   const isCompactMobile = useCompactMobile();
   const [mobileSection, setMobileSection] = useState(null);
@@ -321,7 +137,6 @@ export default function App() {
   const actualitesRef   = useRef(null);
   const vipRef          = useRef(null);
   const communauteRef   = useRef(null);
-  const currentlyOnAdminPath = typeof window !== "undefined" && window.location.pathname.startsWith("/admin");
 
   useEffect(() => {
     if (!document.querySelector("style[data-gnz-fonts]")) {
@@ -332,135 +147,8 @@ export default function App() {
     }
   }, []);
 
-  useEffect(() => {
-    const copy = APP_COPY[lang] || APP_COPY.FR;
-    const path = window.location.pathname.replace(/\/$/, "") || "/";
-    const routeSeo = SEO_ROUTES[path] || SEO_ROUTES["/"];
-    const seoTitle = lang === "FR" ? routeSeo.title : copy.title;
-    const seoDescription = lang === "FR" ? routeSeo.description : copy.description;
-    const canonicalUrl = `${SITE_URL}${routeSeo.canonicalPath === "/" ? "/" : routeSeo.canonicalPath}`;
-    document.title = seoTitle;
-    const meta = (name, content, prop = false) => {
-      const sel = prop ? `meta[property="${name}"]` : `meta[name="${name}"]`;
-      let el = document.querySelector(sel);
-      if (!el) { el = document.createElement("meta"); prop ? el.setAttribute("property", name) : el.setAttribute("name", name); document.head.appendChild(el); }
-      el.setAttribute("content", content);
-    };
-    meta("description", seoDescription);
-    meta("og:title", seoTitle, true);
-    meta("og:description", seoDescription, true);
-    meta("og:type", "website", true);
-    meta("og:url", canonicalUrl, true);
-    meta("og:image", `${SITE_URL}/images/style-parisien.jpg`, true);
-    meta("og:site_name", "GaspardNZ", true);
-    meta("twitter:title", seoTitle);
-    meta("twitter:description", seoDescription);
-    meta("twitter:image", `${SITE_URL}/images/style-parisien.jpg`);
-    meta("theme-color", highContrast ? "#fff9e6" : "#0a0602");
-
-    // Canonical tag
-    let canonical = document.querySelector('link[rel="canonical"]');
-    if (!canonical) { canonical = document.createElement("link"); canonical.rel = "canonical"; document.head.appendChild(canonical); }
-    canonical.href = canonicalUrl;
-  }, [highContrast, lang]);
-
-  useEffect(() => {
-    document.body.style.background = "#0a0602";
-    document.body.style.margin = "0";
-    document.body.style.overflowX = "hidden";
-
-    // Add Schemas for SEO (LocalBusiness, Services, FAQ)
-    if (!document.querySelector('script[data-gnz-schema]')) {
-      const localBusiness = {
-        "@context": "https://schema.org",
-        "@type": "LocalBusiness",
-        "name": "GaspardNZ",
-        "alternateName": ["Gaspard NZ", "Gaspardnz", "gaspardnz_"],
-        "description": "Styliste parisien spécialisé dans l'habillage sur mesure pour mariages, galas et événements.",
-        "url": SITE_URL,
-        "logo": `${SITE_URL}/icon-512.png`,
-        "image": `${SITE_URL}/avatar.jpg`,
-        "areaServed": {
-          "@type": "City",
-          "name": "Paris"
-        },
-        "sameAs": [SOCIAL_LINKS.instagram, SOCIAL_LINKS.tiktok, SOCIAL_LINKS.facebook, SOCIAL_LINKS.youtube],
-        "contactPoint": {
-          "@type": "ContactPoint",
-          "contactType": "Customer Service",
-          "url": "https://wa.me/33664826920"
-        }
-      };
-
-      const services = {
-        "@context": "https://schema.org",
-        "@type": "Service",
-        "name": "Services de Style et d'Habillage",
-        "provider": { "@type": "LocalBusiness", "name": "Gaspardnz" },
-        "offers": [
-          { "@type": "Offer", "name": "Styliste Mariage à Paris" },
-          { "@type": "Offer", "name": "Habilleur Mariages Africains" },
-          { "@type": "Offer", "name": "Maître de Cérémonie Paris" }
-        ]
-      };
-
-      const faq = {
-        "@context": "https://schema.org",
-        "@type": "FAQPage",
-        "mainEntity": [
-          {
-            "@type": "Question",
-            "name": "Quel est le rôle d'un styliste mariage à Paris?",
-            "acceptedAnswer": { "@type": "Answer", "text": "Sélection et coordination des tenues pour mariages, mariages africains et cérémonies." }
-          },
-          {
-            "@type": "Question",
-            "name": "Proposez-vous des services pour mariages africains?",
-            "acceptedAnswer": { "@type": "Answer", "text": "Oui, spécialiste en sélection de tenues pour mariages africains à Paris." }
-          },
-          {
-            "@type": "Question",
-            "name": "Qu'est-ce qu'un habilleur professionnel?",
-            "acceptedAnswer": { "@type": "Answer", "text": "Un habilleur assure la mise en place impeccable des tenues pour galas, mariages et événements." }
-          }
-        ]
-      };
-
-      // Event schema for wedding services
-      const eventSchema = {
-        "@context": "https://schema.org",
-        "@type": "Service",
-        "@id": "https://gaspardnz.style/#wedding-service",
-        "name": "Service de styliste pour mariage",
-        "description": "Costume sur-mesure, habillage et direction de cérémonie pour votre mariage à Paris",
-        "provider": {
-          "@type": "Person",
-          "@id": "https://gaspardnz.style/#gaspardnz",
-          "name": "Gaspard NZ",
-          "image": "https://gaspardnz.style/avatar.jpg"
-        },
-        "areaServed": {
-          "@type": "Place",
-          "address": {
-            "@type": "PostalAddress",
-            "addressLocality": "Paris",
-            "addressCountry": "FR"
-          }
-        },
-        "priceRange": "€€€",
-        "serviceType": "Personal Styling"
-      };
-
-      [localBusiness, services, faq, eventSchema].forEach(schema => {
-        const script = document.createElement('script');
-        script.type = 'application/ld+json';
-        script.setAttribute('data-gnz-schema', '1');
-        script.textContent = JSON.stringify(schema);
-        document.head.appendChild(script);
-      });
-    }
-
-  }, []);
+  useSeoMeta(lang, highContrast);
+  useStructuredData();
 
   useEffect(() => subscribeToConsentChanges(setConsentPreferences), []);
 
@@ -520,58 +208,6 @@ export default function App() {
     }, 14000);
     return () => clearTimeout(t);
   }, [currentlyOnAdminPath, isAdminPath, splashDone]);
-
-  useEffect(() => {
-    initAdminUsers();
-  }, []);
-
-  useEffect(() => {
-    const checkAdminPath = () => {
-      const path = window.location.pathname;
-      setIsAdminPath(path.startsWith("/admin"));
-      if (path.startsWith("/admin")) {
-        setAdminSection(getAdminSectionFromPath());
-      }
-    };
-    checkAdminPath();
-    window.addEventListener("popstate", checkAdminPath);
-    return () => window.removeEventListener("popstate", checkAdminPath);
-  }, []);
-
-  useEffect(() => {
-    if (!(currentlyOnAdminPath || isAdminPath)) return undefined;
-
-    // Un lien de récupération ouvre une vraie session Supabase (detectSessionInUrl).
-    // On force alors l'écran dédié pendant toute la durée de ce chargement de page,
-    // sinon le formulaire de réinitialisation serait remplacé par l'interface admin.
-    if (recoveryFlowRef.current === null) recoveryFlowRef.current = isPasswordRecoveryLink();
-    if (recoveryFlowRef.current) {
-      setIsAdminLoggedIn(false);
-      setAdminUser(null);
-      setAdminAuthChecking(false);
-      return undefined;
-    }
-
-    let cancelled = false;
-    const applyProfile = (profile) => {
-      if (cancelled) return;
-      setAdminUser(profile);
-      setIsAdminLoggedIn(Boolean(profile));
-      setAdminAuthChecking(false);
-    };
-
-    // Autorité unique : session Supabase vérifiée + admin_access.active.
-    // Le cache localStorage ne donne aucun accès.
-    refreshSession().then(applyProfile).catch(() => applyProfile(null));
-
-    // Réagit à l'expiration, au refresh de token et à une déconnexion faite ailleurs.
-    const { data } = onAuthStateChange(applyProfile);
-
-    return () => {
-      cancelled = true;
-      data?.subscription?.unsubscribe?.();
-    };
-  }, [currentlyOnAdminPath, isAdminPath]);
 
   useEffect(() => {
     if (splashDone && !isAdminPath && consentPreferences.analytics) {
@@ -636,36 +272,14 @@ export default function App() {
 
       {(splashDone || currentlyOnAdminPath || isAdminPath) && (
         (currentlyOnAdminPath || isAdminPath) ? (
-          <Suspense fallback={null}>
-          {adminAuthChecking ? null : isAdminLoggedIn ? (
-            <AdminLayout
-              currentSection={adminSection}
-              onSectionChange={(section) => {
-                setAdminSection(section);
-                window.history.pushState({}, "", `/admin/${section}`);
-              }}
-              user={adminUser}>
-              {adminSection === "dashboard" && <AdminDashboard />}
-              {adminSection === "analytics" && <AdminAnalytics />}
-              {adminSection === "crm" && <AdminCRM />}
-              {adminSection === "vip" && <AdminVIPClients />}
-              {adminSection === "users" && <AdminUsers />}
-              {adminSection === "wedding" && <AdminWeddingInspiration />}
-              {adminSection === "settings" && <AdminSettings />}
-            </AdminLayout>
-          ) : (
-            <AdminLogin
-              onLoginSuccess={(user) => {
-                setAdminUser(user);
-                setIsAdminLoggedIn(true);
-                setAdminAuthChecking(false);
-                setAdminSection("dashboard");
-                window.history.replaceState({}, "", "/admin/dashboard");
-              }}
-            />
-          )
-          }
-          </Suspense>
+          <AdminRoot
+            adminAuthChecking={adminAuthChecking}
+            isAdminLoggedIn={isAdminLoggedIn}
+            adminUser={adminUser}
+            adminSection={adminSection}
+            onSectionChange={onAdminSectionChange}
+            onLoginSuccess={onLoginSuccess}
+          />
         ) : (
           <div
             data-gnz-mode={lightMode ? "light" : "dark"}
