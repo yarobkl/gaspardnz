@@ -10,6 +10,7 @@ const defaultSettings = {
   calendlyUrl: CALENDLY_URL,
   instagramUrl: SOCIAL_LINKS.instagram,
   whatsappCommunityUrl: "",
+  loginBackgroundUrl: "",
   stripePaymentUrl: "",
   paymentLabel: "Payer le lookbook",
   lookbookHidden: false,

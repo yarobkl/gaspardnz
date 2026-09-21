@@ -30,7 +30,10 @@ const pdfFile = (name = "lookbook-2026.pdf") => new File(["%PDF-1.4 contenu simu
 
 // Le bouton d'import est un <label> habillé, pas un <button> : aucun rôle
 // ARIA "button" à cibler, on prend directement l'entrée fichier qu'il porte.
-const getFileInput = () => document.querySelector('input[type="file"]');
+// L'onglet "Général" comporte désormais un second champ fichier (photo de
+// fond de connexion, accept="image/*") : on cible celui du lookbook par son
+// accept="application/pdf", propre à ce champ précis.
+const getFileInput = () => document.querySelector('input[type="file"][accept="application/pdf"]');
 
 beforeEach(() => {
   const fresh = cloneFixtures();

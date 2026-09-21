@@ -68,6 +68,7 @@ async function loadRemoteSettings(base) {
     // Groupe communautaire, pas le numéro de contact 1:1 (déjà utilisé
     // ailleurs) : un lien discret différent de tout ce qui existe déjà.
     whatsappCommunityUrl: social.whatsapp_community || base.whatsappCommunityUrl || "",
+    loginBackgroundUrl: brand.login_background_url || base.loginBackgroundUrl || "",
     stripePaymentUrl: payment.stripe_payment_url || base.stripePaymentUrl || "",
     paymentLabel: payment.payment_label || base.paymentLabel || "Payer le lookbook",
     // Bascule manuelle, indépendante du lien Stripe : Gaspard peut retirer le

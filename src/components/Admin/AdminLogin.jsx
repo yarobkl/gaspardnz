@@ -5,9 +5,11 @@ import {
   saveNewAdminPassword,
   sendAdminPasswordReset,
 } from "../../services/adminPasswordRecovery.js";
+import { useSettings } from "../../hooks/useSettings.js";
 import "../../styles/admin-v2.css";
 
 const AdminLogin = ({ onLoginSuccess }) => {
+  const { loginBackgroundUrl } = useSettings();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -97,8 +99,16 @@ const AdminLogin = ({ onLoginSuccess }) => {
       ? "Créez un nouveau mot de passe d'au moins 10 caractères pour votre compte GaspardNZ."
       : "Accès sécurisé au CRM, aux réservations, contenus, médias, promotions et données de performance.";
 
+  const shellStyle = loginBackgroundUrl
+    ? {
+        backgroundImage: `linear-gradient(145deg, rgba(8,7,5,.55), rgba(13,11,8,.72) 62%, rgba(7,6,5,.85)), url("${loginBackgroundUrl}")`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }
+    : undefined;
+
   return (
-    <main className="gnz-login-shell">
+    <main className="gnz-login-shell" style={shellStyle}>
       <section className="gnz-login-card" aria-labelledby="admin-login-title">
         <div className="gnz-brand-mark">GNZ</div>
         <p className="gnz-eyebrow">GASPARDNZ · ADMINISTRATION</p>
