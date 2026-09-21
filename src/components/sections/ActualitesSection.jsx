@@ -35,29 +35,45 @@ const remoteToNews = (row) => ({
   photos: Array.isArray(row.gallery) && row.gallery.length ? row.gallery : row.cover_url ? [row.cover_url] : [],
 });
 
+// Un seul format pour toutes les cartes, photo ou vidéo : sinon la hauteur
+// change selon le contenu et le carrousel devient irrégulier.
+const MEDIA_ASPECT = "4 / 5";
+const MEDIA_MAX_HEIGHT = { mobile: "480px", desktop: "600px" };
+
 const ActuCard = ({ item, isMobile = false }) => {
   const t = useTr();
   const [expanded, setExpanded] = useState(false);
   const [photoCur, setPhotoCur] = useState(0);
+  const videoRef = useRef(null);
   const photos = item.photos || [];
   const hasVideo = Boolean(item.video);
   const preview = String(item.text || "").split("\n\n")[0];
+  const hasMoreText = String(item.text || "").length > preview.length;
   const multi = !hasVideo && photos.length > 1;
+  const mediaStyle = { width: "100%", aspectRatio: MEDIA_ASPECT, maxHeight: isMobile ? MEDIA_MAX_HEIGHT.mobile : MEDIA_MAX_HEIGHT.desktop, objectFit: "cover", objectPosition: "center", display: "block", background: "#0b0703" };
+
+  const handleCta = () => {
+    setExpanded((e) => !e);
+    if (hasVideo && videoRef.current) {
+      videoRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+      videoRef.current.play?.()?.catch(() => {});
+    }
+  };
 
   return (
     <motion.article initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-8% 0px" }} transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }} style={{ width: "100%", maxWidth: "100%", minWidth: 0, background: "#111009", borderRadius: "16px", overflow: "hidden", border: "1px solid rgba(184,151,62,0.15)" }}>
       {(hasVideo || photos.length > 0) && (
         <div style={{ position: "relative", overflow: "hidden", background: "#050301", maxWidth: "100%" }}>
           {hasVideo ? (
-            <video src={item.video} controls playsInline preload="metadata" aria-label={`Vidéo : ${item.title}`} style={{ width: "100%", aspectRatio: isMobile ? "4 / 5" : "9 / 16", maxHeight: isMobile ? "440px" : "560px", objectFit: "cover", objectPosition: "center", display: "block", background: "#050301" }}>
+            <video ref={videoRef} src={item.video} controls playsInline preload="metadata" aria-label={`Vidéo : ${item.title}`} style={{ ...mediaStyle, background: "#050301" }}>
               <track kind="captions" src="/captions/jt-sape-fr.vtt" srcLang="fr" label="Français" default />
             </video>
           ) : multi ? (
             <div style={{ display: "flex", transition: "transform 0.6s cubic-bezier(0.16,1,0.3,1)", transform: `translateX(${-photoCur * 100}%)` }}>
-              {photos.map((src, i) => <img key={i} src={src} alt={item.title} width="1200" height="900" loading="lazy" decoding="async" style={{ flexShrink: 0, width: "100%", aspectRatio: "4/3", objectFit: "contain", objectPosition: "center", display: "block", background: "#0b0703" }} />)}
+              {photos.map((src, i) => <img key={i} src={src} alt={item.title} width="1200" height="900" loading="lazy" decoding="async" style={{ ...mediaStyle, flexShrink: 0 }} />)}
             </div>
           ) : (
-            <img src={photos[0]} alt={item.title} width="1200" height="900" loading="lazy" decoding="async" style={{ width: "100%", aspectRatio: "4/3", objectFit: "contain", objectPosition: "center", display: "block", background: "#0b0703" }} />
+            <img src={photos[0]} alt={item.title} width="1200" height="900" loading="lazy" decoding="async" style={mediaStyle} />
           )}
           <div style={{ position: "absolute", inset: 0, background: hasVideo ? "linear-gradient(to bottom, transparent 55%, rgba(17,16,9,0.9) 100%)" : "linear-gradient(to bottom, transparent 78%, rgba(17,16,9,0.38) 100%)", pointerEvents: "none" }} />
           <div style={{ position: "absolute", top: "12px", left: "12px", background: "rgba(184,151,62,0.15)", backdropFilter: "blur(6px)", border: "1px solid rgba(184,151,62,0.3)", borderRadius: "4px", padding: "4px 10px" }}><span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.35em", color: GOLD, textTransform: "uppercase" }}>{item.tag}</span></div>
@@ -72,7 +88,7 @@ const ActuCard = ({ item, isMobile = false }) => {
       <div style={{ padding: "1.4rem 1.2rem 1.6rem" }}>
         <h3 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(1.5rem,7vw,2rem)", letterSpacing: "0.06em", color: "#faf7f2", margin: "0 0 1rem", lineHeight: 1 }}>{item.title}</h3>
         <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(0.95rem,4vw,1.1rem)", color: "rgba(245,240,232,0.72)", lineHeight: 1.75, fontStyle: "italic", whiteSpace: "pre-line" }}>{expanded ? item.text : preview}</div>
-        {String(item.text || "").length > preview.length && <motion.button whileTap={{ scale: 0.97 }} onClick={() => setExpanded(e => !e)} style={{ marginTop: "1.1rem", background: "none", border: "none", padding: "0.7rem 0", minHeight: "44px", cursor: "pointer", display: "flex", alignItems: "center", gap: "6px" }}><span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "11px", letterSpacing: "0.3em", color: GOLD, textTransform: "uppercase" }}>{expanded ? t("reduce") : t("read_more")}</span><motion.span animate={{ rotate: expanded ? 180 : 0 }}>⌄</motion.span></motion.button>}
+        {(hasVideo || hasMoreText) && <motion.button whileTap={{ scale: 0.97 }} onClick={handleCta} style={{ marginTop: "1.1rem", background: "none", border: "none", padding: "0.7rem 0", minHeight: "44px", cursor: "pointer", display: "flex", alignItems: "center", gap: "6px" }}><span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "11px", letterSpacing: "0.3em", color: GOLD, textTransform: "uppercase" }}>{expanded ? t("reduce") : hasVideo ? t("watch_full_video") : t("open_article")}</span><motion.span animate={{ rotate: expanded ? 180 : 0 }}>⌄</motion.span></motion.button>}
       </div>
     </motion.article>
   );
