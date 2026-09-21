@@ -80,13 +80,17 @@ try {
   section = await openSection("Style Journal");
   const openJournal = section.getByRole("button", { name: /Voir le journal/i });
   if (await openJournal.count()) {
-    await openJournal.click({ force: true }); await wait();
+    // Attente plus généreuse qu'ailleurs : l'expansion du journal anime sa
+    // hauteur (framer-motion), et cliquer un hotspot avant la fin de cette
+    // transition atterrit sur une position qui n'est plus la bonne —
+    // observé de façon reproductible avec le délai par défaut (120ms).
+    await openJournal.click({ force: true }); await wait(400);
     const collapseJournal = section.getByRole("button", { name: /Réduire le journal/i });
     report.record("DEEP-JOURNAL-01", "Style Journal — développer", "affiche le journal complet", `réduire visible=${await collapseJournal.count() > 0}`, await collapseJournal.count() > 0 && errors.length === 0);
   }
   const journalHotspots = section.locator("button[aria-pressed]");
   if (await journalHotspots.count()) {
-    await journalHotspots.first().click({ force: true }); await wait();
+    await journalHotspots.first().click({ force: true }); await wait(400);
     const dialog = page.getByRole("dialog").last();
     const buttons = dialog.locator("button");
     const ok = await dialog.count() > 0 && await buttons.count() >= 2;
@@ -133,27 +137,51 @@ try {
     report.record("DEEP-WED-03", "Mariage — hotspot", "ouvre le détail et l'action WhatsApp", `dialog=${ok}, url=${urls.at(-1) || "aucune"}`, ok && /wa\.me/.test(urls.at(-1) || "") && errors.length === 0);
   }
 
-  // FORMULES — chaque accordéon, CTA WhatsApp et lookbook.
+  // FORMULES — chaque accordéon, CTA WhatsApp et lookbook. Les formules
+  // viennent de Supabase (voir FormulesSection.jsx) : ce script isole tout
+  // trafic non local (isolate()), donc aucune donnée n'arrive jamais ici —
+  // c'est le scénario "Supabase injoignable" qu'un vrai visiteur peut aussi
+  // rencontrer. La section doit alors proposer un repli avec un moyen de
+  // contact, jamais rester vide (régression trouvée puis corrigée le
+  // 2026-09-21 : avant, un échec de chargement laissait la section vide en
+  // permanence).
   section = await openSection("Formules");
+  // Le chargement (résolu ou en échec, isolate() bloquant Supabase) est
+  // asynchrone : le conteneur existe dès que l'en-tête statique de la
+  // section est monté, avant que ce chargement se termine.
+  await page.waitForFunction(
+    () => {
+      const el = document.getElementById("gnz-mobile-active-section");
+      if (!el) return false;
+      return el.querySelector('button[aria-expanded]') || /indisponibles/i.test(el.textContent || "");
+    },
+    { timeout: 4000 },
+  ).catch(() => {});
   const accordions = section.locator("button[aria-expanded]");
   const accordionCount = await accordions.count();
-  let accordionOk = accordionCount >= 2;
-  for (let i = 0; i < accordionCount; i += 1) {
-    const btn = accordions.nth(i);
-    await btn.click({ force: true }); await wait();
-    const expanded = await btn.getAttribute("aria-expanded");
-    accordionOk = accordionOk && expanded === "true";
-    const card = btn.locator("xpath=..");
-    const contact = card.locator('button[data-track="booking_click"]');
-    if (await contact.count()) {
-      const before = (await opened()).length;
-      await contact.click({ force: true }); await wait(50);
-      const urls = await opened();
-      accordionOk = accordionOk && urls.length > before && /wa\.me/.test(urls.at(-1) || "");
+  if (accordionCount > 0) {
+    let accordionOk = accordionCount >= 2;
+    for (let i = 0; i < accordionCount; i += 1) {
+      const btn = accordions.nth(i);
+      await btn.click({ force: true }); await wait();
+      const expanded = await btn.getAttribute("aria-expanded");
+      accordionOk = accordionOk && expanded === "true";
+      const card = btn.locator("xpath=..");
+      const contact = card.locator('button[data-track="booking_click"]');
+      if (await contact.count()) {
+        const before = (await opened()).length;
+        await contact.click({ force: true }); await wait(50);
+        const urls = await opened();
+        accordionOk = accordionOk && urls.length > before && /wa\.me/.test(urls.at(-1) || "");
+      }
+      await btn.click({ force: true }); await wait(60);
     }
-    await btn.click({ force: true }); await wait(60);
+    report.record("DEEP-FORM-01", "Formules — accordéons et CTA", "chaque formule s'ouvre/se ferme et son CTA ouvre WhatsApp", `accordéons=${accordionCount}`, accordionOk && errors.length === 0);
+  } else {
+    const fallbackVisible = await section.getByText(/indisponibles/i).count() > 0;
+    const contactVisible = await section.getByRole("button", { name: /Rendez-vous/i }).count() > 0;
+    report.record("DEEP-FORM-01", "Formules — repli hors ligne (Supabase isolé)", "affiche un message et un bouton de contact, jamais une section vide", `message=${fallbackVisible}, bouton=${contactVisible}`, fallbackVisible && contactVisible && errors.length === 0);
   }
-  report.record("DEEP-FORM-01", "Formules — accordéons et CTA", "chaque formule s'ouvre/se ferme et son CTA ouvre WhatsApp", `accordéons=${accordionCount}`, accordionOk && errors.length === 0);
 
   const lookbook = section.locator("button").filter({ hasText: /lookbook/i }).last();
   if (await lookbook.count()) {

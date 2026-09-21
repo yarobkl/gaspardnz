@@ -16,13 +16,21 @@ const FormulesSection = ({ refEl, onContact }) => {
   const t = useTr();
   const settings = useSettings();
   const [packages, setPackages] = useState([]);
+  // Distingue "encore en train de charger" de "a fini de charger, rien à
+  // montrer" : sans ça, une panne ou une lenteur Supabase laisse cette
+  // section vide en permanence, sans aucun message ni moyen de contact —
+  // exactement ce qui se passait avant, tant que le premier chargement
+  // n'avait pas abouti.
+  const [loaded, setLoaded] = useState(false);
   const [selected, setSelected] = useState(null);
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-8% 0px" });
 
   useEffect(() => {
     let alive = true;
-    const load = () => listPackagesWithBreakdown().then((rows) => { if (alive) setPackages(rows); }).catch(() => {});
+    const load = () => listPackagesWithBreakdown()
+      .then((rows) => { if (alive) { setPackages(rows); setLoaded(true); } })
+      .catch(() => { if (alive) setLoaded(true); });
     load();
     const unsubscribe = subscribePackagePricing(load);
     return () => { alive = false; unsubscribe(); };
@@ -43,6 +51,12 @@ const FormulesSection = ({ refEl, onContact }) => {
         <div style={{ overflow: "hidden", marginBottom: "0.6rem" }}><motion.h2 initial={{ y: "105%" }} animate={inView ? { y: 0 } : {}} transition={{ duration: 1, delay: 0.2, ease: [0.16, 1, 0.3, 1] }} style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(40px, 13vw, 72px)", lineHeight: 0.9, letterSpacing: "0.04em", color: "#f5f0e8", margin: 0 }}>{t("formules_title")}</motion.h2></div>
         <motion.p initial={{ opacity: 0, y: 12 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ delay: 0.5 }} style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(0.95rem, 3.8vw, 1.1rem)", fontWeight: 300, color: "rgba(245,240,232,0.75)", lineHeight: 1.7, fontStyle: "italic", marginBottom: "3rem" }}>{t("formules_sub")}</motion.p>
 
+        {loaded && formules.length === 0 && (
+          <div style={{ padding: "1.6rem 1.4rem", border: "1px solid rgba(184,151,62,0.3)", background: "rgba(184,151,62,0.05)", textAlign: "center", marginBottom: "1.5rem" }}>
+            <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "0.95rem", fontStyle: "italic", color: "rgba(245,240,232,0.8)", margin: "0 0 1.2rem" }}>{t("formules_indisponibles")}</p>
+            <button onClick={onContact} style={{ background: "none", border: "1px solid rgba(184,151,62,0.5)", color: GOLD, padding: "0.9rem 1.6rem", fontFamily: "'Montserrat', sans-serif", fontSize: "11px", letterSpacing: "0.4em", textTransform: "uppercase", cursor: "pointer" }}>{t("btn_reveler")}</button>
+          </div>
+        )}
         <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
           {formules.map((pkg, fi) => {
             const groups = pkg.package_groups || [];
