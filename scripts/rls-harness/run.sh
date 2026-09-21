@@ -48,6 +48,9 @@ $PSQL -d "$DB" -f "$HERE/06-tailoring-assertions.sql"
 echo "--- détail des formules ---"
 $PSQL -d "$DB" -f "$HERE/07-formulas-pricing-assertions.sql"
 
+echo "--- photos de prestations partenaires ---"
+$PSQL -d "$DB" -f "$HERE/08-partner-photos-assertions.sql"
+
 echo "--- rollback ---"
 for r in $(ls -r "$ROOT"/supabase/rollback/*.down.sql); do
   echo "  $(basename "$r")"

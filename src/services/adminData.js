@@ -381,3 +381,26 @@ export {
   listArticleLabels, listPackagesWithBreakdown, restorePackage, softDeletePackage,
   subscribePackagePricing, sumGroupItems, sumPackageTotal, updatePackageGroup, updatePackageItem,
 } from "./packagePricing.js";
+
+// Photos de prestations par partenaire (ex. un pâtissier : photos de gâteaux
+// déjà réalisés) — en plus du logo unique existant. Pas encore affiché sur
+// le site public : uniquement la gestion admin pour l'instant.
+export async function listPartnerPhotos(partnerId) {
+  const { data, error } = await supabase.from("partner_photos").select("*").eq("partner_id", partnerId).order("sort_order");
+  if (error) throw error;
+  return data || [];
+}
+
+export async function addPartnerPhoto(partnerId, file, { caption = "", sortOrder = 0 } = {}) {
+  const asset = await uploadMedia(file, "partners-gallery", { title: file.name });
+  const { data, error } = await supabase.from("partner_photos")
+    .insert({ partner_id: partnerId, photo_url: asset.public_url, caption: caption || null, sort_order: sortOrder })
+    .select().single();
+  if (error) throw error;
+  return data;
+}
+
+export async function removePartnerPhoto(id) {
+  const { error } = await supabase.from("partner_photos").delete().eq("id", id);
+  if (error) throw error;
+}
