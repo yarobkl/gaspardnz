@@ -110,7 +110,12 @@
     <link rel="manifest" href="/manifest.json" />
   </head>
   <body>
-    <div id="root" style="position:relative;z-index:1;">
+    <div id="root" style="position:relative;z-index:1;"></div>
+    <!-- Contenu de secours pour les robots/clients sans JavaScript. Volontairement
+         dans <noscript> : un navigateur avec JS actif (la quasi-totalité des
+         visiteurs réels) ne l'affiche jamais, donc rien ne s'affiche puis ne
+         disparaît avant que le vrai site (React) prenne le relais. -->
+    <noscript>
       <main style="min-height:100vh;background:#1c1208;color:#f5f0e8;padding:64px 20px;font-family:Arial,sans-serif">
         <h1 style="max-width:900px;font-size:clamp(42px,7vw,82px);line-height:1">Styliste homme à Paris pour mariages, galas et événements</h1>
         <p style="max-width:800px;line-height:1.8;margin-top:24px">GaspardNZ accompagne les hommes qui souhaitent construire une allure cohérente pour un mariage, un gala, une cérémonie ou un événement important à Paris. Le travail associe stylisme, habillage, conseil en image et coordination des détails afin que les coupes, couleurs, accessoires et chaussures fonctionnent comme un ensemble.</p>
@@ -125,7 +130,7 @@
         </nav>
         <p style="margin-top:30px"><a href="https://calendly.com/gaspardnz" data-track="booking_start">Prendre rendez-vous avec GaspardNZ</a></p>
       </main>
-    </div>
+    </noscript>
     <script src="/conversion-tracking.js" defer></script>
     <script type="module" src="/src/main.jsx"></script>
   </body>

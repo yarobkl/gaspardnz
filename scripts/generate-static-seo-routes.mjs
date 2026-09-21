@@ -124,7 +124,7 @@ for (const [path, page] of Object.entries(pages)) {
   html = replaceAlternate(html, "x-default", canonical);
   const schema = buildSchema(page, path);
   if (schema) html = html.replace("</head>", `${schema}\n</head>`);
-  html = html.replace(/<div id="root"([^>]*)>[\s\S]*?<\/div>/, `<div id="root"$1>${buildStaticMarkup(page)}</div>`);
+  html = html.replace(/<noscript>[\s\S]*?<\/noscript>/, `<noscript>${buildStaticMarkup(page)}</noscript>`);
   const outputPath = join(dist, path, "index.html");
   mkdirSync(dirname(outputPath), { recursive: true });
   writeFileSync(outputPath, html);
