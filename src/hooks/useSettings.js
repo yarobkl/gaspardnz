@@ -79,8 +79,15 @@ async function loadRemoteSettings(base) {
     lookbookPdfUrl: lookbook.pdf_url || base.lookbookPdfUrl || "",
     lookbookFilename: lookbook.pdf_filename || base.lookbookFilename || "",
     formulaPrices,
-    vipClients: vipClients.length ? vipClients : base.vipClients,
-    weddingInspirations: weddingInspirations.length ? weddingInspirations : base.weddingInspirations,
+    // Un vrai résultat Supabase vide (plus rien de publié) doit rester vide :
+    // retomber sur `base` ici resterait bloqué sur les VIP/inspirations mis en
+    // cache AVANT qu'ils soient masqués — même bug que celui déjà corrigé
+    // dans usePublicCollection(), ici garanti à chaque fois que le dernier
+    // élément publié est masqué, pas seulement lors d'une vraie panne (une
+    // vraie panne fait déjà échouer toute la fonction plus haut, gérée par
+    // le try/catch de l'appelant).
+    vipClients,
+    weddingInspirations,
   };
 }
 

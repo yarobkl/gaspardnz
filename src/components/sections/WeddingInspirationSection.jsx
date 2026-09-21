@@ -1,8 +1,8 @@
-import { useContext, useRef, useState, useEffect } from "react";
+import { useContext, useRef, useState } from "react";
 import { motion, useInView } from "framer-motion";
 import { GOLD } from "../../constants.js";
-import { getWeddingInspirations, WA_GNZ } from "../../data/weddingInspirationData.js";
-import { getSettings } from "../../services/settingsService.js";
+import { WA_GNZ } from "../../data/weddingInspirationData.js";
+import { useSettings } from "../../hooks/useSettings.js";
 import { LangCtx, useTr } from "../../context.jsx";
 import useCompactMobile from "../../hooks/useCompactMobile.js";
 import { HotspotSheet, PhotoHotspots } from "../ui/PhotoHotspots.jsx";
@@ -18,23 +18,17 @@ const WeddingInspirationSection = ({ refEl }) => {
   const t = useTr();
   const { lang } = useContext(LangCtx);
   const isCompactMobile = useCompactMobile();
-  const [inspirations, setInspirations] = useState([]);
+  const settings = useSettings();
   const [expanded, setExpanded] = useState(false);
 
-  useEffect(() => {
-    const settings = getSettings();
-    const usableAdminInspirations = (settings.weddingInspirations || []).filter((item) => {
-      if (!item?.src) return true;
-      return !item.src.includes("images.unsplash.com/photo-1591195853828");
-    });
-    if (usableAdminInspirations.length > 0) {
-      setInspirations(usableAdminInspirations);
-    } else {
-      setInspirations(getWeddingInspirations(lang));
-    }
-  }, [lang]);
-
-  const INSPIRATIONS = inspirations;
+  // Un vrai "rien de publié" doit rester vide (le garde plus bas gère déjà
+  // ce cas en masquant toute la section) — jamais remplacé par la liste de
+  // démo statique, sinon une inspiration masquée depuis l'admin réapparaît
+  // dès que la liste réelle est temporairement ou définitivement vide.
+  const INSPIRATIONS = (settings.weddingInspirations || []).filter((item) => {
+    if (!item?.src) return true;
+    return !item.src.includes("images.unsplash.com/photo-1591195853828");
+  });
   const visibleInspirations = isCompactMobile && !expanded ? INSPIRATIONS.slice(0, 1) : INSPIRATIONS;
   const copy = COPY[lang] || COPY.FR;
   const ref = useRef(null);

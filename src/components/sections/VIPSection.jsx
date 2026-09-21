@@ -119,42 +119,19 @@ const VIPClientsSection = () => {
     if (/^https?:\/\//i.test(path) || path.startsWith("data:")) return path;
     return `${B}${path.replace(/^\/+/, "")}`;
   };
-  const defaultClients = [
-    { initials: "R.B", name: "Rodrin Bakala Mouengue", city: "Paris", event: t("event_wedding"), gradient: "linear-gradient(135deg,#1e3a5f,#2d6a9f)", photo: `${B}images/rodrin-bakala.jpg.JPG`,
-      album: [`${B}images/rodrin-bakala.jpg.JPG`, `${B}images/rodrin-w1.jpg`, `${B}images/rodrin-w2.jpg`, `${B}images/rodrin-w3.jpg`, `${B}images/rodrin-w4.jpg`, `${B}images/rodrin-w5.jpg`] },
-    { initials: "B", name: "Boris", city: "Paris", event: t("event_wedding"), gradient: "linear-gradient(135deg,#4a1942,#8b2fc9)", photo: `${B}images/boris-01.jpg`,
-      album: [
-        `${B}images/boris-01.jpg`,
-        `${B}images/boris-02.jpg`,
-        `${B}images/boris-03.jpg`,
-        `${B}images/boris-04.jpg`,
-        `${B}images/boris-05.jpg`,
-        `${B}images/boris-06.jpg`,
-        `${B}images/boris-07.jpg`,
-        `${B}images/boris-08.jpg`,
-        `${B}images/boris-09.jpg`,
-        `${B}images/boris-10.jpg`,
-        `${B}images/boris-11.jpg`,
-        `${B}images/boris-12.jpg`,
-        `${B}images/boris-13.jpg`,
-        `${B}images/boris-14.jpg`,
-        `${B}images/boris-15.jpg`,
-        `${B}images/boris-16.jpg`,
-      ] },
-    { initials: "Y.B", name: "Yannick B.", city: "Lyon", event: t("event_vip_evening"), gradient: "linear-gradient(135deg,#1a3a1a,#2d6b2d)" },
-    { initials: "A.N", name: "Alexis N.", city: "Dubaï", event: t("event_business"), gradient: "linear-gradient(135deg,#3d1a00,#8b3d00)" },
-    { initials: "D.K", name: "Diarietou K.", city: "Abidjan", event: t("event_ceremony"), gradient: "linear-gradient(135deg,#1a1a3d,#3d3d8b)" },
-    { initials: "T.R", name: "Théo R.", city: "Paris", event: t("event_shooting"), gradient: "linear-gradient(135deg,#3d001a,#8b0030)" },
-  ];
-  const clients = settings.vipClients?.length
-    ? settings.vipClients.map((client) => ({
-      ...client,
-      event: client.event || t("event_wedding"),
-      gradient: client.gradient || "linear-gradient(135deg,#1e3a5f,#2d6a9f)",
-      photo: withBase(client.photo),
-      album: (client.album || []).map(withBase),
-    }))
-    : defaultClients;
+  // Ces 6 clients réels sont déjà dans vip_clients (table admin) — plus
+  // besoin d'un repli statique ici. En garder un ferait réapparaître ces
+  // mêmes clients (ou d'anciens) si Gaspard les démasque tous un jour,
+  // exactement le bug déjà corrigé pour les partenaires et les inspirations
+  // mariage : un vrai "rien de publié" doit rester vide, pas retomber sur
+  // une liste figée.
+  const clients = (settings.vipClients || []).map((client) => ({
+    ...client,
+    event: client.event || t("event_wedding"),
+    gradient: client.gradient || "linear-gradient(135deg,#1e3a5f,#2d6a9f)",
+    photo: withBase(client.photo),
+    album: (client.album || []).map(withBase),
+  }));
   const CARD_W = 68;
   const getX = (idx) => ((100 - CARD_W) / 2 - idx * CARD_W) * vw;
   const x = useMotionValue(getX(0));
@@ -171,6 +148,8 @@ const VIPClientsSection = () => {
   useEffect(() => {
     x.set(((100 - CARD_W) / 2 - curRef.current * CARD_W) * vw);
   }, [vw]);
+
+  if (!clients.length) return null;
 
   return (
     <section ref={ref} style={{ background: "#0a0602", padding: "4.5rem 0 5rem", overflow: "hidden" }}>
