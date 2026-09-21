@@ -29,7 +29,7 @@ export default function AdminVIPClients() {
         <label className="gnz-field">Ville<input className="gnz-input" value={form.city || ""} onChange={(e)=>setForm({...form,city:e.target.value})}/></label>
         <label className="gnz-field">Événement<input className="gnz-input" value={form.event_label || ""} onChange={(e)=>setForm({...form,event_label:e.target.value})}/></label>
         <MediaUploadField label="Photo principale" value={form.photo_url} onChange={(url) => setForm({...form,photo_url:url})} uploadSection="vip" />
-        <label className="gnz-field">Album — une URL par ligne<textarea className="gnz-textarea" style={{minHeight:150}} value={albumText} onChange={(e)=>setAlbumText(e.target.value)} /></label>
+        <label className="gnz-field">Album · une URL par ligne<textarea className="gnz-textarea" style={{minHeight:150}} value={albumText} onChange={(e)=>setAlbumText(e.target.value)} /></label>
         <label className="gnz-field">Ordre<input className="gnz-input" type="number" value={form.sort_order || 0} onChange={(e)=>setForm({...form,sort_order:e.target.value})}/></label>
         <label className="gnz-checkbox"><input type="checkbox" checked={Boolean(form.published)} onChange={(e)=>setForm({...form,published:e.target.checked})}/>Afficher sur le site</label>
         <div className="gnz-editor-actions">{form.id && <button type="button" className="gnz-secondary-button" onClick={reset}>Annuler</button>}<button className="gnz-primary-button" disabled={saving}>{saving ? "Enregistrement…" : "Enregistrer"}</button></div>

@@ -86,9 +86,9 @@ export default function GalleryMobile({ refEl }) {
   const ask = () => {
     if (!selected) return;
     const messages = {
-      FR:`Bonjour Gaspard, je suis intéressé(e) par ${selected.label}${selected.detail ? ` — ${selected.detail}` : ""}. Pouvez-vous me donner plus d'informations ?`,
-      EN:`Hello Gaspard, I am interested in ${selected.label}${selected.detail ? ` — ${selected.detail}` : ""}. Could you send me more information?`,
-      ES:`Hola Gaspard, me interesa ${selected.label}${selected.detail ? ` — ${selected.detail}` : ""}. ¿Puedes enviarme más información?`,
+      FR:`Bonjour Gaspard, je suis intéressé(e) par ${selected.label}${selected.detail ? ` : ${selected.detail}` : ""}. Pouvez-vous me donner plus d'informations ?`,
+      EN:`Hello Gaspard, I am interested in ${selected.label}${selected.detail ? ` : ${selected.detail}` : ""}. Could you send me more information?`,
+      ES:`Hola Gaspard, me interesa ${selected.label}${selected.detail ? ` : ${selected.detail}` : ""}. ¿Puedes enviarme más información?`,
       ZH:`你好 Gaspard，我对 ${selected.label} 感兴趣。可以给我更多信息吗？`,
     };
     window.open(getWhatsappUrl(settings.whatsappNumber, messages[lang] || messages.FR), "_blank", "noopener,noreferrer");

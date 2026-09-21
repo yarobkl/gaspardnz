@@ -7,7 +7,7 @@ const STYLE_MONTH = {
     {
       src: TERRACOTTA_1,
       album: [TERRACOTTA_1, TERRACOTTA_2],
-      title: "Costume Terracotta — Style du Mois",
+      title: "Costume Terracotta · Style du Mois",
       desc: "Costume terracotta, gilet ivoire, chemise blanche, cravate vert pastel et richelieu marron. Une silhouette mariage chaleureuse, nette et moderne, pensée pour marquer l'événement sans excès.",
       photoSpots: [
         [
@@ -32,7 +32,7 @@ const STYLE_MONTH = {
     {
       src: TERRACOTTA_1,
       album: [TERRACOTTA_1, TERRACOTTA_2],
-      title: "Terracotta Suit — Style of the Month",
+      title: "Terracotta Suit · Style of the Month",
       desc: "Terracotta suit, ivory waistcoat, white shirt, pastel green tie and brown oxfords. A warm, sharp and modern wedding silhouette designed to stand out with restraint.",
       photoSpots: [
         [
@@ -57,7 +57,7 @@ const STYLE_MONTH = {
     {
       src: TERRACOTTA_1,
       album: [TERRACOTTA_1, TERRACOTTA_2],
-      title: "Traje Terracota — Estilo del Mes",
+      title: "Traje Terracota · Estilo del Mes",
       desc: "Traje terracota, chaleco marfil, camisa blanca, corbata verde pastel y zapatos oxford marrones. Una silueta de boda cálida, precisa y moderna.",
       photoSpots: [
         [
@@ -82,7 +82,7 @@ const STYLE_MONTH = {
     {
       src: TERRACOTTA_1,
       album: [TERRACOTTA_1, TERRACOTTA_2],
-      title: "红土色西装 — 本月风格",
+      title: "红土色西装 · 本月风格",
       desc: "红土色西装、象牙色马甲、白衬衫、浅绿色领带与棕色牛津鞋。温暖、利落且现代的婚礼造型。",
       photoSpots: [
         [

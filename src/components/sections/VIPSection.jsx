@@ -54,7 +54,7 @@ const AlbumModal = ({ photos, name, onClose }) => {
               <motion.div key={idx} initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.96 }} transition={{ duration: 0.3 }} style={{ position: "relative" }}>
                 <img
                   src={validPhotos[idx]}
-                  alt={`${name} — photo ${idx + 1}`}
+                  alt={`${name}, photo ${idx + 1}`}
                   width="900"
                   height="1200"
                   loading="lazy"

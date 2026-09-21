@@ -87,7 +87,7 @@ const FormulesSection = ({ refEl, onContact }) => {
               <AnimatePresence>{selected === pkg.id && <motion.div id={`formule-content-${pkg.id}`} initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }} style={{ overflow: "hidden" }}><div style={{ padding: "0 1.4rem 1.8rem", borderTop: "1px solid rgba(184,151,62,0.1)" }}>
                 {groups.map((group) => (
                   <div key={group.id} style={{ marginTop: "1.4rem" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.9rem" }}><div style={{ height: "1px", width: "20px", background: GOLD }} /><p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.4em", color: GOLD, textTransform: "uppercase" }}>{group.label}{group.tag ? ` — ${group.tag}` : ""}</p></div>
+                    <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.9rem" }}><div style={{ height: "1px", width: "20px", background: GOLD }} /><p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.4em", color: GOLD, textTransform: "uppercase" }}>{group.label}{group.tag ? ` · ${group.tag}` : ""}</p></div>
                     {(group.package_items || []).map((item) => (
                       <div key={item.id} style={{ padding: "0.5rem 0", borderBottom: "1px solid rgba(255,255,255,0.04)", display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: "1rem" }}>
                         <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", color: "rgba(245,240,232,0.65)", fontWeight: 300, margin: 0 }}>{item.label}</p>

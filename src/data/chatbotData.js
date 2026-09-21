@@ -60,8 +60,8 @@ const DATA = {
     },
     entries: [
       ["hello", ["bonjour","salut","hello","bonsoir","hi","hey","salam"], "Bonjour ! Comment puis-je vous aider aujourd'hui ?", ["packages","showroom","booking","gallery"]],
-      ["packages", ["formule","formules","pack","offre","package","mariage","service","prestation"], "Gaspard NZ propose des formules pour votre mariage :\n\n**Formule GNZ Showroom** — costumes disponibles sur place, essayage immédiat.\n**Formule Prestige** — habillage sur-mesure selon vos goûts.\n**Pack Complet Prestige** — costume sur-mesure, accompagnement et maîtrise de cérémonie.\n\nLes prix sont disponibles sur demande.", ["details","booking","prices"]],
-      ["prestige", ["prestige","sur mesure","sur-mesure","personnalisé"], "La **Formule Prestige** est une expérience complète : Gaspard sélectionne chaque pièce selon vos goûts personnels — costume, chemise, cravate, boutons de manchettes et accessoires.", ["booking","prices"]],
+      ["packages", ["formule","formules","pack","offre","package","mariage","service","prestation"], "Gaspard NZ propose des formules pour votre mariage :\n\n**Formule GNZ Showroom** : costumes disponibles sur place, essayage immédiat.\n**Formule Prestige** : habillage sur-mesure selon vos goûts.\n**Pack Complet Prestige** : costume sur-mesure, accompagnement et maîtrise de cérémonie.\n\nLes prix sont disponibles sur demande.", ["details","booking","prices"]],
+      ["prestige", ["prestige","sur mesure","sur-mesure","personnalisé"], "La **Formule Prestige** est une expérience complète : Gaspard sélectionne chaque pièce selon vos goûts personnels : costume, chemise, cravate, boutons de manchettes et accessoires.", ["booking","prices"]],
       ["price", ["prix","tarif","coût","cout","combien","budget"], "Les prix sont disponibles sur demande, car chaque projet est unique. Gaspard établit un devis personnalisé après un échange sur WhatsApp ou en rendez-vous.", ["booking","whatsapp"]],
       ["showroom", ["showroom","boutique","magasin","essayage","essayer","sur place","venir"], "Le showroom Gaspard NZ est un espace privé aménagé comme une boutique de luxe. Vous essayez les pièces disponibles sur rendez-vous, en Île-de-France.", ["booking","gallery","packages"]],
       ["location", ["où","localisation","idf","île-de-france","ile de france","paris","déplacement","province","étranger"], "Gaspard NZ est basé en Île-de-France. Il se déplace en France et à l'étranger ; les frais de déplacement et d'hôtel hors IDF sont à prévoir selon le projet.", ["booking","whatsapp"]],
@@ -83,8 +83,8 @@ const DATA = {
     },
     entries: [
       ["hello", ["hello","hi","hey","bonjour","good evening"], "Hello! How can I help you today?", ["packages","showroom","booking","gallery"]],
-      ["packages", ["package","packages","offer","wedding","service","suit"], "Gaspard NZ offers wedding packages:\n\n**GNZ Showroom Package** — suits available on site with immediate fitting.\n**Prestige Package** — bespoke styling based on your taste.\n**Complete Prestige Pack** — bespoke suit, styling support and master of ceremony service.\n\nPrices are available on request.", ["details","booking","prices"]],
-      ["prestige", ["prestige","bespoke","custom","tailored"], "The **Prestige Package** is a full experience: Gaspard selects every piece according to your personal taste — suit, shirt, tie, cufflinks and accessories.", ["booking","prices"]],
+      ["packages", ["package","packages","offer","wedding","service","suit"], "Gaspard NZ offers wedding packages:\n\n**GNZ Showroom Package** : suits available on site with immediate fitting.\n**Prestige Package** : bespoke styling based on your taste.\n**Complete Prestige Pack** : bespoke suit, styling support and master of ceremony service.\n\nPrices are available on request.", ["details","booking","prices"]],
+      ["prestige", ["prestige","bespoke","custom","tailored"], "The **Prestige Package** is a full experience: Gaspard selects every piece according to your personal taste : suit, shirt, tie, cufflinks and accessories.", ["booking","prices"]],
       ["price", ["price","cost","budget","how much"], "Prices are available on request because every project is unique. Gaspard prepares a personalized quote after a WhatsApp exchange or appointment.", ["booking","whatsapp"]],
       ["showroom", ["showroom","boutique","store","fitting","try","visit"], "The Gaspard NZ showroom is a private space designed like a luxury boutique. You try available pieces by appointment in the Paris region.", ["booking","gallery","packages"]],
       ["location", ["where","location","paris","travel","france","abroad"], "Gaspard NZ is based in the Paris region. He travels in France and abroad; travel and hotel costs outside the region depend on the project.", ["booking","whatsapp"]],
@@ -106,8 +106,8 @@ const DATA = {
     },
     entries: [
       ["hello", ["hola","buenas","hello","hi","bonjour"], "¡Hola! ¿Cómo puedo ayudarte hoy?", ["packages","showroom","booking","gallery"]],
-      ["packages", ["paquete","paquetes","oferta","boda","servicio","traje"], "Gaspard NZ propone paquetes para bodas:\n\n**Paquete GNZ Showroom** — trajes disponibles en el showroom con prueba inmediata.\n**Paquete Prestige** — estilismo a medida según tus gustos.\n**Pack Completo Prestige** — traje a medida, acompañamiento y maestro de ceremonia.\n\nLos precios están disponibles bajo solicitud.", ["details","booking","prices"]],
-      ["prestige", ["prestige","a medida","personalizado"], "El **Paquete Prestige** es una experiencia completa: Gaspard selecciona cada pieza según tus gustos — traje, camisa, corbata, gemelos y accesorios.", ["booking","prices"]],
+      ["packages", ["paquete","paquetes","oferta","boda","servicio","traje"], "Gaspard NZ propone paquetes para bodas:\n\n**Paquete GNZ Showroom** : trajes disponibles en el showroom con prueba inmediata.\n**Paquete Prestige** : estilismo a medida según tus gustos.\n**Pack Completo Prestige** : traje a medida, acompañamiento y maestro de ceremonia.\n\nLos precios están disponibles bajo solicitud.", ["details","booking","prices"]],
+      ["prestige", ["prestige","a medida","personalizado"], "El **Paquete Prestige** es una experiencia completa: Gaspard selecciona cada pieza según tus gustos : traje, camisa, corbata, gemelos y accesorios.", ["booking","prices"]],
       ["price", ["precio","tarifa","coste","costo","presupuesto","cuánto"], "Los precios están disponibles bajo solicitud porque cada proyecto es único. Gaspard prepara un presupuesto personalizado después de hablar por WhatsApp o en una cita.", ["booking","whatsapp"]],
       ["showroom", ["showroom","boutique","tienda","prueba","probar","visitar"], "El showroom Gaspard NZ es un espacio privado pensado como una boutique de lujo. Puedes probar piezas disponibles con cita previa en la región de París.", ["booking","gallery","packages"]],
       ["location", ["dónde","ubicación","parís","viaje","francia","extranjero"], "Gaspard NZ está basado en la región de París. Se desplaza en Francia y al extranjero; los gastos de viaje y hotel fuera de la región dependen del proyecto.", ["booking","whatsapp"]],
@@ -129,8 +129,8 @@ const DATA = {
     },
     entries: [
       ["hello", ["你好","您好","hello","hi","bonjour"], "你好！今天我可以怎样帮助你？", ["packages","showroom","booking","gallery"]],
-      ["packages", ["套餐","婚礼","服务","西装","造型"], "Gaspard NZ 提供婚礼造型套餐：\n\n**GNZ 展厅套餐** — 现场可试穿的西装。\n**Prestige 套餐** — 根据个人品味打造定制造型。\n**Complete Prestige 套餐** — 定制西装、造型陪同与婚礼主持服务。\n\n价格可按需求咨询。", ["details","booking","prices"]],
-      ["prestige", ["prestige","定制","量身","高级"], "**Prestige 套餐** 是完整体验：Gaspard 会根据你的个人品味选择每一件单品 — 西装、衬衫、领带、袖扣与配饰。", ["booking","prices"]],
+      ["packages", ["套餐","婚礼","服务","西装","造型"], "Gaspard NZ 提供婚礼造型套餐：\n\n**GNZ 展厅套餐** : 现场可试穿的西装。\n**Prestige 套餐** : 根据个人品味打造定制造型。\n**Complete Prestige 套餐** : 定制西装、造型陪同与婚礼主持服务。\n\n价格可按需求咨询。", ["details","booking","prices"]],
+      ["prestige", ["prestige","定制","量身","高级"], "**Prestige 套餐** 是完整体验：Gaspard 会根据你的个人品味选择每一件单品 : 西装、衬衫、领带、袖扣与配饰。", ["booking","prices"]],
       ["price", ["价格","多少钱","预算","费用"], "价格按需求咨询，因为每个项目都不同。Gaspard 会在 WhatsApp 沟通或预约之后给出个性化报价。", ["booking","whatsapp"]],
       ["showroom", ["展厅","精品店","试穿","到店","参观"], "Gaspard NZ 展厅是一个私密空间，像高级精品店一样布置。你可以预约在巴黎地区试穿现有单品。", ["booking","gallery","packages"]],
       ["location", ["哪里","位置","巴黎","法国","出行","海外"], "Gaspard NZ 常驻巴黎地区，也可以前往法国各地及海外。巴黎地区以外的交通和酒店费用根据项目计算。", ["booking","whatsapp"]],

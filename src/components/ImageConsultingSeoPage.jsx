@@ -8,7 +8,7 @@ const buttonStyle = { display: "inline-flex", alignItems: "center", justifyConte
 const FAQ = [
   ["À quoi sert un conseil en image pour homme ?", "À clarifier les choix qui renforcent votre allure : coupes, proportions, couleurs, matières, associations et niveau de formalité. L’objectif est de construire une direction cohérente avec votre personnalité et les situations dans lesquelles vous évoluez."],
   ["Faut-il changer toute sa garde-robe ?", "Non. Le premier échange sert notamment à comprendre ce que vous portez déjà, ce qui fonctionne et ce qui crée de l’incohérence. Le conseil doit d’abord vous aider à mieux décider, pas à multiplier les achats."],
-  ["Le conseil en image est-il réservé aux événements ?", "Non. Un événement peut être le déclencheur, mais les principes travaillés — coupes, couleurs, matières et associations — peuvent aussi aider à rendre votre image plus claire dans d’autres contextes personnels ou professionnels."],
+  ["Le conseil en image est-il réservé aux événements ?", "Non. Un événement peut être le déclencheur, mais les principes travaillés (coupes, couleurs, matières et associations) peuvent aussi aider à rendre votre image plus claire dans d’autres contextes personnels ou professionnels."],
   ["Que préparer avant le premier rendez-vous ?", "Vos objectifs, les contextes dans lesquels vous souhaitez mieux vous habiller, quelques tenues que vous portez déjà et, si vous en avez, des références visuelles. Cela permet d’identifier rapidement les priorités."],
 ];
 

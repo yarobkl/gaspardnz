@@ -33,7 +33,7 @@ export default function PartnerPhotosManager({ partnerId, partnerName }) {
   };
 
   return <div className="gnz-field">
-    <span>Photos de prestations{partnerName ? ` — ${partnerName}` : ""}</span>
+    <span>Photos de prestations{partnerName ? ` · ${partnerName}` : ""}</span>
     <span className="gnz-muted" style={{ fontSize: 10, marginTop: -4 }}>Pas encore affichées sur le site : préparez la galerie, elle sera activée plus tard.</span>
     {error && <div className="gnz-alert gnz-alert-error">{error}</div>}
     <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 8 }}>

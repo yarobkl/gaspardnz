@@ -59,7 +59,7 @@ export default function AdminMedia() {
     try {
       const updated = await replaceMediaFile(asset, file);
       setRows((r) => r.map((x) => x.id === asset.id ? updated : x));
-      setToast("Fichier remplacé — le lien reste le même partout où il est déjà utilisé.");
+      setToast("Fichier remplacé : le lien reste le même partout où il est déjà utilisé.");
       setTimeout(() => setToast(""), 3200);
     } catch (e) { setError(e?.message || "Remplacement impossible."); }
     finally { setReplacingId(null); }

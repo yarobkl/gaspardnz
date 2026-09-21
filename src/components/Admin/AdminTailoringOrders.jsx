@@ -66,7 +66,7 @@ export default function AdminTailoringOrders({ user }) {
     try {
       await updateTailoringOrderStatus(order.id, nextStatus, order.tailor_notes);
       await load();
-      flash(nextStatus === "terminee" ? "Commande marquée terminée — Gaspard est notifié." : "Statut mis à jour.");
+      flash(nextStatus === "terminee" ? "Commande marquée terminée : Gaspard est notifié." : "Statut mis à jour.");
     } catch (err) { setError(err?.message || "Mise à jour impossible."); }
   };
 
@@ -190,7 +190,7 @@ function PrintSheet({ order }) {
     .filter((g) => g.fields.length);
 
   return <div className="gnz-print-sheet">
-    <h2>Fiche de mesures — {order.order_number}</h2>
+    <h2>Fiche de mesures · {order.order_number}</h2>
     <p className="gnz-print-meta">Client : {order.client_name}{order.client_phone ? ` · ${order.client_phone}` : ""}<br />Généré le {new Date().toLocaleDateString("fr-FR")}</p>
     {groups.map(({ group, fields }) => (
       <table key={group}><thead><tr><th colSpan={2}>{group}</th></tr></thead><tbody>

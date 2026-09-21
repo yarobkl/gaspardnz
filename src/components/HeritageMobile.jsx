@@ -19,7 +19,7 @@ const HeritageMobile = ({ refEl }) => {
       >
         <img
           src={`${import.meta.env.BASE_URL}images/heritage.jpg`}
-          alt="Gaspardnz — L'Inspirateur"
+          alt="Gaspardnz · L'Inspirateur"
           width="1200"
           height="900"
           loading="lazy"

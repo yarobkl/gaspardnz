@@ -55,7 +55,7 @@ export default function AdminFormulesPricing() {
   return <div>
     <datalist id="gnz-article-labels">{labels.map((l) => <option key={l} value={l} />)}</datalist>
     <div className="gnz-page-heading">
-      <div><h1>Formules</h1><p>Menus, articles et prix — le sous-total et le total se calculent tout seuls.</p></div>
+      <div><h1>Formules</h1><p>Menus, articles et prix : le sous-total et le total se calculent tout seuls.</p></div>
       <button className="gnz-primary-button" onClick={() => setNewForm({ ...emptyPackage })} disabled={busy}>+ Nouvelle formule</button>
     </div>
     {error && <div className="gnz-alert gnz-alert-error">{error}</div>}
@@ -78,7 +78,7 @@ export default function AdminFormulesPricing() {
         <PackageCard key={pkg.id} pkg={pkg} labels={labels} busy={busy}
           expanded={expanded === pkg.id} onToggle={() => setExpanded(expanded === pkg.id ? null : pkg.id)}
           onSavePackage={(patch) => guard(() => upsertRow("packages", { id: pkg.id, slug: pkg.slug, ...patch }, "slug"), "Formule mise à jour.")}
-          onTrash={() => guard(() => softDeletePackage(pkg.id), "Formule mise à la corbeille — restaurable ci-dessous.")}
+          onTrash={() => guard(() => softDeletePackage(pkg.id), "Formule mise à la corbeille, restaurable ci-dessous.")}
           onAddGroup={(label, tag) => guard(() => createPackageGroup(pkg.id, { label, tag, sortOrder: pkg.package_groups?.length || 0 }))}
           onUpdateGroup={(id, patch) => guard(() => updatePackageGroup(id, patch))}
           onDeleteGroup={(id) => guard(() => deletePackageGroup(id))}
@@ -183,7 +183,7 @@ function GroupEditor({ group, busy, onUpdateGroup, onDeleteGroup, onAddItem, onU
             <input className="gnz-input" value={tagDraft} onChange={(e) => setTagDraft(e.target.value)} placeholder="Étiquette" />
             <button type="button" className="gnz-secondary-button" onClick={saveLabel}>OK</button>
           </div>
-        : <strong onClick={() => setEditingLabel(true)} style={{ cursor: "pointer" }} title="Cliquer pour modifier">{group.label}{group.tag ? ` — ${group.tag}` : ""}</strong>}
+        : <strong onClick={() => setEditingLabel(true)} style={{ cursor: "pointer" }} title="Cliquer pour modifier">{group.label}{group.tag ? ` · ${group.tag}` : ""}</strong>}
       <div className="gnz-page-actions">
         <span className="gnz-status">Sous-total · {fmt(subtotal)}</span>
         <button className="gnz-secondary-button" disabled={busy} onClick={onDeleteGroup}>Supprimer le menu</button>
