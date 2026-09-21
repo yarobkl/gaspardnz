@@ -4,6 +4,7 @@ import { GOLD, CREAM, SOCIAL_LINKS, TEXT } from "../constants.js";
 import { LangCtx, useTr } from "../context.jsx";
 import { SvgFacebook, SvgInstagram, SvgTiktok, SvgYoutube, SvgBag } from "../icons.jsx";
 import { useSettings } from "../hooks/useSettings.js";
+import { downloadFile } from "../utils/downloadFile.js";
 
 const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules, highContrast, onToggleContrast, onBiographie, onReserver, lightMode, onToggleDark, onStyleDuMois, onPartenaires, onStyleJournal, onVideo, onWedding, onActualites, onVIP, onCommunaute }) => {
   const { lang, setLang } = useContext(LangCtx);
@@ -213,7 +214,7 @@ const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules, 
               [t("nav_showroom"), onShowroom],
               [t("style_month"), onStyleDuMois],
               ["Communauté", onCommunaute],
-              [t("lookbook"), (settings.lookbookPdfUrl?.trim() && !settings.lookbookHidden) ? () => window.open(settings.lookbookPdfUrl, "_blank", "noopener,noreferrer") : null],
+              [t("lookbook"), (settings.lookbookPdfUrl?.trim() && !settings.lookbookHidden) ? () => downloadFile(settings.lookbookPdfUrl, settings.lookbookFilename || "lookbook-gaspardnz.pdf").catch(() => {}) : null],
             ].map(([label, fn], i) => (
               <motion.button key={label}
                 initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }}

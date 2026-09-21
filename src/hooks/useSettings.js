@@ -77,6 +77,7 @@ async function loadRemoteSettings(base) {
     lookbookHidden: Boolean(payment.lookbook_hidden),
     lookbookHiddenMessage: payment.lookbook_hidden_message || base.lookbookHiddenMessage || "",
     lookbookPdfUrl: lookbook.pdf_url || base.lookbookPdfUrl || "",
+    lookbookFilename: lookbook.pdf_filename || base.lookbookFilename || "",
     formulaPrices,
     vipClients: vipClients.length ? vipClients : base.vipClients,
     weddingInspirations: weddingInspirations.length ? weddingInspirations : base.weddingInspirations,

@@ -5,6 +5,7 @@ import { SvgArrow } from "../../icons.jsx";
 import { useTr } from "../../context.jsx";
 import { useSettings } from "../../hooks/useSettings.js";
 import { listPackagesWithBreakdown, subscribePackagePricing, sumGroupItems, sumPackageTotal } from "../../services/packagePricing.js";
+import { downloadFile } from "../../utils/downloadFile.js";
 
 // Les formules (menus, articles, prix) viennent entièrement de Supabase —
 // plus rien n'est codé en dur ici. Gaspard peut créer, modifier ou retirer
@@ -22,6 +23,7 @@ const FormulesSection = ({ refEl, onContact }) => {
   // n'avait pas abouti.
   const [loaded, setLoaded] = useState(false);
   const [selected, setSelected] = useState(null);
+  const [lookbookDownload, setLookbookDownload] = useState("idle"); // idle | busy | error
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-8% 0px" });
 
@@ -36,6 +38,16 @@ const FormulesSection = ({ refEl, onContact }) => {
   }, []);
 
   const formules = packages.filter((pkg) => pkg.published && !pkg.deleted_at);
+
+  const handleLookbookDownload = async () => {
+    setLookbookDownload("busy");
+    try {
+      await downloadFile(settings.lookbookPdfUrl, settings.lookbookFilename || "lookbook-gaspardnz.pdf");
+      setLookbookDownload("idle");
+    } catch {
+      setLookbookDownload("error");
+    }
+  };
 
   const formatPrice = (price, currency) => {
     if (price === null || price === undefined || Number.isNaN(Number(price))) return t("prix_sur_demande");
@@ -102,9 +114,16 @@ const FormulesSection = ({ refEl, onContact }) => {
               se télécharge gratuitement dès qu'un PDF est déposé dans l'admin
               (Contenu du site → Général → Fichier du lookbook). Rien n'est
               perdu côté Stripe — la bascule vers un lookbook payant se refera
-              ici plus tard sans redéploiement. */}
+              ici plus tard sans redéploiement.
+              Le PDF est sur un autre domaine (Supabase Storage) : un simple
+              <a download> y navigue au lieu de télécharger. On le récupère
+              donc en mémoire (blob) pour proposer le téléchargement sans
+              jamais quitter la page. */}
           {settings.lookbookPdfUrl?.trim() && !settings.lookbookHidden
-            ? <a href={settings.lookbookPdfUrl} download target="_blank" rel="noopener noreferrer" data-track="lookbook_download" style={{ display: "inline-flex", alignItems: "center", gap: "10px", background: GOLD, color: "#0d1b3e", border: "none", cursor: "pointer", padding: "1rem 2.2rem", textDecoration: "none", fontFamily: "'Montserrat', sans-serif", fontSize: "11px", letterSpacing: "0.4em", textTransform: "uppercase", fontWeight: 700 }}>{t("lookbook_download")}</a>
+            ? <>
+                <button type="button" onClick={handleLookbookDownload} disabled={lookbookDownload === "busy"} data-track="lookbook_download" style={{ display: "inline-flex", alignItems: "center", gap: "10px", background: GOLD, color: "#0d1b3e", border: "none", cursor: lookbookDownload === "busy" ? "wait" : "pointer", padding: "1rem 2.2rem", fontFamily: "'Montserrat', sans-serif", fontSize: "11px", letterSpacing: "0.4em", textTransform: "uppercase", fontWeight: 700 }}>{lookbookDownload === "busy" ? t("lookbook_download_loading") : t("lookbook_download")}</button>
+                {lookbookDownload === "error" && <p style={{ marginTop: "0.8rem", color: "#e39a9a", fontFamily: "'Montserrat', sans-serif", fontSize: "11px" }}>{t("lookbook_download_error")}</p>}
+              </>
             : <span aria-disabled="true" style={{ display: "inline-flex", alignItems: "center", gap: "10px", border: "1px solid rgba(245,240,232,0.22)", color: "rgba(245,240,232,0.5)", padding: "1rem 2.2rem", fontFamily: "'Montserrat', sans-serif", fontSize: "11px", letterSpacing: "0.4em", textTransform: "uppercase", fontWeight: 700 }}>{settings.lookbookHiddenMessage?.trim() || t("lookbook_soon")}</span>}
         </motion.div>
       </div>

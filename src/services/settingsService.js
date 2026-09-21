@@ -16,6 +16,7 @@ const defaultSettings = {
   lookbookHidden: false,
   lookbookHiddenMessage: "",
   lookbookPdfUrl: "",
+  lookbookFilename: "",
   maisonAddress: "Paris, France",
   formulaPrices: {
     formule1: 1447,
