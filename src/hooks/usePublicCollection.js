@@ -46,7 +46,12 @@ export function usePublicCollection(table, {
       if (orderBy) query = query.order(orderBy, { ascending });
       const { data, error } = await query;
       if (!alive) return;
-      if (!error && Array.isArray(data) && data.length) {
+      // Une vraie réponse Supabase avec zéro ligne (plus rien de publié pour
+      // l'instant) n'est PAS un échec : basculer sur la démo statique dans ce
+      // cas fait réapparaître des éléments masqués depuis l'admin (ex. un
+      // partenaire démasqué à tort). Le repli ne doit servir qu'en cas
+      // d'échec réel (panne réseau, Supabase indisponible).
+      if (!error && Array.isArray(data)) {
         setRows(data);
         setSource("supabase");
       } else {
