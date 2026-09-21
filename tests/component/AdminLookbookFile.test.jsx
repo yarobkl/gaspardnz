@@ -83,6 +83,34 @@ describe("Fichier du lookbook", () => {
     expect(asset?.published).toBe(true);
   });
 
+  it("supprime le fichier après confirmation : le client ne reçoit plus rien tant qu'un nouveau PDF n'est pas déposé", async () => {
+    fake.state.site_settings = [{ key: "lookbook", value: { pdf_url: "https://example.test/ancien.pdf", pdf_filename: "ancien.pdf", updated_at: "2026-01-01T00:00:00.000Z" } }];
+    vi.spyOn(window, "confirm").mockReturnValue(true);
+
+    render(<AdminContent />);
+    expect(await screen.findByText(/ancien\.pdf/)).toBeInTheDocument();
+
+    await fireEvent.click(screen.getByText("Supprimer le fichier"));
+
+    expect(await screen.findByText(/Aucun fichier déposé pour l'instant/)).toBeInTheDocument();
+    const setting = fake.state.site_settings.find((r) => r.key === "lookbook");
+    expect(setting?.value?.pdf_url).toBeUndefined();
+  });
+
+  it("n'enlève rien si la confirmation de suppression est annulée", async () => {
+    fake.state.site_settings = [{ key: "lookbook", value: { pdf_url: "https://example.test/ancien.pdf", pdf_filename: "ancien.pdf", updated_at: "2026-01-01T00:00:00.000Z" } }];
+    vi.spyOn(window, "confirm").mockReturnValue(false);
+
+    render(<AdminContent />);
+    expect(await screen.findByText(/ancien\.pdf/)).toBeInTheDocument();
+
+    await fireEvent.click(screen.getByText("Supprimer le fichier"));
+
+    expect(screen.getByText(/ancien\.pdf/)).toBeInTheDocument();
+    const setting = fake.state.site_settings.find((r) => r.key === "lookbook");
+    expect(setting?.value?.pdf_url).toBe("https://example.test/ancien.pdf");
+  });
+
   it("remplacer dépose un nouveau fichier sans supprimer l'ancien", async () => {
     fake.state.site_settings = [{ key: "lookbook", value: { pdf_url: "https://example.test/ancien.pdf", pdf_filename: "ancien.pdf", updated_at: "2026-01-01T00:00:00.000Z" } }];
     fake.state.media_assets = [{ id: "old-1", section_key: "lookbook", title: "ancien.pdf", media_type: "document", storage_path: "lookbook/ancien.pdf", public_url: "https://example.test/ancien.pdf", published: true }];

@@ -88,10 +88,12 @@ export default function AdminMedia() {
       </div> : <div className="gnz-media-meta"><strong>{asset.title || "Sans titre"}</strong><span>{asset.section_key} · {asset.media_type} · <span className={`gnz-status ${asset.published ? "success" : "warning"}`}>{asset.published ? "Visible" : "Masqué"}</span></span><div className="gnz-page-actions" style={{ marginTop: 9 }}>
         <button className="gnz-secondary-button" onClick={() => startEdit(asset)}>Modifier</button>
         <label className="gnz-secondary-button" style={{ display: "inline-flex", alignItems: "center", cursor: replacingId === asset.id ? "wait" : "pointer" }}>{replacingId === asset.id ? "Remplacement…" : "Remplacer"}<input type="file" accept="image/*,video/mp4,application/pdf" hidden disabled={replacingId === asset.id} onChange={(e) => { replaceFile(asset, e.target.files?.[0]); e.target.value = ""; }} /></label>
-        <button className={`gnz-secondary-button gnz-toggle-button${asset.published ? "" : " is-hidden"}`} onClick={() => toggle(asset)}>{asset.published ? "Masquer" : "Afficher"}</button>
+        {asset.section_key !== "lookbook" && <button className={`gnz-secondary-button gnz-toggle-button${asset.published ? "" : " is-hidden"}`} onClick={() => toggle(asset)}>{asset.published ? "Masquer" : "Afficher"}</button>}
         <button className="gnz-secondary-button" onClick={() => copy(asset.public_url)}>Copier le lien</button>
         <button className="gnz-danger-button" onClick={() => remove(asset)}>Supprimer</button>
-      </div></div>}
+      </div>
+      {asset.section_key === "lookbook" && <span className="gnz-muted" style={{ fontSize: 10, display: "block", marginTop: 6 }}>Le fichier réellement envoyé aux clients se gère dans « Contenu du site → Général → Fichier du lookbook », pas ici.</span>}
+      </div>}
     </article>)}</div> : <div className="gnz-card"><div className="gnz-empty-state">Aucun média dans cette section. Importez une photo pour commencer.</div></div>}
     {toast && <div className="gnz-toast">{toast}</div>}
   </div>;

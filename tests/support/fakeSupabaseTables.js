@@ -19,6 +19,7 @@ export function createFakeSupabaseTables(initial = {}) {
   function makeQuery(table) {
     let mode = "select";
     let payload = null;
+    let upsertConflictCol = null;
     const filters = [];
     let single = false;
     let selectStr = "*";
@@ -48,6 +49,13 @@ export function createFakeSupabaseTables(initial = {}) {
         return single ? { data: touched[0] || null, error: null } : { data: touched, error: null };
       }
       if (mode === "insert" || mode === "upsert") {
+        if (mode === "upsert" && upsertConflictCol) {
+          const idx = rows.findIndex((r) => r[upsertConflictCol] === payload[upsertConflictCol]);
+          if (idx !== -1) {
+            rows[idx] = { ...rows[idx], ...payload };
+            return { data: rows[idx], error: null };
+          }
+        }
         const row = { id: payload.id || `fake-${Math.random().toString(36).slice(2)}`, ...payload };
         rows.push(row);
         return { data: row, error: null };
@@ -69,7 +77,7 @@ export function createFakeSupabaseTables(initial = {}) {
       eq(col, val) { filters.push([col, val]); return api; },
       update(p) { mode = "update"; payload = p; return api; },
       insert(p) { mode = "insert"; payload = p; return api; },
-      upsert(p) { mode = "upsert"; payload = p; return api; },
+      upsert(p, opts) { mode = "upsert"; payload = p; upsertConflictCol = opts?.onConflict || null; return api; },
       delete() { mode = "delete"; return api; },
       single() { single = true; return run(); },
       maybeSingle() { single = true; return run(); },

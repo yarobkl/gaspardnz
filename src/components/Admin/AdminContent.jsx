@@ -117,6 +117,16 @@ function LookbookFileEditor({ lookbook, onSaved }) {
     finally { setBusy(false); }
   };
 
+  const handleRemove = async () => {
+    if (!window.confirm("Retirer le fichier du lookbook ? Le client ne recevra plus rien tant qu'un nouveau PDF n'est pas déposé.")) return;
+    setBusy(true); setError("");
+    try {
+      await saveSiteSetting("lookbook", {}, "Fichier du lookbook retiré");
+      await onSaved();
+    } catch (e) { setError(e?.message || "Suppression impossible."); }
+    finally { setBusy(false); }
+  };
+
   return <div className="gnz-card-body gnz-editor-grid">
     {lookbook.pdf_url
       ? <div className="gnz-field">
@@ -126,11 +136,14 @@ function LookbookFileEditor({ lookbook, onSaved }) {
         </div>
       : <span className="gnz-muted" style={{ fontSize: 11 }}>Aucun fichier déposé pour l'instant. Le client ne recevra rien tant qu'un PDF n'est pas importé ici.</span>}
     {error && <div className="gnz-alert gnz-alert-error">{error}</div>}
-    <label className="gnz-primary-button" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", cursor: busy ? "wait" : "pointer" }}>
-      {busy ? "Import en cours…" : lookbook.pdf_url ? "Remplacer le fichier" : "Déposer le PDF du lookbook"}
-      <input type="file" accept="application/pdf" hidden disabled={busy} onChange={(e) => { handleFile(e.target.files?.[0]); e.target.value = ""; }} />
-    </label>
-    <span className="gnz-muted" style={{ fontSize: 10 }}>PDF uniquement, 15 Mo maximum. L'ancien fichier reste dans « Médias & photos » : rien n'est supprimé.</span>
+    <div className="gnz-page-actions">
+      <label className="gnz-primary-button" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", cursor: busy ? "wait" : "pointer" }}>
+        {busy ? "Import en cours…" : lookbook.pdf_url ? "Remplacer le fichier" : "Déposer le PDF du lookbook"}
+        <input type="file" accept="application/pdf" hidden disabled={busy} onChange={(e) => { handleFile(e.target.files?.[0]); e.target.value = ""; }} />
+      </label>
+      {lookbook.pdf_url && <button type="button" className="gnz-danger-button" disabled={busy} onClick={handleRemove}>Supprimer le fichier</button>}
+    </div>
+    <span className="gnz-muted" style={{ fontSize: 10 }}>PDF uniquement, 15 Mo maximum. L'ancien fichier reste dans « Médias & photos » : rien n'est supprimé même après remplacement ou suppression ici.</span>
   </div>;
 }
 
