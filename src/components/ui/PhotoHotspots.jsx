@@ -1,5 +1,6 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { GOLD } from "../../constants.js";
+import Portal from "./Portal.jsx";
 
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 
@@ -120,6 +121,7 @@ export function PhotoHotspots({ spots = [], activeIndex = -1, onSelect }) {
 
 export function HotspotSheet({ spot, onClose, eyebrow = "Détail du look", actionLabel, onAction }) {
   return (
+    <Portal>
     <AnimatePresence>
       {spot && (
         <>
@@ -222,5 +224,6 @@ export function HotspotSheet({ spot, onClose, eyebrow = "Détail du look", actio
         </>
       )}
     </AnimatePresence>
+    </Portal>
   );
 }

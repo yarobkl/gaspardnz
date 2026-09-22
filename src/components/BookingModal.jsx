@@ -6,6 +6,7 @@ import { useFocusTrap } from "../hooks/useFocusTrap.js";
 import { SvgCalendar, SvgWA, SvgArrow } from "../icons.jsx";
 import { useSettings } from "../hooks/useSettings.js";
 import { getWhatsappUrl } from "../utils/whatsappUtil.js";
+import Portal from "./ui/Portal.jsx";
 
 const BoutiqueModal = ({ onClose, onReserver }) => {
   const t = useTr();
@@ -84,6 +85,7 @@ const BookingModal = ({ isOpen, onClose, boutiqueMode = false, onSwitchToBooking
   };
 
   return (
+    <Portal>
     <AnimatePresence>
       {isOpen && (
         <motion.div
@@ -239,6 +241,7 @@ const BookingModal = ({ isOpen, onClose, boutiqueMode = false, onSwitchToBooking
         </motion.div>
       )}
     </AnimatePresence>
+    </Portal>
   );
 };
 

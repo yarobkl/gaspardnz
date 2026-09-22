@@ -4,6 +4,7 @@ import { GOLD, CREAM } from "../constants.js";
 import { useTr } from "../context.jsx";
 import { useFocusTrap } from "../hooks/useFocusTrap.js";
 import { trackPartnerContact, sendPartnerContactEmail } from "../services/partnerTracking.js";
+import Portal from "./ui/Portal.jsx";
 
 const EMPTY_FORM = {
   name: "",
@@ -93,6 +94,7 @@ const PartnersContactModal = ({ isOpen, onClose, partner }) => {
   };
 
   return (
+    <Portal>
     <AnimatePresence>
       {isOpen && (
         <motion.div
@@ -390,6 +392,7 @@ const PartnersContactModal = ({ isOpen, onClose, partner }) => {
         </motion.div>
       )}
     </AnimatePresence>
+    </Portal>
   );
 };
 

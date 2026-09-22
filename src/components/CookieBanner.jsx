@@ -8,6 +8,7 @@ import {
   saveConsentPreferences,
   subscribeToCookieSettingsRequests,
 } from "../services/consent.js";
+import Portal from "./ui/Portal.jsx";
 
 const CookieBanner = () => {
   const t = useTr();
@@ -63,6 +64,7 @@ const CookieBanner = () => {
   };
 
   return (
+    <Portal>
     <AnimatePresence>
       {visible && (
         <motion.div
@@ -121,6 +123,7 @@ const CookieBanner = () => {
         </motion.div>
       )}
     </AnimatePresence>
+    </Portal>
   );
 };
 

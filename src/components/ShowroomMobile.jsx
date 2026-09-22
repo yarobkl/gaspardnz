@@ -6,6 +6,7 @@ import { useFocusTrap } from "../hooks/useFocusTrap.js";
 import { usePublicCollection } from "../hooks/usePublicCollection.js";
 import useCompactMobile from "../hooks/useCompactMobile.js";
 import { SvgArrow } from "../icons.jsx";
+import Portal from "./ui/Portal.jsx";
 
 const absoluteMedia = (src) => {
   if (!src) return "";
@@ -31,7 +32,7 @@ function AlbumModal({ photos, title, onClose }) {
     return () => { document.body.style.overflow = previous; window.removeEventListener("keydown", onKey); };
   }, [photos.length, onClose]);
 
-  return <motion.div ref={trap} role="dialog" aria-modal="true" initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} onClick={onClose} style={{position:"fixed",inset:0,zIndex:9999,background:"rgba(8,5,2,.96)",display:"grid",placeItems:"center",padding:"1rem"}}>
+  return <Portal><motion.div ref={trap} role="dialog" aria-modal="true" initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} onClick={onClose} style={{position:"fixed",inset:0,zIndex:9999,background:"rgba(8,5,2,.96)",display:"grid",placeItems:"center",padding:"1rem"}}>
     <button aria-label={t("close")} onClick={onClose} style={{position:"absolute",top:"calc(1rem + env(safe-area-inset-top))",right:"1rem",width:44,height:44,borderRadius:"50%",border:"1px solid rgba(184,151,62,.35)",background:"rgba(10,6,2,.55)",color:GOLD,fontSize:22,cursor:"pointer"}}>×</button>
     <motion.div onClick={(e)=>e.stopPropagation()} initial={{y:20,opacity:0}} animate={{y:0,opacity:1}} exit={{y:20,opacity:0}} style={{width:"min(92vw,560px)"}}>
       <div style={{textAlign:"center",marginBottom:"1rem"}}><p style={{fontFamily:"'Montserrat',sans-serif",fontSize:9,letterSpacing:".38em",color:GOLD,textTransform:"uppercase",margin:0}}>{t("album_label")}</p><h3 style={{fontFamily:"'Bebas Neue',sans-serif",fontSize:"clamp(2rem,10vw,4rem)",letterSpacing:".06em",color:"#faf7f2",margin:".45rem 0 0"}}>{title}</h3></div>
@@ -41,7 +42,7 @@ function AlbumModal({ photos, title, onClose }) {
       </div>
       <p style={{fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",color:"rgba(245,240,232,.65)",textAlign:"center",margin:".8rem 0 0"}}>{idx+1} / {photos.length}{current?.label ? ` · ${current.label}` : ""}</p>
     </motion.div>
-  </motion.div>;
+  </motion.div></Portal>;
 }
 
 export default function ShowroomMobile({ refEl, onCatalogue }) {

@@ -256,11 +256,16 @@ export default function App() {
             transition-duration: 0.001ms !important;
           }
         }
-        ${highContrast ? `
-          body { filter: contrast(1.25) brightness(1.08); }
-        ` : ""}
-        ${lightMode ? `
-          [data-gnz-mode="light"] section { filter: brightness(1.18) saturate(0.82); }
+        ${(highContrast || lightMode) ? `
+          /* Sur l'unique conteneur de contenu (#gnz-app-root), jamais sur
+             body ni sur chaque <section> : un filter crée un bloc de
+             positionnement pour ses descendants en position:fixed (comme un
+             transform), ce qui cassait tout modal/overlay rendu à l'intérieur
+             d'une section (album photo, etc.) dès que ce réglage était actif —
+             le mode jour l'est par défaut pour une bonne partie des visiteurs.
+             Les overlays sont maintenant sortis de cet arbre via un portail
+             (voir components/ui/Portal.jsx) pour rester immunisés. */
+          #gnz-app-root { filter: ${[highContrast && "contrast(1.25) brightness(1.08)", lightMode && "brightness(1.18) saturate(0.82)"].filter(Boolean).join(" ")}; }
         ` : ""}
         @keyframes gnz-spin { to { transform: rotate(360deg); } }
         .gnz-section-spinner { width: 32px; height: 32px; border-radius: 50%; border: 2px solid rgba(184,151,62,.25); border-top-color: ${GOLD}; animation: gnz-spin .8s linear infinite; }
@@ -282,6 +287,7 @@ export default function App() {
           />
         ) : (
           <div
+            id="gnz-app-root"
             data-gnz-mode={lightMode ? "light" : "dark"}
             style={{
               minHeight: "100dvh", overflowX: "hidden",

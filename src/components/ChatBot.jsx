@@ -3,6 +3,7 @@ import { motion, AnimatePresence, animate, useMotionValue } from "framer-motion"
 import { GOLD, CREAM, SOCIAL_LINKS, TEXT } from "../constants.js";
 import { SvgBot } from "../icons.jsx";
 import { LangCtx, useTr } from "../context.jsx";
+import Portal from "./ui/Portal.jsx";
 import { findReply, getChatLabels, getFallbackReply, getGreeting } from "../data/chatbotData.js";
 import { useSettings } from "../hooks/useSettings.js";
 import { getWhatsappUrl } from "../utils/whatsappUtil.js";
@@ -182,6 +183,7 @@ const ChatBot = ({ onReserver, onGalerie, onShowroom, onFormules }) => {
   };
 
   return (
+    <Portal>
     <>
       <motion.button
         drag
@@ -307,6 +309,7 @@ const ChatBot = ({ onReserver, onGalerie, onShowroom, onFormules }) => {
         )}
       </AnimatePresence>
     </>
+    </Portal>
   );
 };
 

@@ -5,6 +5,7 @@ import { useTr } from "../../context.jsx";
 import { useFocusTrap } from "../../hooks/useFocusTrap.js";
 import { useSettings } from "../../hooks/useSettings.js";
 import { getWhatsappUrl } from "../../utils/whatsappUtil.js";
+import Portal from "../ui/Portal.jsx";
 
 const AlbumModal = ({ photos, name, onClose }) => {
   const t = useTr();
@@ -52,6 +53,7 @@ const AlbumModal = ({ photos, name, onClose }) => {
   }, [validPhotos.length, onClose]);
 
   return (
+    <Portal>
     <motion.div
       ref={focusTrapRef}
       role="dialog"
@@ -126,6 +128,7 @@ const AlbumModal = ({ photos, name, onClose }) => {
         <p style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: "italic", fontSize: "0.85rem", color: "rgba(245,240,232,0.7)", marginTop: "0.8rem", zIndex: 1 }}>{idx + 1} / {validPhotos.length}</p>
       )}
     </motion.div>
+    </Portal>
   );
 };
 

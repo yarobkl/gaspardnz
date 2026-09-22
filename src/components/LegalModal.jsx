@@ -2,6 +2,7 @@ import { useContext, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { GOLD, SITE_URL } from "../constants.js";
 import { LangCtx, useTr } from "../context.jsx";
+import Portal from "./ui/Portal.jsx";
 
 const EDITEUR = "BAKALA MOUENGUE RODRIN ELIEZER";
 const OWNER = "NZAOU KIMPOLO GASPARD";
@@ -200,6 +201,7 @@ export default function LegalModal({ page, onClose }) {
   if (!current) return null;
 
   return (
+    <Portal>
     <AnimatePresence>
       <motion.div
         key="legal-overlay"
@@ -227,5 +229,6 @@ export default function LegalModal({ page, onClose }) {
         </motion.div>
       </motion.div>
     </AnimatePresence>
+    </Portal>
   );
 }
