@@ -91,6 +91,10 @@ const ActuCard = ({ item, isMobile = false }) => {
         </div>
       )}
       <div style={{ padding: "1.4rem 1.2rem 1.6rem" }}>
+        {/* Un article sans photo ni vidéo n'a pas le bandeau qui porte
+            normalement la date : sans ce repli, il n'affichait aucune date
+            du tout, contrairement à tous les autres. */}
+        {!hasVideo && photos.length === 0 && <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.2em", color: GOLD, textTransform: "uppercase", margin: "0 0 0.8rem" }}>{item.tag} · {item.location} · {item.date}</p>}
         <h3 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(1.5rem,7vw,2rem)", letterSpacing: "0.06em", color: "#faf7f2", margin: "0 0 1rem", lineHeight: 1 }}>{item.title}</h3>
         <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(0.95rem,4vw,1.1rem)", color: "rgba(245,240,232,0.72)", lineHeight: 1.75, fontStyle: "italic", whiteSpace: "pre-line" }}>{expanded ? item.text : preview}</div>
         {(hasVideo || hasMoreText) && <motion.button whileTap={{ scale: 0.97 }} onClick={handleCta} style={{ marginTop: "1.1rem", background: "none", border: "none", padding: "0.7rem 0", minHeight: "44px", cursor: "pointer", display: "flex", alignItems: "center", gap: "6px" }}><span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "11px", letterSpacing: "0.3em", color: GOLD, textTransform: "uppercase" }}>{expanded ? t("reduce") : hasVideo ? t("watch_full_video") : t("open_article")}</span><motion.span animate={{ rotate: expanded ? 180 : 0 }}>⌄</motion.span></motion.button>}

@@ -29,9 +29,14 @@ const VIDEO_POST = {
   cover_url: "", gallery: [], metadata: { video_url: "https://example.test/coulisses.mp4" },
   published: true, locale: "FR", published_at: "2026-05-02T00:00:00.000Z",
 };
+const TEXT_ONLY_POST = {
+  id: "n3", title: "Une annonce sans image", excerpt: "", body: "Un simple texte.",
+  cover_url: "", gallery: [], metadata: { tag: "Annonce" },
+  published: true, locale: "FR", published_at: "2026-06-01T00:00:00.000Z",
+};
 
 beforeEach(() => {
-  fake = createFakeSupabaseTables({ news_posts: [{ ...PHOTO_POST }, { ...VIDEO_POST }] });
+  fake = createFakeSupabaseTables({ news_posts: [{ ...PHOTO_POST }, { ...VIDEO_POST }, { ...TEXT_ONLY_POST }] });
 });
 
 describe("Actualités — bouton adapté au contenu, taille uniforme", () => {
@@ -63,5 +68,12 @@ describe("Actualités — bouton adapté au contenu, taille uniforme", () => {
     // la vidéo (déjà cadrée pour ce format) garde "cover".
     expect(img.style.objectFit).toBe("contain");
     expect(video.style.objectFit).toBe("cover");
+  });
+
+  it("affiche quand même une date sur un article sans photo ni vidéo", async () => {
+    render(<ActualitesSection />);
+    await screen.findByText("Une annonce sans image");
+    // juin 2026, dérivé de published_at faute de metadata.date_label
+    expect(screen.getByText(/Annonce · Paris · juin 2026/i)).toBeInTheDocument();
   });
 });
