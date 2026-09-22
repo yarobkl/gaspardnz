@@ -1,11 +1,29 @@
 import { useContext, useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, animate, useMotionValue } from "framer-motion";
 import { GOLD, CREAM, SOCIAL_LINKS, TEXT } from "../constants.js";
 import { SvgBot } from "../icons.jsx";
 import { LangCtx, useTr } from "../context.jsx";
 import { findReply, getChatLabels, getFallbackReply, getGreeting } from "../data/chatbotData.js";
 import { useSettings } from "../hooks/useSettings.js";
 import { getWhatsappUrl } from "../utils/whatsappUtil.js";
+
+const FAB_POS_KEY = "gnz-chatbot-fab-pos";
+const FAB_INTRO_KEY = "gnz-chatbot-fab-intro-seen";
+
+const readFabPos = () => {
+  try {
+    const raw = localStorage.getItem(FAB_POS_KEY);
+    if (!raw) return { x: 0, y: 0 };
+    const parsed = JSON.parse(raw);
+    return { x: Number(parsed.x) || 0, y: Number(parsed.y) || 0 };
+  } catch {
+    return { x: 0, y: 0 };
+  }
+};
+
+const readFabIntroSeen = () => {
+  try { return localStorage.getItem(FAB_INTRO_KEY) === "1"; } catch { return true; }
+};
 
 const cleanMessageText = (value) => {
   if (typeof value !== "string") return "";
@@ -42,6 +60,39 @@ const ChatBot = ({ onReserver, onGalerie, onShowroom, onFormules }) => {
   const fabDragging = useRef(false);
   const [showBubble, setShowBubble] = useState(false);
   const bottomRef = useRef(null);
+
+  // Position du bouton flottant : mémorisée par visiteur (gnz-chatbot-fab-pos)
+  // pour qu'une fois déplacé hors du chemin, il y reste aux visites
+  // suivantes. Au tout premier affichage (jamais vu avant), il tombe du haut
+  // de l'écran puis se balance une fois sur le côté — le but n'est pas
+  // décoratif, c'est ce mouvement latéral qui montre concrètement qu'on peut
+  // le faire glisser. Ça ne se rejoue plus ensuite (gnz-chatbot-fab-intro-seen).
+  const introSeenRef = useRef(readFabIntroSeen());
+  const savedPosRef = useRef(readFabPos());
+  const fabX = useMotionValue(savedPosRef.current.x);
+  const fabY = useMotionValue(introSeenRef.current ? savedPosRef.current.y : -(window.innerHeight + 120));
+
+  useEffect(() => {
+    if (introSeenRef.current) return;
+    const restY = savedPosRef.current.y;
+    const fall = animate(fabY, restY, { type: "spring", bounce: 0.55, duration: 1.1 });
+    fall.then(() => {
+      const restX = savedPosRef.current.x;
+      animate(fabX, [restX, restX - 10, restX + 10, restX - 6, restX + 6, restX], { duration: 0.7, ease: "easeInOut" });
+      introSeenRef.current = true;
+      try { localStorage.setItem(FAB_INTRO_KEY, "1"); } catch {}
+    });
+    return () => fall.stop();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const handleFabDragEnd = () => {
+    setTimeout(() => { fabDragging.current = false; }, 80);
+    introSeenRef.current = true;
+    try {
+      localStorage.setItem(FAB_INTRO_KEY, "1");
+      localStorage.setItem(FAB_POS_KEY, JSON.stringify({ x: fabX.get(), y: fabY.get() }));
+    } catch {}
+  };
 
   useEffect(() => {
     if (open && !greeted) {
@@ -138,11 +189,11 @@ const ChatBot = ({ onReserver, onGalerie, onShowroom, onFormules }) => {
         dragElastic={0}
         dragConstraints={{ top: -700, bottom: 0, left: -350, right: 0 }}
         onDragStart={() => { fabDragging.current = true; }}
-        onDragEnd={() => { setTimeout(() => { fabDragging.current = false; }, 80); }}
+        onDragEnd={handleFabDragEnd}
         onClick={() => { if (fabDragging.current) return; setOpen(o => !o); setShowBubble(false); }}
         aria-label={open ? t("chatbot_close_label") : t("chatbot_open_label")}
         whileTap={{ scale: 0.93 }}
-        style={{ position: "fixed", bottom: "1.5rem", right: "1.2rem", zIndex: 600, width: "56px", height: "56px", borderRadius: "50%", background: open ? GOLD : "transparent", border: open ? "none" : `2px solid ${GOLD}`, padding: 0, cursor: "grab", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 24px rgba(184,151,62,0.45)", overflow: "hidden", touchAction: "none" }}>
+        style={{ x: fabX, y: fabY, position: "fixed", bottom: "1.5rem", right: "1.2rem", zIndex: 600, width: "56px", height: "56px", borderRadius: "50%", background: open ? GOLD : "transparent", border: open ? "none" : `2px solid ${GOLD}`, padding: 0, cursor: "grab", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 24px rgba(184,151,62,0.45)", overflow: "hidden", touchAction: "none" }}>
         <AnimatePresence mode="wait">
           {open
             ? <motion.span key="x" initial={{ rotate: -90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: 90, opacity: 0 }} style={{ color: "#1c1208", fontSize: "22px", fontWeight: 300, lineHeight: 1 }}>×</motion.span>
