@@ -73,6 +73,7 @@ export function createFakeSupabaseTables(initial = {}) {
       order() { return api; },
       gte() { return api; },
       lt() { return api; },
+      lte() { return api; },
       limit() { return api; },
       eq(col, val) { filters.push([col, val]); return api; },
       update(p) { mode = "update"; payload = p; return api; },

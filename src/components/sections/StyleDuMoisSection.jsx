@@ -1,5 +1,5 @@
 import { useContext, useMemo, useRef, useState } from "react";
-import { motion, useInView } from "framer-motion";
+import { AnimatePresence, motion, useInView } from "framer-motion";
 import { GOLD } from "../../constants.js";
 import { getStyleDuMois, WA_GNZ } from "../../data/styleDuMoisData.js";
 import { usePublicCollection } from "../../hooks/usePublicCollection.js";
@@ -83,7 +83,11 @@ const StyleDuMoisSection = ({ refEl }) => {
 
               return <>
                 <div style={{ position: "relative", width: "100%", aspectRatio: "9/16", background: "#080503" }} onClick={() => setActiveSpot(null)}>
-                  <img src={activeSrc} alt={item.title || "Style du mois"} width="900" height="1600" loading="lazy" decoding="async" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center top", display: "block" }} />
+                  <AnimatePresence mode="wait">
+                    <motion.img key={activeSrc} src={activeSrc} alt={item.title || "Style du mois"} width="900" height="1600" loading="lazy" decoding="async"
+                      initial={{ opacity: 0, scale: 1.02 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.98 }} transition={{ duration: 0.35 }}
+                      style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center top", display: "block", position: "absolute", inset: 0 }} />
+                  </AnimatePresence>
                   <PhotoHotspots
                     spots={activeSpots}
                     activeIndex={activeIndexForPhoto}

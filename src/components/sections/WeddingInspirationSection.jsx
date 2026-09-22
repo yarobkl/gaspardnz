@@ -1,5 +1,5 @@
 import { useContext, useRef, useState } from "react";
-import { motion, useInView } from "framer-motion";
+import { AnimatePresence, motion, useInView } from "framer-motion";
 import { GOLD } from "../../constants.js";
 import { WA_GNZ } from "../../data/weddingInspirationData.js";
 import { useSettings } from "../../hooks/useSettings.js";
@@ -81,10 +81,14 @@ const WeddingInspirationSection = ({ refEl }) => {
               <div style={{ position: "relative", width: "100%", aspectRatio: "9/16", background: "linear-gradient(135deg, rgba(184,151,62,0.14), rgba(250,247,242,0.04))" }}
                 onClick={() => setActiveSpot(null)}>
               {activeSrc ? (
-                <img src={activeSrc} alt={item.title || "Look mariage"}
-                  width="900" height="1600"
-                  loading="lazy" decoding="async"
-                  style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center top", display: "block" }} />
+                <AnimatePresence mode="wait">
+                  <motion.img key={activeSrc} src={activeSrc} alt={item.title || "Look mariage"}
+                    width="900" height="1600"
+                    loading="lazy" decoding="async"
+                    initial={{ opacity: 0, scale: 1.02 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.98 }}
+                    transition={{ duration: 0.35 }}
+                    style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center top", display: "block", position: "absolute", inset: 0 }} />
+                </AnimatePresence>
               ) : (
                 <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "2rem", textAlign: "center" }}>
                   <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "11px", letterSpacing: "0.4em", color: GOLD, textTransform: "uppercase", marginBottom: "0.9rem" }}>GASPARDNZ</p>
