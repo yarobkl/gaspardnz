@@ -52,11 +52,16 @@ describe("Actualités — bouton adapté au contenu, taille uniforme", () => {
     expect(HTMLMediaElement.prototype.play).toHaveBeenCalled();
   });
 
-  it("applique le même format (ratio et découpe) à une carte photo et à une carte vidéo", async () => {
+  it("applique le même ratio à une carte photo et à une carte vidéo, sans jamais couper une photo", async () => {
     render(<ActualitesSection />);
     const img = await screen.findByAltText("Un instant à Paris");
     const video = document.querySelector("video");
+    // Même hauteur de carte (même ratio) des deux côtés...
     expect(img.style.aspectRatio).toBe(video.style.aspectRatio);
-    expect(img.style.objectFit).toBe(video.style.objectFit);
+    // ...mais une photo de groupe grand angle recadrée en "cover" coupait la
+    // moitié des personnes : les photos restent entières ("contain"), seule
+    // la vidéo (déjà cadrée pour ce format) garde "cover".
+    expect(img.style.objectFit).toBe("contain");
+    expect(video.style.objectFit).toBe("cover");
   });
 });

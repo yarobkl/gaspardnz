@@ -50,7 +50,12 @@ const ActuCard = ({ item, isMobile = false }) => {
   const preview = String(item.text || "").split("\n\n")[0];
   const hasMoreText = String(item.text || "").length > preview.length;
   const multi = !hasVideo && photos.length > 1;
-  const mediaStyle = { width: "100%", aspectRatio: MEDIA_ASPECT, maxHeight: isMobile ? MEDIA_MAX_HEIGHT.mobile : MEDIA_MAX_HEIGHT.desktop, objectFit: "cover", objectPosition: "center", display: "block", background: "#0b0703" };
+  // La vidéo est cadrée pour ce format (cover, sans perte visible) mais une
+  // photo de groupe grand angle recadrée en "cover" coupait la moitié des
+  // personnes présentes. "contain" garde l'image entière visible, quitte à
+  // laisser une marge de part et d'autre — même format de carte, rien de
+  // coupé.
+  const mediaStyle = { width: "100%", aspectRatio: MEDIA_ASPECT, maxHeight: isMobile ? MEDIA_MAX_HEIGHT.mobile : MEDIA_MAX_HEIGHT.desktop, objectFit: "contain", objectPosition: "center", display: "block", background: "#0b0703" };
 
   const handleCta = () => {
     setExpanded((e) => !e);
@@ -65,7 +70,7 @@ const ActuCard = ({ item, isMobile = false }) => {
       {(hasVideo || photos.length > 0) && (
         <div style={{ position: "relative", overflow: "hidden", background: "#050301", maxWidth: "100%" }}>
           {hasVideo ? (
-            <video ref={videoRef} src={item.video} controls playsInline preload="metadata" aria-label={`Vidéo : ${item.title}`} style={{ ...mediaStyle, background: "#050301" }}>
+            <video ref={videoRef} src={item.video} controls playsInline preload="metadata" aria-label={`Vidéo : ${item.title}`} style={{ ...mediaStyle, objectFit: "cover", background: "#050301" }}>
               <track kind="captions" src="/captions/jt-sape-fr.vtt" srcLang="fr" label="Français" default />
             </video>
           ) : multi ? (
