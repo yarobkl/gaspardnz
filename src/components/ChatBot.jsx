@@ -159,10 +159,11 @@ const ChatBot = ({ onReserver, onGalerie, onShowroom, onFormules }) => {
             exit={{ opacity: 0, y: 8, scale: 0.92 }}
             transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
             onClick={() => { setShowBubble(false); setOpen(true); }}
-            style={{ position: "fixed", bottom: "5.2rem", right: "1.2rem", maxWidth: "220px", cursor: "pointer", zIndex: 598, background: "rgba(28,18,8,0.94)", border: `1px solid rgba(184,151,62,0.35)`, borderRadius: "14px", padding: "0.85rem 2.5rem 0.85rem 1.1rem", boxShadow: "0 8px 28px rgba(0,0,0,0.32)", WebkitBackdropFilter: "blur(10px)", backdropFilter: "blur(10px)" }}
+            style={{ position: "fixed", bottom: "5rem", right: "1.2rem", maxWidth: "168px", cursor: "pointer", zIndex: 598, background: "rgba(28,18,8,0.94)", border: `1px solid rgba(184,151,62,0.35)`, borderRadius: "12px", padding: "0.6rem 1.9rem 0.6rem 0.8rem", boxShadow: "0 8px 28px rgba(0,0,0,0.32)", WebkitBackdropFilter: "blur(10px)", backdropFilter: "blur(10px)" }}
           >
-            <p style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: "italic", fontSize: "0.95rem", color: CREAM, lineHeight: 1.4, margin: 0 }}>{t("chatbot_bubble")}</p>
-            <button aria-label={t("chatbot_hide_label")} onClick={e => { e.stopPropagation(); setShowBubble(false); }} style={{ position: "absolute", top: "2px", right: "2px", background: "none", border: "none", cursor: "pointer", color: "rgba(245,240,232,0.6)", fontSize: "0.7rem", lineHeight: 1, width: "38px", height: "38px", display: "flex", alignItems: "center", justifyContent: "center" }}>✕</button>
+            <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "8px", letterSpacing: "0.16em", color: GOLD, textTransform: "uppercase", margin: "0 0 3px" }}>{t("chatbot_bubble_label")}</p>
+            <p style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: "italic", fontSize: "0.85rem", color: CREAM, lineHeight: 1.3, margin: 0 }}>{t("chatbot_bubble")}</p>
+            <button aria-label={t("chatbot_hide_label")} onClick={e => { e.stopPropagation(); setShowBubble(false); }} style={{ position: "absolute", top: "0", right: "0", background: "none", border: "none", cursor: "pointer", color: "rgba(245,240,232,0.6)", fontSize: "0.65rem", lineHeight: 1, width: "32px", height: "32px", display: "flex", alignItems: "center", justifyContent: "center" }}>✕</button>
           </motion.div>
         )}
       </AnimatePresence>
