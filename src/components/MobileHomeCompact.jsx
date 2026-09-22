@@ -172,45 +172,6 @@ export default function MobileHomeCompact({ activeSection, onSelect }) {
           )}
         </div>
       </section>
-
-      {activeSection && (
-        <motion.button
-          type="button"
-          initial={{ opacity: 0, scale: .92, y: -6 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: .92, y: -6 }}
-          whileTap={{ scale: .94 }}
-          onClick={closeSection}
-          aria-label={copy.close}
-          title={copy.close}
-          style={{
-            position: "fixed",
-            top: "calc(env(safe-area-inset-top, 0px) + 82px)",
-            right: 14,
-            zIndex: 120,
-            minWidth: 46,
-            height: 46,
-            borderRadius: 999,
-            border: "1px solid rgba(184,151,62,.58)",
-            background: "rgba(10,6,2,.88)",
-            color: GOLD,
-            boxShadow: "0 8px 28px rgba(0,0,0,.32)",
-            WebkitBackdropFilter: "blur(12px)",
-            backdropFilter: "blur(12px)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            padding: "0 14px",
-            fontFamily: "'Montserrat',sans-serif",
-            fontSize: 20,
-            lineHeight: 1,
-            cursor: "pointer",
-            touchAction: "manipulation",
-            WebkitTapHighlightColor: "transparent",
-          }}>
-          ×
-        </motion.button>
-      )}
     </>
   );
 }
