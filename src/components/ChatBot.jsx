@@ -1,6 +1,7 @@
 import { useContext, useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { GOLD, CREAM, SOCIAL_LINKS, TEXT } from "../constants.js";
+import { SvgBot } from "../icons.jsx";
 import { LangCtx, useTr } from "../context.jsx";
 import { findReply, getChatLabels, getFallbackReply, getGreeting } from "../data/chatbotData.js";
 import { useSettings } from "../hooks/useSettings.js";
@@ -17,13 +18,13 @@ const cleanBotText = (value, fallback) => {
   return text || fallback;
 };
 
-// Insigne "GNZ" plutôt que la photo de Gaspard : la même photo répétée comme
-// icône à chaque bulle de l'assistant (bouton flottant, en-tête, chaque
-// réponse) donnait l'impression que son visage devenait le "personnage" du
-// bot — pas l'effet voulu pour un assistant virtuel.
+// Icône robot plutôt que la photo de Gaspard ou un monogramme "GNZ" : un
+// badge de lettres pouvait encore passer pour un logo/une personne — une
+// silhouette de robot se reconnaît au premier coup d'œil comme un assistant
+// automatisé.
 const AvatarImg = ({ size, ring = true }) => (
   <div style={{ width: size, height: size, borderRadius: "50%", border: ring ? `2px solid ${GOLD}` : "none", overflow: "hidden", flexShrink: 0, background: "#1c1208", display: "flex", alignItems: "center", justifyContent: "center" }}>
-    <span style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: `${Math.round(size * 0.3)}px`, color: GOLD, letterSpacing: "0.05em" }}>GNZ</span>
+    <SvgBot size={Math.round(size * 0.56)} />
   </div>
 );
 
