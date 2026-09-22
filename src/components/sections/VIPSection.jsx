@@ -9,6 +9,7 @@ import { getWhatsappUrl } from "../../utils/whatsappUtil.js";
 const AlbumModal = ({ photos, name, onClose }) => {
   const t = useTr();
   const [idx, setIdx] = useState(0);
+  const [loaded, setLoaded] = useState(() => new Set());
   const focusTrapRef = useFocusTrap(true);
 
   // Reset index when album changes
@@ -22,6 +23,23 @@ const AlbumModal = ({ photos, name, onClose }) => {
 
   // Validate photos array
   const validPhotos = Array.isArray(photos) ? photos.filter(p => p && typeof p === 'string') : [];
+
+  // Sans indicateur de chargement, une photo qui met du temps à arriver
+  // (connexion mobile lente, album jamais consulté donc rien en cache) se
+  // voit comme un cadre noir figé — signalé en prod comme "l'album affiche
+  // une page noire". On précharge tout l'album dès l'ouverture (pour que
+  // suivant/précédent tapent le cache) et on affiche un vrai indicateur de
+  // chargement tant que la photo affichée n'est pas arrivée.
+  useEffect(() => {
+    validPhotos.forEach((src) => {
+      const img = new Image();
+      img.onload = () => setLoaded((prev) => (prev.has(src) ? prev : new Set(prev).add(src)));
+      img.src = src;
+    });
+  }, [photos]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const activeSrc = validPhotos[idx];
+  const activeLoaded = activeSrc ? loaded.has(activeSrc) : false;
 
   useEffect(() => {
     const onKey = (e) => {
@@ -53,14 +71,22 @@ const AlbumModal = ({ photos, name, onClose }) => {
             <AnimatePresence mode="wait">
               <motion.div key={idx} initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.96 }} transition={{ duration: 0.3 }} style={{ position: "relative" }}>
                 <img
-                  src={validPhotos[idx]}
+                  src={activeSrc}
                   alt={`${name}, photo ${idx + 1}`}
                   width="900"
                   height="1200"
-                  loading="lazy"
                   decoding="async"
-                  style={{ width: "100%", borderRadius: "12px", objectFit: "contain", maxHeight: "70vh", display: "block", backgroundColor: "rgba(0,0,0,0.3)" }}
+                  onLoad={() => setLoaded((prev) => (prev.has(activeSrc) ? prev : new Set(prev).add(activeSrc)))}
+                  style={{ width: "100%", borderRadius: "12px", objectFit: "contain", maxHeight: "70vh", display: "block", backgroundColor: "rgba(0,0,0,0.3)", opacity: activeLoaded ? 1 : 0, transition: "opacity 0.25s" }}
                 />
+                {!activeLoaded && (
+                  <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", minHeight: "50vh" }}>
+                    {[0, 1, 2].map(i => (
+                      <motion.div key={i} animate={{ y: [0, -6, 0] }} transition={{ repeat: Infinity, duration: 0.7, delay: i * 0.15 }}
+                        style={{ width: "7px", height: "7px", borderRadius: "50%", background: GOLD }} />
+                    ))}
+                  </div>
+                )}
                 <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, borderRadius: "0 0 12px 12px", background: "linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 100%)", padding: "1.4rem 1rem 0.8rem", display: "flex", alignItems: "flex-end", justifyContent: "space-between" }}>
                   <p style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: "italic", fontWeight: 300, fontSize: "0.78rem", color: "rgba(245,240,232,0.6)", letterSpacing: "0.04em" }}>{t("dressed_by")}</p>
                   <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.1rem", letterSpacing: "0.12em", color: GOLD }}>GASPARDNZ</p>
