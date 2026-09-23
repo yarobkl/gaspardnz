@@ -22,8 +22,13 @@ const readFabPos = () => {
   }
 };
 
+// sessionStorage, pas localStorage : la chute doit se rejouer à chaque
+// nouvelle visite (nouvel onglet/navigateur rouvert), pas rester bloquée
+// une seule fois pour toujours — mais pas non plus à chaque simple
+// actualisation de la page dans la même visite, sinon elle redevient la
+// répétition agaçante déjà signalée ailleurs sur le site.
 const readFabIntroSeen = () => {
-  try { return localStorage.getItem(FAB_INTRO_KEY) === "1"; } catch { return true; }
+  try { return sessionStorage.getItem(FAB_INTRO_KEY) === "1"; } catch { return true; }
 };
 
 const cleanMessageText = (value) => {
@@ -81,7 +86,7 @@ const ChatBot = ({ onReserver, onGalerie, onShowroom, onFormules }) => {
       const restX = savedPosRef.current.x;
       animate(fabX, [restX, restX - 10, restX + 10, restX - 6, restX + 6, restX], { duration: 0.7, ease: "easeInOut" });
       introSeenRef.current = true;
-      try { localStorage.setItem(FAB_INTRO_KEY, "1"); } catch {}
+      try { sessionStorage.setItem(FAB_INTRO_KEY, "1"); } catch {}
     });
     return () => fall.stop();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -90,7 +95,7 @@ const ChatBot = ({ onReserver, onGalerie, onShowroom, onFormules }) => {
     setTimeout(() => { fabDragging.current = false; }, 80);
     introSeenRef.current = true;
     try {
-      localStorage.setItem(FAB_INTRO_KEY, "1");
+      sessionStorage.setItem(FAB_INTRO_KEY, "1");
       localStorage.setItem(FAB_POS_KEY, JSON.stringify({ x: fabX.get(), y: fabY.get() }));
     } catch {}
   };
