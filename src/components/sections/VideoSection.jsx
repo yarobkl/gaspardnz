@@ -17,6 +17,7 @@ const VideoSection = () => {
   const isCompactMobile = useCompactMobile();
   const videoRef = useRef(null);
   const sectionRef = useRef(null);
+  const playPromiseRef = useRef(null);
   const shouldLoad = useInView(sectionRef, { amount: 0.15, margin: "320px 0px" });
   const isInView = useInView(sectionRef, { amount: 0.5 });
   const [videoSrc, setVideoSrc] = useState("");
@@ -33,15 +34,38 @@ const VideoSection = () => {
     video.muted = !withSound;
     video.volume = withSound ? 1 : 0;
     const playPromise = video.play();
+    playPromiseRef.current = playPromise || null;
     if (playPromise !== undefined) {
       playPromise
         .then(() => {
           setSoundBlocked(false);
           if (withSound) setSoundEnabled(true);
         })
-        .catch(() => setSoundBlocked(withSound));
+        .catch(() => setSoundBlocked(withSound))
+        .finally(() => { if (playPromiseRef.current === playPromise) playPromiseRef.current = null; });
     }
   }, [videoSrc]);
+
+  // En ouvrant l'onglet "Vidéos", la section défile jusqu'à sa position
+  // stable (voir scrollToStableTarget dans App.jsx) : isInView peut donc
+  // basculer plusieurs fois très vite pendant cette animation. Appeler
+  // video.pause() alors qu'un play() est encore en attente interrompt sa
+  // promesse — un piège classique de l'API <video> — et laissait la vidéo
+  // bloquée en erreur (code 4, plus aucune lecture possible) : c'était le
+  // vrai bug derrière "la vidéo ne s'affiche pas". On attend que le play()
+  // en cours se résolve avant de mettre en pause.
+  const pauseVideoSafely = useCallback(() => {
+    const video = videoRef.current;
+    // Un pause() sur une vidéo qui n'a encore jamais démarré (rien n'a
+    // encore appelé play(), donc déjà "paused" par défaut) annule le
+    // chargement des métadonnées en cours (preload="metadata") — la vidéo
+    // finissait alors bloquée en erreur avant même d'avoir pu démarrer.
+    if (!video || video.paused) return;
+    const pending = playPromiseRef.current;
+    if (pending) pending.finally(() => video.pause());
+    else video.pause();
+    setSoundBlocked(false);
+  }, []);
 
   useEffect(() => {
     if (shouldLoad && !videoSrc) setVideoSrc(VIDEO_URL);
@@ -55,24 +79,23 @@ const VideoSection = () => {
     if (isInView) {
       playVideo(soundEnabled);
     } else {
-      video.pause();
-      setSoundBlocked(false);
+      pauseVideoSafely();
     }
-  }, [isInView, videoSrc, playVideo, soundEnabled]);
+  }, [isInView, videoSrc, playVideo, pauseVideoSafely, soundEnabled]);
 
   useEffect(() => {
     const onVisibilityChange = () => {
       const video = videoRef.current;
       if (!video) return;
       if (document.hidden) {
-        video.pause();
+        pauseVideoSafely();
         return;
       }
       if (isInView) playVideo(soundEnabled);
     };
     document.addEventListener("visibilitychange", onVisibilityChange);
     return () => document.removeEventListener("visibilitychange", onVisibilityChange);
-  }, [isInView, videoSrc, playVideo, soundEnabled]);
+  }, [isInView, videoSrc, playVideo, pauseVideoSafely, soundEnabled]);
 
   const compactVideo = isCompactMobile && !expanded;
 
@@ -118,7 +141,6 @@ const VideoSection = () => {
           src={videoSrc}
           controls
           playsInline
-          autoPlay
           muted
           preload="metadata"
           aria-label="Sélection de looks GaspardNZ"
