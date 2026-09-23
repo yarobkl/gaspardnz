@@ -92,7 +92,7 @@ const VideoSection = () => {
           textAlign: "center",
         }}
       >
-        {t("nav_galerie")}
+        {t("nav_videos_title")}
       </motion.p>
 
       <motion.div
