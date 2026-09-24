@@ -20,6 +20,15 @@
 
 * { box-sizing: border-box; }
 body:has(.gnz-admin-shell), body:has(.gnz-login-shell) { background: var(--gnz-bg) !important; }
+/* Une seule police pour tout l'admin (déjà chargée par le site public, donc
+   aucune requête réseau de plus). Sans cette règle, titres, tableaux et
+   textes retombaient sur la police par défaut du navigateur (souvent une
+   police à empattements) alors que les boutons, corrigés séparément,
+   utilisaient déjà celle-ci — la seule vraie incohérence visuelle de
+   l'admin. Les champs de saisie ne l'héritent pas automatiquement (les
+   navigateurs leur donnent leur propre police par défaut), d'où la règle
+   dédiée un peu plus bas. */
+.gnz-admin-shell, .gnz-login-shell { font-family: 'Montserrat', sans-serif; }
 
 .gnz-login-shell {
   min-height: 100dvh;
@@ -54,7 +63,7 @@ body:has(.gnz-admin-shell), body:has(.gnz-login-shell) { background: var(--gnz-b
 .gnz-form-stack input, .gnz-form-stack textarea, .gnz-form-stack select,
 .gnz-input, .gnz-select, .gnz-textarea {
   width: 100%; color: var(--gnz-text); background: #0b0a08; border: 1px solid rgba(255,255,255,.08);
-  border-radius: 11px; min-height: 44px; padding: 11px 13px; outline: none; transition: border-color .18s, box-shadow .18s;
+  border-radius: 11px; min-height: 44px; padding: 11px 13px; outline: none; font: inherit; transition: border-color .18s, box-shadow .18s;
 }
 .gnz-form-stack input:focus, .gnz-form-stack textarea:focus, .gnz-form-stack select:focus,
 .gnz-input:focus, .gnz-select:focus, .gnz-textarea:focus {
