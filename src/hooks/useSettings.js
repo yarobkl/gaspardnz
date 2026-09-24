@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 import { getSettings, subscribeToSettingsChanges } from "../services/settingsService.js";
 import { supabase } from "../services/supabaseClient.js";
 
@@ -91,47 +91,77 @@ async function loadRemoteSettings(base) {
   };
 }
 
-export const useSettings = () => {
-  const [settings, setSettings] = useState(() => getSettings());
+// Environ une douzaine de composants publics appellent useSettings()
+// indépendamment (nav, footer, sections...). Sans magasin partagé, chacun
+// relançait son propre fetch Supabase et ouvrait son propre canal realtime
+// au montage — jusqu'à ~45 requêtes et ~20 canaux redondants par page. Un
+// seul magasin module-level, partagé via useSyncExternalStore, ne fait le
+// travail qu'une fois : le premier composant qui monte l'amorce, le dernier
+// qui démonte le referme.
+let currentSettings = getSettings();
+const listeners = new Set();
+let subscriberCount = 0;
+let refreshTimer = null;
+let localUnsubscribe = null;
+let channel = null;
 
-  useEffect(() => {
-    let mounted = true;
-    let refreshTimer = null;
-    const refresh = async () => {
-      try {
-        const remote = await loadRemoteSettings(getSettings());
-        if (!mounted) return;
-        setSettings(remote);
-        try {
-          localStorage.setItem("gaspardnz_settings", JSON.stringify(remote));
-          window.dispatchEvent(new CustomEvent("settingsUpdated", { detail: remote }));
-        } catch {}
-      } catch (error) {
-        console.warn("Remote site settings unavailable, using fallback:", error?.message || error);
-      }
-    };
-
-    refresh();
-    const localUnsubscribe = subscribeToSettingsChanges((newSettings) => setSettings(newSettings));
-    const channel = supabase
-      // Un simple suffixe pour distinguer les canaux, pas un identifiant :
-      // crypto.randomUUID() n'existe pas avant Safari 15.4 et faisait
-      // planter cet effet sur les iPhone plus anciens. Même solution déjà
-      // utilisée par usePublicCollection.js pour le même besoin.
-      .channel(`gnz-public-settings-${Math.random().toString(36).slice(2)}`)
-      .on("postgres_changes", { event: "*", schema: "public", table: "site_settings" }, () => { clearTimeout(refreshTimer); refreshTimer = setTimeout(refresh, 80); })
-      .on("postgres_changes", { event: "*", schema: "public", table: "packages" }, () => { clearTimeout(refreshTimer); refreshTimer = setTimeout(refresh, 80); })
-      .on("postgres_changes", { event: "*", schema: "public", table: "vip_clients" }, () => { clearTimeout(refreshTimer); refreshTimer = setTimeout(refresh, 80); })
-      .on("postgres_changes", { event: "*", schema: "public", table: "wedding_inspirations" }, () => { clearTimeout(refreshTimer); refreshTimer = setTimeout(refresh, 80); })
-      .subscribe();
-
-    return () => {
-      mounted = false;
-      clearTimeout(refreshTimer);
-      localUnsubscribe?.();
-      supabase.removeChannel(channel);
-    };
-  }, []);
-
-  return settings;
+const notify = (next) => {
+  currentSettings = next;
+  listeners.forEach((listener) => listener());
 };
+
+const refresh = async () => {
+  try {
+    const remote = await loadRemoteSettings(getSettings());
+    notify(remote);
+    try {
+      localStorage.setItem("gaspardnz_settings", JSON.stringify(remote));
+      window.dispatchEvent(new CustomEvent("settingsUpdated", { detail: remote }));
+    } catch {}
+  } catch (error) {
+    console.warn("Remote site settings unavailable, using fallback:", error?.message || error);
+  }
+};
+
+const scheduleRefresh = () => {
+  clearTimeout(refreshTimer);
+  refreshTimer = setTimeout(refresh, 80);
+};
+
+const startSubscription = () => {
+  refresh();
+  localUnsubscribe = subscribeToSettingsChanges((newSettings) => notify(newSettings));
+  channel = supabase
+    // Un simple suffixe pour distinguer les canaux, pas un identifiant :
+    // crypto.randomUUID() n'existe pas avant Safari 15.4 et faisait
+    // planter cet effet sur les iPhone plus anciens. Même solution déjà
+    // utilisée par usePublicCollection.js pour le même besoin.
+    .channel(`gnz-public-settings-${Math.random().toString(36).slice(2)}`)
+    .on("postgres_changes", { event: "*", schema: "public", table: "site_settings" }, scheduleRefresh)
+    .on("postgres_changes", { event: "*", schema: "public", table: "packages" }, scheduleRefresh)
+    .on("postgres_changes", { event: "*", schema: "public", table: "vip_clients" }, scheduleRefresh)
+    .on("postgres_changes", { event: "*", schema: "public", table: "wedding_inspirations" }, scheduleRefresh)
+    .subscribe();
+};
+
+const stopSubscription = () => {
+  clearTimeout(refreshTimer);
+  localUnsubscribe?.();
+  localUnsubscribe = null;
+  if (channel) { supabase.removeChannel(channel); channel = null; }
+};
+
+const subscribe = (listener) => {
+  listeners.add(listener);
+  subscriberCount += 1;
+  if (subscriberCount === 1) startSubscription();
+  return () => {
+    listeners.delete(listener);
+    subscriberCount -= 1;
+    if (subscriberCount === 0) stopSubscription();
+  };
+};
+
+const getSnapshot = () => currentSettings;
+
+export const useSettings = () => useSyncExternalStore(subscribe, getSnapshot);
