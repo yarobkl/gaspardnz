@@ -74,7 +74,7 @@ const FormulesSection = ({ refEl, onContact }) => {
         {loaded && formules.length === 0 && (
           <div style={{ padding: "1.6rem 1.4rem", border: "1px solid rgba(184,151,62,0.3)", background: "rgba(184,151,62,0.05)", textAlign: "center", marginBottom: "1.5rem" }}>
             <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "0.95rem", fontStyle: "italic", color: "rgba(245,240,232,0.8)", margin: "0 0 1.2rem" }}>{t("formules_indisponibles")}</p>
-            <button onClick={onContact} style={{ background: "none", border: "1px solid rgba(184,151,62,0.5)", color: GOLD, padding: "0.9rem 1.6rem", fontFamily: "'Montserrat', sans-serif", fontSize: "11px", letterSpacing: "0.4em", textTransform: "uppercase", cursor: "pointer" }}>{t("btn_reveler")}</button>
+            <button onClick={onContact} data-track="booking_click" style={{ background: "none", border: "1px solid rgba(184,151,62,0.5)", color: GOLD, padding: "0.9rem 1.6rem", fontFamily: "'Montserrat', sans-serif", fontSize: "11px", letterSpacing: "0.4em", textTransform: "uppercase", cursor: "pointer" }}>{t("btn_reveler")}</button>
           </div>
         )}
         <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>

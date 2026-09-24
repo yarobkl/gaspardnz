@@ -6,7 +6,7 @@ import { SvgFacebook, SvgInstagram, SvgTiktok, SvgYoutube, SvgBag } from "../ico
 import { useSettings } from "../hooks/useSettings.js";
 import { downloadFile } from "../utils/downloadFile.js";
 
-const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules, highContrast, onToggleContrast, onBiographie, onReserver, lightMode, onToggleDark, onStyleDuMois, onPartenaires, onStyleJournal, onVideo, onWedding, onActualites, onVIP, onCommunaute }) => {
+const NavMobile = ({ onShowroom, onGalerie, onCatalogue, onFormules, highContrast, onToggleContrast, onBiographie, onReserver, lightMode, onToggleDark, onStyleDuMois, onPartenaires, onStyleJournal, onVideo, onWedding, onActualites, onVIP, onCommunaute }) => {
   const { lang, setLang } = useContext(LangCtx);
   const t = useTr();
   const settings = useSettings();

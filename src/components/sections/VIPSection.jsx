@@ -275,6 +275,7 @@ const VIPClientsSection = () => {
         style={{ textAlign: "center", marginTop: "2.4rem", padding: "0 1.4rem" }}>
         <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "9px", color: "rgba(250,247,242,0.3)", letterSpacing: "0.08em" }}>{t("vip_question")}</p>
         <motion.button whileTap={{ scale: 0.97 }} onClick={() => window.open(getWhatsappUrl(settings.whatsappNumber, t("vip_question")), "_blank")}
+          data-track="whatsapp_click"
           style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "9.5px", letterSpacing: "0.2em", color: GOLD, textTransform: "uppercase", background: "none", border: "none", cursor: "pointer", borderBottom: `1px solid rgba(184,151,62,0.4)`, padding: "10px 0", minHeight: "44px", marginTop: "8px" }}>
           {t("vip_contact")}
         </motion.button>

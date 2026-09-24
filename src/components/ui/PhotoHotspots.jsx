@@ -184,6 +184,7 @@ export function HotspotSheet({ spot, onClose, eyebrow = "Détail du look", actio
                 <button
                   type="button"
                   onClick={onAction}
+                  data-track="whatsapp_click"
                   style={{
                     minHeight: 48,
                     border: 0,

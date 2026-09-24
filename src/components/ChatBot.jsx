@@ -7,6 +7,7 @@ import Portal from "./ui/Portal.jsx";
 import { findReply, getChatLabels, getFallbackReply, getGreeting } from "../data/chatbotData.js";
 import { useSettings } from "../hooks/useSettings.js";
 import { getWhatsappUrl } from "../utils/whatsappUtil.js";
+import { trackSiteEvent } from "../services/siteTracking.js";
 
 const FAB_POS_KEY = "gnz-chatbot-fab-pos";
 const FAB_INTRO_KEY = "gnz-chatbot-fab-intro-seen";
@@ -156,6 +157,7 @@ const ChatBot = ({ onReserver, onGalerie, onShowroom, onFormules }) => {
         setTimeout(() => { setOpen(false); onFormules?.(); }, 600);
       } else if (safeText === labels.whatsapp) {
         window.open(getWhatsappUrl(settings.whatsappNumber), "_blank");
+        trackSiteEvent("whatsapp_click", { metadata: { label: "chatbot" } });
         const goWA = { FR: "Je vous redirige vers WhatsApp. Gaspard vous répondra sous 24h.", EN: "Redirecting you to WhatsApp. Gaspard replies within 24h.", ES: "Te redirijo a WhatsApp. Gaspard responde en 24h.", ZH: "正在打开 WhatsApp。Gaspard 会在24小时内回复。" };
         setMsgs(m => [...m, { from: "bot", text: goWA[lang] || goWA.FR, btns: [], id: `${Date.now()}-${m.length}` }]);
       } else {
@@ -266,7 +268,7 @@ const ChatBot = ({ onReserver, onGalerie, onShowroom, onFormules }) => {
                           if (btn === labels.booking) { setOpen(false); onReserver?.(); }
                           else if (btn === labels.gallery || btn === labels.details) { setOpen(false); onGalerie?.(); }
                           else if (btn === labels.showroom) { setOpen(false); onShowroom?.(); }
-                          else if (btn === labels.whatsapp) { window.open(getWhatsappUrl(settings.whatsappNumber), "_blank"); }
+                          else if (btn === labels.whatsapp) { window.open(getWhatsappUrl(settings.whatsappNumber), "_blank"); trackSiteEvent("whatsapp_click", { metadata: { label: "chatbot" } }); }
                           else if (btn === "Instagram") { window.open(settings.instagramUrl || SOCIAL_LINKS.instagram, "_blank"); }
                           else if (btn === "TikTok") { window.open(settings.tiktokUrl || SOCIAL_LINKS.tiktok, "_blank"); }
                           else if (btn === "Facebook") { window.open(settings.facebookUrl || SOCIAL_LINKS.facebook, "_blank"); }

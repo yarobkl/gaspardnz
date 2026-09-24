@@ -271,7 +271,6 @@ export default function App() {
             <NavMobile
               onShowroom={() => scrollTo(showroomRef)}
               onGalerie={() => openMobileSection("gallery", galleryRef)}
-              onContact={() => window.open(getWhatsappUrl(settings.whatsappNumber, (APP_COPY[lang] || APP_COPY.FR).waContact), "_blank")}
               onCatalogue={() => openBooking(true)}
               onFormules={() => openMobileSection("formules", formulesRef)}
               onBiographie={() => openMobileSection("heritage", heritageRef)}
