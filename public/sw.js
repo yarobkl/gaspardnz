@@ -1,53 +1,15 @@
-const VERSION = "gnz-v6";
+// Ancien service worker (cache hors-ligne des .mp4), plus utilisé par le
+// site. Il interceptait les vidéos, ce que Safari sur iPhone gère mal
+// (vidéo refusée, écran noir). Cette version ne sert qu'à se retirer
+// d'elle-même des téléphones où il était resté installé.
+self.addEventListener("install", () => self.skipWaiting());
 
-self.addEventListener("install", e => {
-  self.skipWaiting();
-  e.waitUntil(
-    caches.open(VERSION).then(cache => {
-      const scope = self.registration.scope;
-      return cache.addAll([scope + "hero.mp4"]).catch(() => {});
-    })
-  );
-});
-
-self.addEventListener("activate", e => {
-  e.waitUntil(
-    caches.keys()
-      .then(keys => Promise.all(keys.filter(k => k !== VERSION).map(k => caches.delete(k))))
-      .then(() => self.clients.claim())
-  );
-});
-
-self.addEventListener("fetch", e => {
-  if (e.request.method !== "GET") return;
-
-  const url = new URL(e.request.url);
-
-  // Vidéo : cache-first pour lecture hors-ligne (mode avion)
-  if (url.pathname.endsWith(".mp4") || url.pathname.endsWith(".webm")) {
-    e.respondWith(
-      caches.match(e.request, { ignoreSearch: true }).then(cached => {
-        if (cached) return cached;
-        return fetch(e.request).then(res => {
-          if (res && res.status === 200) {
-            caches.open(VERSION).then(c => c.put(e.request, res.clone()));
-          }
-          return res;
-        }).catch(() => cached || Response.error());
-      })
-    );
-    return;
-  }
-
-  // Tout le reste : réseau d'abord, cache en fallback
-  e.respondWith(
-    fetch(e.request)
-      .then(res => {
-        if (res && res.status === 200) {
-          caches.open(VERSION).then(c => c.put(e.request, res.clone()));
-        }
-        return res;
-      })
-      .catch(() => caches.match(e.request))
-  );
+self.addEventListener("activate", (event) => {
+  event.waitUntil((async () => {
+    const keys = await caches.keys();
+    await Promise.all(keys.map((key) => caches.delete(key)));
+    await self.registration.unregister();
+    const clients = await self.clients.matchAll({ type: "window" });
+    clients.forEach((client) => client.navigate(client.url));
+  })());
 });

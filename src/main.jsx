@@ -11,6 +11,19 @@ import PublicSeoEnvironment from "./components/PublicSeoEnvironment.jsx";
 const CACHE_VERSION_KEY = "gnz_cache_version";
 const CACHE_VERSION = "2026-09-11-seo-analytics-v1";
 
+// Retire l'ancien service worker encore installé sur certains téléphones :
+// il interceptait les vidéos et Safari (iPhone) les refusait alors. Le site
+// n'en utilise plus. Si la page en cours était encore contrôlée par lui, on
+// recharge une seule fois pour que la vidéo se charge directement.
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.getRegistrations()
+    .then((registrations) => Promise.all(registrations.map((registration) => registration.unregister())))
+    .then((results) => {
+      if (results.some(Boolean) && navigator.serviceWorker.controller) window.location.reload();
+    })
+    .catch(() => {});
+}
+
 if ("serviceWorker" in navigator && "caches" in window) {
   const previousVersion = localStorage.getItem(CACHE_VERSION_KEY);
   if (previousVersion !== CACHE_VERSION) {
