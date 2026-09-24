@@ -208,7 +208,7 @@ function NewsFields({ form, setForm }) {
         {(form.gallery || []).map((url) => (
           <div key={url} style={{ position: "relative" }}>
             <img src={url} alt="" style={{ width: "100%", aspectRatio: "1/1", objectFit: "cover", borderRadius: 6 }} />
-            <button type="button" onClick={() => removePhoto(url)} aria-label="Retirer cette photo" style={{ position: "absolute", top: 2, right: 2, background: "rgba(0,0,0,0.6)", color: "#fff", border: "none", borderRadius: "50%", width: 20, height: 20, cursor: "pointer", lineHeight: 1, fontSize: 12 }}>×</button>
+            <button type="button" onClick={() => removePhoto(url)} aria-label="Retirer cette photo" style={{ position: "absolute", top: 2, right: 2, background: "rgba(0,0,0,0.65)", color: "#fff", border: "none", borderRadius: "50%", width: 34, height: 34, cursor: "pointer", lineHeight: 1, fontSize: 17, display: "flex", alignItems: "center", justifyContent: "center" }}>×</button>
           </div>
         ))}
       </div>}

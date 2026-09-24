@@ -41,7 +41,7 @@ export default function PartnerPhotosManager({ partnerId, partnerName }) {
         <div key={photo.id} style={{ position: "relative", width: 84, height: 84 }}>
           <img src={photo.photo_url} alt={photo.caption || ""} style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: 6 }} />
           <button type="button" onClick={() => handleRemove(photo)} disabled={busy} aria-label="Retirer cette photo"
-            style={{ position: "absolute", top: -6, right: -6, width: 22, height: 22, borderRadius: "50%", border: "1px solid rgba(255,255,255,.2)", background: "#0a0602", color: "#e39a9a", cursor: busy ? "wait" : "pointer", lineHeight: 1, fontSize: 12, padding: 0 }}>
+            style={{ position: "absolute", top: -8, right: -8, width: 34, height: 34, borderRadius: "50%", border: "1px solid rgba(255,255,255,.2)", background: "#0a0602", color: "#e39a9a", cursor: busy ? "wait" : "pointer", lineHeight: 1, fontSize: 16, padding: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
             ×
           </button>
         </div>
