@@ -30,9 +30,7 @@ const PartnersContactModal = ({ isOpen, onClose, partner }) => {
   const [formData, setFormData] = useState(EMPTY_FORM);
   const [website, setWebsite] = useState("");
   const [formStartedAt, setFormStartedAt] = useState(() => Date.now());
-  const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  const [error, setError] = useState(null);
 
   // Chaque ouverture repart avec un challenge temporel neuf et un honeypot vide.
   // Ces valeurs ne sont pas des données métier et ne sont jamais envoyées au CRM.
@@ -45,53 +43,38 @@ const PartnersContactModal = ({ isOpen, onClose, partner }) => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
-    setError(null);
   };
 
-  const handleSubmit = async (e) => {
+  // Confirmation immédiate : l'enregistrement dans le CRM part en
+  // arrière-plan (avec nouveaux essais), le client n'attend pas le réseau.
+  const handleSubmit = (e) => {
     e.preventDefault();
-    setError(null);
-    setLoading(true);
+    const safeData = {
+      ...formData,
+      name: cleanLine(formData.name),
+      email: cleanLine(formData.email),
+      phone: cleanLine(formData.phone),
+      eventType: cleanLine(formData.eventType),
+      eventDate: cleanLine(formData.eventDate),
+      message: String(formData.message).slice(0, 2000).trim(),
+      website: String(website).slice(0, 200),
+      formStartedAt,
+    };
 
-    try {
-      const safeData = {
-        ...formData,
-        name: cleanLine(formData.name),
-        email: cleanLine(formData.email),
-        phone: cleanLine(formData.phone),
-        eventType: cleanLine(formData.eventType),
-        eventDate: cleanLine(formData.eventDate),
-        message: String(formData.message).slice(0, 2000).trim(),
-        website: String(website).slice(0, 200),
-        formStartedAt,
-      };
+    trackPartnerContact(partner.id, safeData).then((trackResult) => {
+      if (!trackResult.success) return;
+      sendPartnerContactEmail(partner.id, partner.email || "", safeData, partner.status, partner.name);
+    });
 
-      const trackResult = await trackPartnerContact(partner.id, safeData);
-      if (!trackResult.success) {
-        throw new Error("Votre demande n'a pas pu être envoyée. Vérifiez votre connexion et réessayez.");
-      }
+    setSubmitted(true);
+    setFormData(EMPTY_FORM);
+    setWebsite("");
+    setFormStartedAt(Date.now());
 
-      // La demande est enregistrée dans le CRM : un échec de l'email est
-      // journalisé côté serveur mais ne doit pas pousser le client à
-      // renvoyer le formulaire (doublons).
-      const emailResult = await sendPartnerContactEmail(partner.id, partner.email || "", safeData, partner.status, partner.name);
-      if (!emailResult.success) console.warn("Partner contact email failed:", emailResult.error);
-
-      setSubmitted(true);
-      setFormData(EMPTY_FORM);
-      setWebsite("");
-      setFormStartedAt(Date.now());
-
-      setTimeout(() => {
-        setSubmitted(false);
-        onClose();
-      }, 2000);
-    } catch (err) {
-      console.error("Form submission error:", err);
-      setError(err.message || "Une erreur s'est produite. Veuillez réessayer.");
-    } finally {
-      setLoading(false);
-    }
+    setTimeout(() => {
+      setSubmitted(false);
+      onClose();
+    }, 2000);
   };
 
   return (
@@ -145,34 +128,6 @@ const PartnersContactModal = ({ isOpen, onClose, partner }) => {
                 <p style={{ color: CREAM, fontFamily: "'Cormorant Garamond', serif", fontSize: "16px" }}>
                   {t("partners_form_success_msg") || "Vous recevrez une réponse sous 24h"}
                 </p>
-              </motion.div>
-            ) : error ? (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                style={{ textAlign: "center" }}>
-                <h2 style={{ color: "#ff6b6b", fontFamily: "'Bebas Neue', sans-serif", fontSize: "20px", margin: "0 0 1rem 0" }}>
-                  Erreur
-                </h2>
-                <p style={{ color: "rgba(255,107,107,0.9)", fontFamily: "'Montserrat', sans-serif", fontSize: "14px", marginBottom: "1.5rem" }}>
-                  {error}
-                </p>
-                <button
-                  onClick={() => setError(null)}
-                  style={{
-                    background: "rgba(255,107,107,0.2)",
-                    border: "1px solid rgba(255,107,107,0.5)",
-                    color: "#ff6b6b",
-                    padding: "0.6rem 1.2rem",
-                    fontFamily: "'Montserrat', sans-serif",
-                    fontSize: "12px",
-                    letterSpacing: "0.05em",
-                    textTransform: "uppercase",
-                    cursor: "pointer",
-                    borderRadius: "4px",
-                  }}>
-                  Réessayer
-                </button>
               </motion.div>
             ) : (
               <>
@@ -368,7 +323,6 @@ const PartnersContactModal = ({ isOpen, onClose, partner }) => {
 
                   <motion.button
                     type="submit"
-                    disabled={loading}
                     whileHover={{ background: `${GOLD}20` }}
                     whileTap={{ scale: 0.98 }}
                     style={{
@@ -380,11 +334,10 @@ const PartnersContactModal = ({ isOpen, onClose, partner }) => {
                       fontSize: "13px",
                       letterSpacing: "0.1em",
                       textTransform: "uppercase",
-                      cursor: loading ? "not-allowed" : "pointer",
+                      cursor: "pointer",
                       borderRadius: "4px",
-                      opacity: loading ? 0.6 : 1,
                     }}>
-                    {loading ? (t("partners_form_sending") || "Envoi...") : (t("partners_form_submit") || "Envoyer")}
+                    {t("partners_form_submit") || "Envoyer"}
                   </motion.button>
                 </form>
               </>

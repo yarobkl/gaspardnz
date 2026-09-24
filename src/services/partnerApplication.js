@@ -1,5 +1,5 @@
 import { trackEvent } from "./adminAnalytics.js";
-import { sendPublicEvent } from "./supabaseClient.js";
+import { sendPublicEventWithRetry } from "./supabaseClient.js";
 import { getTrackingContext } from "./siteTracking.js";
 import { EMAIL_NOTIFICATIONS_ENABLED } from "../constants.js";
 
@@ -37,10 +37,7 @@ export const submitPartnerApplication = async (data) => {
       message: [application.trade, application.company, application.message].filter(Boolean).join(" · "),
       metadata: { trade: application.trade, company: application.company || null, portfolio: application.portfolio || null },
     };
-    // Sur mobile (4G), le premier appel peut se perdre en route : on
-    // réessaie une fois avant d'afficher une erreur.
-    let crm = await sendPublicEvent("lead", leadPayload);
-    if (!crm?.ok && (!crm?.status || crm.status >= 500)) crm = await sendPublicEvent("lead", leadPayload);
+    const crm = await sendPublicEventWithRetry("lead", leadPayload);
     if (!crm?.ok) throw new Error("La candidature n'a pas pu être enregistrée.");
   } catch (error) {
     console.error("Partner application error:", error);

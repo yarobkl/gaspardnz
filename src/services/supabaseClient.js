@@ -29,11 +29,26 @@ export async function sendPublicEvent(type, payload) {
         apikey: SUPABASE_PUBLISHABLE_KEY,
       },
       body: JSON.stringify({ type, payload }),
-      keepalive: type === "analytics_event",
+      // keepalive : la requête va au bout même si le visiteur ferme la page
+      // juste après avoir envoyé un formulaire.
+      keepalive: true,
     });
     if (!response.ok) return { ok: false, status: response.status };
     return await response.json();
   } catch {
     return { ok: false, status: 0 };
   }
+}
+
+// Formulaires : le visiteur voit la confirmation tout de suite et
+// l'enregistrement se fait en arrière-plan. Sur mobile (4G) un appel peut se
+// perdre : on réessaie (réseau coupé ou erreur serveur uniquement).
+export async function sendPublicEventWithRetry(type, payload, delays = [1000, 3000]) {
+  let result = await sendPublicEvent(type, payload);
+  for (const delay of delays) {
+    if (result?.ok || (result?.status && result.status < 500)) break;
+    await new Promise((resolve) => setTimeout(resolve, delay));
+    result = await sendPublicEvent(type, payload);
+  }
+  return result;
 }

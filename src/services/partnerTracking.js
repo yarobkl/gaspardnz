@@ -1,5 +1,5 @@
 import { trackEvent } from "./adminAnalytics.js";
-import { sendPublicEvent } from "./supabaseClient.js";
+import { sendPublicEventWithRetry } from "./supabaseClient.js";
 import { getTrackingContext } from "./siteTracking.js";
 import { EMAIL_NOTIFICATIONS_ENABLED } from "../constants.js";
 
@@ -25,9 +25,7 @@ export const trackPartnerContact = async (partnerId, clientData) => {
         client_discount_percentage: 5,
       },
     };
-    // Sur mobile (4G), le premier appel peut se perdre : un seul nouvel essai.
-    let result = await sendPublicEvent("partner_contact", payload);
-    if (!result?.ok && (!result?.status || result.status >= 500)) result = await sendPublicEvent("partner_contact", payload);
+    const result = await sendPublicEventWithRetry("partner_contact", payload);
 
     if (!result?.ok) throw new Error("La demande n'a pas pu être enregistrée dans le CRM.");
     return { success: true, id: result.id, leadId: result.lead_id, timestamp: new Date().toISOString() };

@@ -13,29 +13,29 @@ const COPY = {
     title: "Devenir partenaire", intro: "Vous êtes professionnel de l'événementiel ? Présentez-vous, Gaspard vous répondra personnellement.",
     name: "Votre nom", company: "Entreprise", trade: "Métier", email: "Email", phone: "Téléphone", portfolio: "Instagram ou site",
     message: "Message", messagePh: "Votre activité, vos références, ce que vous aimeriez construire ensemble…",
-    submit: "Envoyer ma candidature", sending: "Envoi…", successTitle: "Merci !", successMsg: "Votre candidature a bien été envoyée. Gaspard reviendra vers vous rapidement.",
-    errorTitle: "Erreur", retry: "Réessayer", close: "Fermer",
+    submit: "Envoyer ma candidature", successTitle: "Merci !", successMsg: "Votre candidature a bien été envoyée. Gaspard reviendra vers vous rapidement.",
+    close: "Fermer",
   },
   EN: {
     title: "Become a partner", intro: "Are you an event professional? Introduce yourself and Gaspard will get back to you personally.",
     name: "Your name", company: "Company", trade: "Profession", email: "Email", phone: "Phone", portfolio: "Instagram or website",
     message: "Message", messagePh: "Your business, your references, what you would like to build together…",
-    submit: "Send my application", sending: "Sending…", successTitle: "Thank you!", successMsg: "Your application has been sent. Gaspard will get back to you shortly.",
-    errorTitle: "Error", retry: "Try again", close: "Close",
+    submit: "Send my application", successTitle: "Thank you!", successMsg: "Your application has been sent. Gaspard will get back to you shortly.",
+    close: "Close",
   },
   ES: {
     title: "Ser socio", intro: "¿Eres profesional de eventos? Preséntate y Gaspard te responderá personalmente.",
     name: "Tu nombre", company: "Empresa", trade: "Profesión", email: "Email", phone: "Teléfono", portfolio: "Instagram o web",
     message: "Mensaje", messagePh: "Tu actividad, tus referencias, lo que te gustaría construir juntos…",
-    submit: "Enviar mi candidatura", sending: "Enviando…", successTitle: "¡Gracias!", successMsg: "Tu candidatura se ha enviado. Gaspard te responderá pronto.",
-    errorTitle: "Error", retry: "Reintentar", close: "Cerrar",
+    submit: "Enviar mi candidatura", successTitle: "¡Gracias!", successMsg: "Tu candidatura se ha enviado. Gaspard te responderá pronto.",
+    close: "Cerrar",
   },
   ZH: {
     title: "成为合作伙伴", intro: "您是活动行业的专业人士吗？请介绍一下自己，Gaspard 会亲自回复您。",
     name: "您的姓名", company: "公司", trade: "职业", email: "邮箱", phone: "电话", portfolio: "Instagram 或网站",
     message: "留言", messagePh: "您的业务、案例，以及希望共同打造的合作…",
-    submit: "发送申请", sending: "发送中…", successTitle: "谢谢！", successMsg: "您的申请已发送，Gaspard 会尽快与您联系。",
-    errorTitle: "错误", retry: "重试", close: "关闭",
+    submit: "发送申请", successTitle: "谢谢！", successMsg: "您的申请已发送，Gaspard 会尽快与您联系。",
+    close: "关闭",
   },
 };
 
@@ -51,9 +51,7 @@ const PartnerApplicationModal = ({ isOpen, onClose, trade = "" }) => {
   const [formData, setFormData] = useState(() => emptyForm(trade));
   const [website, setWebsite] = useState("");
   const [formStartedAt, setFormStartedAt] = useState(() => Date.now());
-  const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  const [error, setError] = useState(null);
 
   // Chaque ouverture préremplit le métier de la carte cliquée et repart
   // avec un honeypot vide et un challenge temporel neuf.
@@ -63,25 +61,18 @@ const PartnerApplicationModal = ({ isOpen, onClose, trade = "" }) => {
     setWebsite("");
     setFormStartedAt(Date.now());
     setSubmitted(false);
-    setError(null);
   }, [isOpen, trade]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-    setError(null);
   };
 
-  const handleSubmit = async (e) => {
+  // Confirmation immédiate : l'enregistrement dans le CRM part en
+  // arrière-plan (avec nouveaux essais), le visiteur n'attend pas le réseau.
+  const handleSubmit = (e) => {
     e.preventDefault();
-    setLoading(true);
-    setError(null);
-    const result = await submitPartnerApplication({ ...formData, website, formStartedAt });
-    setLoading(false);
-    if (!result.success) {
-      setError(result.error);
-      return;
-    }
+    submitPartnerApplication({ ...formData, website, formStartedAt });
     setSubmitted(true);
     setFormData(emptyForm());
   };
@@ -123,15 +114,6 @@ const PartnerApplicationModal = ({ isOpen, onClose, trade = "" }) => {
 
               {submitted ? (
                 <p style={{ color: CREAM, fontFamily: "'Cormorant Garamond', serif", fontSize: "17px", lineHeight: 1.6, margin: 0 }}>{copy.successMsg}</p>
-              ) : error ? (
-                <div style={{ textAlign: "center" }}>
-                  <p style={{ color: "#ff6b6b", fontFamily: "'Bebas Neue', sans-serif", fontSize: "20px", margin: "0 0 .6rem" }}>{copy.errorTitle}</p>
-                  <p style={{ color: "rgba(255,107,107,0.9)", fontFamily: "'Montserrat', sans-serif", fontSize: "14px", marginBottom: "1.5rem" }}>{error}</p>
-                  <button type="button" onClick={() => setError(null)}
-                    style={{ background: "rgba(255,107,107,0.2)", border: "1px solid rgba(255,107,107,0.5)", color: "#ff6b6b", padding: "0.6rem 1.2rem", fontFamily: "'Montserrat', sans-serif", fontSize: "12px", letterSpacing: "0.05em", textTransform: "uppercase", cursor: "pointer", borderRadius: "4px" }}>
-                    {copy.retry}
-                  </button>
-                </div>
               ) : (
                 <>
                   <p style={{ color: "rgba(245,240,232,0.75)", fontFamily: "'Cormorant Garamond', serif", fontSize: "16px", fontStyle: "italic", lineHeight: 1.5, margin: "0 0 1.5rem" }}>{copy.intro}</p>
@@ -154,9 +136,9 @@ const PartnerApplicationModal = ({ isOpen, onClose, trade = "" }) => {
                         placeholder={copy.messagePh} style={{ ...inputStyle, resize: "vertical" }} />
                     </div>
 
-                    <button type="submit" disabled={loading}
-                      style={{ background: `rgba(184,151,62,0.14)`, border: `1px solid ${GOLD}`, color: CREAM, padding: "0.9rem", fontFamily: "'Montserrat', sans-serif", fontSize: "12px", letterSpacing: "0.1em", textTransform: "uppercase", cursor: loading ? "not-allowed" : "pointer", borderRadius: "4px", opacity: loading ? 0.6 : 1 }}>
-                      {loading ? copy.sending : copy.submit}
+                    <button type="submit"
+                      style={{ background: `rgba(184,151,62,0.14)`, border: `1px solid ${GOLD}`, color: CREAM, padding: "0.9rem", fontFamily: "'Montserrat', sans-serif", fontSize: "12px", letterSpacing: "0.1em", textTransform: "uppercase", cursor: "pointer", borderRadius: "4px" }}>
+                      {copy.submit}
                     </button>
                   </form>
                 </>
