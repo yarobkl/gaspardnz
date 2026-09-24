@@ -5,6 +5,7 @@ import { LangCtx } from "../context.jsx";
 import { useFocusTrap } from "../hooks/useFocusTrap.js";
 import { useEscapeKey } from "../hooks/useEscapeKey.js";
 import { submitPartnerApplication } from "../services/partnerApplication.js";
+import { enqueuePartnerApplication } from "../services/partnerApplicationQueue.js";
 import Portal from "./ui/Portal.jsx";
 import CityField from "./ui/CityField.jsx";
 
@@ -73,9 +74,15 @@ const PartnerApplicationModal = ({ isOpen, onClose, trade = "" }) => {
 
   // Confirmation immédiate : l'enregistrement dans le CRM part en
   // arrière-plan (avec nouveaux essais), le visiteur n'attend pas le réseau.
+  // Si les 3 tentatives échouent malgré tout (réseau coupé, Supabase
+  // indisponible), la candidature est mise en file d'attente locale plutôt
+  // que perdue — retentée au prochain démarrage du site.
   const handleSubmit = (e) => {
     e.preventDefault();
-    submitPartnerApplication({ ...formData, website, formStartedAt });
+    const payload = { ...formData, website, formStartedAt };
+    submitPartnerApplication(payload).then((result) => {
+      if (!result?.success) enqueuePartnerApplication(payload);
+    });
     setSubmitted(true);
     setFormData(emptyForm());
   };

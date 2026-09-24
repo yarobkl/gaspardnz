@@ -2,6 +2,7 @@ import { trackEvent } from "./adminAnalytics.js";
 import { sendPublicEventWithRetry } from "./supabaseClient.js";
 import { getTrackingContext } from "./siteTracking.js";
 import { EMAIL_NOTIFICATIONS_ENABLED } from "../constants.js";
+import { flushPartnerApplicationQueue } from "./partnerApplicationQueue.js";
 
 // Candidature d'un professionnel qui veut devenir partenaire de Gaspard.
 // Enregistrée dans le CRM (leads, type "partner_application") puis envoyée
@@ -84,3 +85,8 @@ export const submitPartnerApplication = async (data) => {
     return { success: true, emailSent: false };
   }
 };
+
+// Retente les candidatures mises en file d'attente après un échec des 3
+// tentatives réseau (voir partnerApplicationQueue.js) — à appeler au
+// démarrage du site et au retour de connexion.
+export const retryQueuedPartnerApplications = () => flushPartnerApplicationQueue(submitPartnerApplication);

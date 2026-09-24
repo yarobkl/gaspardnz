@@ -16,6 +16,7 @@ import { trackPageView } from "./services/adminAnalytics.js";
 import { clearAllTrackingData, initializeTracking, trackPageView as trackDetailedPageView } from "./services/analyticsTracking.js";
 import { clearSupabaseTrackingData, initializeSupabaseTracking } from "./services/siteTracking.js";
 import { getConsentPreferences, subscribeToConsentChanges } from "./services/consent.js";
+import { retryQueuedPartnerApplications } from "./services/partnerApplication.js";
 import NavMobile from "./components/NavMobile.jsx";
 import HeroMobile from "./components/HeroMobile.jsx";
 import useCompactMobile from "./hooks/useCompactMobile.js";
@@ -179,6 +180,16 @@ export default function App() {
   useEffect(() => {
     document.documentElement.lang = HTML_LANG[lang] || "fr";
   }, [lang]);
+
+  // Retente les candidatures partenaires mises en file d'attente locale
+  // après un échec des 3 tentatives réseau (visiteur hors ligne, Supabase
+  // temporairement indisponible) — au chargement et au retour de connexion.
+  useEffect(() => {
+    if (isAdminPath || currentlyOnAdminPath) return;
+    retryQueuedPartnerApplications();
+    window.addEventListener("online", retryQueuedPartnerApplications);
+    return () => window.removeEventListener("online", retryQueuedPartnerApplications);
+  }, [isAdminPath, currentlyOnAdminPath]);
 
   useEffect(() => {
     localStorage.setItem("gnz-lightMode", String(lightMode));
