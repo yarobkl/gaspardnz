@@ -319,7 +319,17 @@ export const initFormTracking = () => {
 
     recordBehaviorEvent({
       type: eventType,
-      formName: form.name || form.id || "unnamed",
+      // `form.name` peut renvoyer un élément du formulaire au lieu d'une
+      // chaîne : un <form> expose ses champs nommés comme propriétés, donc
+      // un champ <input name="name"> (ex. le formulaire partenaire) masque
+      // la propriété `.name` du <form> lui-même. `getAttribute` ne subit pas
+      // ce conflit et renvoie toujours une chaîne (ou null).
+      // `form.name` peut renvoyer un élément du formulaire au lieu d'une
+      // chaîne : un <form> expose ses champs nommés comme propriétés, donc
+      // un champ <input name="name"> (ex. le formulaire partenaire) masque
+      // la propriété `.name` du <form> lui-même. `getAttribute` ne subit pas
+      // ce conflit et renvoie toujours une chaîne (ou null).
+      formName: form.getAttribute("name") || form.id || "unnamed",
       fieldName: event.target.name,
       fieldType: event.target.type,
       page: window.location.pathname,
@@ -342,7 +352,7 @@ export const trackFormSubmit = (formElement, metadata = {}) => {
   try {
     recordBehaviorEvent({
       type: "form_submit",
-      formName: formElement.name || formElement.id || "unnamed",
+      formName: formElement.getAttribute("name") || formElement.id || "unnamed",
       page: window.location.pathname,
       metadata,
     });

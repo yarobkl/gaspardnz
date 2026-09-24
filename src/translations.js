@@ -182,7 +182,7 @@ export const T = {
   },
   EN: {
     ...ADMIN_EN,
-    nav_reveler:"Reveal Myself", nav_bio:"Biography", nav_showroom:"Showroom",
+    nav_reveler:"Book an Appointment", nav_bio:"Biography", nav_showroom:"Showroom",
     nav_formules:"Packages", nav_galerie:"Gallery", nav_videos_title:"Videos", nav_partenaires:"Our Partners", nav_contact:"Contact",
     nav_vip_clients:"Client gallery", nav_communaute:"Community",
     nav_boutique:"Boutique", nav_mode_jour:"Day mode", nav_mode_normal:"Normal mode",
@@ -321,7 +321,7 @@ export const T = {
   },
   ES: {
     ...ADMIN_ES,
-    nav_reveler:"Revelarme", nav_bio:"Biografía", nav_showroom:"Showroom",
+    nav_reveler:"Reservar cita", nav_bio:"Biografía", nav_showroom:"Showroom",
     nav_formules:"Paquetes", nav_galerie:"Galería", nav_videos_title:"Vídeos", nav_partenaires:"Nuestros Socios", nav_contact:"Contacto",
     nav_vip_clients:"Galería de clientes", nav_communaute:"Comunidad",
     nav_boutique:"Boutique", nav_mode_jour:"Modo día", nav_mode_normal:"Modo normal",
@@ -460,7 +460,7 @@ export const T = {
   },
   ZH: {
     ...ADMIN_ZH,
-    nav_reveler:"展现自我", nav_bio:"简介", nav_showroom:"展厅",
+    nav_reveler:"预约", nav_bio:"简介", nav_showroom:"展厅",
     nav_formules:"套餐", nav_galerie:"画廊", nav_videos_title:"视频", nav_partenaires:"合作伙伴", nav_contact:"联系",
     nav_vip_clients:"客户画廊", nav_communaute:"社区",
     nav_boutique:"精品店", nav_mode_jour:"日间模式", nav_mode_normal:"普通模式",
