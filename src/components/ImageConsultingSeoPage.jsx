@@ -1,4 +1,5 @@
 import { CALENDLY_URL, WA_NUM, GOLD, CREAM } from "../constants.js";
+import SeoLayout from "./SeoLayout.jsx";
 
 const waHref = `https://wa.me/${WA_NUM}?text=${encodeURIComponent("Bonjour Gaspard, je souhaite clarifier mon style et mon image. J’aimerais échanger sur un accompagnement de conseil en image.")}`;
 
@@ -14,7 +15,7 @@ const FAQ = [
 
 export default function ImageConsultingSeoPage() {
   return (
-    <main style={{ minHeight: "100vh", background: "#0a0602", color: CREAM }}>
+    <SeoLayout>
       <header style={{ borderBottom: "1px solid rgba(184,151,62,.2)", padding: "1rem 1.25rem" }}>
         <div style={{ maxWidth: 1120, margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 16 }}>
           <a href="/" style={{ color: CREAM, textDecoration: "none", fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.7rem", letterSpacing: ".14em" }}>GASPARDNZ</a>
@@ -74,6 +75,6 @@ export default function ImageConsultingSeoPage() {
         <p style={{ maxWidth: 650, margin: "1.25rem auto 2rem", fontFamily: "'Montserrat', sans-serif", color: "rgba(245,240,232,.7)", lineHeight: 1.8 }}>Présentez les situations dans lesquelles vous souhaitez être plus à l’aise et les difficultés que vous rencontrez aujourd’hui. Le premier échange permettra d’identifier la manière la plus utile de vous accompagner.</p>
         <a href={CALENDLY_URL} target="_blank" rel="noopener noreferrer" data-track="booking_start" style={{ ...buttonStyle, background: GOLD, color: "#1c1208", border: `1px solid ${GOLD}` }}>Choisir un créneau</a>
       </section>
-    </main>
+    </SeoLayout>
   );
 }

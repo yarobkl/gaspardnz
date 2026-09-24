@@ -1,4 +1,5 @@
 import { CALENDLY_URL, WA_NUM, GOLD, CREAM } from "../constants.js";
+import SeoLayout from "./SeoLayout.jsx";
 
 const ROUTES = {
   "/a-propos": {
@@ -74,7 +75,7 @@ export default function SeoRoutePage() {
   const page = ROUTES[path] || ROUTES["/a-propos"];
 
   return (
-    <main style={{ minHeight: "100vh", background: "#0a0602", color: CREAM }}>
+    <SeoLayout>
       <header style={{ borderBottom: "1px solid rgba(184,151,62,.2)", padding: "1rem 1.25rem" }}>
         <div style={{ maxWidth: 1120, margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 16 }}>
           <a href="/" style={{ color: CREAM, textDecoration: "none", fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.7rem", letterSpacing: ".14em" }}>GASPARDNZ</a>
@@ -122,6 +123,6 @@ export default function SeoRoutePage() {
         <a href="/galerie" style={navLink}>Galerie</a>
         <a href="/contact" style={navLink}>Contact</a>
       </footer>
-    </main>
+    </SeoLayout>
   );
 }

@@ -1,4 +1,5 @@
 import { CALENDLY_URL, WA_NUM, GOLD, CREAM } from "../constants.js";
+import SeoLayout from "./SeoLayout.jsx";
 
 const SERVICES = [
   ["Styliste mariage homme à Paris", "Construction d’une silhouette cohérente pour la mairie, la cérémonie et la soirée : costume, chemise, accessoires, chaussures et coordination générale."],
@@ -12,7 +13,7 @@ const buttonStyle = { display: "inline-flex", alignItems: "center", justifyConte
 
 export default function ServicesRoutePage() {
   return (
-    <main style={{ minHeight: "100vh", background: "#0a0602", color: CREAM }}>
+    <SeoLayout>
       <header style={{ borderBottom: "1px solid rgba(184,151,62,.2)", padding: "1rem 1.25rem" }}>
         <div style={{ maxWidth: 1120, margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 16 }}>
           <a href="/" style={{ color: CREAM, textDecoration: "none", fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.7rem", letterSpacing: ".14em" }}>GASPARDNZ</a>
@@ -38,6 +39,6 @@ export default function ServicesRoutePage() {
       </section>
       <section style={{ background: CREAM, color: "#1c1208" }}><div style={{ maxWidth: 1120, margin: "0 auto", padding: "4.5rem 1.25rem" }}><h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(2.4rem,6vw,4.5rem)", fontWeight: 400, margin: "0 0 1.5rem" }}>Un accompagnement pensé autour de votre événement</h2><p style={{ maxWidth: 760, fontFamily: "'Montserrat', sans-serif", lineHeight: 1.8, color: "rgba(28,18,8,.68)" }}>Le premier échange sert à comprendre le contexte, puis à construire et finaliser une silhouette cohérente. Selon la formule choisie, l’accompagnement peut se prolonger jusqu’au jour J.</p><div style={{ display: "flex", flexWrap: "wrap", gap: 18, marginTop: 28 }}><a href="/lookbook" style={{ ...linkStyle, color: "#1c1208" }}>Voir le lookbook</a><a href="/galerie" style={{ ...linkStyle, color: "#1c1208" }}>Explorer la galerie</a><a href="/contact" style={{ ...linkStyle, color: "#1c1208" }}>Contacter GaspardNZ</a></div></div></section>
       <section style={{ maxWidth: 860, margin: "0 auto", padding: "5rem 1.25rem", textAlign: "center" }}><h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(2.4rem,6vw,4.4rem)", fontWeight: 300, margin: 0 }}>Parlons de votre mariage ou de votre événement</h2><p style={{ color: "rgba(245,240,232,.7)", fontFamily: "'Montserrat', sans-serif", lineHeight: 1.8, margin: "1.3rem auto 2rem", maxWidth: 640 }}>Un premier échange permet de préciser votre besoin, votre calendrier et le niveau d’accompagnement adapté.</p><a href={CALENDLY_URL} target="_blank" rel="noopener noreferrer" data-track="booking_start" style={{ ...buttonStyle, background: GOLD, color: "#1c1208", border: `1px solid ${GOLD}` }}>Choisir un créneau</a></section>
-    </main>
+    </SeoLayout>
   );
 }
