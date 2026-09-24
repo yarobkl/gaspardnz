@@ -49,8 +49,13 @@ export function createFakeSupabaseTables(initial = {}) {
         return single ? { data: touched[0] || null, error: null } : { data: touched, error: null };
       }
       if (mode === "insert" || mode === "upsert") {
-        if (mode === "upsert" && upsertConflictCol) {
-          const idx = rows.findIndex((r) => r[upsertConflictCol] === payload[upsertConflictCol]);
+        // Sans onConflict, PostgREST (donc Supabase) retombe sur la clé
+        // primaire "id" — reproduit ici pour que .upsert(payload) sans
+        // second argument mette bien à jour la ligne existante au lieu
+        // d'en empiler une copie, comme le fait la vraie base.
+        if (mode === "upsert") {
+          const matchCol = upsertConflictCol || "id";
+          const idx = payload[matchCol] !== undefined ? rows.findIndex((r) => r[matchCol] === payload[matchCol]) : -1;
           if (idx !== -1) {
             rows[idx] = { ...rows[idx], ...payload };
             return { data: rows[idx], error: null };
