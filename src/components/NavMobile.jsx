@@ -240,6 +240,24 @@ const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules, 
               <SvgBag /><span>{t("nav_boutique")}</span>
             </motion.button>
 
+            {/* Sur les téléphones les plus étroits (≤430px), compactNav
+                masque les bascules contraste/jour-nuit de la barre du haut
+                pour faire de la place — sans repli ici, ces réglages
+                devenaient tout simplement inaccessibles sur ces écrans. */}
+            {compactNav && (
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
+                style={{ marginTop: "0.8rem", display: "flex", gap: "0.6rem" }}>
+                <button type="button" onClick={() => close(onToggleContrast)}
+                  style={{ flex: 1, background: "none", border: `1px solid ${highContrast ? GOLD : "rgba(184,151,62,0.4)"}`, color: highContrast ? GOLD : TEXT, padding: "0.8rem", fontFamily: "'Montserrat', sans-serif", fontSize: "9px", letterSpacing: "0.15em", textTransform: "uppercase", cursor: "pointer" }}>
+                  {highContrast ? t("nav_contrast_off") : t("nav_contrast_on")}
+                </button>
+                <button type="button" onClick={() => close(onToggleDark)}
+                  style={{ flex: 1, background: "none", border: `1px solid ${lightMode ? GOLD : "rgba(184,151,62,0.4)"}`, color: lightMode ? GOLD : TEXT, padding: "0.8rem", fontFamily: "'Montserrat', sans-serif", fontSize: "9px", letterSpacing: "0.15em", textTransform: "uppercase", cursor: "pointer" }}>
+                  {lightMode ? t("nav_night") : t("nav_day")}
+                </button>
+              </motion.div>
+            )}
+
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.25 }}
               style={{ display: "flex", gap: "1.2rem", marginTop: "1.8rem", justifyContent: "center" }}>
               {[[SvgInstagram, settings.instagramUrl || SOCIAL_LINKS.instagram, "Instagram"], [SvgTiktok, settings.tiktokUrl || SOCIAL_LINKS.tiktok, "TikTok"], [SvgFacebook, settings.facebookUrl || SOCIAL_LINKS.facebook, "Facebook"], [SvgYoutube, settings.youtubeUrl || SOCIAL_LINKS.youtube, "YouTube"]].map(([Icon, href, label], i) => (
