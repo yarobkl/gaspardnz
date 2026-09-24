@@ -51,8 +51,8 @@ describe("Partenaires — une catégorie à pourvoir ouvre le formulaire « Deve
     expect(screen.getByLabelText(/Métier/)).toHaveValue("Wedding Planner");
     await user.type(screen.getByLabelText(/Votre nom/), "Awa Diop");
     await user.type(screen.getByLabelText(/Entreprise/), "Awa Events");
-    await user.selectOptions(screen.getByRole("combobox", { name: /Ville/ }), "Lyon (69)");
-    expect(screen.getByRole("combobox", { name: /Ville/ })).toHaveValue("Lyon (69)");
+    await user.selectOptions(screen.getByRole("combobox", { name: /Ville/ }), "Versailles (78)");
+    expect(screen.getByRole("combobox", { name: /Ville/ })).toHaveValue("Versailles (78)");
     await user.type(screen.getByLabelText(/Email/), "awa@events.fr");
     await user.click(screen.getByRole("button", { name: "Envoyer ma candidature" }));
 
@@ -60,7 +60,7 @@ describe("Partenaires — une catégorie à pourvoir ouvre le formulaire « Deve
     expect(dialog).toBeInTheDocument();
     await vi.waitFor(() => expect(supabaseModule.sendPublicEventWithRetry).toHaveBeenCalledWith("lead", expect.objectContaining({
       full_name: "Awa Diop", email: "awa@events.fr", request_type: "partner_application",
-      metadata: expect.objectContaining({ trade: "Wedding Planner", company: "Awa Events", city: "Lyon (69)" }),
+      metadata: expect.objectContaining({ trade: "Wedding Planner", company: "Awa Events", city: "Versailles (78)" }),
     })));
     // Emails en pause (EMAIL_NOTIFICATIONS_ENABLED = false) : la candidature
     // part uniquement dans le CRM, aucun appel à l'envoi d'email.

@@ -2,11 +2,11 @@ import { useState } from "react";
 import { GOLD, CREAM } from "../../constants.js";
 import { FRENCH_CITIES } from "../../data/frenchCities.js";
 
-// Champ « Ville » : un vrai menu déroulant listant les 400 plus grandes
-// villes de France (source : geo.api.gouv.fr), triées alphabétiquement,
-// avec un code postal-département entre parenthèses pour distinguer les
-// homonymes. « Autre ville » révèle une saisie libre, pour les villes plus
-// petites ou hors de France.
+// Champ « Ville » : un vrai menu déroulant listant toutes les communes
+// d'Île-de-France (source : geo.api.gouv.fr), triées alphabétiquement, avec
+// le département entre parenthèses pour distinguer les homonymes.
+// « Autre ville » révèle une saisie libre, pour un professionnel installé
+// hors d'Île-de-France.
 const OTHER = "__other__";
 const selectStyle = { width: "100%", padding: "0.8rem", background: "rgba(245,240,232,0.05)", border: `1px solid ${GOLD}`, color: CREAM, fontFamily: "'Montserrat', sans-serif", borderRadius: "4px", boxSizing: "border-box", appearance: "none" };
 

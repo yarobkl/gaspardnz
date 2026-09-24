@@ -19,10 +19,12 @@ describe("CityField — menu déroulant des villes de France", () => {
     expect(screen.getByLabelText("Ville *").tagName).toBe("SELECT");
   });
 
-  it("liste les grandes villes de France, avec Paris et une option « Autre ville »", () => {
+  it("liste toutes les communes d'Île-de-France, avec Paris et une option « Autre ville »", () => {
     render(<Harness />);
-    expect(FRENCH_CITIES.length).toBeGreaterThan(100);
+    expect(FRENCH_CITIES.length).toBeGreaterThan(1000);
+    expect(FRENCH_CITIES.every(([, dep]) => ["75", "77", "78", "91", "92", "93", "94", "95"].includes(dep))).toBe(true);
     expect(screen.getByRole("option", { name: "Paris (75)" })).toBeInTheDocument();
+    expect(screen.getByRole("option", { name: "Versailles (78)" })).toBeInTheDocument();
     expect(screen.getByRole("option", { name: "Autre ville…" })).toBeInTheDocument();
   });
 
