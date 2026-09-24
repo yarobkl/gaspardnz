@@ -19,13 +19,22 @@ describe("CityField — menu déroulant des villes de France", () => {
     expect(screen.getByLabelText("Ville *").tagName).toBe("SELECT");
   });
 
-  it("liste uniquement les communes d'Île-de-France, sans échappatoire hors zone", () => {
+  it("liste les communes d'Île-de-France et propose « Autre ville » pour le reste", () => {
     render(<Harness />);
     expect(FRENCH_CITIES.length).toBeGreaterThan(1000);
     expect(FRENCH_CITIES.every(([, dep]) => ["75", "77", "78", "91", "92", "93", "94", "95"].includes(dep))).toBe(true);
     expect(screen.getByRole("option", { name: "Paris (75)" })).toBeInTheDocument();
     expect(screen.getByRole("option", { name: "Versailles (78)" })).toBeInTheDocument();
-    expect(screen.queryByRole("option", { name: /Autre ville/ })).not.toBeInTheDocument();
+    expect(screen.getByRole("option", { name: "Autre ville…" })).toBeInTheDocument();
+  });
+
+  it("« Autre ville » révèle une saisie libre", async () => {
+    const user = userEvent.setup();
+    render(<Harness />);
+    await user.selectOptions(screen.getByLabelText("Ville *"), "Autre ville…");
+    const freeInput = screen.getByPlaceholderText("Nom de votre ville");
+    await user.type(freeInput, "Genève");
+    expect(freeInput).toHaveValue("Genève");
   });
 
   it("choisir une ville dans la liste met à jour la valeur", async () => {
