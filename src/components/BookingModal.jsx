@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { GOLD, TEXT, CALENDLY_URL } from "../constants.js";
+import { GOLD, CREAM, CALENDLY_URL } from "../constants.js";
 import { useTr } from "../context.jsx";
 import { useFocusTrap } from "../hooks/useFocusTrap.js";
 import { useEscapeKey } from "../hooks/useEscapeKey.js";
@@ -18,16 +18,16 @@ const BoutiqueModal = ({ onClose, onReserver }) => {
       exit={{ opacity: 0, y: 20, scale: 0.97 }}
       transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
       onClick={e => e.stopPropagation()}
-      style={{ width: "100%", maxWidth: "480px", background: "#faf7f2", position: "relative" }}>
+      style={{ width: "100%", maxWidth: "480px", background: "#0a0602", position: "relative" }}>
 
       <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "2px", background: GOLD }} />
 
       <div style={{ padding: "1.6rem 1.8rem 1.2rem", borderBottom: "1px solid rgba(184,151,62,0.1)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <div>
           <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.45em", color: GOLD, textTransform: "uppercase", marginBottom: "0.3rem" }}>{t("boutique_soon_badge")}</p>
-          <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.4rem", letterSpacing: "0.1em", color: TEXT, margin: 0, lineHeight: 1 }}>{t("nav_boutique")}</p>
+          <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.4rem", letterSpacing: "0.1em", color: CREAM, margin: 0, lineHeight: 1 }}>{t("nav_boutique")}</p>
         </div>
-        <button onClick={onClose} aria-label={t("close")} style={{ background: "none", border: "none", cursor: "pointer", padding: "4px 8px", color: "rgba(28,18,8,0.62)", fontSize: "22px", lineHeight: 1 }}>×</button>
+        <button onClick={onClose} aria-label={t("close")} style={{ background: "none", border: "none", cursor: "pointer", padding: "4px 8px", color: "rgba(245,240,232,0.62)", fontSize: "22px", lineHeight: 1 }}>×</button>
       </div>
 
       <div style={{ padding: "2.4rem 1.8rem", textAlign: "center" }}>
@@ -39,12 +39,12 @@ const BoutiqueModal = ({ onClose, onReserver }) => {
         </motion.div>
 
         <motion.p initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25, duration: 0.5 }}
-          style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(1.2rem, 5vw, 1.5rem)", fontWeight: 300, fontStyle: "italic", color: "rgba(28,18,8,0.75)", lineHeight: 1.6, marginBottom: "1.2rem" }}>
+          style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(1.2rem, 5vw, 1.5rem)", fontWeight: 300, fontStyle: "italic", color: "rgba(245,240,232,0.75)", lineHeight: 1.6, marginBottom: "1.2rem" }}>
           {t("boutique_soon_title")}
         </motion.p>
 
         <motion.p initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35, duration: 0.5 }}
-          style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", fontWeight: 300, color: "rgba(28,18,8,0.45)", lineHeight: 1.9, letterSpacing: "0.02em", marginBottom: "2rem" }}>
+          style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", fontWeight: 300, color: "rgba(245,240,232,0.45)", lineHeight: 1.9, letterSpacing: "0.02em", marginBottom: "2rem" }}>
           {t("boutique_soon_desc")}
         </motion.p>
 
@@ -86,7 +86,7 @@ const BookingModal = ({ isOpen, onClose, boutiqueMode = false, onSwitchToBooking
   const inputStyle = {
     width: "100%", background: "none", border: "1px solid rgba(184,151,62,0.2)",
     padding: "0.85rem 1rem", fontFamily: "'Montserrat', sans-serif",
-    fontSize: "16px", color: TEXT, borderRadius: 0,
+    fontSize: "16px", color: CREAM, borderRadius: 0,
     transition: "border-color 0.3s", outline: "3px solid transparent", outlineOffset: "2px",
   };
 
@@ -116,7 +116,7 @@ const BookingModal = ({ isOpen, onClose, boutiqueMode = false, onSwitchToBooking
             exit={{ opacity: 0, y: 20, scale: 0.97 }}
             transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
             onClick={e => e.stopPropagation()}
-            style={{ width: "100%", maxWidth: "480px", background: "#faf7f2", position: "relative", maxHeight: "90vh", display: "flex", flexDirection: "column" }}>
+            style={{ width: "100%", maxWidth: "480px", background: "#0a0602", position: "relative", maxHeight: "90vh", display: "flex", flexDirection: "column" }}>
 
             <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "2px", background: "rgba(184,151,62,0.12)", zIndex: 2 }}>
               <motion.div
@@ -130,11 +130,11 @@ const BookingModal = ({ isOpen, onClose, boutiqueMode = false, onSwitchToBooking
                 <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.4em", color: GOLD, textTransform: "uppercase", marginBottom: "0.4rem" }}>
                   {step === 1 ? t("bk_step1") : t("bk_step2")}
                 </p>
-                <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.6rem", letterSpacing: "0.08em", color: TEXT, lineHeight: 1 }}>
+                <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.6rem", letterSpacing: "0.08em", color: CREAM, lineHeight: 1 }}>
                   {step === 1 ? t("bk_title1") : t("bk_title2")}
                 </p>
               </div>
-              <button onClick={close} aria-label={t("close")} style={{ background: "none", border: "none", cursor: "pointer", padding: "4px 8px", color: "rgba(28,18,8,0.62)", fontSize: "22px", lineHeight: 1, marginTop: "-4px" }}>×</button>
+              <button onClick={close} aria-label={t("close")} style={{ background: "none", border: "none", cursor: "pointer", padding: "4px 8px", color: "rgba(245,240,232,0.62)", fontSize: "22px", lineHeight: 1, marginTop: "-4px" }}>×</button>
             </div>
 
             <div style={{ padding: "1.8rem", overflowY: "auto", flex: 1 }}>
@@ -150,7 +150,7 @@ const BookingModal = ({ isOpen, onClose, boutiqueMode = false, onSwitchToBooking
                         { k: "besoin", lbl: t("bk_lbl_besoin"), ph: t("bk_ph_besoin") },
                       ].map(({ k, lbl, ph }) => (
                         <div key={k}>
-                          <label htmlFor={`booking-${k}`} style={{ display: "block", fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.35em", color: "rgba(28,18,8,0.72)", textTransform: "uppercase", marginBottom: "0.5rem", cursor: "pointer" }}>
+                          <label htmlFor={`booking-${k}`} style={{ display: "block", fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.35em", color: "rgba(245,240,232,0.72)", textTransform: "uppercase", marginBottom: "0.5rem", cursor: "pointer" }}>
                             {lbl}
                           </label>
                           {k === "besoin" ? (
@@ -189,7 +189,7 @@ const BookingModal = ({ isOpen, onClose, boutiqueMode = false, onSwitchToBooking
                       style={{
                         marginTop: "1.8rem", width: "100%", border: "none",
                         background: ok ? GOLD : "rgba(184,151,62,0.15)",
-                        color: ok ? "#1c1208" : "rgba(28,18,8,0.6)",
+                        color: ok ? "#1c1208" : "rgba(245,240,232,0.4)",
                         padding: "1rem", fontFamily: "'Montserrat', sans-serif",
                         fontSize: "11px", letterSpacing: "0.4em", textTransform: "uppercase",
                         cursor: ok ? "pointer" : "not-allowed", transition: "all 0.4s",
@@ -202,7 +202,7 @@ const BookingModal = ({ isOpen, onClose, boutiqueMode = false, onSwitchToBooking
                   <motion.div key="step2"
                     initial={{ x: 60, opacity: 0 }} animate={{ x: 0, opacity: 1 }}
                     transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}>
-                    <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1rem", color: "rgba(28,18,8,0.78)", fontStyle: "italic", textAlign: "center", marginBottom: "1.6rem", lineHeight: 1.65 }}>
+                    <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1rem", color: "rgba(245,240,232,0.78)", fontStyle: "italic", textAlign: "center", marginBottom: "1.6rem", lineHeight: 1.65 }}>
                       {t("bk_q", form.nom)}
                     </p>
 
@@ -215,8 +215,8 @@ const BookingModal = ({ isOpen, onClose, boutiqueMode = false, onSwitchToBooking
                           <SvgCalendar />
                         </div>
                         <div>
-                          <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.15rem", letterSpacing: "0.07em", color: TEXT, marginBottom: "0.15rem" }}>{t("bk_cal_title")}</p>
-                          <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.2em", color: "rgba(28,18,8,0.68)", textTransform: "uppercase" }}>{t("bk_cal_sub")}</p>
+                          <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.15rem", letterSpacing: "0.07em", color: CREAM, marginBottom: "0.15rem" }}>{t("bk_cal_title")}</p>
+                          <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.2em", color: "rgba(245,240,232,0.68)", textTransform: "uppercase" }}>{t("bk_cal_sub")}</p>
                         </div>
                       </a>
 
@@ -228,18 +228,18 @@ const BookingModal = ({ isOpen, onClose, boutiqueMode = false, onSwitchToBooking
                           <SvgWA />
                         </div>
                         <div>
-                          <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.15rem", letterSpacing: "0.07em", color: TEXT, marginBottom: "0.15rem" }}>{t("bk_wa_title")}</p>
-                          <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.2em", color: "rgba(28,18,8,0.68)", textTransform: "uppercase" }}>{t("bk_wa_sub")}</p>
+                          <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.15rem", letterSpacing: "0.07em", color: CREAM, marginBottom: "0.15rem" }}>{t("bk_wa_title")}</p>
+                          <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.2em", color: "rgba(245,240,232,0.68)", textTransform: "uppercase" }}>{t("bk_wa_sub")}</p>
                         </div>
                       </a>
                     </div>
 
-                    <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.28em", color: "rgba(28,18,8,0.6)", textTransform: "uppercase", textAlign: "center", marginTop: "1.5rem" }}>
+                    <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.28em", color: "rgba(245,240,232,0.6)", textTransform: "uppercase", textAlign: "center", marginTop: "1.5rem" }}>
                       {t("bk_guarantee")}
                     </p>
 
                     <button onClick={() => setStep(1)}
-                      style={{ display: "block", background: "none", border: "none", margin: "1.1rem auto 0", cursor: "pointer", fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.22em", color: "rgba(28,18,8,0.58)", textTransform: "uppercase" }}>
+                      style={{ display: "block", background: "none", border: "none", margin: "1.1rem auto 0", cursor: "pointer", fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.22em", color: "rgba(245,240,232,0.58)", textTransform: "uppercase" }}>
                       {t("bk_back")}
                     </button>
                   </motion.div>
