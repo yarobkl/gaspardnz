@@ -1,16 +1,13 @@
-import { useState } from "react";
 import { motion } from "framer-motion";
 import { GOLD, SOCIAL_LINKS } from "../constants.js";
 import { useTr } from "../context.jsx";
-import { SvgFacebook, SvgInstagram, SvgTiktok, SvgYoutube, SvgWhatsapp } from "../icons.jsx";
-import LegalModal from "./LegalModal.jsx";
+import { SvgFacebook, SvgInstagram, SvgTiktok, SvgYoutube } from "../icons.jsx";
 import { useSettings } from "../hooks/useSettings.js";
 import { openCookieSettings } from "../services/consent.js";
 
 const FooterMobile = ({ onFormules, onGalerie, onShowroom }) => {
   const t = useTr();
   const settings = useSettings();
-  const [legalPage, setLegalPage] = useState(null);
 
   return (
     <>
@@ -39,6 +36,14 @@ const FooterMobile = ({ onFormules, onGalerie, onShowroom }) => {
               onTouchEnd={e => e.currentTarget.style.color = "rgba(245,240,232,0.7)"}
             >{label}</button>
           ))}
+          {/* Seule page interne sans aucun lien y menant depuis le site
+              (ni ici, ni ailleurs) : invisible pour les visiteurs et les
+              moteurs de recherche malgré son propre contenu SEO dédié. */}
+          <a href="/conseil-image-homme-paris"
+            style={{ background: "none", border: "none", cursor: "pointer", fontFamily: "'Montserrat', sans-serif", fontSize: "11px", letterSpacing: "0.2em", color: "rgba(245,240,232,0.7)", textTransform: "uppercase", textDecoration: "none", padding: "12px 0", minHeight: "44px", minWidth: "44px", display: "inline-flex", alignItems: "center", transition: "color 0.3s" }}
+            onTouchStart={e => e.currentTarget.style.color = GOLD}
+            onTouchEnd={e => e.currentTarget.style.color = "rgba(245,240,232,0.7)"}
+          >Conseil en image</a>
         </nav>
 
         {/* Social icons */}
@@ -99,8 +104,6 @@ const FooterMobile = ({ onFormules, onGalerie, onShowroom }) => {
           </a>
         </p>
       </footer>
-
-      {legalPage && <LegalModal page={legalPage} onClose={() => setLegalPage(null)} />}
     </>
   );
 };

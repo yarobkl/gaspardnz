@@ -4,7 +4,6 @@ import { GOLD, CREAM } from "./constants.js";
 import { LangCtx } from "./context.jsx";
 import { APP_COPY } from "./data/appCopy.js";
 
-import NotificationPrompt from "./components/NotificationPrompt.jsx";
 import ErrorBoundary from "./components/ErrorBoundary.jsx";
 import CookieBanner from "./components/CookieBanner.jsx";
 import SplashScreen from "./components/SplashScreen.jsx";
@@ -13,11 +12,10 @@ import useAdminSession from "./hooks/useAdminSession.js";
 import useSeoMeta from "./hooks/useSeoMeta.js";
 import useStructuredData from "./hooks/useStructuredData.js";
 import { disableGA, initGA } from "./services/analytics.js";
-import { requestNotificationPermission } from "./services/notifications.js";
 import { trackPageView } from "./services/adminAnalytics.js";
 import { clearAllTrackingData, initializeTracking, trackPageView as trackDetailedPageView } from "./services/analyticsTracking.js";
 import { clearSupabaseTrackingData, initializeSupabaseTracking } from "./services/siteTracking.js";
-import { getConsentPreferences, hasConsentDecision, subscribeToConsentChanges } from "./services/consent.js";
+import { getConsentPreferences, subscribeToConsentChanges } from "./services/consent.js";
 import NavMobile from "./components/NavMobile.jsx";
 import HeroMobile from "./components/HeroMobile.jsx";
 import useCompactMobile from "./hooks/useCompactMobile.js";
@@ -85,7 +83,6 @@ const scrollToStableTarget = (id, attempt = 0, lastTop = null) => {
 
 export default function App() {
   const [splashDone, setSplashDone] = useState(true);
-  const [notifPrompt, setNotifPrompt] = useState(false);
   const [bookingOpen, setBookingOpen] = useState(false);
   const [boutiqueMode, setBoutiqueMode] = useState(false);
   const [highContrast, setHighContrast] = useState(() => {
@@ -201,17 +198,6 @@ export default function App() {
     return () => clearTimeout(t);
   }, [currentlyOnAdminPath, isAdminPath, splashDone]);
 
-  useEffect(() => {
-    if (isAdminPath || currentlyOnAdminPath) return;
-    if (!splashDone) return;
-    const already = localStorage.getItem("gnz-notif-asked");
-    if (already) return;
-    const t = setTimeout(() => {
-      if (!hasConsentDecision()) return;
-      if (!document.hidden) setNotifPrompt(true);
-    }, 14000);
-    return () => clearTimeout(t);
-  }, [currentlyOnAdminPath, isAdminPath, splashDone]);
 
   useEffect(() => {
     if (splashDone && !isAdminPath && consentPreferences.analytics) {
@@ -233,16 +219,6 @@ export default function App() {
     handleMobileSectionSelect(key);
   };
   const openBooking = (boutique = false) => { setBoutiqueMode(boutique); setBookingOpen(true); };
-
-  const handleNotifAccept = async () => {
-    setNotifPrompt(false);
-    localStorage.setItem("gnz-notif-asked", "1");
-    await requestNotificationPermission();
-  };
-  const handleNotifDecline = () => {
-    setNotifPrompt(false);
-    localStorage.setItem("gnz-notif-asked", "1");
-  };
 
   return (
     <LangCtx.Provider value={{ lang, setLang: changeLang }}>
@@ -400,12 +376,7 @@ export default function App() {
         )
       )}
 
-      {!currentlyOnAdminPath && !isAdminPath && (
-        <>
-          <NotificationPrompt visible={notifPrompt} onAccept={handleNotifAccept} onDecline={handleNotifDecline} />
-          <CookieBanner />
-        </>
-      )}
+      {!currentlyOnAdminPath && !isAdminPath && <CookieBanner />}
       </MotionConfig>
     </LangCtx.Provider>
   );
