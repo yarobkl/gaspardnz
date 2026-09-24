@@ -89,7 +89,7 @@ export default function AdminTailoringOrders({ user }) {
     <div className="gnz-split">
       <article className="gnz-card">
         <header className="gnz-card-header"><div className="gnz-card-title"><strong>Commandes</strong><span>{orders.length} commande{orders.length > 1 ? "s" : ""}</span></div></header>
-        <div className="gnz-table-wrap"><table className="gnz-table"><thead><tr>
+        <div className="gnz-table-wrap gnz-table-wrap--capped"><table className="gnz-table"><thead><tr>
           <th>Numéro</th><th>Client</th>{!isCouturier && <th>Couturier</th>}<th>Statut</th><th>Créée le</th><th>Action</th>
         </tr></thead><tbody>
           {loading ? <tr><td colSpan={isCouturier ? 5 : 6}><div className="gnz-empty-state">Chargement…</div></td></tr>

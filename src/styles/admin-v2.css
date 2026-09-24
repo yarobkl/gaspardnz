@@ -62,7 +62,13 @@ body:has(.gnz-admin-shell), body:has(.gnz-login-shell) { background: var(--gnz-b
 }
 .gnz-textarea { min-height: 110px; resize: vertical; }
 .gnz-primary-button, .gnz-secondary-button, .gnz-danger-button, .gnz-text-button, .gnz-icon-button {
-  border: 0; cursor: pointer; font: inherit; transition: transform .16s, background .16s, border-color .16s, opacity .16s;
+  border: 0; cursor: pointer; font: inherit; text-decoration: none; transition: transform .16s, background .16s, border-color .16s, opacity .16s;
+}
+/* Certains de ces boutons sont en réalité des liens <a> (ex. "Connecter
+   Google") : sans cette règle, ils gardaient le soulignement par défaut du
+   navigateur, seuls à trancher visuellement avec le reste de l'interface. */
+a.gnz-primary-button, a.gnz-secondary-button, a.gnz-danger-button, a.gnz-text-button, a.gnz-icon-button {
+  display: inline-flex; align-items: center; justify-content: center; text-align: center;
 }
 .gnz-primary-button { min-height: 44px; padding: 10px 17px; border-radius: 10px; background: var(--gnz-gold); color: #0d0b08; font-weight: 800; }
 .gnz-primary-button:hover { background: var(--gnz-gold-soft); }
@@ -158,6 +164,13 @@ body:has(.gnz-admin-shell), body:has(.gnz-login-shell) { background: var(--gnz-b
 .gnz-col-4 { grid-column: span 4; }.gnz-col-5 { grid-column: span 5; }.gnz-col-6 { grid-column: span 6; }.gnz-col-7 { grid-column: span 7; }.gnz-col-8 { grid-column: span 8; }.gnz-col-12 { grid-column: span 12; }
 
 .gnz-table-wrap { overflow: auto; }
+/* Listes qui s'accumulent dans la durée (CRM, réservations, emails, textes,
+   commandes) : sans cette limite, la page grandissait avec chaque nouvelle
+   ligne enregistrée depuis le début du site (des milliers de pixels de
+   défilement une fois quelques centaines de lignes accumulées). L'en-tête
+   `.gnz-table th` reste collé en haut grâce à sa position sticky, déjà
+   définie plus haut, une fois que ce conteneur défile lui-même. */
+.gnz-table-wrap--capped { max-height: 70vh; overflow-y: auto; }
 .gnz-table { width: 100%; border-collapse: collapse; min-width: 720px; }
 .gnz-table th { position: sticky; top: 0; z-index: 2; color: var(--gnz-muted-2); background: var(--gnz-panel); text-align: left; text-transform: uppercase; letter-spacing: .09em; font-size: 8.5px; font-weight: 750; padding: 11px 13px; border-bottom: 1px solid rgba(255,255,255,.06); }
 .gnz-table td { padding: 12px 13px; border-bottom: 1px solid rgba(255,255,255,.045); font-size: 10px; color: #c5c1b8; vertical-align: middle; }

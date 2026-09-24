@@ -156,7 +156,7 @@ const AdminDashboard = ({ onNavigate }) => {
         <article className="gnz-card gnz-col-7">
           <header className="gnz-card-header"><div className="gnz-card-title"><strong>Demandes récentes</strong><span>Les nouvelles demandes apparaissent automatiquement</span></div><button className="gnz-secondary-button" onClick={() => onNavigate?.("crm")}>Voir le CRM</button></header>
           <div className="gnz-table-wrap">
-            <table className="gnz-table">
+            <table className="gnz-table" style={{ minWidth: 560 }}>
               <thead><tr><th>Client</th><th>Besoin</th><th>Source</th><th>Statut</th><th>Reçu</th></tr></thead>
               <tbody>{(data?.recentLeads || []).length ? data.recentLeads.map((lead) => (
                 <tr key={lead.id}><td><strong>{lead.full_name || "Sans nom"}</strong><span className="gnz-table-sub">{lead.email || lead.phone || "Contact non renseigné"}</span></td><td>{requestTypeLabel(lead.request_type)}</td><td>{lead.source || lead.channel || "Site"}</td><td><span className={`gnz-status ${lead.status}`}>{lead.status}</span></td><td>{relativeTime(lead.created_at)}</td></tr>

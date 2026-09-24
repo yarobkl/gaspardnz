@@ -60,8 +60,10 @@ describe("Notification de commande terminée", () => {
     expect(await screen.findByText(/CMD-2026-0007 terminée par le couturier/)).toBeInTheDocument();
 
     // Cliquer la notification doit amener directement sur les commandes.
+    // L'écran est chargé à la demande (Admin/adminSections.js) : le rendu
+    // passe d'abord par le fallback Suspense, d'où l'attente asynchrone.
     await user.click(screen.getByText(/CMD-2026-0007 terminée par le couturier/));
-    expect(screen.getByRole("heading", { name: /commandes sur-mesure/i, level: 1 })).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: /commandes sur-mesure/i, level: 1 })).toBeInTheDocument();
   });
 
   it("ne re-notifie pas la même commande une fois la première alerte disparue", () => {
