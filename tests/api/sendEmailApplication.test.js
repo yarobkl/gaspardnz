@@ -40,6 +40,7 @@ const application = (overrides = {}) => ({
     clientPhone: "0612345678",
     company: "Awa Events",
     trade: "Wedding Planner",
+    city: "Lyon (69)",
     portfolio: "@awaevents",
     message: "Je organise 20 mariages par an.",
     formStartedAt: Date.now() - 30_000,
@@ -66,6 +67,7 @@ describe("api/send-email — candidature partenaire", () => {
     expect(internal.subject).toBe("Candidature partenaire : Wedding Planner, Awa Events");
     expect(internal.text).toContain("NOUVELLE CANDIDATURE PARTENAIRE");
     expect(internal.text).toContain("Instagram / site: @awaevents");
+    expect(internal.text).toContain("Ville: Lyon (69)");
     expect(internal.replyTo).toBe("awa@events.fr");
 
     expect(ack.to).toBe("awa@events.fr");

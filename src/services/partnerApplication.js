@@ -20,6 +20,7 @@ export const submitPartnerApplication = async (data) => {
     name: cleanLine(data.name, 100),
     company: cleanLine(data.company, 120),
     trade: cleanLine(data.trade, 100),
+    city: cleanLine(data.city, 120),
     email: cleanLine(data.email, 150),
     phone: cleanLine(data.phone, 30),
     portfolio: cleanLine(data.portfolio, 200),
@@ -34,8 +35,8 @@ export const submitPartnerApplication = async (data) => {
       phone: application.phone,
       request_type: "partner_application",
       channel: "partner_application",
-      message: [application.trade, application.company, application.message].filter(Boolean).join(" · "),
-      metadata: { trade: application.trade, company: application.company || null, portfolio: application.portfolio || null },
+      message: [application.trade, application.company, application.city, application.message].filter(Boolean).join(" · "),
+      metadata: { trade: application.trade, company: application.company || null, city: application.city || null, portfolio: application.portfolio || null },
     };
     const crm = await sendPublicEventWithRetry("lead", leadPayload);
     if (!crm?.ok) throw new Error("La candidature n'a pas pu être enregistrée.");
@@ -63,6 +64,7 @@ export const submitPartnerApplication = async (data) => {
         clientPhone: application.phone,
         company: application.company,
         trade: application.trade,
+        city: application.city,
         portfolio: application.portfolio,
         message: application.message,
         timestamp: new Date().toISOString(),

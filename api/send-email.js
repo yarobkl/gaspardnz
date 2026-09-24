@@ -152,7 +152,7 @@ const formatClientEmailBody = (data) => `Bonjour ${sanitizeText(data.clientName,
 
 // Candidature d'un professionnel (wedding planner, traiteur…) qui veut
 // travailler avec Gaspard : ce n'est pas un client, l'email est différent.
-const formatApplicationInternalBody = (data) => `NOUVELLE CANDIDATURE PARTENAIRE\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\nLE PROFESSIONNEL\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\nMétier: ${sanitizeText(data.trade, 120)}\nEntreprise: ${sanitizeText(data.company || "Non précisée", 160)}\nNom: ${sanitizeText(data.clientName, 140)}\nEmail: ${sanitizeText(data.clientEmail, 320)}\nTéléphone: ${sanitizeText(data.clientPhone || "Non précisé", 80)}\nInstagram / site: ${sanitizeText(data.portfolio || "Non précisé", 300)}\n\nMessage:\n${sanitizeText(data.message || "Aucun message", 2000)}\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\nSUIVI\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\nRépondre directement à cet email pour contacter le professionnel.\nLa candidature est aussi enregistrée dans l'admin (CRM).\n\nTimestamp: ${new Date(data.timestamp || Date.now()).toLocaleString("fr-FR")}`;
+const formatApplicationInternalBody = (data) => `NOUVELLE CANDIDATURE PARTENAIRE\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\nLE PROFESSIONNEL\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\nMétier: ${sanitizeText(data.trade, 120)}\nEntreprise: ${sanitizeText(data.company || "Non précisée", 160)}\nVille: ${sanitizeText(data.city || "Non précisée", 120)}\nNom: ${sanitizeText(data.clientName, 140)}\nEmail: ${sanitizeText(data.clientEmail, 320)}\nTéléphone: ${sanitizeText(data.clientPhone || "Non précisé", 80)}\nInstagram / site: ${sanitizeText(data.portfolio || "Non précisé", 300)}\n\nMessage:\n${sanitizeText(data.message || "Aucun message", 2000)}\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\nSUIVI\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\nRépondre directement à cet email pour contacter le professionnel.\nLa candidature est aussi enregistrée dans l'admin (CRM).\n\nTimestamp: ${new Date(data.timestamp || Date.now()).toLocaleString("fr-FR")}`;
 
 const formatApplicationAckBody = (data) => `Bonjour ${sanitizeText(data.clientName, 80)},\n\nMerci pour votre intérêt pour le réseau de partenaires Gaspard NZ.\n\nVotre candidature en tant que ${sanitizeText(data.trade, 120)} a bien été reçue. Gaspard l'étudiera personnellement et reviendra vers vous pour échanger sur une collaboration.\n\nSi vous souhaitez ajouter des éléments (portfolio, références, tarifs), vous pouvez répondre directement à cet email.\n\nGaspard NZ\nStyliste, habilleur & maître de cérémonie\nhttps://gaspardnz.style`;
 
@@ -165,7 +165,7 @@ export default async function handler(req, res) {
   try { requestBytes = Buffer.byteLength(JSON.stringify(body), "utf8"); } catch { return res.status(400).json({ error: "Invalid request" }); }
   if (requestBytes > MAX_REQUEST_BYTES) return res.status(413).json({ error: "Requête trop volumineuse" });
 
-  const { to, cc, subject, partnerId, partnerName, clientName, clientEmail, clientPhone, eventType, eventDate, message, timestamp, isComingSoon, website, formStartedAt, kind, company, trade, portfolio } = body;
+  const { to, cc, subject, partnerId, partnerName, clientName, clientEmail, clientPhone, eventType, eventDate, message, timestamp, isComingSoon, website, formStartedAt, kind, company, trade, portfolio, city } = body;
   const isApplication = kind === "partner_application";
   const recipients = resolveRecipients({ to, cc });
   if (!recipients.ok) return res.status(400).json({ error: recipients.error });
@@ -192,7 +192,7 @@ export default async function handler(req, res) {
     }
   }
 
-  const applicationData = { clientName, clientEmail, clientPhone, company, trade, portfolio, message, timestamp };
+  const applicationData = { clientName, clientEmail, clientPhone, company, trade, city, portfolio, message, timestamp };
   const safeSubject = isApplication
     ? sanitizeText(`Candidature partenaire : ${sanitizeText(trade, 120)}${sanitizeText(company, 160) ? `, ${sanitizeText(company, 160)}` : ""}`, 160)
     : sanitizeText(subject || "Nouvelle demande de contact", 160);

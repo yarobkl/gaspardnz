@@ -8,6 +8,17 @@ const STATUS = [
 ];
 const fmtDate = (value) => value ? new Date(value).toLocaleString("fr-FR", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" }) : "—";
 
+// Détail d'une candidature « Devenir partenaire » (enregistré dans metadata).
+const APPLICATION_FIELDS = [["trade", "Métier"], ["company", "Entreprise"], ["city", "Ville"], ["portfolio", "Instagram / site"]];
+const ApplicationDetails = ({ metadata }) => (
+  <div className="gnz-field" style={{ display: "grid", gap: 6 }}>
+    <span>Candidature partenaire</span>
+    {APPLICATION_FIELDS.map(([key, label]) => (
+      <div key={key} style={{ fontSize: 14 }}><strong>{label} :</strong> {metadata?.[key] || "—"}</div>
+    ))}
+  </div>
+);
+
 const AdminCRM = () => {
   const [leads, setLeads] = useState([]);
   const [search, setSearch] = useState("");
@@ -80,6 +91,7 @@ const AdminCRM = () => {
             <label className="gnz-field">Email<input className="gnz-input" type="email" value={selected.email || ""} onChange={(e) => setSelected({ ...selected, email: e.target.value })} onBlur={() => patch(selected.id, { email: selected.email || null })} /></label>
             <label className="gnz-field">Téléphone<input className="gnz-input" value={selected.phone || ""} onChange={(e) => setSelected({ ...selected, phone: e.target.value })} onBlur={() => patch(selected.id, { phone: selected.phone || null })} /></label>
             <label className="gnz-field">Valeur estimée (€)<input className="gnz-input" type="number" min="0" value={selected.estimated_value ?? ""} onChange={(e) => setSelected({ ...selected, estimated_value: e.target.value })} onBlur={() => patch(selected.id, { estimated_value: selected.estimated_value === "" ? null : Number(selected.estimated_value) })} /></label>
+            {selected.request_type === "partner_application" && <ApplicationDetails metadata={selected.metadata} />}
             <label className="gnz-field">Message<textarea className="gnz-textarea" value={selected.message || ""} onChange={(e) => setSelected({ ...selected, message: e.target.value })} onBlur={() => patch(selected.id, { message: selected.message || null })} /></label>
             <label className="gnz-field">Ajouter une note<textarea className="gnz-textarea" value={note} onChange={(e) => setNote(e.target.value)} placeholder="Compte rendu d'appel, demande particulière…" /></label>
             <button className="gnz-primary-button" onClick={addNote} disabled={!note.trim()}>Ajouter la note</button>

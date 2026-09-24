@@ -39,7 +39,9 @@ describe("Partenaires — une catégorie à pourvoir ouvre le formulaire « Deve
     fake = createFakeSupabaseTables({
       partners: [{ id: "p2", slug: "wedding-planner-slot", name: "À venir", category: "Wedding Planner", published: true, status: "active", sort_order: 0, metadata: { placeholder: true } }],
     });
-    const fetchMock = vi.fn(async () => ({ ok: true, json: async () => ({ success: true }) }));
+    const fetchMock = vi.fn(async (url) => String(url).startsWith("https://geo.api.gouv.fr")
+      ? { ok: true, json: async () => [{ nom: "Lyon", code: "69123", departement: { code: "69", nom: "Rhône" } }, { nom: "Lyons-la-Forêt", code: "27377", departement: { code: "27", nom: "Eure" } }] }
+      : { ok: true, json: async () => ({ success: true }) });
     vi.stubGlobal("fetch", fetchMock);
     const user = userEvent.setup();
     render(<PartnersSection />);
@@ -51,6 +53,10 @@ describe("Partenaires — une catégorie à pourvoir ouvre le formulaire « Deve
     expect(screen.getByLabelText(/Métier/)).toHaveValue("Wedding Planner");
     await user.type(screen.getByLabelText(/Votre nom/), "Awa Diop");
     await user.type(screen.getByLabelText(/Entreprise/), "Awa Events");
+    await user.type(screen.getByRole("combobox", { name: /Ville/ }), "Lyo");
+    await user.click(await screen.findByRole("option", { name: /Rhône/ }));
+    expect(screen.getByRole("combobox", { name: /Ville/ })).toHaveValue("Lyon (69)");
+    expect(fetchMock.mock.calls.some(([url]) => String(url).includes("nom=Lyo") && String(url).includes("boost=population"))).toBe(true);
     await user.type(screen.getByLabelText(/Email/), "awa@events.fr");
     await user.click(screen.getByRole("button", { name: "Envoyer ma candidature" }));
 
@@ -58,7 +64,7 @@ describe("Partenaires — une catégorie à pourvoir ouvre le formulaire « Deve
     expect(dialog).toBeInTheDocument();
     await vi.waitFor(() => expect(supabaseModule.sendPublicEventWithRetry).toHaveBeenCalledWith("lead", expect.objectContaining({
       full_name: "Awa Diop", email: "awa@events.fr", request_type: "partner_application",
-      metadata: expect.objectContaining({ trade: "Wedding Planner", company: "Awa Events" }),
+      metadata: expect.objectContaining({ trade: "Wedding Planner", company: "Awa Events", city: "Lyon (69)" }),
     })));
     // Emails en pause (EMAIL_NOTIFICATIONS_ENABLED = false) : la candidature
     // part uniquement dans le CRM, aucun appel à l'envoi d'email.
@@ -83,10 +89,14 @@ describe("Partenaires — « Devenir partenaire » confirme sans attendre le ré
 
     await user.click(await screen.findByRole("button", { name: "Devenir partenaire" }));
     await user.type(screen.getByLabelText(/Votre nom/), "Awa Diop");
+    vi.stubGlobal("fetch", vi.fn(async () => { throw new TypeError("offline"); }));
+    await user.type(screen.getByRole("combobox", { name: /Ville/ }), "Genève");
     await user.type(screen.getByLabelText(/Email/), "awa@events.fr");
     await user.click(screen.getByRole("button", { name: "Envoyer ma candidature" }));
 
+    // Saisie libre acceptée même si la liste des villes est indisponible.
     expect(screen.getByText(/Votre candidature a bien été envoyée/)).toBeInTheDocument();
+    vi.unstubAllGlobals();
     expect(screen.queryByText(/Erreur/)).not.toBeInTheDocument();
   });
 });

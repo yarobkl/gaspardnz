@@ -5,41 +5,42 @@ import { LangCtx } from "../context.jsx";
 import { useFocusTrap } from "../hooks/useFocusTrap.js";
 import { submitPartnerApplication } from "../services/partnerApplication.js";
 import Portal from "./ui/Portal.jsx";
+import CityField from "./ui/CityField.jsx";
 
 // Formulaire réservé aux professionnels (wedding planner, traiteur, DJ…)
 // qui veulent travailler avec Gaspard. Distinct des formulaires clients.
 const COPY = {
   FR: {
     title: "Devenir partenaire", intro: "Vous êtes professionnel de l'événementiel ? Présentez-vous, Gaspard vous répondra personnellement.",
-    name: "Votre nom", company: "Entreprise", trade: "Métier", email: "Email", phone: "Téléphone", portfolio: "Instagram ou site",
+    name: "Votre nom", company: "Entreprise", trade: "Métier", email: "Email", phone: "Téléphone", portfolio: "Instagram ou site", city: "Ville", cityPh: "Tapez votre ville…",
     message: "Message", messagePh: "Votre activité, vos références, ce que vous aimeriez construire ensemble…",
     submit: "Envoyer ma candidature", successTitle: "Merci !", successMsg: "Votre candidature a bien été envoyée. Gaspard reviendra vers vous rapidement.",
     close: "Fermer",
   },
   EN: {
     title: "Become a partner", intro: "Are you an event professional? Introduce yourself and Gaspard will get back to you personally.",
-    name: "Your name", company: "Company", trade: "Profession", email: "Email", phone: "Phone", portfolio: "Instagram or website",
+    name: "Your name", company: "Company", trade: "Profession", email: "Email", phone: "Phone", portfolio: "Instagram or website", city: "City", cityPh: "Type your city…",
     message: "Message", messagePh: "Your business, your references, what you would like to build together…",
     submit: "Send my application", successTitle: "Thank you!", successMsg: "Your application has been sent. Gaspard will get back to you shortly.",
     close: "Close",
   },
   ES: {
     title: "Ser socio", intro: "¿Eres profesional de eventos? Preséntate y Gaspard te responderá personalmente.",
-    name: "Tu nombre", company: "Empresa", trade: "Profesión", email: "Email", phone: "Teléfono", portfolio: "Instagram o web",
+    name: "Tu nombre", company: "Empresa", trade: "Profesión", email: "Email", phone: "Teléfono", portfolio: "Instagram o web", city: "Ciudad", cityPh: "Escribe tu ciudad…",
     message: "Mensaje", messagePh: "Tu actividad, tus referencias, lo que te gustaría construir juntos…",
     submit: "Enviar mi candidatura", successTitle: "¡Gracias!", successMsg: "Tu candidatura se ha enviado. Gaspard te responderá pronto.",
     close: "Cerrar",
   },
   ZH: {
     title: "成为合作伙伴", intro: "您是活动行业的专业人士吗？请介绍一下自己，Gaspard 会亲自回复您。",
-    name: "您的姓名", company: "公司", trade: "职业", email: "邮箱", phone: "电话", portfolio: "Instagram 或网站",
+    name: "您的姓名", company: "公司", trade: "职业", email: "邮箱", phone: "电话", portfolio: "Instagram 或网站", city: "城市", cityPh: "输入您的城市…",
     message: "留言", messagePh: "您的业务、案例，以及希望共同打造的合作…",
     submit: "发送申请", successTitle: "谢谢！", successMsg: "您的申请已发送，Gaspard 会尽快与您联系。",
     close: "关闭",
   },
 };
 
-const emptyForm = (trade = "") => ({ name: "", company: "", trade, email: "", phone: "", portfolio: "", message: "" });
+const emptyForm = (trade = "") => ({ name: "", company: "", trade, city: "", email: "", phone: "", portfolio: "", message: "" });
 
 const labelStyle = { display: "block", color: CREAM, fontFamily: "'Montserrat', sans-serif", fontSize: "12px", marginBottom: "0.5rem", letterSpacing: "0.05em", textTransform: "uppercase" };
 const inputStyle = { width: "100%", padding: "0.8rem", background: "rgba(245,240,232,0.05)", border: `1px solid ${GOLD}`, color: CREAM, fontFamily: "'Montserrat', sans-serif", borderRadius: "4px", boxSizing: "border-box" };
@@ -126,6 +127,9 @@ const PartnerApplicationModal = ({ isOpen, onClose, trade = "" }) => {
                     {field("trade", { required: true, maxLength: 100 })}
                     {field("name", { required: true, maxLength: 100 })}
                     {field("company", { maxLength: 120 })}
+                    <CityField id="application-city" label={copy.city} placeholder={copy.cityPh} required
+                      value={formData.city} onChange={(city) => setFormData((prev) => ({ ...prev, city }))}
+                      labelStyle={labelStyle} inputStyle={inputStyle} />
                     {field("email", { type: "email", required: true })}
                     {field("phone", { type: "tel", maxLength: 30, placeholder: "+33 6 12 34 56 78" })}
                     {field("portfolio", { maxLength: 200, placeholder: "@instagram / https://…" })}
