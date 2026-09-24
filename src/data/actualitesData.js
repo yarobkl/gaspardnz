@@ -4,6 +4,11 @@ const VIDEOS = {
   jtSape: `${B}videos/jt-de-la-sape.mp4`,
 };
 
+// Le fichier de sous-titres /captions/jt-sape-fr.vtt correspond UNIQUEMENT à
+// cette vidéo précise — exporté pour qu'ActualitesSection ne l'attache
+// jamais à une autre vidéo (ex. une actualité vidéo déposée depuis l'admin).
+export const JT_SAPE_VIDEO_URL = VIDEOS.jtSape;
+
 const PHOTOS = {
   akwaba: [`${B}images/actualites/akwaba-1.jpg`, `${B}images/actualites/akwaba-2.jpg`],
   patheo: [`${B}images/actualites/patheo-abidjan.jpg`],

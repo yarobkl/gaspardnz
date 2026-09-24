@@ -1,7 +1,7 @@
 import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion, useInView } from "framer-motion";
 import { GOLD } from "../../constants.js";
-import { getActualites } from "../../data/actualitesData.js";
+import { getActualites, JT_SAPE_VIDEO_URL } from "../../data/actualitesData.js";
 import { usePublicCollection } from "../../hooks/usePublicCollection.js";
 import { LangCtx, useTr } from "../../context.jsx";
 
@@ -71,7 +71,11 @@ const ActuCard = ({ item, isMobile = false }) => {
         <div style={{ position: "relative", overflow: "hidden", background: "#050301", maxWidth: "100%" }}>
           {hasVideo ? (
             <video ref={videoRef} src={item.video} controls playsInline preload="metadata" aria-label={`Vidéo : ${item.title}`} style={{ ...mediaStyle, objectFit: "cover", background: "#050301" }}>
-              <track kind="captions" src="/captions/jt-sape-fr.vtt" srcLang="fr" label="Français" default />
+              {/* Ce fichier de sous-titres correspond à CETTE vidéo précise
+                  (JT Sape). Une vidéo d'actualité déposée depuis l'admin
+                  recevait les mêmes sous-titres, quel que soit son contenu
+                  réel — mieux vaut aucun sous-titre qu'un mauvais. */}
+              {item.video === JT_SAPE_VIDEO_URL && <track kind="captions" src="/captions/jt-sape-fr.vtt" srcLang="fr" label="Français" default />}
             </video>
           ) : multi ? (
             <div style={{ display: "flex", transition: "transform 0.6s cubic-bezier(0.16,1,0.3,1)", transform: `translateX(${-photoCur * 100}%)` }}>
@@ -108,7 +112,22 @@ const ActualitesSection = () => {
   const { lang } = useContext(LangCtx);
   const fallback = useMemo(() => getActualites(lang), [lang]);
   const { rows, source } = usePublicCollection("news_posts", { fallback, filters: [{ type: "eq", column: "locale", value: lang }], orderBy: "published_at", ascending: false });
-  const actualites = useMemo(() => source === "supabase" ? rows.map(remoteToNews) : rows, [rows, source]);
+  const localeHasNothing = source === "supabase" && rows.length === 0 && lang !== "FR";
+  // Aucun article publié dans la langue du visiteur (traduction pas encore
+  // faite) n'est pas la même situation qu'un contenu masqué par l'admin :
+  // sans ce repli, la section gardait son titre, ses flèches et un
+  // compteur "01 / 00" sans la moindre actualité à montrer. On retombe sur
+  // les articles français plutôt que sur une section cassée ou fantôme.
+  const frFallback = usePublicCollection("news_posts", {
+    fallback: getActualites("FR"),
+    filters: [{ type: "eq", column: "locale", value: "FR" }],
+    orderBy: "published_at", ascending: false,
+    enabled: localeHasNothing,
+  });
+  const actualites = useMemo(() => {
+    if (localeHasNothing) return frFallback.source === "supabase" ? frFallback.rows.map(remoteToNews) : frFallback.rows;
+    return source === "supabase" ? rows.map(remoteToNews) : rows;
+  }, [rows, source, localeHasNothing, frFallback.rows, frFallback.source]);
   const ref = useRef(null);
   const railRef = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-8% 0px" });
