@@ -5,6 +5,7 @@ import { LangCtx } from "./context.jsx";
 import { APP_COPY } from "./data/appCopy.js";
 
 import NotificationPrompt from "./components/NotificationPrompt.jsx";
+import ErrorBoundary from "./components/ErrorBoundary.jsx";
 import CookieBanner from "./components/CookieBanner.jsx";
 import SplashScreen from "./components/SplashScreen.jsx";
 import AdminRoot from "./components/AdminRoot.jsx";
@@ -315,6 +316,7 @@ export default function App() {
             style={{
               minHeight: "100dvh", overflowX: "hidden",
             }}>
+            <ErrorBoundary lang={lang}>
 
             <HeroMobile onScrollDown={() => isCompactMobile ? document.getElementById("gnz-mobile-home")?.scrollIntoView({ behavior: "smooth", block: "start" }) : scrollTo(heritageRef)} />
             {isCompactMobile ? (
@@ -389,6 +391,7 @@ export default function App() {
               <BookingModal isOpen={bookingOpen} onClose={() => setBookingOpen(false)} boutiqueMode={boutiqueMode} onSwitchToBooking={() => setBoutiqueMode(false)} />
               <ChatBot onReserver={() => openBooking(false)} onGalerie={() => openMobileSection("gallery", galleryRef)} onShowroom={() => scrollTo(showroomRef)} onFormules={() => openMobileSection("formules", formulesRef)} />
             </Suspense>
+            </ErrorBoundary>
           </div>
           </>
         )

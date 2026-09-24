@@ -6,7 +6,6 @@ import { LangCtx } from "../context.jsx";
 // leur code du paquet principal, téléchargé et exécuté par TOUT visiteur.
 // App.jsx les charge déjà ainsi pour la mise en page large — un import
 // statique ici annulait ce découpage pour tout le monde, mobile compris.
-const HeritageMobile = lazy(() => import("./HeritageMobile.jsx"));
 const PartnersSection = lazy(() => import("./sections/PartnersSection.jsx"));
 
 const COPY = {
@@ -91,8 +90,6 @@ export default function MobileHomeCompact({ activeSection, onSelect }) {
 
   return (
     <>
-      <Suspense fallback={null}><HeritageMobile /></Suspense>
-
       <section aria-label={copy.attractionTitle} style={{ background: "#0a0602", color: "#faf7f2", padding: "3.2rem 1.25rem 3.4rem", borderTop: "1px solid rgba(184,151,62,.16)" }}>
         <motion.div
           initial={{ opacity: 0, y: 18 }}

@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { GOLD } from "../../constants.js";
 import { WA_CHANNEL_URL } from "../../data/styleDuMoisData.js";
 import { useTr } from "../../context.jsx";
+import { useSettings } from "../../hooks/useSettings.js";
 
 const SvgWA = () => (
   <svg width="22" height="22" viewBox="0 0 24 24" fill="white">
@@ -47,6 +48,11 @@ const HeartbeatLine = () => {
 
 const CommunauteSection = () => {
   const t = useTr();
+  // Même lien de groupe que CommunityWhatsAppLink : un lien collé dans
+  // l'admin (Contenu du site → Réseaux sociaux) doit changer le bouton ici
+  // aussi, pas seulement l'autre raccourci.
+  const settings = useSettings();
+  const communityUrl = settings.whatsappCommunityUrl?.trim() || WA_CHANNEL_URL;
   return (
     <section style={{ background: "#0a0602", minHeight: "100dvh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "5rem 2rem", position: "relative", overflow: "hidden" }}>
 
@@ -91,7 +97,7 @@ const CommunauteSection = () => {
         </div>
 
         <motion.a
-          href={WA_CHANNEL_URL}
+          href={communityUrl}
           target="_blank"
           rel="noopener noreferrer"
           whileTap={{ scale: 0.97 }}

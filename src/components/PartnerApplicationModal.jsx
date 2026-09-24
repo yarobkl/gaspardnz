@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { GOLD, CREAM } from "../constants.js";
 import { LangCtx } from "../context.jsx";
 import { useFocusTrap } from "../hooks/useFocusTrap.js";
+import { useEscapeKey } from "../hooks/useEscapeKey.js";
 import { submitPartnerApplication } from "../services/partnerApplication.js";
 import Portal from "./ui/Portal.jsx";
 import CityField from "./ui/CityField.jsx";
@@ -49,6 +50,7 @@ const PartnerApplicationModal = ({ isOpen, onClose, trade = "" }) => {
   const { lang } = useContext(LangCtx);
   const copy = COPY[lang] || COPY.FR;
   const focusTrapRef = useFocusTrap(isOpen);
+  useEscapeKey(isOpen, onClose);
   const [formData, setFormData] = useState(() => emptyForm(trade));
   const [website, setWebsite] = useState("");
   const [formStartedAt, setFormStartedAt] = useState(() => Date.now());

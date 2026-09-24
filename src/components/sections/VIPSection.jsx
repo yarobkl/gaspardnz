@@ -107,7 +107,7 @@ const AlbumModal = ({ photos, name, onClose }) => {
           </>
         ) : (
           <div style={{ width: "100%", maxWidth: "420px", aspectRatio: "3/4", borderRadius: "12px", background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", color: "rgba(245,240,232,0.5)" }}>
-            {t("no_photos") || "Aucune photo"}
+            {t("no_photos")}
           </div>
         )}
       </motion.div>
@@ -247,6 +247,7 @@ const VIPClientsSection = () => {
                   {isActive && c.album && Array.isArray(c.album) && c.album.length > 0 && (
                     <motion.button
                       onPointerUp={e => { e.stopPropagation(); setAlbum({ photos: c.album, name: c.name }); }}
+                      onKeyDown={e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); e.stopPropagation(); setAlbum({ photos: c.album, name: c.name }); } }}
                       whileTap={{ scale: 0.95 }}
                       style={{ marginTop: "10px", display: "flex", alignItems: "center", gap: "8px", background: "rgba(184,151,62,0.12)", border: `1px solid rgba(184,151,62,0.45)`, borderRadius: "30px", padding: "0.7rem 1rem", minHeight: "44px", cursor: "pointer", fontFamily: "'Montserrat', sans-serif", fontSize: "11px", letterSpacing: "0.3em", color: GOLD, textTransform: "uppercase" }}>
                       <span>◻</span> {t("vip_album")}

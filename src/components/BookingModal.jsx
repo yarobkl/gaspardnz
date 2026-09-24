@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { GOLD, TEXT, CALENDLY_URL } from "../constants.js";
 import { useTr } from "../context.jsx";
 import { useFocusTrap } from "../hooks/useFocusTrap.js";
+import { useEscapeKey } from "../hooks/useEscapeKey.js";
 import { SvgCalendar, SvgWA, SvgArrow } from "../icons.jsx";
 import { useSettings } from "../hooks/useSettings.js";
 import { getWhatsappUrl } from "../utils/whatsappUtil.js";
@@ -26,7 +27,7 @@ const BoutiqueModal = ({ onClose, onReserver }) => {
           <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.45em", color: GOLD, textTransform: "uppercase", marginBottom: "0.3rem" }}>{t("boutique_soon_badge")}</p>
           <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.4rem", letterSpacing: "0.1em", color: TEXT, margin: 0, lineHeight: 1 }}>{t("nav_boutique")}</p>
         </div>
-        <button onClick={onClose} style={{ background: "none", border: "none", cursor: "pointer", padding: "4px 8px", color: "rgba(28,18,8,0.62)", fontSize: "22px", lineHeight: 1 }}>×</button>
+        <button onClick={onClose} aria-label={t("close")} style={{ background: "none", border: "none", cursor: "pointer", padding: "4px 8px", color: "rgba(28,18,8,0.62)", fontSize: "22px", lineHeight: 1 }}>×</button>
       </div>
 
       <div style={{ padding: "2.4rem 1.8rem", textAlign: "center" }}>
@@ -75,7 +76,12 @@ const BookingModal = ({ isOpen, onClose, boutiqueMode = false, onSwitchToBooking
   const waMsg = t("bk_wa", nom, projet, besoin);
   const waUrl = getWhatsappUrl(settings.whatsappNumber, waMsg);
 
-  const reset = () => { setStep(1); setForm({ nom: "", projet: "", besoin: "" }); onClose(); };
+  // Fermer (fond cliqué, "×" ou Échap) ne doit PAS effacer une saisie en
+  // cours : un clic accidentel sur le fond perdait les trois champs déjà
+  // remplis. Seule l'étape revient à 1, pour ne pas rouvrir sur l'étape 2
+  // sans repère ; le texte tapé reste si le visiteur rouvre la fenêtre.
+  const close = () => { setStep(1); onClose(); };
+  useEscapeKey(isOpen, close);
 
   const inputStyle = {
     width: "100%", background: "none", border: "1px solid rgba(184,151,62,0.2)",
@@ -91,11 +97,15 @@ const BookingModal = ({ isOpen, onClose, boutiqueMode = false, onSwitchToBooking
         <motion.div
           initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
           transition={{ duration: 0.3 }}
-          onClick={reset}
-          style={{ position: "fixed", inset: 0, zIndex: 500, background: "rgba(0,0,0,0.92)", display: "flex", alignItems: "flex-start", justifyContent: "center", padding: "1rem", paddingTop: "calc(env(safe-area-inset-top) + 3.5rem)", overflowY: "auto" }}>
+          onClick={close}
+          // 750 : au-dessus du chatbot (600), de la bannière cookies (640) et
+          // de la barre de navigation (700) — avant cette correction, le
+          // bouton du chatbot restait visible et cliquable par-dessus cette
+          // fenêtre, et son en-tête passait sous la barre de navigation.
+          style={{ position: "fixed", inset: 0, zIndex: 750, background: "rgba(0,0,0,0.92)", display: "flex", alignItems: "flex-start", justifyContent: "center", padding: "1rem", paddingTop: "calc(env(safe-area-inset-top) + 3.5rem)", overflowY: "auto" }}>
 
           {boutiqueMode ? (
-            <BoutiqueModal onClose={reset} onReserver={onSwitchToBooking} />
+            <BoutiqueModal onClose={close} onReserver={onSwitchToBooking} />
           ) : (
           <motion.div
             ref={focusTrapRef}
@@ -124,7 +134,7 @@ const BookingModal = ({ isOpen, onClose, boutiqueMode = false, onSwitchToBooking
                   {step === 1 ? t("bk_title1") : t("bk_title2")}
                 </p>
               </div>
-              <button onClick={reset} style={{ background: "none", border: "none", cursor: "pointer", padding: "4px 8px", color: "rgba(28,18,8,0.62)", fontSize: "22px", lineHeight: 1, marginTop: "-4px" }}>×</button>
+              <button onClick={close} aria-label={t("close")} style={{ background: "none", border: "none", cursor: "pointer", padding: "4px 8px", color: "rgba(28,18,8,0.62)", fontSize: "22px", lineHeight: 1, marginTop: "-4px" }}>×</button>
             </div>
 
             <div style={{ padding: "1.8rem", overflowY: "auto", flex: 1 }}>

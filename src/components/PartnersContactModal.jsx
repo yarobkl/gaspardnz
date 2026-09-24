@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { GOLD, CREAM } from "../constants.js";
 import { useTr } from "../context.jsx";
 import { useFocusTrap } from "../hooks/useFocusTrap.js";
+import { useEscapeKey } from "../hooks/useEscapeKey.js";
 import { trackPartnerContact, sendPartnerContactEmail } from "../services/partnerTracking.js";
 import Portal from "./ui/Portal.jsx";
 
@@ -27,6 +28,7 @@ const cleanLine = (value) =>
 const PartnersContactModal = ({ isOpen, onClose, partner }) => {
   const t = useTr();
   const focusTrapRef = useFocusTrap(isOpen);
+  useEscapeKey(isOpen, onClose);
   const [formData, setFormData] = useState(EMPTY_FORM);
   const [website, setWebsite] = useState("");
   const [formStartedAt, setFormStartedAt] = useState(() => Date.now());
@@ -137,7 +139,7 @@ const PartnersContactModal = ({ isOpen, onClose, partner }) => {
                   </h2>
                   <button
                     onClick={onClose}
-                    aria-label="Close dialog"
+                    aria-label={t("close")}
                     style={{
                       background: "none",
                       border: "none",

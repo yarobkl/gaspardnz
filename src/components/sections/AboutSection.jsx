@@ -1,9 +1,11 @@
+import { useContext } from "react";
 import { motion } from "framer-motion";
 import { GOLD, CREAM } from "../../constants.js";
-import { useTr } from "../../context.jsx";
+import { LangCtx, useTr } from "../../context.jsx";
 
 const AboutSection = () => {
   const t = useTr();
+  const { lang } = useContext(LangCtx);
 
   const aboutContent = {
     FR: {
@@ -84,7 +86,7 @@ const AboutSection = () => {
     }
   };
 
-  const content = aboutContent[t?.lang || "FR"] || aboutContent.FR;
+  const content = aboutContent[lang] || aboutContent.FR;
 
   return (
     <section style={{ background: "#0a0602", padding: "4rem 1.4rem 4.6rem", color: CREAM }}>

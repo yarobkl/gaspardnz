@@ -5,6 +5,7 @@ import { getStyleDuMois, WA_GNZ } from "../../data/styleDuMoisData.js";
 import { usePublicCollection } from "../../hooks/usePublicCollection.js";
 import { LangCtx, useTr } from "../../context.jsx";
 import { HotspotSheet, PhotoHotspots } from "../ui/PhotoHotspots.jsx";
+import { todayInParis } from "../../utils/parisDate.js";
 
 const albumSrc = (entry) => typeof entry === "string" ? entry : (entry?.src || entry?.url || entry?.public_url || "");
 
@@ -25,7 +26,7 @@ const StyleDuMoisSection = ({ refEl }) => {
   const t = useTr();
   const { lang } = useContext(LangCtx);
   const fallback = useMemo(() => getStyleDuMois(lang), [lang]);
-  const today = new Date().toISOString().slice(0, 10);
+  const today = todayInParis();
   const { rows, source } = usePublicCollection("style_month", {
     fallback,
     orderBy: "starts_at",
