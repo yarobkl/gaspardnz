@@ -86,10 +86,7 @@ describe("Partenaires — « Devenir partenaire » confirme sans attendre le ré
     await user.click(await screen.findByRole("button", { name: "Devenir partenaire" }));
     await user.type(screen.getByLabelText(/Votre nom/), "Awa Diop");
     vi.stubGlobal("fetch", vi.fn(async () => { throw new TypeError("offline"); }));
-    // « Autre ville » : saisie libre pour un professionnel hors de France
-    // ou dans une ville trop petite pour la liste.
-    await user.selectOptions(screen.getByRole("combobox", { name: /Ville/ }), "Autre ville…");
-    await user.type(screen.getByPlaceholderText("Nom de votre ville"), "Genève");
+    await user.selectOptions(screen.getByRole("combobox", { name: /Ville/ }), "Versailles (78)");
     await user.type(screen.getByLabelText(/Email/), "awa@events.fr");
     await user.click(screen.getByRole("button", { name: "Envoyer ma candidature" }));
 
