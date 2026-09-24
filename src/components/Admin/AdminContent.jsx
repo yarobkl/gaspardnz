@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { getSiteSettings, listContentTable, saveSiteSetting, setPublished, uploadMedia, upsertRow } from "../../services/adminData.js";
+import { hasPermission } from "../../services/adminAuth.js";
 import { scrollToAdminEditor } from "./scrollToEditor.js";
 import MediaUploadField from "./MediaUploadField.jsx";
 import AdminFormulesPricing from "./AdminFormulesPricing.jsx";
@@ -15,7 +16,10 @@ const DEFAULT_PARTNER_CATEGORIES = ["Lieu Événement","Wedding Planner","Locati
 const NEW_CATEGORY_OPTION = "__nouvelle_categorie__";
 const emptyNews = { slug:"", title:"", excerpt:"", body:"", cover_url:"", published:false, published_at:"", locale:"FR", gallery:[] };
 
-export default function AdminContent() {
+export default function AdminContent({ user }) {
+  // `site_settings` n'est modifiable qu'à partir du rôle admin (RLS) : un
+  // éditeur voit l'onglet Général mais ne peut plus l'enregistrer pour rien.
+  const canEditSettings = hasPermission("admin", user?.role || user?.permission);
   const [tab, setTab] = useState("general");
   const [settings, setSettings] = useState({});
   const [rows, setRows] = useState([]);
@@ -74,13 +78,14 @@ export default function AdminContent() {
     {error && <div className="gnz-alert gnz-alert-error">{error}</div>}
     <div className="gnz-toolbar">{[["general","Général"],["packages","Formules"],["partners","Partenaires"],["news","Actualités"]].map(([key,label]) => <button key={key} className={tab === key ? "gnz-primary-button" : "gnz-secondary-button"} onClick={() => setTab(key)}>{label}</button>)}</div>
 
-    {tab === "general" && <div className="gnz-section-grid">
+    {tab === "general" && !canEditSettings && <div className="gnz-alert" style={{ color: "var(--gnz-muted)" }}>Lecture seule : les informations générales ne peuvent être modifiées que par un administrateur. Formules, partenaires et actualités restent modifiables.</div>}
+    {tab === "general" && <fieldset disabled={!canEditSettings} className="gnz-readonly-fieldset"><div className="gnz-section-grid">
       <article className="gnz-card gnz-col-4"><header className="gnz-card-header"><div className="gnz-card-title"><strong>Identité</strong><span>Nom et localisation</span></div></header><GeneralEditor initial={brand} fields={["name","city","theme"]} mediaFields={["login_background_url"]} labels={{name:"Nom du site",city:"Ville",theme:"Thème",login_background_url:"Photo de fond (page de connexion admin)"}} help="Affichée en arrière-plan derrière le formulaire de connexion admin. Laissez vide pour garder le fond uni actuel." disabled={saving} onSave={(v) => saveGeneral("brand",v,"Identité de marque")} /></article>
       <article className="gnz-card gnz-col-4"><header className="gnz-card-header"><div className="gnz-card-title"><strong>Contact</strong><span>Coordonnées utilisées par le site</span></div></header><GeneralEditor initial={contact} fields={["email","whatsapp","calendly"]} labels={{email:"Email",whatsapp:"WhatsApp",calendly:"Calendly"}} disabled={saving} onSave={(v) => saveGeneral("contact",v,"Coordonnées publiques")} /></article>
       <article className="gnz-card gnz-col-4"><header className="gnz-card-header"><div className="gnz-card-title"><strong>Réseaux sociaux</strong><span>Liens publics</span></div></header><GeneralEditor initial={social} fields={["instagram","tiktok","facebook","youtube","whatsapp_community"]} labels={{instagram:"Instagram",tiktok:"TikTok",facebook:"Facebook",youtube:"YouTube",whatsapp_community:"Groupe WhatsApp (communauté)"}} placeholders={{whatsapp_community:"https://chat.whatsapp.com/..."}} help="Le lien d'invitation de votre groupe WhatsApp, pas votre numéro de contact (déjà utilisé ailleurs sur le site). Laissez vide pour garder le lien de groupe déjà utilisé par la rubrique Communauté." disabled={saving} onSave={(v) => saveGeneral("social_links",v,"Réseaux sociaux")} /></article>
       <article className="gnz-card gnz-col-4"><header className="gnz-card-header"><div className="gnz-card-title"><strong>Liens & paiement</strong><span>Stripe et liens d'encaissement publics</span></div></header><GeneralEditor initial={payment} fields={["stripe_payment_url","payment_label","lookbook_hidden_message"]} checkboxFields={["lookbook_hidden"]} labels={{stripe_payment_url:"Lien de paiement Stripe",payment_label:"Texte du bouton de paiement",lookbook_hidden_message:"Message affiché si masqué",lookbook_hidden:"Masquer le bouton du lookbook (le lien Stripe reste enregistré, rien n'est perdu)"}} placeholders={{stripe_payment_url:"https://buy.stripe.com/...",payment_label:"Payer le lookbook",lookbook_hidden_message:"Bientôt disponible"}} help="Collez un lien créé dans Stripe. Aucune clé Stripe ni donnée bancaire n'est enregistrée ici. Cochez la case pour retirer temporairement le bouton d'achat sans effacer le lien." disabled={saving} onSave={(v) => saveGeneral("payment",v,"Liens de paiement publics")} /></article>
       <article className="gnz-card gnz-col-4"><header className="gnz-card-header"><div className="gnz-card-title"><strong>Fichier du lookbook</strong><span>Le PDF envoyé au client après achat</span></div></header><LookbookFileEditor lookbook={lookbook} onSaved={load} /></article>
-    </div>}
+    </div></fieldset>}
 
     {tab === "packages" && <AdminFormulesPricing />}
 
@@ -149,7 +154,12 @@ function LookbookFileEditor({ lookbook, onSaved }) {
 
 function GeneralEditor({ initial, fields, labels, placeholders = {}, help, onSave, disabled, checkboxFields = [], mediaFields = [] }) {
   const [value, setValue] = useState(initial || {});
-  useEffect(() => setValue(initial || {}), [initial]);
+  // Ne réinitialiser le formulaire que si la valeur ENREGISTRÉE a changé.
+  // Dépendre de l'objet `initial` lui-même effaçait les saisies non
+  // enregistrées de cette carte dès qu'une AUTRE carte était enregistrée
+  // (rechargement = nouveaux objets, même contenu).
+  const initialKey = JSON.stringify(initial || {});
+  useEffect(() => setValue(initial || {}), [initialKey]);
   return <div className="gnz-card-body gnz-editor-grid">
     {fields.map((field) => <label className="gnz-field" key={field}>{labels[field] || field}<input className="gnz-input" placeholder={placeholders[field] || ""} value={value[field] || ""} onChange={(e) => setValue({ ...value, [field]: e.target.value })} /></label>)}
     {mediaFields.map((field) => <MediaUploadField key={field} label={labels[field] || field} value={value[field]} onChange={(url) => setValue({ ...value, [field]: url })} uploadSection="brand" />)}

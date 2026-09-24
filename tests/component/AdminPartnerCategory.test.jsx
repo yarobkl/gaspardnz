@@ -34,7 +34,7 @@ beforeEach(() => {
 });
 
 const openPartners = async (user) => {
-  render(<AdminContent />);
+  render(<AdminContent user={{ role: "owner" }} />);
   await user.click(await screen.findByRole("button", { name: "Partenaires" }));
 };
 

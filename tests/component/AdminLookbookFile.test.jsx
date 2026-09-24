@@ -43,13 +43,13 @@ beforeEach(() => {
 
 describe("Fichier du lookbook", () => {
   it("prévient tant qu'aucun fichier n'est déposé", async () => {
-    render(<AdminContent />);
+    render(<AdminContent user={{ role: "owner" }} />);
     expect(await screen.findByText(/Aucun fichier déposé pour l'instant/)).toBeInTheDocument();
     expect(screen.getByText("Déposer le PDF du lookbook")).toBeInTheDocument();
   });
 
   it("refuse un fichier qui n'est pas un PDF", async () => {
-    render(<AdminContent />);
+    render(<AdminContent user={{ role: "owner" }} />);
     await screen.findByText("Déposer le PDF du lookbook");
     // userEvent.upload() respecte l'attribut accept="application/pdf" du champ
     // (comme un vrai sélecteur de fichiers) et refuserait silencieusement un
@@ -63,7 +63,7 @@ describe("Fichier du lookbook", () => {
 
   it("dépose un PDF, l'enregistre comme média et met à jour le pointeur des réglages", async () => {
     const user = userEvent.setup();
-    render(<AdminContent />);
+    render(<AdminContent user={{ role: "owner" }} />);
     await screen.findByText("Déposer le PDF du lookbook");
     await user.upload(getFileInput(), pdfFile());
 
@@ -87,7 +87,7 @@ describe("Fichier du lookbook", () => {
     fake.state.site_settings = [{ key: "lookbook", value: { pdf_url: "https://example.test/ancien.pdf", pdf_filename: "ancien.pdf", updated_at: "2026-01-01T00:00:00.000Z" } }];
     vi.spyOn(window, "confirm").mockReturnValue(true);
 
-    render(<AdminContent />);
+    render(<AdminContent user={{ role: "owner" }} />);
     expect(await screen.findByText(/ancien\.pdf/)).toBeInTheDocument();
 
     await fireEvent.click(screen.getByText("Supprimer le fichier"));
@@ -101,7 +101,7 @@ describe("Fichier du lookbook", () => {
     fake.state.site_settings = [{ key: "lookbook", value: { pdf_url: "https://example.test/ancien.pdf", pdf_filename: "ancien.pdf", updated_at: "2026-01-01T00:00:00.000Z" } }];
     vi.spyOn(window, "confirm").mockReturnValue(false);
 
-    render(<AdminContent />);
+    render(<AdminContent user={{ role: "owner" }} />);
     expect(await screen.findByText(/ancien\.pdf/)).toBeInTheDocument();
 
     await fireEvent.click(screen.getByText("Supprimer le fichier"));
@@ -116,7 +116,7 @@ describe("Fichier du lookbook", () => {
     fake.state.media_assets = [{ id: "old-1", section_key: "lookbook", title: "ancien.pdf", media_type: "document", storage_path: "lookbook/ancien.pdf", public_url: "https://example.test/ancien.pdf", published: true }];
 
     const user = userEvent.setup();
-    render(<AdminContent />);
+    render(<AdminContent user={{ role: "owner" }} />);
     expect(await screen.findByText(/ancien\.pdf/)).toBeInTheDocument();
 
     await screen.findByText("Remplacer le fichier");

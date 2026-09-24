@@ -22,7 +22,14 @@ export default function AdminWeddingInspiration() {
   const save = async (e) => {
     e.preventDefault(); setSaving(true); setError("");
     try {
-      const album = albumText.split(/\n+/).map((src) => src.trim()).filter(Boolean).map((src) => ({ src, spots: [] }));
+      // Les points cliquables (spots) de chaque photo ne s'éditent pas ici :
+      // on les conserve pour toute photo déjà présente, sinon le moindre
+      // enregistrement les effaçait tous du site public.
+      const previous = new Map((Array.isArray(form.album) ? form.album : [])
+        .filter((item) => item && typeof item === "object" && item.src)
+        .map((item) => [item.src, item]));
+      const album = albumText.split(/\n+/).map((src) => src.trim()).filter(Boolean)
+        .map((src) => (previous.has(src) ? { ...previous.get(src), src } : { src, spots: [] }));
       await upsertRow("wedding_inspirations", { ...form, album, sort_order: Number(form.sort_order || 0) });
       await load(); reset();
     } catch (e) { setError(e?.message || "Enregistrement impossible."); }

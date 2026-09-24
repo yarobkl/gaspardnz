@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { listBookings, updateBooking, getIntegrationSettings } from "../../services/adminData.js";
 import { supabase } from "../../services/supabaseClient.js";
+import { hasPermission } from "../../services/adminAuth.js";
+import { fromDateTimeLocal, toDateTimeLocal } from "./dateTimeLocal.js";
 import "../../styles/admin-v2.css";
 
 const STATUSES = [
@@ -8,7 +10,10 @@ const STATUSES = [
 ];
 const fmtDate = (value) => value ? new Date(value).toLocaleString("fr-FR", { weekday: "short", day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" }) : "À planifier";
 
-export default function AdminBookings() {
+export default function AdminBookings({ user }) {
+  // Écriture sur `bookings` réservée à admin+ par RLS (rbac_restrictive_policies) :
+  // un compte en dessous voyait une fiche modifiable puis une erreur technique.
+  const canEdit = hasPermission("admin", user?.role || user?.permission);
   const [rows, setRows] = useState([]);
   const [selected, setSelected] = useState(null);
   const [filter, setFilter] = useState("all");
@@ -74,13 +79,14 @@ export default function AdminBookings() {
     <div className="gnz-toolbar"><select className="gnz-select" value={filter} onChange={(e) => setFilter(e.target.value)}><option value="all">Tous les statuts</option>{STATUSES.map(([k,l]) => <option key={k} value={k}>{l}</option>)}</select></div>
     <div className="gnz-split">
       <article className="gnz-card"><div className="gnz-table-wrap gnz-table-wrap--capped"><table className="gnz-table"><thead><tr><th>Client</th><th>Rendez-vous</th><th>Source</th><th>Statut</th><th>Créé</th></tr></thead><tbody>{loading ? <tr><td colSpan="5"><div className="gnz-empty-state">Chargement…</div></td></tr> : visible.length ? visible.map((row) => <tr key={row.id} onClick={() => setSelected(row)} style={{ cursor: "pointer" }}><td><strong>{row.leads?.full_name || row.metadata?.invitee_name || row.title || "Demande"}</strong><span className="gnz-table-sub">{row.leads?.email || row.metadata?.invitee_email || row.leads?.phone || row.provider}</span></td><td>{fmtDate(row.starts_at)}</td><td>{row.source || row.provider}</td><td><span className={`gnz-status ${row.status}`}>{STATUSES.find(([k]) => k === row.status)?.[1] || row.status}</span></td><td>{fmtDate(row.created_at)}</td></tr>) : <tr><td colSpan="5"><div className="gnz-empty-state">Aucune réservation.</div></td></tr>}</tbody></table></div></article>
-      <aside className="gnz-card gnz-editor"><header className="gnz-card-header"><div className="gnz-card-title"><strong>{selected ? selected.leads?.full_name || selected.metadata?.invitee_name || selected.title || "Réservation" : "Fiche réservation"}</strong><span>{selected?.provider ? `Source : ${selected.provider}` : "Sélectionnez une réservation"}</span></div></header><div className="gnz-card-body">{selected ? <div className="gnz-editor-grid">
+      <aside className="gnz-card gnz-editor"><header className="gnz-card-header"><div className="gnz-card-title"><strong>{selected ? selected.leads?.full_name || selected.metadata?.invitee_name || selected.title || "Réservation" : "Fiche réservation"}</strong><span>{selected?.provider ? `Source : ${selected.provider}` : "Sélectionnez une réservation"}</span></div></header><div className="gnz-card-body">{selected ? <fieldset disabled={!canEdit} className="gnz-readonly-fieldset"><div className="gnz-editor-grid">
+        {!canEdit && <div className="gnz-muted" style={{ fontSize: 11 }}>Lecture seule : seuls les administrateurs peuvent modifier une réservation.</div>}
         <label className="gnz-field">Statut<select className="gnz-select" value={selected.status} onChange={(e) => patch(selected.id, { status: e.target.value })}>{STATUSES.map(([k,l]) => <option key={k} value={k}>{l}</option>)}</select></label>
-        <label className="gnz-field">Début<input className="gnz-input" type="datetime-local" value={selected.starts_at ? new Date(selected.starts_at).toISOString().slice(0,16) : ""} onChange={(e) => setSelected({ ...selected, starts_at: e.target.value ? new Date(e.target.value).toISOString() : null })} onBlur={() => patch(selected.id, { starts_at: selected.starts_at })} /></label>
-        <label className="gnz-field">Fin<input className="gnz-input" type="datetime-local" value={selected.ends_at ? new Date(selected.ends_at).toISOString().slice(0,16) : ""} onChange={(e) => setSelected({ ...selected, ends_at: e.target.value ? new Date(e.target.value).toISOString() : null })} onBlur={() => patch(selected.id, { ends_at: selected.ends_at })} /></label>
+        <label className="gnz-field">Début<input className="gnz-input" type="datetime-local" value={toDateTimeLocal(selected.starts_at)} onChange={(e) => setSelected({ ...selected, starts_at: fromDateTimeLocal(e.target.value) })} onBlur={() => patch(selected.id, { starts_at: selected.starts_at })} /></label>
+        <label className="gnz-field">Fin<input className="gnz-input" type="datetime-local" value={toDateTimeLocal(selected.ends_at)} onChange={(e) => setSelected({ ...selected, ends_at: fromDateTimeLocal(e.target.value) })} onBlur={() => patch(selected.id, { ends_at: selected.ends_at })} /></label>
         <label className="gnz-field">Titre<input className="gnz-input" value={selected.title || ""} onChange={(e) => setSelected({ ...selected, title: e.target.value })} onBlur={() => patch(selected.id, { title: selected.title || null })} /></label>
         <label className="gnz-field">Notes<textarea className="gnz-textarea" value={selected.notes || ""} onChange={(e) => setSelected({ ...selected, notes: e.target.value })} onBlur={() => patch(selected.id, { notes: selected.notes || null })} /></label>
-      </div> : <div className="gnz-empty-state">Cliquez sur une réservation pour la gérer.</div>}</div></aside>
+      </div></fieldset> : <div className="gnz-empty-state">Cliquez sur une réservation pour la gérer.</div>}</div></aside>
     </div>
     {toast && <div className="gnz-toast">{toast}</div>}
   </div>;

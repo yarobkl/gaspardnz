@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
-import { cleanup, render, screen, within } from "@testing-library/react";
+import { act, cleanup, render, screen, within } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 
 // Les écrans admin interrogent Supabase au montage : on neutralise le réseau,
 // ce test porte sur le filtrage par rôle de la navigation et sur le
@@ -132,5 +133,67 @@ describe("chaque section branchée charge bien son propre écran", () => {
     render(<AdminLayout currentSection={section} onSectionChange={() => {}} user={{ email: "owner@test.local", role: "owner" }} />);
     expect(await screen.findByRole("heading", { name: title })).toBeInTheDocument();
     expect(screen.queryByText("Module en cours de chargement.")).not.toBeInTheDocument();
+  });
+});
+
+describe("arrivée sur l'admin et menu mobile", () => {
+  it("le couturier qui arrive sur la page par défaut voit ses commandes, pas un refus", async () => {
+    cleanup();
+    window.history.replaceState({}, "", "/admin");
+    render(<AdminLayout currentSection="dashboard" onSectionChange={() => {}} user={{ email: "atelier@test.local", role: "couturier" }} />);
+    expect(await screen.findByRole("heading", { name: "Commandes sur-mesure" })).toBeInTheDocument();
+    expect(screen.queryByText(/n'est pas accessible avec votre rôle/i)).not.toBeInTheDocument();
+  });
+
+  it("le couturier qui force une autre section interdite reste refusé", async () => {
+    cleanup();
+    window.history.replaceState({}, "", "/admin/crm");
+    render(<AdminLayout currentSection="crm" onSectionChange={() => {}} user={{ email: "atelier@test.local", role: "couturier" }} />);
+    expect(await screen.findByText(/n'est pas accessible avec votre rôle/i)).toBeInTheDocument();
+  });
+
+  it("Échap ferme le menu mobile ouvert", async () => {
+    cleanup();
+    window.history.replaceState({}, "", "/admin");
+    const user = userEvent.setup();
+    render(<AdminLayout currentSection="dashboard" onSectionChange={() => {}} user={{ email: "owner@test.local", role: "owner" }} />);
+    await user.click(screen.getByRole("button", { name: "Ouvrir le menu" }));
+    expect(screen.getByRole("button", { name: "Fermer le menu" })).toBeInTheDocument();
+    await user.keyboard("{Escape}");
+    expect(screen.queryByRole("button", { name: "Fermer le menu" })).not.toBeInTheDocument();
+  });
+
+  it("repasser en largeur bureau ferme le menu mobile (plus de voile qui bloque l'écran)", async () => {
+    cleanup();
+    window.history.replaceState({}, "", "/admin");
+    const listeners = new Set();
+    const original = window.matchMedia;
+    window.matchMedia = (query) => ({
+      matches: false, media: query,
+      addEventListener: (_type, cb) => listeners.add(cb),
+      removeEventListener: (_type, cb) => listeners.delete(cb),
+    });
+    try {
+      const user = userEvent.setup();
+      render(<AdminLayout currentSection="dashboard" onSectionChange={() => {}} user={{ email: "owner@test.local", role: "owner" }} />);
+      await user.click(screen.getByRole("button", { name: "Ouvrir le menu" }));
+      expect(listeners.size).toBe(1);
+      act(() => { for (const cb of listeners) cb({ matches: true }); });
+      expect(screen.queryByRole("button", { name: "Fermer le menu" })).not.toBeInTheDocument();
+    } finally {
+      window.matchMedia = original;
+    }
+  });
+
+  it("une carte KPI cliquable du tableau de bord s'active aussi au clavier", async () => {
+    cleanup();
+    window.history.replaceState({}, "", "/admin");
+    const onSectionChange = vi.fn();
+    const user = userEvent.setup();
+    render(<AdminLayout currentSection="dashboard" onSectionChange={onSectionChange} user={{ email: "owner@test.local", role: "owner" }} />);
+    const kpi = (await screen.findByText("Demandes reçues")).closest('[role="button"]');
+    kpi.focus();
+    await user.keyboard("{Enter}");
+    expect(onSectionChange).toHaveBeenCalledWith("crm");
   });
 });

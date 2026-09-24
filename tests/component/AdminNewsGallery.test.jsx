@@ -38,7 +38,7 @@ beforeEach(() => {
 describe("Actualités — galerie de plusieurs photos", () => {
   it("ajoute plusieurs photos à la galerie puis permet d'en retirer une", async () => {
     const user = userEvent.setup();
-    render(<AdminContent />);
+    render(<AdminContent user={{ role: "owner" }} />);
     await user.click(screen.getByRole("button", { name: "Actualités" }));
     await user.click(await screen.findByRole("button", { name: "Ajouter" }));
 

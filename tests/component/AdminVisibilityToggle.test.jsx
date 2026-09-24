@@ -55,7 +55,7 @@ beforeEach(() => {
 describe("Contenu du site — Partenaires", () => {
   it("masque puis réaffiche un partenaire en un clic, sans passer par le formulaire", async () => {
     const user = userEvent.setup();
-    render(<AdminContent />);
+    render(<AdminContent user={{ role: "owner" }} />);
     await user.click(await screen.findByRole("button", { name: "Partenaires" }));
 
     expect(await screen.findByText("Palais Groupe")).toBeInTheDocument();
@@ -76,7 +76,7 @@ describe("Contenu du site — Partenaires", () => {
 
   it("fait défiler vers le formulaire au clic sur « Modifier » (correctif mobile)", async () => {
     const user = userEvent.setup();
-    render(<AdminContent />);
+    render(<AdminContent user={{ role: "owner" }} />);
     await user.click(await screen.findByRole("button", { name: "Partenaires" }));
     await user.click(await screen.findByRole("button", { name: "Modifier" }));
     // Le formulaire s'est bien ouvert avec les données de la ligne cliquée.
@@ -90,7 +90,7 @@ describe("Contenu du site — Partenaires", () => {
     // (AdminFormulesPricing) sans ce bouton générique depuis la phase 16 :
     // « Actualités » exerce le même code partagé (AdminContent) que ce test visait.
     const user = userEvent.setup();
-    render(<AdminContent />);
+    render(<AdminContent user={{ role: "owner" }} />);
     await user.click(await screen.findByRole("button", { name: "Actualités" }));
     await user.click(await screen.findByRole("button", { name: "Ajouter" }));
     await waitForAnimationFrame();

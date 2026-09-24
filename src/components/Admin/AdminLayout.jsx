@@ -4,6 +4,10 @@ import { subscribeTailoringOrders } from "../../services/adminData.js";
 import { ALL_SECTIONS, NAV_GROUPS } from "./adminSections.js";
 import "../../styles/admin-v2.css";
 
+const DEFAULT_SECTION = "dashboard";
+// Même seuil que la bascule mobile/bureau d'admin-v2.css (@media max-width: 840px).
+const DESKTOP_QUERY = "(min-width: 841px)";
+
 const AdminLayout = ({ currentSection, onSectionChange, user }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [orderNotice, setOrderNotice] = useState(null);
@@ -18,13 +22,34 @@ const AdminLayout = ({ currentSection, onSectionChange, user }) => {
   const pathSection = typeof window !== "undefined" ? window.location.pathname.split("/").filter(Boolean)[1] : null;
   const requestedSection = ALL_SECTIONS.some((item) => item.id === pathSection) ? pathSection : currentSection;
   const requested = ALL_SECTIONS.find((item) => item.id === requestedSection);
+  // « dashboard » est la page d'arrivée par défaut (connexion, /admin tout
+  // court) : un rôle qui n'y a pas droit (le couturier) arrivait sur « section
+  // pas accessible » au lieu de son propre écran. On l'envoie alors sur sa
+  // première section autorisée ; toute AUTRE section interdite reste refusée.
+  const landingFallback = requestedSection === DEFAULT_SECTION && requested && !allowed(requested) ? visibleItems[0] : null;
   // Une section atteinte par URL directe mais hors du rôle n'est pas rendue.
-  const sectionRefused = Boolean(requested) && !allowed(requested);
-  const current = requested || visibleItems[0] || ALL_SECTIONS[0];
+  const sectionRefused = Boolean(requested) && !allowed(requested) && !landingFallback;
+  const current = landingFallback || requested || visibleItems[0] || ALL_SECTIONS[0];
   const ActiveComponent = !sectionRefused ? current?.component : null;
 
   const navigate = (section) => { onSectionChange(section); setMenuOpen(false); };
   const handleLogout = async () => { await logout(); window.location.assign("/admin"); };
+
+  // Menu mobile ouvert : Échap le ferme, et repasser en largeur bureau
+  // (tablette tournée, fenêtre agrandie) aussi — sinon le voile sombre
+  // restait par-dessus tout l'écran et avalait le clic suivant.
+  useEffect(() => {
+    if (!menuOpen) return undefined;
+    const onKey = (event) => { if (event.key === "Escape") setMenuOpen(false); };
+    const media = typeof window.matchMedia === "function" ? window.matchMedia(DESKTOP_QUERY) : null;
+    const onMedia = (event) => { if (event.matches) setMenuOpen(false); };
+    window.addEventListener("keydown", onKey);
+    media?.addEventListener?.("change", onMedia);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      media?.removeEventListener?.("change", onMedia);
+    };
+  }, [menuOpen]);
 
   // Prévient Gaspard (et le reste du personnel) dès qu'un couturier valide
   // une commande — les deux comptes sont côte à côte dans leurs bureaux

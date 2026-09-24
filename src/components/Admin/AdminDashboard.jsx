@@ -16,7 +16,10 @@ function Trend({ value }) {
 
 function Kpi({ label, value, trend, sub, onClick }) {
   return (
-    <article className="gnz-kpi-card" data-clickable={Boolean(onClick)} onClick={onClick} role={onClick ? "button" : undefined} tabIndex={onClick ? 0 : undefined}>
+    <article className="gnz-kpi-card" data-clickable={Boolean(onClick)} onClick={onClick} role={onClick ? "button" : undefined} tabIndex={onClick ? 0 : undefined}
+      // role="button" promet Entrée/Espace au clavier : sans ce gestionnaire,
+      // la carte prenait le focus mais ne réagissait à aucune touche.
+      onKeyDown={onClick ? (event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); onClick(); } } : undefined}>
       <div className="gnz-kpi-top"><span className="gnz-kpi-label">{label}</span><Trend value={trend} /></div>
       <div className="gnz-kpi-value">{value}</div>
       <div className="gnz-kpi-sub">{sub}</div>

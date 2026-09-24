@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { addLeadNote, listLeads, updateLead } from "../../services/adminData.js";
+import { hasPermission } from "../../services/adminAuth.js";
 import { requestTypeLabel } from "../../utils/requestTypes.js";
 import "../../styles/admin-v2.css";
 
@@ -19,12 +20,16 @@ const ApplicationDetails = ({ metadata }) => (
   </div>
 );
 
-const AdminCRM = () => {
+const AdminCRM = ({ user }) => {
+  // Écriture sur `leads` et `crm_notes` réservée à admin+ par RLS
+  // (rbac_restrictive_policies) : en dessous, la fiche reste consultable.
+  const canEdit = hasPermission("admin", user?.role || user?.permission);
   const [leads, setLeads] = useState([]);
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("all");
   const [selected, setSelected] = useState(null);
   const [note, setNote] = useState("");
+  const [noteSaving, setNoteSaving] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [toast, setToast] = useState("");
@@ -49,10 +54,13 @@ const AdminCRM = () => {
     } catch (e) { setError(e?.message || "Modification impossible."); }
   };
 
+  // Verrou pendant l'envoi : un double-clic créait deux fois la même note.
   const addNote = async () => {
-    if (!selected || !note.trim()) return;
+    if (!selected || !note.trim() || noteSaving) return;
+    setNoteSaving(true);
     try { await addLeadNote(selected.id, note.trim()); setNote(""); setToast("Note ajoutée au dossier."); setTimeout(() => setToast(""), 2200); }
     catch (e) { setError(e?.message || "Impossible d'ajouter la note."); }
+    finally { setNoteSaving(false); }
   };
 
   const exportCsv = () => {
@@ -85,7 +93,8 @@ const AdminCRM = () => {
 
         <aside className="gnz-card gnz-editor">
           <header className="gnz-card-header"><div className="gnz-card-title"><strong>{selected ? selected.full_name || "Prospect" : "Fiche prospect"}</strong><span>{selected ? `Créé ${fmtDate(selected.created_at)}` : "Sélectionnez une ligne du CRM"}</span></div></header>
-          <div className="gnz-card-body">{selected ? <div className="gnz-editor-grid">
+          <div className="gnz-card-body">{selected ? <fieldset disabled={!canEdit} className="gnz-readonly-fieldset"><div className="gnz-editor-grid">
+            {!canEdit && <div className="gnz-muted" style={{ fontSize: 11 }}>Lecture seule : seuls les administrateurs peuvent modifier un prospect.</div>}
             <label className="gnz-field">Statut<select className="gnz-select" value={selected.status} onChange={(e) => patch(selected.id, { status: e.target.value })}>{STATUS.map(([key,label]) => <option key={key} value={key}>{label}</option>)}</select></label>
             <label className="gnz-field">Nom<input className="gnz-input" value={selected.full_name || ""} onChange={(e) => setSelected({ ...selected, full_name: e.target.value })} onBlur={() => patch(selected.id, { full_name: selected.full_name || null })} /></label>
             <label className="gnz-field">Email<input className="gnz-input" type="email" value={selected.email || ""} onChange={(e) => setSelected({ ...selected, email: e.target.value })} onBlur={() => patch(selected.id, { email: selected.email || null })} /></label>
@@ -94,8 +103,8 @@ const AdminCRM = () => {
             {selected.request_type === "partner_application" && <ApplicationDetails metadata={selected.metadata} />}
             <label className="gnz-field">Message<textarea className="gnz-textarea" value={selected.message || ""} onChange={(e) => setSelected({ ...selected, message: e.target.value })} onBlur={() => patch(selected.id, { message: selected.message || null })} /></label>
             <label className="gnz-field">Ajouter une note<textarea className="gnz-textarea" value={note} onChange={(e) => setNote(e.target.value)} placeholder="Compte rendu d'appel, demande particulière…" /></label>
-            <button className="gnz-primary-button" onClick={addNote} disabled={!note.trim()}>Ajouter la note</button>
-          </div> : <div className="gnz-empty-state">Cliquez sur un prospect pour modifier son dossier.</div>}</div>
+            <button className="gnz-primary-button" onClick={addNote} disabled={!note.trim() || noteSaving}>{noteSaving ? "Ajout…" : "Ajouter la note"}</button>
+          </div></fieldset> : <div className="gnz-empty-state">Cliquez sur un prospect pour modifier son dossier.</div>}</div>
         </aside>
       </div>
       {toast && <div className="gnz-toast">{toast}</div>}

@@ -61,6 +61,8 @@ body:has(.gnz-admin-shell), body:has(.gnz-login-shell) { background: var(--gnz-b
   border-color: var(--gnz-border-strong); box-shadow: 0 0 0 3px rgba(205,169,75,.08);
 }
 .gnz-textarea { min-height: 110px; resize: vertical; }
+/* Fiche consultable mais non modifiable pour un rôle sans droit d'écriture. */
+.gnz-readonly-fieldset { border: 0; padding: 0; margin: 0; min-width: 0; }
 .gnz-primary-button, .gnz-secondary-button, .gnz-danger-button, .gnz-text-button, .gnz-icon-button {
   border: 0; cursor: pointer; font: inherit; text-decoration: none; transition: transform .16s, background .16s, border-color .16s, opacity .16s;
 }

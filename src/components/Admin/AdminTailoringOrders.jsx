@@ -23,6 +23,7 @@ export default function AdminTailoringOrders({ user }) {
   const [form, setForm] = useState(null);
   const [selectedId, setSelectedId] = useState(null);
   const [printOrder, setPrintOrder] = useState(null);
+  const [saving, setSaving] = useState(false);
 
   const flash = (msg) => { setToast(msg); setTimeout(() => setToast(""), 2800); };
 
@@ -51,15 +52,19 @@ export default function AdminTailoringOrders({ user }) {
   const cancelForm = () => setForm(null);
   const setMeasurement = (key, value) => setForm((f) => ({ ...f, measurements: { ...f.measurements, [key]: value } }));
 
+  // Verrou pendant l'envoi : un double-clic transmettait deux commandes
+  // identiques au couturier.
   const saveForm = async (e) => {
     e.preventDefault();
-    if (!form.clientName.trim()) return;
+    if (!form.clientName.trim() || saving) return;
+    setSaving(true);
     try {
       await createTailoringOrder(form);
       setForm(null);
       await load();
       flash("Commande créée et transmise au couturier.");
     } catch (err) { setError(err?.message || "Création impossible."); }
+    finally { setSaving(false); }
   };
 
   const advanceStatus = async (order, nextStatus) => {
@@ -133,7 +138,7 @@ export default function AdminTailoringOrders({ user }) {
                 </div>
               ))}
               <label className="gnz-field">Notes pour le couturier<textarea className="gnz-textarea" value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} /></label>
-              <div className="gnz-editor-actions"><button type="button" className="gnz-secondary-button" onClick={cancelForm}>Annuler</button><button className="gnz-primary-button">Créer et transmettre</button></div>
+              <div className="gnz-editor-actions"><button type="button" className="gnz-secondary-button" onClick={cancelForm}>Annuler</button><button className="gnz-primary-button" disabled={saving}>{saving ? "Transmission…" : "Créer et transmettre"}</button></div>
             </form>
           ) : selected ? (
             <OrderDetail order={selected} isCouturier={isCouturier} onAdvance={advanceStatus} onSaveNotes={saveTailorNotes} onPrint={() => setPrintOrder(selected)} />

@@ -7,6 +7,9 @@ import userEvent from "@testing-library/user-event";
 // UPDATE), pour simuler nous-mêmes une validation de commande par le couturier
 // — sans dépendre d'un vrai canal Supabase Realtime.
 let capturedCallback = null;
+// Tous les abonnements pris (notification d'AdminLayout ET rafraîchissement
+// de l'écran Commandes), pour pouvoir les déclencher tous à la fois.
+const allCallbacks = [];
 const emptyQuery = {
   select: () => emptyQuery, eq: () => emptyQuery, order: () => emptyQuery,
   then: (resolve) => resolve({ data: [], error: null }),
@@ -23,7 +26,7 @@ vi.mock("../../src/services/supabaseClient.js", () => ({
     // même topic figé) : on reconnaît le canal par préfixe, pas par égalité.
     channel: (name) => ({
       on(_event, _filter, callback) {
-        if (name.startsWith("gnz-tailoring-orders")) capturedCallback = callback;
+        if (name.startsWith("gnz-tailoring-orders")) { capturedCallback = callback; allCallbacks.push(callback); }
         return this;
       },
       subscribe() { return this; },
@@ -100,14 +103,16 @@ describe("Notification de commande terminée", () => {
     expect(screen.queryByText(/CMD-2026-0009/)).not.toBeInTheDocument();
   });
 
-  it("le couturier lui-même n'est pas abonné à cette notification", async () => {
-    capturedCallback = null;
-    // "dashboard" n'est pas dans les sections d'un couturier : refusée, donc
-    // AdminTailoringOrders ne monte pas et ne prend pas SON PROPRE abonnement
-    // de rafraîchissement (même nom de canal). Seul l'effet de notification
-    // d'AdminLayout est en jeu ici.
+  it("le couturier lui-même ne reçoit pas cette notification", async () => {
+    allCallbacks.length = 0;
+    // Le couturier arrive directement sur SES commandes (la page par défaut,
+    // « dashboard », lui est interdite) : cet écran prend son propre
+    // abonnement de rafraîchissement. On déclenche donc TOUS les abonnements
+    // existants : aucun ne doit afficher l'alerte « terminée par le couturier ».
     render(<Harness user={{ email: "couturier-a@test.local", role: "couturier" }} />);
-    expect(capturedCallback).toBeNull();
+    expect(await screen.findByRole("heading", { name: /commandes sur-mesure/i, level: 1 })).toBeInTheDocument();
+    act(() => { for (const cb of allCallbacks) cb({ eventType: "UPDATE", new: { id: "o4", order_number: "CMD-2026-0011", status: "terminee" }, old: {} }); });
+    expect(screen.queryByText(/terminée par le couturier/)).not.toBeInTheDocument();
   });
 
   it("un lecteur seul (viewer) n'est pas abonné non plus — réservé à editor et plus", async () => {

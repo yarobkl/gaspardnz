@@ -57,7 +57,7 @@ beforeEach(() => {
 describe("Partenaires — logo", () => {
   it("importe une photo et remplit automatiquement le champ URL", async () => {
     const user = userEvent.setup();
-    render(<AdminContent />);
+    render(<AdminContent user={{ role: "owner" }} />);
     await user.click(await screen.findByRole("button", { name: "Partenaires" }));
     await user.click(await screen.findByRole("button", { name: "Ajouter" }));
     const input = getUploadInput("Logo");

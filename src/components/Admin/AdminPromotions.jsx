@@ -2,10 +2,10 @@ import { useEffect, useState } from "react";
 import { listPromotions, removePromotion, savePromotion, setPublished } from "../../services/adminData.js";
 import { scrollToAdminEditor } from "./scrollToEditor.js";
 import MediaUploadField from "./MediaUploadField.jsx";
+import { fromDateTimeLocal, toDateTimeLocal } from "./dateTimeLocal.js";
 import "../../styles/admin-v2.css";
 
 const empty = { title: "", subtitle: "", description: "", image_url: "", cta_label: "Découvrir", cta_url: "", placement: "home", status: "draft", starts_at: "", ends_at: "", priority: 0, published: false };
-const toLocal = (value) => value ? new Date(value).toISOString().slice(0,16) : "";
 
 export default function AdminPromotions() {
   const [rows, setRows] = useState([]);
@@ -16,12 +16,12 @@ export default function AdminPromotions() {
   const load = async () => { try { setRows(await listPromotions()); setError(""); } catch (e) { setError(e?.message || "Impossible de charger les promotions."); } };
   useEffect(() => { load(); }, []);
 
-  const edit = (row) => { setForm({ ...row, starts_at: toLocal(row.starts_at), ends_at: toLocal(row.ends_at) }); scrollToAdminEditor(); };
+  const edit = (row) => { setForm({ ...row, starts_at: toDateTimeLocal(row.starts_at), ends_at: toDateTimeLocal(row.ends_at) }); scrollToAdminEditor(); };
   const save = async (e) => {
     e.preventDefault(); if (!form.title.trim()) return;
     setSaving(true); setError("");
     try {
-      await savePromotion({ ...form, starts_at: form.starts_at ? new Date(form.starts_at).toISOString() : null, ends_at: form.ends_at ? new Date(form.ends_at).toISOString() : null });
+      await savePromotion({ ...form, starts_at: fromDateTimeLocal(form.starts_at), ends_at: fromDateTimeLocal(form.ends_at) });
       await load(); setForm(empty); setToast("Promotion enregistrée."); setTimeout(() => setToast(""), 2200);
     } catch (e) { setError(e?.message || "Enregistrement impossible."); }
     finally { setSaving(false); }
