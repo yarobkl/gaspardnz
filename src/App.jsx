@@ -286,12 +286,11 @@ export default function App() {
             onLoginSuccess={onLoginSuccess}
           />
         ) : (
-          <div
-            id="gnz-app-root"
-            data-gnz-mode={lightMode ? "light" : "dark"}
-            style={{
-              minHeight: "100dvh", overflowX: "hidden",
-            }}>
+          <>
+            {/* Hors de #gnz-app-root : ce conteneur porte le filter des modes
+                jour / contraste élevé, qui fait défiler avec la page tout
+                élément position:fixed placé à l'intérieur. Reste le premier
+                élément du DOM, donc l'ordre de tabulation ne change pas. */}
             <NavMobile
               onShowroom={() => scrollTo(showroomRef)}
               onGalerie={() => openMobileSection("gallery", galleryRef)}
@@ -313,6 +312,12 @@ export default function App() {
               lightMode={lightMode}
               onToggleDark={() => setLightMode(v => !v)}
             />
+          <div
+            id="gnz-app-root"
+            data-gnz-mode={lightMode ? "light" : "dark"}
+            style={{
+              minHeight: "100dvh", overflowX: "hidden",
+            }}>
 
             <HeroMobile onScrollDown={() => isCompactMobile ? document.getElementById("gnz-mobile-home")?.scrollIntoView({ behavior: "smooth", block: "start" }) : scrollTo(heritageRef)} />
             {isCompactMobile ? (
@@ -388,6 +393,7 @@ export default function App() {
               <ChatBot onReserver={() => openBooking(false)} onGalerie={() => openMobileSection("gallery", galleryRef)} onShowroom={() => scrollTo(showroomRef)} onFormules={() => openMobileSection("formules", formulesRef)} />
             </Suspense>
           </div>
+          </>
         )
       )}
 
