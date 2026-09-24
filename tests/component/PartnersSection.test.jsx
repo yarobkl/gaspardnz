@@ -64,3 +64,34 @@ describe("Partenaires — une catégorie à pourvoir ouvre le formulaire « Deve
     vi.unstubAllGlobals();
   });
 });
+
+// Cas réel en prod : la candidature était enregistrée dans le CRM mais
+// l'email échouait (identifiants SMTP refusés). Le professionnel voyait une
+// erreur, renvoyait le formulaire et créait des doublons. Et sur 4G, le
+// premier appel au CRM pouvait se perdre.
+describe("Partenaires — « Devenir partenaire » résiste aux pannes", () => {
+  it("affiche le succès si le CRM a enregistré, même quand l'email échoue, et réessaie le CRM une fois", async () => {
+    const { default: userEvent } = await import("@testing-library/user-event");
+    const supabaseModule = await import("../../src/services/supabaseClient.js");
+    supabaseModule.sendPublicEvent.mockClear();
+    supabaseModule.sendPublicEvent
+      .mockResolvedValueOnce({ ok: false, status: 0 })
+      .mockResolvedValueOnce({ ok: true, id: "lead-2" });
+    fake = createFakeSupabaseTables({
+      partners: [{ id: "p3", slug: "dj-slot", name: "À venir", category: "DJ / Musique", published: true, status: "active", sort_order: 0, metadata: { placeholder: true } }],
+    });
+    vi.stubGlobal("fetch", vi.fn(async () => ({ ok: false, status: 500, json: async () => ({ error: "Erreur lors de l'envoi de l'email" }) })));
+    const user = userEvent.setup();
+    render(<PartnersSection />);
+
+    await user.click(await screen.findByRole("button", { name: "Devenir partenaire" }));
+    await user.type(screen.getByLabelText(/Votre nom/), "Awa Diop");
+    await user.type(screen.getByLabelText(/Email/), "awa@events.fr");
+    await user.click(screen.getByRole("button", { name: "Envoyer ma candidature" }));
+
+    expect(await screen.findByText(/Votre candidature a bien été envoyée/)).toBeInTheDocument();
+    const leadCalls = supabaseModule.sendPublicEvent.mock.calls.filter(([type]) => type === "lead");
+    expect(leadCalls).toHaveLength(2);
+    vi.unstubAllGlobals();
+  });
+});

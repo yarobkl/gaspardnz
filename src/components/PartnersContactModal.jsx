@@ -71,10 +71,11 @@ const PartnersContactModal = ({ isOpen, onClose, partner }) => {
         throw new Error("Failed to track contact");
       }
 
+      // La demande est enregistrée dans le CRM : un échec de l'email est
+      // journalisé côté serveur mais ne doit pas pousser le client à
+      // renvoyer le formulaire (doublons).
       const emailResult = await sendPartnerContactEmail(partner.id, partner.email || "", safeData, partner.status, partner.name);
-      if (!emailResult.success) {
-        throw new Error(emailResult.error || "Failed to send email");
-      }
+      if (!emailResult.success) console.warn("Partner contact email failed:", emailResult.error);
 
       setSubmitted(true);
       setFormData(EMPTY_FORM);

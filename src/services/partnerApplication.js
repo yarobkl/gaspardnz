@@ -26,7 +26,7 @@ export const submitPartnerApplication = async (data) => {
   };
 
   try {
-    const crm = await sendPublicEvent("lead", {
+    const leadPayload = {
       ...getTrackingContext(),
       full_name: application.name,
       email: application.email,
@@ -35,8 +35,22 @@ export const submitPartnerApplication = async (data) => {
       channel: "partner_application",
       message: [application.trade, application.company, application.message].filter(Boolean).join(" · "),
       metadata: { trade: application.trade, company: application.company || null, portfolio: application.portfolio || null },
-    });
+    };
+    // Sur mobile (4G), le premier appel peut se perdre en route : on
+    // réessaie une fois avant d'afficher une erreur.
+    let crm = await sendPublicEvent("lead", leadPayload);
+    if (!crm?.ok && (!crm?.status || crm.status >= 500)) crm = await sendPublicEvent("lead", leadPayload);
     if (!crm?.ok) throw new Error("La candidature n'a pas pu être enregistrée.");
+  } catch (error) {
+    console.error("Partner application error:", error);
+    return { success: false, error: error?.message || "Erreur lors de l'envoi" };
+  }
+
+  // La candidature est enregistrée dans le CRM : c'est un succès pour le
+  // professionnel, même si l'email échoue (l'échec est journalisé côté
+  // serveur et visible dans l'admin). Afficher une erreur ici ferait
+  // renvoyer le formulaire et créerait des doublons.
+  try {
 
     const response = await fetch("/api/send-email", {
       method: "POST",
@@ -63,9 +77,9 @@ export const submitPartnerApplication = async (data) => {
     }
 
     trackEvent("partner_application_sent", { trade: application.trade });
-    return { success: true };
+    return { success: true, emailSent: true };
   } catch (error) {
-    console.error("Partner application error:", error);
-    return { success: false, error: error?.message || "Erreur lors de l'envoi" };
+    console.warn("Partner application email failed:", error);
+    return { success: true, emailSent: false };
   }
 };
