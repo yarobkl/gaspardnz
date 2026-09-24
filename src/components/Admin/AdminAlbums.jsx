@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-import { supabase } from "../../services/supabaseClient.js";
-import { setPublished } from "../../services/adminData.js";
+import { listAlbums, saveAlbum, setPublished } from "../../services/adminData.js";
 import { scrollToAdminEditor } from "./scrollToEditor.js";
 import MediaUploadField from "./MediaUploadField.jsx";
 import "../../styles/admin-v2.css";
@@ -15,9 +14,8 @@ export default function AdminAlbums() {
   const [saving,setSaving] = useState(false);
 
   const load = async () => {
-    const {data,error:loadError}=await supabase.from("content_albums").select("*").order("section_key").order("sort_order");
-    if(loadError){setError(loadError.message);return;}
-    setRows(data||[]); setError("");
+    try { setRows(await listAlbums()); setError(""); }
+    catch (e) { setError(e?.message || "Impossible de charger les albums."); }
   };
   useEffect(()=>{load();},[]);
 
@@ -31,10 +29,8 @@ export default function AdminAlbums() {
   const save = async (event) => {
     event.preventDefault(); setSaving(true); setError("");
     try{
-      const payload={...form,slug:form.slug||slugify(form.title),sort_order:Number(form.sort_order||0),items:form.items.map((item)=>({src:String(item.src||"").trim(),label:String(item.label||"").trim(),width:Number(item.width||1200),height:Number(item.height||1500),...(Array.isArray(item.hotspots)?{hotspots:item.hotspots}:{})})).filter((item)=>item.src),updated_at:new Date().toISOString()};
-      delete payload.id;
-      const query=form.id?supabase.from("content_albums").update(payload).eq("id",form.id):supabase.from("content_albums").insert(payload);
-      const {error:saveError}=await query; if(saveError) throw saveError;
+      const payload={...form,slug:form.slug||slugify(form.title),sort_order:Number(form.sort_order||0),items:form.items.map((item)=>({src:String(item.src||"").trim(),label:String(item.label||"").trim(),width:Number(item.width||1200),height:Number(item.height||1500),...(Array.isArray(item.hotspots)?{hotspots:item.hotspots}:{})})).filter((item)=>item.src)};
+      await saveAlbum(payload);
       await load(); reset();
     }catch(e){setError(e?.message||"Enregistrement impossible.");}finally{setSaving(false);}
   };

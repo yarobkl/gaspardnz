@@ -2,7 +2,10 @@ import { describe, expect, it, vi } from "vitest";
 import { cleanup, render, screen, within } from "@testing-library/react";
 
 // Les écrans admin interrogent Supabase au montage : on neutralise le réseau,
-// ce test porte sur le filtrage par rôle de la navigation.
+// ce test porte sur le filtrage par rôle de la navigation et sur le
+// branchement réel des sections (AdminLayout charge maintenant lui-même
+// l'écran de chaque section via Admin/adminSections.js, il n'y a plus de
+// contenu injecté depuis l'extérieur).
 const emptyQuery = {
   select: () => emptyQuery, eq: () => emptyQuery, gte: () => emptyQuery,
   lt: () => emptyQuery, order: () => emptyQuery, limit: () => emptyQuery,
@@ -31,20 +34,11 @@ vi.mock("../../src/services/supabaseClient.js", () => ({
 
 const AdminLayout = (await import("../../src/components/Admin/AdminLayout.jsx")).default;
 
-// AdminLayout injecte `onNavigate` dans l'enfant du tableau de bord via
-// cloneElement : un <div> brut déclencherait un avertissement React.
-const Section = ({ children }) => <section>{children}</section>;
-
 const navFor = (role) => {
   // Plusieurs rôles sont rendus dans un même test : sans démontage, les
   // navigations s'accumulent dans le document.
   cleanup();
-  render(
-    <AdminLayout currentSection="dashboard" onSectionChange={() => {}}
-      user={{ email: `${role}@test.local`, displayName: `Compte ${role}`, role }}>
-      <Section>contenu</Section>
-    </AdminLayout>,
-  );
+  render(<AdminLayout currentSection="dashboard" onSectionChange={() => {}} user={{ email: `${role}@test.local`, displayName: `Compte ${role}`, role }} />);
   const nav = screen.getByRole("navigation", { name: /administration/i });
   return within(nav).getAllByRole("button").map((b) => b.textContent.replace(/^\W+/, "").trim());
 };
@@ -81,11 +75,7 @@ describe("filtrage de la navigation admin par rôle", () => {
   it("un rôle absent ou inconnu ne donne accès à rien", () => {
     for (const role of [undefined, "superadmin"]) {
       cleanup();
-      render(
-        <AdminLayout currentSection="dashboard" onSectionChange={() => {}} user={{ role }}>
-          <Section>contenu</Section>
-        </AdminLayout>,
-      );
+      render(<AdminLayout currentSection="dashboard" onSectionChange={() => {}} user={{ role }} />);
       const nav = screen.getByRole("navigation", { name: /administration/i });
       expect(within(nav).queryAllByRole("button")).toHaveLength(0);
     }
@@ -108,26 +98,39 @@ describe("filtrage de la navigation admin par rôle", () => {
 describe("accès par URL directe", () => {
   const renderAt = (role, path) => {
     window.history.replaceState({}, "", path);
-    render(
-      <AdminLayout currentSection="users" onSectionChange={() => {}}
-        user={{ email: `${role}@test.local`, role }}>
-        <Section>module utilisateurs</Section>
-      </AdminLayout>,
-    );
+    render(<AdminLayout currentSection="users" onSectionChange={() => {}} user={{ email: `${role}@test.local`, role }} />);
   };
 
   it.each(["viewer", "editor", "admin"])(
     "refuse /admin/users à un compte %s et ne monte aucun module",
-    (role) => {
+    async (role) => {
       renderAt(role, "/admin/users");
-      expect(screen.getByText(/n'est pas accessible avec votre rôle/i)).toBeInTheDocument();
-      expect(screen.queryByText("module utilisateurs")).not.toBeInTheDocument();
+      expect(await screen.findByText(/n'est pas accessible avec votre rôle/i)).toBeInTheDocument();
+      expect(screen.queryByRole("heading", { name: "Utilisateurs" })).not.toBeInTheDocument();
     },
   );
 
-  it("laisse le propriétaire accéder à /admin/users", () => {
+  it("laisse le propriétaire accéder à /admin/users et y charge le vrai écran Utilisateurs", async () => {
     renderAt("owner", "/admin/users");
+    expect(await screen.findByRole("heading", { name: "Utilisateurs" })).toBeInTheDocument();
     expect(screen.queryByText(/n'est pas accessible avec votre rôle/i)).not.toBeInTheDocument();
-    expect(screen.getByText("module utilisateurs")).toBeInTheDocument();
+  });
+});
+
+describe("chaque section branchée charge bien son propre écran", () => {
+  // Garde-fou contre l'oubli d'une entrée dans Admin/adminSections.js : si
+  // une section reste sans composant, cet écran resterait bloqué sur
+  // « Module en cours de chargement. » en silence.
+  it.each([
+    ["dashboard", "Tableau de bord"],
+    ["crm", "CRM"],
+    ["media", "Médias & photos"],
+    ["settings", "Paramètres"],
+  ])("la section « %s » affiche son propre titre « %s »", async (section, title) => {
+    cleanup();
+    window.history.replaceState({}, "", `/admin/${section}`);
+    render(<AdminLayout currentSection={section} onSectionChange={() => {}} user={{ email: "owner@test.local", role: "owner" }} />);
+    expect(await screen.findByRole("heading", { name: title })).toBeInTheDocument();
+    expect(screen.queryByText("Module en cours de chargement.")).not.toBeInTheDocument();
   });
 });

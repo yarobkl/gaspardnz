@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { T } from "../../translations.js";
-import { supabase } from "../../services/supabaseClient.js";
+import { deleteTranslationOverride, listTranslationOverrides, saveTranslationOverride } from "../../services/adminData.js";
 import "../../styles/admin-v2.css";
 
 const LANGS=["FR","EN","ES","ZH"];
@@ -16,9 +16,8 @@ export default function AdminTexts(){
   const [saving,setSaving]=useState(false);
 
   const load=async()=>{
-    const {data,error:loadError}=await supabase.from("site_content").select("id,content_key,locale,value,published,updated_at").eq("section_key","translations").eq("locale",locale);
-    if(loadError){setError(loadError.message);return;}
-    setRows(data||[]);setError("");
+    try { setRows(await listTranslationOverrides(locale)); setError(""); }
+    catch (e) { setError(e?.message || "Impossible de charger les textes."); }
   };
   useEffect(()=>{load();setSelected(null);setDraft("");},[locale]);
 
@@ -28,11 +27,15 @@ export default function AdminTexts(){
   const choose=(key,original)=>{setSelected({key,original});const value=overrides[key]?.value;setDraft(typeof value==="string"?value:(value?.text||original));};
   const save=async()=>{
     if(!selected)return;setSaving(true);setError("");
-    const {error:saveError}=await supabase.from("site_content").upsert({section_key:"translations",content_key:selected.key,locale,value:draft,published:true,updated_at:new Date().toISOString()},{onConflict:"section_key,content_key,locale"});
-    if(saveError)setError(saveError.message);else await load();setSaving(false);
+    try { await saveTranslationOverride(selected.key,locale,draft); await load(); }
+    catch(e){setError(e?.message||"Enregistrement impossible.");}
+    setSaving(false);
   };
   const restore=async()=>{
-    if(!selected)return;setSaving(true);const {error:deleteError}=await supabase.from("site_content").delete().eq("section_key","translations").eq("content_key",selected.key).eq("locale",locale);if(deleteError)setError(deleteError.message);else{await load();setDraft(selected.original);}setSaving(false);
+    if(!selected)return;setSaving(true);setError("");
+    try { await deleteTranslationOverride(selected.key,locale); await load(); setDraft(selected.original); }
+    catch(e){setError(e?.message||"Restauration impossible.");}
+    setSaving(false);
   };
 
   return <div>

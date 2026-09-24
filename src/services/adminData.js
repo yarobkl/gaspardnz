@@ -155,6 +155,55 @@ export async function removePromotion(id) {
   if (error) throw error;
 }
 
+export async function listAlbums() {
+  const { data, error } = await supabase.from("content_albums").select("*").order("section_key").order("sort_order");
+  if (error) throw error;
+  return data || [];
+}
+
+export async function saveAlbum(input) {
+  const payload = {
+    section_key: input.section_key,
+    slug: input.slug,
+    title: input.title,
+    description: input.description || null,
+    published: Boolean(input.published),
+    sort_order: Number(input.sort_order || 0),
+    items: input.items,
+    updated_at: nowIso(),
+  };
+  const query = input.id
+    ? supabase.from("content_albums").update(payload).eq("id", input.id)
+    : supabase.from("content_albums").insert(payload);
+  const { data, error } = await query.select().single();
+  if (error) throw error;
+  return data;
+}
+
+// Surcharges de traduction (site_content, section_key="translations") : un
+// texte du site modifié depuis l'admin, par langue. Absence de ligne = texte
+// d'origine (src/translations.js) affiché tel quel.
+export async function listTranslationOverrides(locale) {
+  const { data, error } = await supabase.from("site_content")
+    .select("id,content_key,locale,value,published,updated_at")
+    .eq("section_key", "translations").eq("locale", locale);
+  if (error) throw error;
+  return data || [];
+}
+
+export async function saveTranslationOverride(key, locale, value) {
+  const { error } = await supabase.from("site_content").upsert({
+    section_key: "translations", content_key: key, locale, value, published: true, updated_at: nowIso(),
+  }, { onConflict: "section_key,content_key,locale" });
+  if (error) throw error;
+}
+
+export async function deleteTranslationOverride(key, locale) {
+  const { error } = await supabase.from("site_content").delete()
+    .eq("section_key", "translations").eq("content_key", key).eq("locale", locale);
+  if (error) throw error;
+}
+
 export async function listMedia(section = "all") {
   let query = supabase.from("media_assets").select("*").order("section_key").order("sort_order");
   if (section !== "all") query = query.eq("section_key", section);
