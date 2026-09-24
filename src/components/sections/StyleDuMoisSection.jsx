@@ -3,6 +3,7 @@ import { AnimatePresence, motion, useInView } from "framer-motion";
 import { GOLD } from "../../constants.js";
 import { getStyleDuMois, WA_GNZ } from "../../data/styleDuMoisData.js";
 import { usePublicCollection } from "../../hooks/usePublicCollection.js";
+import useCompactMobile from "../../hooks/useCompactMobile.js";
 import { LangCtx, useTr } from "../../context.jsx";
 import { HotspotSheet, PhotoHotspots } from "../ui/PhotoHotspots.jsx";
 import { todayInParis } from "../../utils/parisDate.js";
@@ -25,6 +26,7 @@ const mapRemoteStyle = (row, lang, fallbackItem) => {
 const StyleDuMoisSection = ({ refEl }) => {
   const t = useTr();
   const { lang } = useContext(LangCtx);
+  const isCompactMobile = useCompactMobile();
   const fallback = useMemo(() => getStyleDuMois(lang), [lang]);
   const today = todayInParis();
   const { rows, source } = usePublicCollection("style_month", {
@@ -61,13 +63,23 @@ const StyleDuMoisSection = ({ refEl }) => {
 
   return (
     <section ref={node => { ref.current = node; if (refEl) refEl.current = node; }} style={{ background: "#0a0602", padding: "4.5rem 0 5rem" }}>
-      <motion.div initial={{ opacity: 0, y: 16 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.7 }} style={{ padding: "0 1.4rem", marginBottom: "2rem" }}>
+      <motion.div initial={{ opacity: 0, y: 16 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.7 }} style={{ maxWidth: "1200px", margin: "0 auto", padding: "0 1.4rem", marginBottom: "2rem" }}>
         <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.42em", color: GOLD, textTransform: "uppercase", marginBottom: "10px" }}>GASPARDNZ</p>
         <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "28px", fontWeight: 300, color: "#faf7f2", letterSpacing: "0.02em", lineHeight: 1.2, margin: 0 }}>{t("style_month")}</p>
         <div style={{ width: "48px", height: "1px", background: `linear-gradient(90deg, ${GOLD}, transparent)`, marginTop: "14px" }} />
       </motion.div>
 
-      <div style={{ padding: "0 1.4rem", display: "flex", flexDirection: "column", gap: "1.4rem" }}>
+      {/* Grille responsive à partir de 768px : sans elle, chaque carte en
+          aspectRatio 9/16 s'étirait sur toute la largeur d'écran et
+          devenait démesurément haute. */}
+      <div style={{
+        maxWidth: "1200px", margin: "0 auto", padding: "0 1.4rem",
+        display: isCompactMobile ? "flex" : "grid",
+        flexDirection: isCompactMobile ? "column" : undefined,
+        gridTemplateColumns: isCompactMobile ? undefined : "repeat(auto-fit, minmax(240px, 320px))",
+        justifyContent: isCompactMobile ? undefined : "center",
+        gap: "1.4rem",
+      }}>
         {STYLE_DU_MOIS.map((item, i) => (
           <motion.div key={item.id || i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-6% 0px" }} transition={{ duration: 0.5, delay: i * 0.05, ease: [0.16, 1, 0.3, 1] }} style={{ background: "linear-gradient(180deg,#141006,#080503)", borderRadius: "18px", overflow: "hidden", border: "1px solid rgba(184,151,62,0.22)", boxShadow: "0 26px 80px rgba(0,0,0,0.34)" }}>
             {item.src && (() => {

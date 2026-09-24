@@ -111,10 +111,14 @@ export default function GalleryMobile({ refEl }) {
           <span style={{ fontFamily:"'Montserrat',sans-serif", fontSize:10, letterSpacing:".22em", color:"rgba(28,18,8,.5)" }}>{String(cur + 1).padStart(2,"0")} / {String(n).padStart(2,"0")}</span>
         </div>
 
-        <div style={{ position:"relative", margin:"0 1.4rem", borderRadius:18, overflow:"hidden", background:"#120c07", boxShadow:"0 24px 70px rgba(28,18,8,.16)" }}>
+        <div style={{ position:"relative", margin:"0 1.4rem", borderRadius:18, overflow:"hidden", background:"#120c07", boxShadow:"0 24px 70px rgba(28,18,8,.16)", aspectRatio:"4/5" }}>
           <AnimatePresence mode="wait">
-            <motion.div key={`${cur}-${current.src}`} initial={{ opacity:0, scale:1.015 }} animate={{ opacity:1, scale:1 }} exit={{ opacity:0, scale:.99 }} transition={{ duration:.35 }} style={{ position:"relative" }}>
-              <img src={current.src} alt={current.label} width={current.width} height={current.height} loading="lazy" decoding="async" style={{ width:"100%", height:"auto", display:"block", background:"#0a0602" }} />
+            {/* aspectRatio fixe + objectFit cover : sans ça, chaque photo de
+                ratio différent faisait sauter la hauteur de toute la mise en
+                page (légende, points, boutons en dessous) à chaque rotation
+                automatique du carrousel (toutes les 5s). */}
+            <motion.div key={`${cur}-${current.src}`} initial={{ opacity:0, scale:1.015 }} animate={{ opacity:1, scale:1 }} exit={{ opacity:0, scale:.99 }} transition={{ duration:.35 }} style={{ position:"absolute", inset:0 }}>
+              <img src={current.src} alt={current.label} width={current.width} height={current.height} loading="lazy" decoding="async" style={{ width:"100%", height:"100%", objectFit:"cover", objectPosition:"center top", display:"block", background:"#0a0602" }} />
               <PhotoHotspots
                 spots={current.hotspots || []}
                 activeIndex={activeSpot ?? -1}

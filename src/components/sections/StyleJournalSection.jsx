@@ -43,14 +43,25 @@ const StyleJournalSection = () => {
   return (
     <section ref={ref} style={{ background: "#0a0602", paddingTop: isCompactMobile ? "3rem" : "4.5rem" }}>
       <motion.div initial={{ opacity: 0, y: 16 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.7 }}
-        style={{ padding: "0 1.4rem", marginBottom: isCompactMobile ? "1.35rem" : "2rem" }}>
+        style={{ maxWidth: "1200px", margin: "0 auto", padding: "0 1.4rem", marginBottom: isCompactMobile ? "1.35rem" : "2rem" }}>
         <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.42em", color: GOLD, textTransform: "uppercase", marginBottom: "10px" }}>GASPARDNZ</p>
         <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "28px", fontWeight: 300, color: "#faf7f2", letterSpacing: "0.02em", lineHeight: 1.2, margin: 0 }}>{t("style_journal_title")}</p>
         <div style={{ width: "48px", height: "1px", background: `linear-gradient(90deg, ${GOLD}, transparent)`, marginTop: "14px" }} />
         <p style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: "italic", fontSize: "12px", color: "rgba(245,240,232,0.62)", marginTop: "8px" }}>{t("style_journal_hint")}</p>
       </motion.div>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: "12px", paddingBottom: isCompactMobile ? "8px" : "12px" }}>
+      {/* Sur mobile : liste en colonne unique. À partir de 768px (hors
+          isCompactMobile) : grille responsive — sans elle, les photos
+          s'étirent en pleine largeur d'écran et deviennent démesurément
+          hautes (aucune limite de largeur ailleurs dans l'arbre). */}
+      <div style={{
+        maxWidth: "1200px", margin: "0 auto", padding: isCompactMobile ? 0 : "0 1.4rem",
+        display: isCompactMobile ? "flex" : "grid",
+        flexDirection: isCompactMobile ? "column" : undefined,
+        gridTemplateColumns: isCompactMobile ? undefined : "repeat(auto-fit, minmax(260px, 340px))",
+        justifyContent: isCompactMobile ? undefined : "center",
+        gap: "12px", paddingBottom: isCompactMobile ? "8px" : "12px",
+      }}>
         {visiblePhotos.map((photo, i) => (
           <motion.article key={i}
             initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-6% 0px" }}

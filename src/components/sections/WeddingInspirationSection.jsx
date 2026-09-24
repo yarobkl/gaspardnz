@@ -55,13 +55,23 @@ const WeddingInspirationSection = ({ refEl }) => {
       <motion.div
         initial={{ opacity: 0, y: 16 }} animate={inView ? { opacity: 1, y: 0 } : {}}
         transition={{ duration: 0.7 }}
-        style={{ padding: "0 1.4rem", marginBottom: isCompactMobile ? "1.35rem" : "2rem" }}>
+        style={{ maxWidth: "1200px", margin: "0 auto", padding: "0 1.4rem", marginBottom: isCompactMobile ? "1.35rem" : "2rem" }}>
         <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.42em", color: GOLD, textTransform: "uppercase", marginBottom: "10px" }}>GASPARDNZ</p>
         <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "28px", fontWeight: 300, color: "#faf7f2", letterSpacing: "0.02em", lineHeight: 1.2, margin: 0 }}>{t("wedding_inspiration")}</p>
         <div style={{ width: "48px", height: "1px", background: `linear-gradient(90deg, ${GOLD}, transparent)`, marginTop: "14px" }} />
       </motion.div>
 
-      <div style={{ padding: "0 1.4rem", display: "flex", flexDirection: "column", gap: "1.4rem" }}>
+      {/* Grille responsive à partir de 768px : sans elle, chaque carte en
+          aspectRatio 9/16 s'étirait sur toute la largeur d'écran et
+          devenait démesurément haute. */}
+      <div style={{
+        maxWidth: "1200px", margin: "0 auto", padding: "0 1.4rem",
+        display: isCompactMobile ? "flex" : "grid",
+        flexDirection: isCompactMobile ? "column" : undefined,
+        gridTemplateColumns: isCompactMobile ? undefined : "repeat(auto-fit, minmax(240px, 320px))",
+        justifyContent: isCompactMobile ? undefined : "center",
+        gap: "1.4rem",
+      }}>
         {visibleInspirations.map((item, i) => (
           <motion.div key={i}
             initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}

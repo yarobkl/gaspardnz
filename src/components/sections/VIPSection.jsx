@@ -5,6 +5,7 @@ import { useTr } from "../../context.jsx";
 import { useFocusTrap } from "../../hooks/useFocusTrap.js";
 import { useSettings } from "../../hooks/useSettings.js";
 import { getWhatsappUrl } from "../../utils/whatsappUtil.js";
+import { cardOffsetX, cardWidthPx } from "../../utils/vipCarouselGeometry.js";
 import Portal from "../ui/Portal.jsx";
 
 const AlbumModal = ({ photos, name, onClose }) => {
@@ -162,7 +163,7 @@ const VIPClientsSection = () => {
     album: (client.album || []).map(withBase),
   }));
   const CARD_W = 68;
-  const getX = (idx) => ((100 - CARD_W) / 2 - idx * CARD_W) * vw;
+  const getX = (idx) => cardOffsetX(vw * 100, CARD_W, idx);
   const x = useMotionValue(getX(0));
   const snapTo = (idx) => {
     setCur(idx);
@@ -175,7 +176,7 @@ const VIPClientsSection = () => {
     return () => window.removeEventListener("resize", update);
   }, []);
   useEffect(() => {
-    x.set(((100 - CARD_W) / 2 - curRef.current * CARD_W) * vw);
+    x.set(cardOffsetX(vw * 100, CARD_W, curRef.current));
   }, [vw]);
 
   if (!clients.length) return null;
@@ -200,7 +201,7 @@ const VIPClientsSection = () => {
           dragElastic={0}
           dragConstraints={{ left: getX(clients.length - 1), right: getX(0) }}
           onDragEnd={(_, { offset, velocity }) => {
-            const cw = CARD_W * vw;
+            const cw = cardWidthPx(vw * 100, CARD_W);
             if (offset.x < -cw * 0.2 || velocity.x < -300) snapTo(Math.min(curRef.current + 1, clients.length - 1));
             else if (offset.x > cw * 0.2 || velocity.x > 300) snapTo(Math.max(curRef.current - 1, 0));
             else snapTo(curRef.current);
@@ -221,7 +222,7 @@ const VIPClientsSection = () => {
                 onClick={handleCardClick}
                 animate={{ scale: isActive ? 1 : 0.80, opacity: dist === 0 ? 1 : dist === 1 ? 0.55 : 0.3 }}
                 transition={{ type: "spring", stiffness: 280, damping: 28 }}
-                style={{ flexShrink: 0, width: `${CARD_W}vw`, boxSizing: "border-box", paddingLeft: "6px", paddingRight: "6px", cursor: isActive ? (c.album ? "pointer" : "grab") : "pointer", transformOrigin: "center center" }}>
+                style={{ flexShrink: 0, width: `${cardWidthPx(vw * 100, CARD_W)}px`, boxSizing: "border-box", paddingLeft: "6px", paddingRight: "6px", cursor: isActive ? (c.album ? "pointer" : "grab") : "pointer", transformOrigin: "center center" }}>
                 <div style={{ borderRadius: "16px", background: c.gradient, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", border: isActive ? `1px solid rgba(184,151,62,0.5)` : "1px solid rgba(184,151,62,0.15)", position: "relative", overflow: "hidden", aspectRatio: "3/4", boxShadow: isActive ? "0 20px 60px rgba(0,0,0,0.7)" : "none", transition: "border 0.4s, box-shadow 0.4s" }}>
                   {c.photo
                     ? <img src={c.photo} alt={c.name} width="900" height="1200" loading="lazy" decoding="async" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center top", pointerEvents: "none" }} />
