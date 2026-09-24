@@ -214,7 +214,7 @@ const NavMobile = ({ onShowroom, onGalerie, onContact, onCatalogue, onFormules, 
               [t("nav_showroom"), onShowroom],
               [t("style_month"), onStyleDuMois],
               ["Communauté", onCommunaute],
-              [t("lookbook"), (settings.lookbookPdfUrl?.trim() && !settings.lookbookHidden) ? () => downloadFile(settings.lookbookPdfUrl, settings.lookbookFilename || "lookbook-gaspardnz.pdf").catch(() => {}) : null],
+              [t("lookbook"), (settings.lookbookPdfUrl?.trim() && !settings.lookbookHidden) ? () => downloadFile(settings.lookbookPdfUrl, settings.lookbookFilename || "lookbook-gaspardnz.pdf").catch(() => window.alert(t("lookbook_download_error"))) : null],
             ].map(([label, fn], i) => (
               <motion.button key={label}
                 initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }}

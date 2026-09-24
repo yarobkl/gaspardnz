@@ -114,7 +114,11 @@ export const useSettings = () => {
     refresh();
     const localUnsubscribe = subscribeToSettingsChanges((newSettings) => setSettings(newSettings));
     const channel = supabase
-      .channel(`gnz-public-settings-${crypto.randomUUID()}`)
+      // Un simple suffixe pour distinguer les canaux, pas un identifiant :
+      // crypto.randomUUID() n'existe pas avant Safari 15.4 et faisait
+      // planter cet effet sur les iPhone plus anciens. Même solution déjà
+      // utilisée par usePublicCollection.js pour le même besoin.
+      .channel(`gnz-public-settings-${Math.random().toString(36).slice(2)}`)
       .on("postgres_changes", { event: "*", schema: "public", table: "site_settings" }, () => { clearTimeout(refreshTimer); refreshTimer = setTimeout(refresh, 80); })
       .on("postgres_changes", { event: "*", schema: "public", table: "packages" }, () => { clearTimeout(refreshTimer); refreshTimer = setTimeout(refresh, 80); })
       .on("postgres_changes", { event: "*", schema: "public", table: "vip_clients" }, () => { clearTimeout(refreshTimer); refreshTimer = setTimeout(refresh, 80); })
