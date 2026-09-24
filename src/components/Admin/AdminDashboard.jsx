@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { getDashboardData, subscribeDashboard } from "../../services/adminData.js";
 import { getEmailSummary, getReportingData } from "../../services/adminReporting.js";
 import "../../styles/admin-v2.css";
+import { requestTypeLabel } from "../../utils/requestTypes.js";
 
 const fmt = new Intl.NumberFormat("fr-FR");
 const money = new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR", maximumFractionDigits: 0 });
@@ -158,7 +159,7 @@ const AdminDashboard = ({ onNavigate }) => {
             <table className="gnz-table">
               <thead><tr><th>Client</th><th>Besoin</th><th>Source</th><th>Statut</th><th>Reçu</th></tr></thead>
               <tbody>{(data?.recentLeads || []).length ? data.recentLeads.map((lead) => (
-                <tr key={lead.id}><td><strong>{lead.full_name || "Sans nom"}</strong><span className="gnz-table-sub">{lead.email || lead.phone || "Contact non renseigné"}</span></td><td>{lead.request_type || "Demande"}</td><td>{lead.source || lead.channel || "Site"}</td><td><span className={`gnz-status ${lead.status}`}>{lead.status}</span></td><td>{relativeTime(lead.created_at)}</td></tr>
+                <tr key={lead.id}><td><strong>{lead.full_name || "Sans nom"}</strong><span className="gnz-table-sub">{lead.email || lead.phone || "Contact non renseigné"}</span></td><td>{requestTypeLabel(lead.request_type)}</td><td>{lead.source || lead.channel || "Site"}</td><td><span className={`gnz-status ${lead.status}`}>{lead.status}</span></td><td>{relativeTime(lead.created_at)}</td></tr>
               )) : <tr><td colSpan="5"><div className="gnz-empty-state">Aucune demande sur cette période.</div></td></tr>}</tbody>
             </table>
           </div>

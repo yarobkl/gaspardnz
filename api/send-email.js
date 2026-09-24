@@ -150,6 +150,12 @@ const formatInternalEmailBody = (data, isComingSoon) => {
 
 const formatClientEmailBody = (data) => `Bonjour ${sanitizeText(data.clientName, 80)},\n\nMerci pour votre demande via Gaspard NZ.\n\nVotre demande a bien été transmise à Gaspard. Il reviendra vers vous rapidement pour qualifier votre besoin et organiser la suite.\n\nRécapitulatif :\n- Partenaire / service : ${sanitizeText(data.partnerName || data.partnerId || "Gaspard NZ", 160)}\n- Type d'événement : ${sanitizeText(data.eventType || "Non précisé", 140)}\n- Date prévue : ${sanitizeText(data.eventDate || "Non précisée", 80)}\n\nSi vous souhaitez ajouter une précision, vous pouvez répondre directement à cet email.\n\nGaspard NZ\nStyliste, habilleur & maître de cérémonie\nhttps://gaspardnz.style`;
 
+// Candidature d'un professionnel (wedding planner, traiteur…) qui veut
+// travailler avec Gaspard : ce n'est pas un client, l'email est différent.
+const formatApplicationInternalBody = (data) => `NOUVELLE CANDIDATURE PARTENAIRE\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\nLE PROFESSIONNEL\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\nMétier: ${sanitizeText(data.trade, 120)}\nEntreprise: ${sanitizeText(data.company || "Non précisée", 160)}\nNom: ${sanitizeText(data.clientName, 140)}\nEmail: ${sanitizeText(data.clientEmail, 320)}\nTéléphone: ${sanitizeText(data.clientPhone || "Non précisé", 80)}\nInstagram / site: ${sanitizeText(data.portfolio || "Non précisé", 300)}\n\nMessage:\n${sanitizeText(data.message || "Aucun message", 2000)}\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\nSUIVI\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\nRépondre directement à cet email pour contacter le professionnel.\nLa candidature est aussi enregistrée dans l'admin (CRM).\n\nTimestamp: ${new Date(data.timestamp || Date.now()).toLocaleString("fr-FR")}`;
+
+const formatApplicationAckBody = (data) => `Bonjour ${sanitizeText(data.clientName, 80)},\n\nMerci pour votre intérêt pour le réseau de partenaires Gaspard NZ.\n\nVotre candidature en tant que ${sanitizeText(data.trade, 120)} a bien été reçue. Gaspard l'étudiera personnellement et reviendra vers vous pour échanger sur une collaboration.\n\nSi vous souhaitez ajouter des éléments (portfolio, références, tarifs), vous pouvez répondre directement à cet email.\n\nGaspard NZ\nStyliste, habilleur & maître de cérémonie\nhttps://gaspardnz.style`;
+
 export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
   if (!isAllowedOrigin(req.headers.origin)) return res.status(403).json({ error: "Origin not allowed" });
@@ -159,10 +165,12 @@ export default async function handler(req, res) {
   try { requestBytes = Buffer.byteLength(JSON.stringify(body), "utf8"); } catch { return res.status(400).json({ error: "Invalid request" }); }
   if (requestBytes > MAX_REQUEST_BYTES) return res.status(413).json({ error: "Requête trop volumineuse" });
 
-  const { to, cc, subject, partnerId, partnerName, clientName, clientEmail, clientPhone, eventType, eventDate, message, timestamp, isComingSoon, website, formStartedAt } = body;
+  const { to, cc, subject, partnerId, partnerName, clientName, clientEmail, clientPhone, eventType, eventDate, message, timestamp, isComingSoon, website, formStartedAt, kind, company, trade, portfolio } = body;
+  const isApplication = kind === "partner_application";
   const recipients = resolveRecipients({ to, cc });
   if (!recipients.ok) return res.status(400).json({ error: recipients.error });
   if (!isValidEmail(clientEmail) || !sanitizeText(clientName, 140)) return res.status(400).json({ error: "Données client incomplètes" });
+  if (isApplication && !sanitizeText(trade, 120)) return res.status(400).json({ error: "Métier manquant" });
   if (isBotSubmission({ website, formStartedAt })) return res.status(400).json({ error: "Données client invalides" });
   if (!validateEnv()) return res.status(503).json({ error: "Email service not configured" });
 
@@ -184,24 +192,33 @@ export default async function handler(req, res) {
     }
   }
 
-  const safeSubject = sanitizeText(subject || "Nouvelle demande de contact", 160);
+  const applicationData = { clientName, clientEmail, clientPhone, company, trade, portfolio, message, timestamp };
+  const safeSubject = isApplication
+    ? sanitizeText(`Candidature partenaire : ${sanitizeText(trade, 120)}${sanitizeText(company, 160) ? `, ${sanitizeText(company, 160)}` : ""}`, 160)
+    : sanitizeText(subject || "Nouvelle demande de contact", 160);
+  const ackSubject = isApplication ? "Votre candidature a bien été reçue - Gaspard NZ" : "Votre demande a bien été reçue - Gaspard NZ";
+  const logMetadata = isApplication
+    ? { trade: sanitizeText(trade, 120), company: sanitizeText(company, 160) || null }
+    : { partner_id: partnerId || null, partner_name: partnerName || null };
   const internalRecipient = recipients.to[0];
   const internalLogId = await createEmailLog(db, {
     recipient: internalRecipient,
     subject: safeSubject,
-    templateKey: "partner_contact_internal",
-    metadata: { cc: recipients.cc, partner_id: partnerId || null, partner_name: partnerName || null },
+    templateKey: isApplication ? "partner_application_internal" : "partner_contact_internal",
+    metadata: { cc: recipients.cc, ...logMetadata },
   });
   const clientLogId = await createEmailLog(db, {
     recipient: clientEmail,
-    subject: "Votre demande a bien été reçue - Gaspard NZ",
-    templateKey: "partner_contact_client_ack",
-    metadata: { partner_id: partnerId || null, partner_name: partnerName || null },
+    subject: ackSubject,
+    templateKey: isApplication ? "partner_application_ack" : "partner_contact_client_ack",
+    metadata: logMetadata,
   });
 
   try {
     const transporter = createTransporter();
-    const emailBody = formatInternalEmailBody({ partnerId, partnerName, clientName, clientEmail, clientPhone, eventType, eventDate, message, timestamp }, isComingSoon);
+    const emailBody = isApplication
+      ? formatApplicationInternalBody(applicationData)
+      : formatInternalEmailBody({ partnerId, partnerName, clientName, clientEmail, clientPhone, eventType, eventDate, message, timestamp }, isComingSoon);
     const info = await transporter.sendMail({
       from: process.env.EMAIL_FROM,
       to: recipients.to.join(", "),
@@ -218,11 +235,13 @@ export default async function handler(req, res) {
       metadata: { cc: recipients.cc, accepted: info.accepted || [], rejected: info.rejected || [], partner_id: partnerId || null },
     });
 
-    const clientBody = formatClientEmailBody({ partnerId, partnerName, clientName, eventType, eventDate });
+    const clientBody = isApplication
+      ? formatApplicationAckBody(applicationData)
+      : formatClientEmailBody({ partnerId, partnerName, clientName, eventType, eventDate });
     const clientInfo = await transporter.sendMail({
       from: process.env.EMAIL_FROM,
       to: normalizedClientEmail,
-      subject: "Votre demande a bien été reçue - Gaspard NZ",
+      subject: ackSubject,
       text: clientBody,
       html: clientBody.split("\n").map(escapeHtml).join("<br>"),
       replyTo: process.env.EMAIL_FROM,

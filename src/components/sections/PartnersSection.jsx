@@ -5,6 +5,7 @@ import { LangCtx, useTr } from "../../context.jsx";
 import { PARTNERS_DATA } from "../../data/partners.js";
 import { usePublicCollection } from "../../hooks/usePublicCollection.js";
 import PartnersContactModal from "../PartnersContactModal.jsx";
+import PartnerApplicationModal from "../PartnerApplicationModal.jsx";
 
 const SHOW_PARTNER_DISCOUNT_BADGE = false;
 
@@ -45,6 +46,15 @@ const COMPACT_COPY = {
   ZH: { all: "查看全部合作伙伴", trust: "精选合作网络，为你的重要活动提供支持。" },
 };
 
+// Une catégorie encore sans partenaire devient un appel aux professionnels
+// de ce métier, avec son propre formulaire de candidature.
+const RECRUIT_COPY = {
+  FR: { title: "Nous recherchons un partenaire", desc: "Vous exercez ce métier ? Rejoignez le réseau de GaspardNZ.", btn: "Devenir partenaire" },
+  EN: { title: "We are looking for a partner", desc: "Is this your profession? Join the GaspardNZ network.", btn: "Become a partner" },
+  ES: { title: "Buscamos un socio", desc: "¿Te dedicas a esto? Únete a la red de GaspardNZ.", btn: "Ser socio" },
+  ZH: { title: "我们正在寻找合作伙伴", desc: "您从事这一行业吗？欢迎加入 GaspardNZ 合作网络。", btn: "成为合作伙伴" },
+};
+
 const PartnersSection = ({ refEl, compact = false, onShowAll }) => {
   const t = useTr();
   const { lang } = useContext(LangCtx);
@@ -52,6 +62,8 @@ const PartnersSection = ({ refEl, compact = false, onShowAll }) => {
   const inView = useInView(ref, { once: true, margin: "-6% 0px" });
   const [selectedPartner, setSelectedPartner] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
+  const [applicationTrade, setApplicationTrade] = useState(null);
+  const recruitCopy = RECRUIT_COPY[lang] || RECRUIT_COPY.FR;
   const { rows, source } = usePublicCollection("partners", { fallback: PARTNERS_DATA });
   const partners = useMemo(() => source === "supabase" ? rows.map(mapRemotePartner) : rows, [rows, source]);
   const compactCopy = COMPACT_COPY[lang] || COMPACT_COPY.FR;
@@ -125,14 +137,14 @@ const PartnersSection = ({ refEl, compact = false, onShowAll }) => {
                 <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: compact ? "8px" : "10px", letterSpacing: "0.1em", color: GOLD, textTransform: "uppercase", margin: "0 0 0.5rem 0" }}>
                   {getPartnerText(partner, "category", "Catégorie")}
                 </p>
-                <h3 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: compact ? "clamp(17px,5vw,22px)" : "clamp(20px, 5vw, 28px)", color: CREAM, margin: compact ? 0 : "0 0 0.8rem 0", letterSpacing: "0.04em", opacity: partner.placeholder ? 0.6 : 1 }}>
-                  {getPartnerText(partner, "name", "Nom")}
+                <h3 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: compact ? "clamp(17px,5vw,22px)" : "clamp(20px, 5vw, 28px)", color: CREAM, margin: compact ? 0 : "0 0 0.8rem 0", letterSpacing: "0.04em" }}>
+                  {partner.placeholder ? recruitCopy.title : getPartnerText(partner, "name", "Nom")}
                 </h3>
 
                 {!compact && (
                   <>
-                    <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "14px", color: "rgba(245,240,232,0.75)", lineHeight: 1.6, margin: "0 0 1.5rem 0", minHeight: "50px", opacity: partner.placeholder ? 0.6 : 1 }}>
-                      {getPartnerText(partner, "description", "Description")}
+                    <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "14px", color: "rgba(245,240,232,0.75)", lineHeight: 1.6, margin: "0 0 1.5rem 0", minHeight: "50px" }}>
+                      {partner.placeholder ? recruitCopy.desc : getPartnerText(partner, "description", "Description")}
                     </p>
 
                     {!partner.placeholder && partner.status !== "coming_soon" && partner.status !== "inactive" ? (
@@ -142,6 +154,15 @@ const PartnersSection = ({ refEl, compact = false, onShowAll }) => {
                         whileTap={{ scale: 0.98 }}
                         style={{ width: "100%", padding: "0.8rem 1.2rem", background: `rgba(184,151,62,0.1)`, border: `1px solid ${GOLD}`, color: CREAM, fontFamily: "'Montserrat', sans-serif", fontSize: "11px", letterSpacing: "0.1em", textTransform: "uppercase", cursor: "pointer", borderRadius: "4px", transition: "all 0.3s ease" }}>
                         {t("partners_contact_btn") || "Prendre Contact"}
+                      </motion.button>
+                    ) : partner.placeholder ? (
+                      <motion.button
+                        type="button"
+                        onClick={() => setApplicationTrade(getPartnerText(partner, "category", ""))}
+                        whileHover={{ background: `${GOLD}22` }}
+                        whileTap={{ scale: 0.98 }}
+                        style={{ width: "100%", padding: "0.8rem 1.2rem", background: "rgba(184,151,62,0)", border: `1px dashed ${GOLD}`, color: GOLD, fontFamily: "'Montserrat', sans-serif", fontSize: "11px", letterSpacing: "0.1em", textTransform: "uppercase", cursor: "pointer", borderRadius: "4px" }}>
+                        {recruitCopy.btn}
                       </motion.button>
                     ) : (
                       <button disabled style={{ width: "100%", padding: "0.8rem 1.2rem", background: "rgba(184,151,62,0.05)", border: `1px solid ${GOLD}33`, color: "rgba(245,240,232,0.7)", fontFamily: "'Montserrat', sans-serif", fontSize: "11px", letterSpacing: "0.1em", textTransform: "uppercase", textAlign: "center", borderRadius: "4px", cursor: "not-allowed" }}>
@@ -179,6 +200,7 @@ const PartnersSection = ({ refEl, compact = false, onShowAll }) => {
       </section>
 
       {!compact && <PartnersContactModal isOpen={modalOpen} onClose={() => setModalOpen(false)} partner={selectedPartner || {}} />}
+      {!compact && <PartnerApplicationModal isOpen={applicationTrade !== null} onClose={() => setApplicationTrade(null)} trade={applicationTrade || ""} />}
     </>
   );
 };
