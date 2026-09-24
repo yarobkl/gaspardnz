@@ -1,12 +1,14 @@
 import { useContext, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion, useInView } from "framer-motion";
 import { GOLD } from "../../constants.js";
-import { getStyleDuMois, WA_GNZ } from "../../data/styleDuMoisData.js";
+import { getStyleDuMois } from "../../data/styleDuMoisData.js";
 import { usePublicCollection } from "../../hooks/usePublicCollection.js";
 import useCompactMobile from "../../hooks/useCompactMobile.js";
+import { useSettings } from "../../hooks/useSettings.js";
 import { LangCtx, useTr } from "../../context.jsx";
 import { HotspotSheet, PhotoHotspots } from "../ui/PhotoHotspots.jsx";
 import { todayInParis } from "../../utils/parisDate.js";
+import { getWhatsappUrl } from "../../utils/whatsappUtil.js";
 
 const albumSrc = (entry) => typeof entry === "string" ? entry : (entry?.src || entry?.url || entry?.public_url || "");
 
@@ -27,6 +29,7 @@ const StyleDuMoisSection = ({ refEl }) => {
   const t = useTr();
   const { lang } = useContext(LangCtx);
   const isCompactMobile = useCompactMobile();
+  const settings = useSettings();
   const fallback = useMemo(() => getStyleDuMois(lang), [lang]);
   const today = todayInParis();
   const { rows, source } = usePublicCollection("style_month", {
@@ -58,7 +61,7 @@ const StyleDuMoisSection = ({ refEl }) => {
       ES: `Hola Gaspard, me interesa: ${spot.label}`,
       ZH: `你好 Gaspard，我对这件单品感兴趣：${spot.label}`,
     };
-    window.open(`${WA_GNZ}?text=${encodeURIComponent(messages[lang] || messages.FR)}`, "_blank", "noopener,noreferrer");
+    window.open(getWhatsappUrl(settings.whatsappNumber, messages[lang] || messages.FR), "_blank", "noopener,noreferrer");
   };
 
   return (

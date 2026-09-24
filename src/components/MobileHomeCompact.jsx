@@ -2,6 +2,8 @@ import { Suspense, lazy, useContext } from "react";
 import { motion } from "framer-motion";
 import { GOLD } from "../constants.js";
 import { LangCtx } from "../context.jsx";
+import { useSettings } from "../hooks/useSettings.js";
+import { getWhatsappUrl } from "../utils/whatsappUtil.js";
 // Chargées en différé même si elles s'affichent tout de suite ici : ça sort
 // leur code du paquet principal, téléchargé et exécuté par TOUT visiteur.
 // App.jsx les charge déjà ainsi pour la mise en page large — un import
@@ -79,6 +81,7 @@ const ORDER = ["formules", "gallery", "wedding", "styleMonth", "journal", "herit
 
 export default function MobileHomeCompact({ activeSection, onSelect }) {
   const { lang } = useContext(LangCtx);
+  const settings = useSettings();
   const copy = COPY[lang] || COPY.FR;
 
   // Le défilement (attendre que la rubrique soit réellement montée avant de
@@ -108,7 +111,7 @@ export default function MobileHomeCompact({ activeSection, onSelect }) {
               {copy.attractionPrimary}
             </button>
             <a
-              href={`https://wa.me/33664826920?text=${encodeURIComponent(copy.whatsapp)}`}
+              href={getWhatsappUrl(settings.whatsappNumber, copy.whatsapp)}
               target="_blank"
               rel="noopener noreferrer"
               style={{ minHeight: 50, border: "1px solid rgba(184,151,62,.42)", color: GOLD, textDecoration: "none", fontFamily: "'Montserrat',sans-serif", fontSize: 9, fontWeight: 600, letterSpacing: ".18em", textTransform: "uppercase", display: "flex", alignItems: "center", justifyContent: "center" }}>

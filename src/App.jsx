@@ -23,6 +23,8 @@ import HeroMobile from "./components/HeroMobile.jsx";
 import useCompactMobile from "./hooks/useCompactMobile.js";
 import MobileHomeCompact from "./components/MobileHomeCompact.jsx";
 import CommunityWhatsAppLink from "./components/CommunityWhatsAppLink.jsx";
+import { useSettings } from "./hooks/useSettings.js";
+import { getWhatsappUrl } from "./utils/whatsappUtil.js";
 
 import SectionDivider from "./components/ui/SectionDivider.jsx";
 
@@ -110,6 +112,7 @@ export default function App() {
   } = useAdminSession();
   const [consentPreferences, setConsentPreferences] = useState(getConsentPreferences);
   const isCompactMobile = useCompactMobile();
+  const settings = useSettings();
   const [mobileSection, setMobileSection] = useState(null);
   const finishSplash = useCallback(() => setSplashDone(true), []);
   const [lang, setLang] = useState(() => {
@@ -292,7 +295,7 @@ export default function App() {
             <NavMobile
               onShowroom={() => scrollTo(showroomRef)}
               onGalerie={() => openMobileSection("gallery", galleryRef)}
-              onContact={() => window.open(`https://wa.me/33664826920?text=${encodeURIComponent((APP_COPY[lang] || APP_COPY.FR).waContact)}`, "_blank")}
+              onContact={() => window.open(getWhatsappUrl(settings.whatsappNumber, (APP_COPY[lang] || APP_COPY.FR).waContact), "_blank")}
               onCatalogue={() => openBooking(true)}
               onFormules={() => openMobileSection("formules", formulesRef)}
               onBiographie={() => openMobileSection("heritage", heritageRef)}
@@ -341,7 +344,7 @@ export default function App() {
                       {mobileSection === "gallery" && <GalleryMobile refEl={galleryRef} />}
                       {mobileSection === "video" && <div ref={videoRef}><VideoSection /></div>}
                       {mobileSection === "wedding" && <WeddingInspirationSection refEl={weddingRef} />}
-                      {mobileSection === "formules" && <FormulesSection refEl={formulesRef} onContact={() => window.open(`https://wa.me/33664826920?text=${encodeURIComponent((APP_COPY[lang] || APP_COPY.FR).waFormula)}`, "_blank")} />}
+                      {mobileSection === "formules" && <FormulesSection refEl={formulesRef} onContact={() => window.open(getWhatsappUrl(settings.whatsappNumber, (APP_COPY[lang] || APP_COPY.FR).waFormula), "_blank")} />}
                       {mobileSection === "partners" && <PartnersSection refEl={partenairesRef} />}
                       {mobileSection === "news" && <div ref={actualitesRef}><ActualitesSection /></div>}
                       {mobileSection === "vip" && <div ref={vipRef}><VIPClientsSection /></div>}
@@ -372,7 +375,7 @@ export default function App() {
                 <SectionDivider from="#0a0602" to="#0a0602" />
                 <WeddingInspirationSection refEl={weddingRef} />
                 <SectionDivider from="#0a0602" to="#0d1b3e" />
-                <FormulesSection refEl={formulesRef} onContact={() => window.open(`https://wa.me/33664826920?text=${encodeURIComponent((APP_COPY[lang] || APP_COPY.FR).waFormula)}`, "_blank")} />
+                <FormulesSection refEl={formulesRef} onContact={() => window.open(getWhatsappUrl(settings.whatsappNumber, (APP_COPY[lang] || APP_COPY.FR).waFormula), "_blank")} />
                 <SectionDivider from="#0d1b3e" to="#0a0602" />
                 <PartnersSection refEl={partenairesRef} />
                 <SectionDivider from="#0a0602" to="#0a0602" />

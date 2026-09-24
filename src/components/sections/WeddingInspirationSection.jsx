@@ -1,11 +1,11 @@
 import { useContext, useRef, useState } from "react";
 import { AnimatePresence, motion, useInView } from "framer-motion";
 import { GOLD } from "../../constants.js";
-import { WA_GNZ } from "../../data/weddingInspirationData.js";
 import { useSettings } from "../../hooks/useSettings.js";
 import { LangCtx, useTr } from "../../context.jsx";
 import useCompactMobile from "../../hooks/useCompactMobile.js";
 import { HotspotSheet, PhotoHotspots } from "../ui/PhotoHotspots.jsx";
+import { getWhatsappUrl } from "../../utils/whatsappUtil.js";
 
 const COPY = {
   FR: { more: "Voir toutes les inspirations", less: "Réduire les inspirations" },
@@ -47,7 +47,7 @@ const WeddingInspirationSection = ({ refEl }) => {
       ES: `Hola Gaspard, me interesa este look de boda: ${spot.label}`,
       ZH: `你好 Gaspard，我对这个婚礼造型感兴趣：${spot.label}`,
     };
-    window.open(`${WA_GNZ}?text=${encodeURIComponent(messages[lang] || messages.FR)}`, "_blank", "noopener,noreferrer");
+    window.open(getWhatsappUrl(settings.whatsappNumber, messages[lang] || messages.FR), "_blank", "noopener,noreferrer");
   };
 
   return (

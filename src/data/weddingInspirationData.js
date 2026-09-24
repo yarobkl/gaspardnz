@@ -152,5 +152,3 @@ export const WEDDING_INSPIRATIONS = {
 export function getWeddingInspirations(lang) {
   return WEDDING_INSPIRATIONS[lang] || WEDDING_INSPIRATIONS.FR;
 }
-
-export const WA_GNZ = "https://wa.me/33664826920";
