@@ -1,6 +1,7 @@
 import { trackEvent } from "./adminAnalytics.js";
 import { sendPublicEvent } from "./supabaseClient.js";
 import { getTrackingContext } from "./siteTracking.js";
+import { EMAIL_NOTIFICATIONS_ENABLED } from "../constants.js";
 
 // Candidature d'un professionnel qui veut devenir partenaire de Gaspard.
 // Enregistrée dans le CRM (leads, type "partner_application") puis envoyée
@@ -50,6 +51,7 @@ export const submitPartnerApplication = async (data) => {
   // professionnel, même si l'email échoue (l'échec est journalisé côté
   // serveur et visible dans l'admin). Afficher une erreur ici ferait
   // renvoyer le formulaire et créerait des doublons.
+  if (!EMAIL_NOTIFICATIONS_ENABLED) return { success: true, emailSent: false };
   try {
 
     const response = await fetch("/api/send-email", {

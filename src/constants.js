@@ -18,3 +18,8 @@ export const SOCIAL_LINKS = {
 };
 
 export const fonts = `@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Bebas+Neue&family=Montserrat:wght@200;300;400;500&display=swap');`;
+
+// Envoi des emails de notification (formulaires partenaires et
+// candidatures pro). En pause : les demandes arrivent uniquement dans le
+// CRM de l'admin. Repasser à true une fois le mot de passe Gmail réparé.
+export const EMAIL_NOTIFICATIONS_ENABLED = false;

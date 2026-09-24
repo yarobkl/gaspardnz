@@ -59,8 +59,9 @@ describe("Partenaires — une catégorie à pourvoir ouvre le formulaire « Deve
       full_name: "Awa Diop", email: "awa@events.fr", request_type: "partner_application",
       metadata: expect.objectContaining({ trade: "Wedding Planner", company: "Awa Events" }),
     }));
-    const emailCall = fetchMock.mock.calls.find(([url]) => url === "/api/send-email");
-    expect(JSON.parse(emailCall[1].body)).toMatchObject({ kind: "partner_application", trade: "Wedding Planner", company: "Awa Events", clientName: "Awa Diop" });
+    // Emails en pause (EMAIL_NOTIFICATIONS_ENABLED = false) : la candidature
+    // part uniquement dans le CRM, aucun appel à l'envoi d'email.
+    expect(fetchMock.mock.calls.find(([url]) => url === "/api/send-email")).toBeUndefined();
     vi.unstubAllGlobals();
   });
 });

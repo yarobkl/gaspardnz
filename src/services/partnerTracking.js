@@ -1,6 +1,7 @@
 import { trackEvent } from "./adminAnalytics.js";
 import { sendPublicEvent } from "./supabaseClient.js";
 import { getTrackingContext } from "./siteTracking.js";
+import { EMAIL_NOTIFICATIONS_ENABLED } from "../constants.js";
 
 export const trackPartnerContact = async (partnerId, clientData) => {
   try {
@@ -10,7 +11,7 @@ export const trackPartnerContact = async (partnerId, clientData) => {
     });
 
     const context = getTrackingContext();
-    const result = await sendPublicEvent("partner_contact", {
+    const payload = {
       ...context,
       partner_slug: partnerId,
       full_name: clientData.name,
@@ -23,7 +24,10 @@ export const trackPartnerContact = async (partnerId, clientData) => {
         commission_percentage: 5,
         client_discount_percentage: 5,
       },
-    });
+    };
+    // Sur mobile (4G), le premier appel peut se perdre : un seul nouvel essai.
+    let result = await sendPublicEvent("partner_contact", payload);
+    if (!result?.ok && (!result?.status || result.status >= 500)) result = await sendPublicEvent("partner_contact", payload);
 
     if (!result?.ok) throw new Error("La demande n'a pas pu être enregistrée dans le CRM.");
     return { success: true, id: result.id, leadId: result.lead_id, timestamp: new Date().toISOString() };
@@ -41,6 +45,7 @@ const cleanLine = (value) =>
     .trim();
 
 export const sendPartnerContactEmail = async (partnerId, partnerEmail, clientData, partnerStatus = null, partnerName = "") => {
+  if (!EMAIL_NOTIFICATIONS_ENABLED) return { success: true, skipped: true };
   try {
     const gaspardEmail = "gaspardnz.contact@gmail.com";
     const userEmail = "eliebakala@gmail.com";

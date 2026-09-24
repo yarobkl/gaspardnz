@@ -68,7 +68,7 @@ const PartnersContactModal = ({ isOpen, onClose, partner }) => {
 
       const trackResult = await trackPartnerContact(partner.id, safeData);
       if (!trackResult.success) {
-        throw new Error("Failed to track contact");
+        throw new Error("Votre demande n'a pas pu être envoyée. Vérifiez votre connexion et réessayez.");
       }
 
       // La demande est enregistrée dans le CRM : un échec de l'email est
