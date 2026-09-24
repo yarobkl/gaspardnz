@@ -34,6 +34,29 @@ if ("serviceWorker" in navigator && "caches" in window) {
   }
 }
 
+// Un onglet resté ouvert (très courant sur iPhone) garde l'ancienne version
+// du site après une mise en ligne. Quand le visiteur revient sur l'onglet,
+// on compare la version chargée à celle du serveur et on recharge si elle a
+// changé, sauf s'il a un formulaire ou une fenêtre ouverte.
+const INDEX_SCRIPT_RE = /\/assets\/index-[\w-]+\.js/;
+const loadedIndexScript = [...document.scripts].map((s) => s.src.match(INDEX_SCRIPT_RE)?.[0]).find(Boolean);
+if (loadedIndexScript) {
+  let lastCheck = 0;
+  const checkForNewVersion = async () => {
+    if (document.hidden || Date.now() - lastCheck < 60_000) return;
+    lastCheck = Date.now();
+    try {
+      const html = await (await fetch("/", { cache: "no-store" })).text();
+      const liveIndexScript = html.match(INDEX_SCRIPT_RE)?.[0];
+      const busy = document.activeElement?.matches?.("input, textarea, select") || document.querySelector('[role="dialog"][aria-modal="true"]');
+      if (liveIndexScript && liveIndexScript !== loadedIndexScript && !busy) window.location.reload();
+    } catch {}
+  };
+  document.addEventListener("visibilitychange", checkForNewVersion);
+  window.addEventListener("focus", checkForNewVersion);
+  window.addEventListener("pageshow", (event) => { if (event.persisted) checkForNewVersion(); });
+}
+
 const pathname = window.location.pathname.replace(/\/$/, "") || "/";
 const SEO_ROUTE_PATHS = new Set(["/a-propos", "/lookbook", "/contact", "/galerie"]);
 const SECONDARY_SEO_ROUTE_PATHS = new Set(["/actualites", "/videos", "/partenaires", "/style-du-mois"]);
