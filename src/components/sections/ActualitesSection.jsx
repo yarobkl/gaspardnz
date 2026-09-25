@@ -4,6 +4,7 @@ import { GOLD } from "../../constants.js";
 import { getActualites, JT_SAPE_VIDEO_URL } from "../../data/actualitesData.js";
 import { usePublicCollection } from "../../hooks/usePublicCollection.js";
 import { LangCtx, useTr } from "../../context.jsx";
+import { withFrenchSpacing } from "../../utils/frenchTypography.js";
 
 const MOBILE_QUERY = "(max-width: 640px)";
 const MOBILE_SLIDE_VARIANTS = {
@@ -42,11 +43,17 @@ const MEDIA_MAX_HEIGHT = { mobile: "480px", desktop: "600px" };
 
 const ActuCard = ({ item, isMobile = false }) => {
   const t = useTr();
+  const { lang } = useContext(LangCtx);
   const [expanded, setExpanded] = useState(false);
   const [photoCur, setPhotoCur] = useState(0);
   const videoRef = useRef(null);
   const photos = item.photos || [];
   const hasVideo = Boolean(item.video);
+  // Convention typographique française : un espace insécable avant !?:;
+  // évite qu'un titre saisi dans l'admin (ex. "Akwaba Gaspard NZ !") ne
+  // laisse ce signe seul en début de ligne suivante — repéré en QA
+  // interactive. N'a de sens qu'en français.
+  const title = lang === "FR" ? withFrenchSpacing(item.title) : item.title;
   const preview = String(item.text || "").split("\n\n")[0];
   const hasMoreText = String(item.text || "").length > preview.length;
   const multi = !hasVideo && photos.length > 1;
@@ -104,7 +111,7 @@ const ActuCard = ({ item, isMobile = false }) => {
             normalement la date : sans ce repli, il n'affichait aucune date
             du tout, contrairement à tous les autres. */}
         {!hasVideo && photos.length === 0 && <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.2em", color: GOLD, textTransform: "uppercase", margin: "0 0 0.8rem" }}>{item.tag} · {item.location} · {item.date}</p>}
-        <h3 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(1.5rem,7vw,2rem)", letterSpacing: "0.06em", color: "#faf7f2", margin: "0 0 1rem", lineHeight: 1 }}>{item.title}</h3>
+        <h3 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(1.5rem,7vw,2rem)", letterSpacing: "0.06em", color: "#faf7f2", margin: "0 0 1rem", lineHeight: 1 }}>{title}</h3>
         <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(0.95rem,4vw,1.1rem)", color: "rgba(245,240,232,0.72)", lineHeight: 1.75, fontStyle: "italic", whiteSpace: "pre-line" }}>{expanded ? item.text : preview}</div>
         {(hasVideo || hasMoreText) && <motion.button whileTap={{ scale: 0.97 }} onClick={handleCta} style={{ marginTop: "1.1rem", background: "none", border: "none", padding: "0.7rem 0", minHeight: "44px", cursor: "pointer", display: "flex", alignItems: "center", gap: "6px" }}><span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "11px", letterSpacing: "0.3em", color: GOLD, textTransform: "uppercase" }}>{expanded ? t("reduce") : hasVideo ? t("watch_full_video") : t("open_article")}</span><motion.span animate={{ rotate: expanded ? 180 : 0 }}>⌄</motion.span></motion.button>}
       </div>
