@@ -270,7 +270,10 @@ const ChatBot = ({ onReserver, onGalerie, onShowroom, onFormules }) => {
                 <div key={m.id} style={{ display: "flex", flexDirection: "column", alignItems: m.from === "user" ? "flex-end" : "flex-start", gap: "0.4rem" }}>
                   <div style={{ display: "flex", alignItems: "flex-end", gap: "6px", flexDirection: m.from === "user" ? "row-reverse" : "row" }}>
                     {m.from === "bot" && <AvatarImg size={24} ring={true} />}
-                    <div style={{ maxWidth: "80%", background: m.from === "user" ? GOLD : "#fff", color: m.from === "user" ? "#1c1208" : TEXT, padding: "0.7rem 0.9rem", borderRadius: m.from === "user" ? "12px 12px 2px 12px" : "12px 12px 12px 2px", fontFamily: "'Montserrat', sans-serif", fontSize: "11px", lineHeight: 1.7, boxShadow: "0 1px 4px rgba(0,0,0,0.07)" }}>
+                    {/* Sans overflowWrap, un mot sans espace assez long (URL,
+                        email collé) déborde du maxWidth:"80%" au lieu de se
+                        couper, jusqu'à toucher le bord de la bulle. */}
+                    <div style={{ maxWidth: "80%", background: m.from === "user" ? GOLD : "#fff", color: m.from === "user" ? "#1c1208" : TEXT, padding: "0.7rem 0.9rem", borderRadius: m.from === "user" ? "12px 12px 2px 12px" : "12px 12px 12px 2px", fontFamily: "'Montserrat', sans-serif", fontSize: "11px", lineHeight: 1.7, boxShadow: "0 1px 4px rgba(0,0,0,0.07)", overflowWrap: "anywhere" }}>
                       {formatText(m.text)}
                     </div>
                   </div>
