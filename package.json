@@ -19,6 +19,7 @@
     "test:coverage": "vitest run --coverage",
     "test:bundle": "npm run build:app && vitest run --config vitest.bundle.config.js",
     "test:e2e": "node scripts/browser-checks/run-all.mjs",
+    "test:e2e:playwright": "playwright test",
     "test": "npm run test:unit && npm run test:seo && npm run test:email-security && npm run test:video-accessibility && npm run test:consent && npm run test:admin-auth && npm run test:rbac && npm run test:audit",
     "build:app": "BUILD_TARGET=capacitor vite build",
     "preview": "vite preview",
@@ -50,6 +51,7 @@
     "stripe": "^22.6.2"
   },
   "devDependencies": {
+    "@playwright/test": "^1.63.0",
     "@testing-library/jest-dom": "^7.0.1",
     "@testing-library/react": "^16.3.3",
     "@testing-library/user-event": "^14.6.7",

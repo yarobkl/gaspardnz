@@ -5,8 +5,16 @@ que l'accès à l'administration exige une session Supabase vérifiée.
 
 Ces scripts ne sont **pas** branchés sur les commandes `npm run test:*` : ils
 nécessitent `playwright-core` et un Chromium, qui ne sont pas encore des
-dépendances du projet. La mise en place d'un vrai harnais E2E est l'objet de la
-**phase 13**.
+dépendances du projet.
+
+> **Le vrai harnais E2E évoqué ci-dessous existe maintenant** :
+> `@playwright/test` + `tests/e2e/` (`npm run test:e2e:playwright`), voir
+> `tests/e2e/README.md`. Il couvre les parcours du site public (menu,
+> réservation, chatbot, pages SEO, mise en page desktop) avec un vrai
+> lanceur de tests (assertions avec re-tentative, rapports, CI). Ces
+> scripts `browser-checks/` restent en place pour leur périmètre propre
+> (sécurité et RBAC de l'admin) : rien ici n'a été migré, les deux
+> coexistent pour l'instant.
 
 ## Rejouer
 
