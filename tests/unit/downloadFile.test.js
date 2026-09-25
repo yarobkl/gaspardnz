@@ -1,32 +1,38 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { downloadFile } from "../../src/utils/downloadFile.js";
 
-// La logique de téléchargement en place (blob + <a> temporaire) reste testée
-// ici même pendant que le bouton du lookbook est désactivé côté UI, pour ne
-// pas perdre la couverture d'une fonctionnalité prête à être réactivée.
+// Bug réel (signalé par un utilisateur sur iPhone/Safari) : l'ancienne
+// version (fetch + blob + clic différé après un await) était silencieusement
+// ignorée par Safari iOS, qui ne reconnaît plus le clic comme un geste
+// utilisateur une fois passé par une attente asynchrone. Le paramètre
+// "download" de Supabase Storage déclenche un vrai téléchargement natif,
+// nommé côté serveur (Content-Disposition), sans dépendre d'un geste
+// utilisateur différé — fonctionne partout, y compris Safari iOS.
 describe("downloadFile", () => {
-  afterEach(() => {
-    vi.unstubAllGlobals();
-    vi.restoreAllMocks();
-  });
-
-  it("récupère le fichier en mémoire et déclenche l'enregistrement sans navigation", async () => {
-    const fakeBlob = new Blob(["%PDF-1.4"], { type: "application/pdf" });
-    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: true, blob: async () => fakeBlob }));
-    URL.createObjectURL = vi.fn().mockReturnValue("blob:fake-url");
-    URL.revokeObjectURL = vi.fn();
+  it("navigue vers l'URL avec le paramètre download=<nom de fichier>, sans fetch ni blob", async () => {
     const clickSpy = vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {});
 
-    await downloadFile("https://example.test/lookbook.pdf", "lookbook.pdf");
+    await downloadFile("https://example.test/storage/lookbook.pdf", "lookbook-gaspardnz.pdf");
 
-    expect(fetch).toHaveBeenCalledWith("https://example.test/lookbook.pdf");
-    expect(URL.createObjectURL).toHaveBeenCalledWith(fakeBlob);
     expect(clickSpy).toHaveBeenCalled();
-    expect(URL.revokeObjectURL).toHaveBeenCalledWith("blob:fake-url");
+    const link = clickSpy.mock.contexts[0];
+    expect(link.href).toBe("https://example.test/storage/lookbook.pdf?download=lookbook-gaspardnz.pdf");
+
+    clickSpy.mockRestore();
   });
 
-  it("relance une erreur si la réponse n'est pas OK, sans planter", async () => {
-    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: false, status: 404 }));
-    await expect(downloadFile("https://example.test/absent.pdf", "absent.pdf")).rejects.toThrow();
+  it("ajoute le paramètre avec un « & » si l'URL contient déjà une query string", async () => {
+    const clickSpy = vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {});
+
+    await downloadFile("https://example.test/storage/lookbook.pdf?token=abc", "lookbook-gaspardnz.pdf");
+
+    const link = clickSpy.mock.contexts[0];
+    expect(link.href).toBe("https://example.test/storage/lookbook.pdf?token=abc&download=lookbook-gaspardnz.pdf");
+
+    clickSpy.mockRestore();
+  });
+
+  it("rejette proprement si aucune URL n'est fournie, sans planter", async () => {
+    await expect(downloadFile("", "fichier.pdf")).rejects.toThrow();
   });
 });
