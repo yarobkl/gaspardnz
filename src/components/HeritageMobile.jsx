@@ -15,7 +15,7 @@ const HeritageMobile = ({ refEl }) => {
         initial={{ opacity: 0, scale: 1.04 }}
         animate={inView ? { opacity: 1, scale: 1 } : {}}
         transition={{ duration: 1.4, ease: [0.16, 1, 0.3, 1] }}
-        style={{ position: "relative", height: "80vw", minHeight: "340px", maxHeight: "520px", overflow: "hidden" }}
+        style={{ position: "relative", maxWidth: "900px", margin: "0 auto", height: "80vw", minHeight: "340px", maxHeight: "520px", overflow: "hidden" }}
       >
         <img
           src={`${import.meta.env.BASE_URL}images/heritage.jpg`}
@@ -37,7 +37,7 @@ const HeritageMobile = ({ refEl }) => {
         </motion.div>
       </motion.div>
 
-      <div style={{ padding: "0 1.6rem 5rem", marginTop: "-1.5rem", position: "relative", textAlign: "center" }}>
+      <div style={{ maxWidth: "700px", margin: "-1.5rem auto 0", padding: "0 1.6rem 5rem", position: "relative", textAlign: "center" }}>
         <motion.div
           initial={{ scaleX: 0 }} animate={inView ? { scaleX: 1 } : {}}
           transition={{ duration: 0.9, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
