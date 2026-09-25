@@ -42,7 +42,10 @@ const FormulesSection = ({ refEl, onContact }) => {
   const handleLookbookDownload = async () => {
     setLookbookDownload("busy");
     try {
-      await downloadFile(settings.lookbookPdfUrl, settings.lookbookFilename || "lookbook-gaspardnz.pdf");
+      // Toujours ce nom, jamais settings.lookbookFilename (le nom du
+      // fichier tel que déposé par Gaspard — souvent un nom généré
+      // illisible, utile pour lui dans l'admin, pas pour un visiteur).
+      await downloadFile(settings.lookbookPdfUrl, "lookbook-gaspardnz.pdf");
       setLookbookDownload("idle");
     } catch {
       setLookbookDownload("error");

@@ -214,7 +214,12 @@ const NavMobile = ({ onShowroom, onGalerie, onCatalogue, onFormules, highContras
               [t("nav_showroom"), onShowroom],
               [t("style_month"), onStyleDuMois],
               [t("nav_communaute"), onCommunaute],
-              [t("lookbook"), (settings.lookbookPdfUrl?.trim() && !settings.lookbookHidden) ? () => downloadFile(settings.lookbookPdfUrl, settings.lookbookFilename || "lookbook-gaspardnz.pdf").catch(() => window.alert(t("lookbook_download_error"))) : null],
+              // Le nom de fichier téléchargé est toujours celui-ci, jamais
+              // settings.lookbookFilename (le nom du fichier tel que déposé
+              // par Gaspard depuis son ordinateur — souvent un nom généré
+              // illisible type export scanner/PDF, utile pour lui dans
+              // l'admin, pas pour un visiteur qui télécharge).
+              [t("lookbook"), (settings.lookbookPdfUrl?.trim() && !settings.lookbookHidden) ? () => downloadFile(settings.lookbookPdfUrl, "lookbook-gaspardnz.pdf").catch(() => window.alert(t("lookbook_download_error"))) : null],
             ].map(([label, fn], i) => (
               <motion.button key={label}
                 initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }}
