@@ -5,11 +5,13 @@ import { LangCtx, useTr } from "../context.jsx";
 import { SvgFacebook, SvgInstagram, SvgTiktok, SvgYoutube, SvgBag } from "../icons.jsx";
 import { useSettings } from "../hooks/useSettings.js";
 import { downloadFile } from "../utils/downloadFile.js";
+import useCompactMobile from "../hooks/useCompactMobile.js";
 
 const NavMobile = ({ onShowroom, onGalerie, onCatalogue, onFormules, highContrast, onToggleContrast, onBiographie, onReserver, lightMode, onToggleDark, onStyleDuMois, onPartenaires, onStyleJournal, onVideo, onWedding, onActualites, onVIP, onCommunaute }) => {
   const { lang, setLang } = useContext(LangCtx);
   const t = useTr();
   const settings = useSettings();
+  const isCompactMobile = useCompactMobile();
   const [open, setOpen] = useState(false);
   const [langOpen, setLangOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -62,6 +64,48 @@ const NavMobile = ({ onShowroom, onGalerie, onCatalogue, onFormules, highContras
 
   const navLight = !scrolled && !open;
   const navTextColor = navLight ? CREAM : TEXT;
+
+  // Le nom de fichier téléchargé est toujours celui-ci, jamais
+  // settings.lookbookFilename (le nom du fichier tel que déposé
+  // par Gaspard depuis son ordinateur — souvent un nom généré
+  // illisible type export scanner/PDF, utile pour lui dans
+  // l'admin, pas pour un visiteur qui télécharge).
+  const lookbookFn = (settings.lookbookPdfUrl?.trim() && !settings.lookbookHidden)
+    ? () => downloadFile(settings.lookbookPdfUrl, "lookbook-gaspardnz.pdf").catch(() => window.alert(t("lookbook_download_error")))
+    : null;
+
+  const fullMenuItems = [
+    [t("nav_reveler"), onReserver],
+    [t("nav_bio"), onBiographie],
+    [t("nav_formules"), onFormules],
+    [t("style_journal_title"), onStyleJournal],
+    [t("nav_galerie"), onGalerie],
+    [t("nav_videos_title"), onVideo],
+    [t("wedding_inspiration"), onWedding],
+    [t("nav_partenaires"), onPartenaires],
+    [t("actualites_title"), onActualites],
+    [t("nav_vip_clients"), onVIP],
+    [t("nav_showroom"), onShowroom],
+    [t("style_month"), onStyleDuMois],
+    [t("nav_communaute"), onCommunaute],
+    [t("lookbook"), lookbookFn],
+  ];
+
+  // Sur mobile (<=767px), l'écran d'accueil "Explorer l'univers"
+  // (MobileHomeCompact.jsx) donne déjà accès en une tuile à la plupart de
+  // ces destinations (Formules, Style Journal, Galerie, Vidéos, Mariage,
+  // Partenaires, Actualités, Style du Mois, Communauté, Galerie clients) :
+  // les répéter ici en plus n'apporte rien et allonge le menu pour rien
+  // (signalé par l'utilisateur). Seuls Rendez-vous, Showroom et le
+  // lookbook n'ont pas de tuile équivalente. Le bureau (pas de grille de
+  // tuiles) garde le menu complet, seule navigation possible.
+  const mobileMenuItems = [
+    [t("nav_reveler"), onReserver],
+    [t("nav_showroom"), onShowroom],
+    [t("lookbook"), lookbookFn],
+  ];
+
+  const menuItems = isCompactMobile ? mobileMenuItems : fullMenuItems;
 
   return (
     <>
@@ -203,27 +247,7 @@ const NavMobile = ({ onShowroom, onGalerie, onCatalogue, onFormules, highContras
               overflowY: "auto",
             }}
           >
-            {[
-              [t("nav_reveler"), onReserver],
-              [t("nav_bio"), onBiographie],
-              [t("nav_formules"), onFormules],
-              [t("style_journal_title"), onStyleJournal],
-              [t("nav_galerie"), onGalerie],
-              [t("nav_videos_title"), onVideo],
-              [t("wedding_inspiration"), onWedding],
-              [t("nav_partenaires"), onPartenaires],
-              [t("actualites_title"), onActualites],
-              [t("nav_vip_clients"), onVIP],
-              [t("nav_showroom"), onShowroom],
-              [t("style_month"), onStyleDuMois],
-              [t("nav_communaute"), onCommunaute],
-              // Le nom de fichier téléchargé est toujours celui-ci, jamais
-              // settings.lookbookFilename (le nom du fichier tel que déposé
-              // par Gaspard depuis son ordinateur — souvent un nom généré
-              // illisible type export scanner/PDF, utile pour lui dans
-              // l'admin, pas pour un visiteur qui télécharge).
-              [t("lookbook"), (settings.lookbookPdfUrl?.trim() && !settings.lookbookHidden) ? () => downloadFile(settings.lookbookPdfUrl, "lookbook-gaspardnz.pdf").catch(() => window.alert(t("lookbook_download_error"))) : null],
-            ].map(([label, fn], i) => (
+            {menuItems.map(([label, fn], i) => (
               <motion.button key={label}
                 initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: i * 0.06, duration: 0.4 }}
