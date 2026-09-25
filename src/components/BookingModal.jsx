@@ -182,21 +182,26 @@ const BookingModal = ({ isOpen, onClose, boutiqueMode = false, onSwitchToBooking
                           )}
                         </div>
                       ))}
+                      {/* Dans le <form> (et type="submit", pas un simple
+                          onClick) : un clic avec des champs vides déclenche
+                          la validation native du navigateur (message et
+                          focus sur le premier champ invalide) au lieu de ne
+                          rien faire silencieusement. */}
+                      <motion.button
+                        type="submit"
+                        whileTap={{ scale: 0.97 }}
+                        style={{
+                          marginTop: "0.6rem", width: "100%", border: "none",
+                          background: ok ? GOLD : "rgba(184,151,62,0.15)",
+                          color: ok ? "#1c1208" : "rgba(245,240,232,0.4)",
+                          padding: "1rem", fontFamily: "'Montserrat', sans-serif",
+                          fontSize: "11px", letterSpacing: "0.4em", textTransform: "uppercase",
+                          cursor: ok ? "pointer" : "not-allowed", transition: "all 0.4s",
+                          display: "flex", alignItems: "center", justifyContent: "center", gap: "8px",
+                        }}>
+                        {t("bk_continue")} <SvgArrow size={12} />
+                      </motion.button>
                     </form>
-                    <motion.button
-                      onClick={() => ok && setStep(2)}
-                      whileTap={{ scale: 0.97 }}
-                      style={{
-                        marginTop: "1.8rem", width: "100%", border: "none",
-                        background: ok ? GOLD : "rgba(184,151,62,0.15)",
-                        color: ok ? "#1c1208" : "rgba(245,240,232,0.4)",
-                        padding: "1rem", fontFamily: "'Montserrat', sans-serif",
-                        fontSize: "11px", letterSpacing: "0.4em", textTransform: "uppercase",
-                        cursor: ok ? "pointer" : "not-allowed", transition: "all 0.4s",
-                        display: "flex", alignItems: "center", justifyContent: "center", gap: "8px",
-                      }}>
-                      {t("bk_continue")} <SvgArrow size={12} />
-                    </motion.button>
                   </motion.div>
                 ) : (
                   <motion.div key="step2"
