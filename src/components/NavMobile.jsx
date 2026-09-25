@@ -227,13 +227,18 @@ const NavMobile = ({ onShowroom, onGalerie, onCatalogue, onFormules, highContras
                 onClick={() => close(fn)}
                 disabled={label === t("lookbook") && !fn}
                 aria-disabled={label === t("lookbook") && !fn ? "true" : undefined}
-                style={{ display: "block", width: "100%", background: "none", border: "none", textAlign: "left", cursor: label === t("lookbook") && !fn ? "default" : "pointer", padding: "1.1rem 0", fontFamily: "'Cormorant Garamond', serif", fontSize: "1.8rem", letterSpacing: "0.08em", color: label === t("lookbook") ? (fn ? GOLD : "rgba(28,18,8,0.35)") : TEXT, borderBottom: "1px solid rgba(28,18,8,0.07)" }}
+                // GOLD (#b8973e) sur ce fond crème tombe autour de 2.4:1 —
+                // sous le 3:1 requis même pour un texte de cette taille
+                // (WCAG AA, grand texte). TEXT (#1c1208), déjà la convention
+                // pour un texte lisible sur fond clair ailleurs sur le site,
+                // le remplace ici quand l'entrée est active.
+                style={{ display: "block", width: "100%", background: "none", border: "none", textAlign: "left", cursor: label === t("lookbook") && !fn ? "default" : "pointer", padding: "1.1rem 0", fontFamily: "'Cormorant Garamond', serif", fontSize: "1.8rem", letterSpacing: "0.08em", color: label === t("lookbook") ? (fn ? TEXT : "rgba(28,18,8,0.35)") : TEXT, borderBottom: "1px solid rgba(28,18,8,0.07)" }}
               >
                 {/* Sans PDF déposé, l'entrée reste visible mais non cliquable :
                     « À venir » à la place du prix. Réapparaît seule dès qu'un
                     fichier est déposé dans l'admin (Contenu du site →
                     Général → Fichier du lookbook). */}
-                {label}{label === t("lookbook") && <span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "9px", letterSpacing: "0.3em", marginLeft: "10px", opacity: 0.7 }}>{fn ? t("lookbook_download") : (settings.lookbookHiddenMessage?.trim() || t("lookbook_soon"))}</span>}
+                {label}{label === t("lookbook") && <span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "9px", letterSpacing: "0.3em", marginLeft: "10px", opacity: fn ? 0.85 : 0.7 }}>{fn ? t("lookbook_download") : (settings.lookbookHiddenMessage?.trim() || t("lookbook_soon"))}</span>}
               </motion.button>
             ))}
 
@@ -278,8 +283,12 @@ const NavMobile = ({ onShowroom, onGalerie, onCatalogue, onFormules, highContras
               {["FR", "EN", "ES", "ZH"].map(l => (
                 <button key={l} onClick={() => chooseLang(l)}
                   aria-label={t("nav_switch_lang", l)}
+                  // rgba(28,18,8,0.3) sur ce fond crème tombe sous 2:1 —
+                  // illisible pour repérer les langues disponibles, pas
+                  // seulement "discret". 0.55 reste visuellement en retrait
+                  // de la langue active (dorée) tout en restant lisible.
                   style={{ background: "none", border: "none", cursor: "pointer", fontFamily: "'Montserrat', sans-serif", fontSize: "11px", letterSpacing: "0.3em", padding: "4px 6px", minWidth: "44px", minHeight: "44px",
-                    color: lang === l ? GOLD : "rgba(28,18,8,0.3)", borderBottom: lang === l ? `1px solid ${GOLD}` : "1px solid transparent", transition: "all 0.3s" }}>
+                    color: lang === l ? GOLD : "rgba(28,18,8,0.55)", borderBottom: lang === l ? `1px solid ${GOLD}` : "1px solid transparent", transition: "all 0.3s" }}>
                   {l}
                 </button>
               ))}
