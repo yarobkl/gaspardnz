@@ -144,6 +144,13 @@ const NavMobile = ({ onShowroom, onGalerie, onCatalogue, onFormules, highContras
             );
           })()}
 
+          {/* Sans condition ici, le petit point doré pulsant ("nouveauté à
+              regarder") s'affichait en permanence sur ce bouton — alors que
+              la boutique n'affiche qu'un écran statique "bientôt disponible"
+              (BoutiqueModal), jamais de contenu neuf. Signalé par
+              l'utilisateur (avec le lookbook) comme un des éléments
+              illogiques du menu : ce point n'a de sens que si la boutique
+              propose un jour un vrai contenu à découvrir. */}
           <motion.button onClick={onCatalogue} whileTap={{ scale: 0.88 }}
             aria-label={t("nav_open_shop")}
             style={{ background: "none", border: "none", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "2px", padding: 0, color: navTextColor, transition: "color 0.4s", width: "44px", height: "44px", position: "relative" }}>
@@ -151,10 +158,6 @@ const NavMobile = ({ onShowroom, onGalerie, onCatalogue, onFormules, highContras
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>
               </svg>
-              <motion.span
-                animate={{ scale: [1, 1.25, 1] }}
-                transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
-                style={{ position: "absolute", top: "-3px", right: "-4px", width: "7px", height: "7px", background: GOLD, borderRadius: "50%", border: "1.5px solid rgba(245,240,232,0.9)" }} />
             </div>
             <span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "11px", letterSpacing: "0.3em", color: GOLD, userSelect: "none" }}>SHOP</span>
           </motion.button>

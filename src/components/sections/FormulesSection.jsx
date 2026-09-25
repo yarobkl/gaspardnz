@@ -39,6 +39,12 @@ const FormulesSection = ({ refEl, onContact }) => {
 
   const formules = packages.filter((pkg) => pkg.published && !pkg.deleted_at);
 
+  // Le menu (NavMobile.jsx) réagit déjà à ces deux réglages — un vrai PDF
+  // déposé et non masqué y rend le téléchargement actif. Ce bouton-ci restait
+  // désactivé en dur quoi qu'il arrive : un visiteur voyait "disponible et
+  // gratuit" dans le menu, puis "bientôt disponible" ici pour le même fichier.
+  const lookbookAvailable = Boolean(settings.lookbookPdfUrl?.trim()) && !settings.lookbookHidden;
+
   const handleLookbookDownload = async () => {
     setLookbookDownload("busy");
     try {
@@ -49,6 +55,7 @@ const FormulesSection = ({ refEl, onContact }) => {
       setLookbookDownload("idle");
     } catch {
       setLookbookDownload("error");
+      window.alert(t("lookbook_download_error"));
     }
   };
 
@@ -122,15 +129,13 @@ const FormulesSection = ({ refEl, onContact }) => {
           <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.4em", color: GOLD, textTransform: "uppercase", marginBottom: "1rem" }}>GASPARDNZ</p>
           <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(1.6rem, 7vw, 2.2rem)", fontWeight: 300, color: CREAM, letterSpacing: "0.02em", margin: "0 0 0.6rem" }}>{t("lookbook_title")}</h3>
           <p style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: "italic", fontSize: "0.9rem", color: "rgba(245,240,232,0.62)", marginBottom: "1.6rem" }}>{t("lookbook_desc")}</p>
-          {/* Téléchargement gratuit temporairement désactivé (le PDF et la
-              logique de téléchargement en place restent prêts — cf.
-              handleLookbookDownload / downloadFile — pour une réactivation
-              rapide, il suffira de retirer ce `disabled`). */}
           {/* letterSpacing 0.4em + padding généreux faisait passer ce texte
               sur deux lignes dès 360px de large — 0.22em et un padding plus
               serré le gardent sur une seule ligne sur les petits écrans. */}
-          <button type="button" onClick={handleLookbookDownload} disabled aria-disabled="true" data-track="lookbook_download" style={{ display: "inline-flex", alignItems: "center", gap: "10px", background: GOLD, color: "#0d1b3e", border: "none", opacity: 0.45, cursor: "not-allowed", padding: "1rem 1.4rem", fontFamily: "'Montserrat', sans-serif", fontSize: "11px", letterSpacing: "0.22em", textTransform: "uppercase", fontWeight: 700, whiteSpace: "nowrap" }}>{t("lookbook_download")}</button>
-          <p style={{ marginTop: "0.9rem", display: "flex", alignItems: "center", justifyContent: "center", gap: "7px", color: "rgba(245,240,232,0.55)", fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.25em", textTransform: "uppercase" }}><SvgLock size={12} />{settings.lookbookHiddenMessage?.trim() || t("lookbook_soon")}</p>
+          <button type="button" onClick={handleLookbookDownload} disabled={!lookbookAvailable || lookbookDownload === "busy"} aria-disabled={!lookbookAvailable || lookbookDownload === "busy" ? "true" : undefined} data-track="lookbook_download" style={{ display: "inline-flex", alignItems: "center", gap: "10px", background: GOLD, color: "#0d1b3e", border: "none", opacity: lookbookAvailable ? (lookbookDownload === "busy" ? 0.7 : 1) : 0.45, cursor: lookbookAvailable ? (lookbookDownload === "busy" ? "wait" : "pointer") : "not-allowed", padding: "1rem 1.4rem", fontFamily: "'Montserrat', sans-serif", fontSize: "11px", letterSpacing: "0.22em", textTransform: "uppercase", fontWeight: 700, whiteSpace: "nowrap" }}>{t("lookbook_download")}</button>
+          {!lookbookAvailable && (
+            <p style={{ marginTop: "0.9rem", display: "flex", alignItems: "center", justifyContent: "center", gap: "7px", color: "rgba(245,240,232,0.55)", fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.25em", textTransform: "uppercase" }}><SvgLock size={12} />{settings.lookbookHiddenMessage?.trim() || t("lookbook_soon")}</p>
+          )}
         </motion.div>
       </div>
     </section>
