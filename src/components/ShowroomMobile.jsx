@@ -79,7 +79,7 @@ export default function ShowroomMobile({ refEl, onCatalogue }) {
     <AnimatePresence>{showAlbumShowcase && albumOpen && <AlbumModal photos={photos} title={title} onClose={()=>setAlbumOpen(false)} />}</AnimatePresence>
 
     {showAlbumShowcase && (
-      <div onClick={()=>setAlbumOpen(true)} style={{position:"relative",height:"85vw",minHeight:340,maxHeight:560,overflow:"hidden",cursor:"pointer",background:"#0a0602"}}>
+      <div onClick={()=>setAlbumOpen(true)} style={{position:"relative",maxWidth:900,margin:"0 auto",height:"85vw",minHeight:340,maxHeight:560,overflow:"hidden",cursor:"pointer",background:"#0a0602"}}>
         <AnimatePresence mode="wait"><motion.img key={photos[cur]?.src} src={photos[cur]?.src} alt={photos[cur]?.label || title} width="1200" height="1500" initial={{opacity:0,scale:1.02}} animate={{opacity:1,scale:1}} exit={{opacity:0}} transition={{duration:.6}} style={{position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"cover",objectPosition:"center top"}} /></AnimatePresence>
         <div style={{position:"absolute",inset:0,background:"linear-gradient(to bottom,transparent 38%,rgba(0,0,0,.7) 100%)"}} />
         <div style={{position:"absolute",top:"1rem",left:"1.2rem",background:"rgba(28,18,8,.52)",padding:".45rem 1rem",backdropFilter:"blur(5px)"}}><p style={{fontFamily:"'Montserrat',sans-serif",fontSize:9,letterSpacing:".4em",color:GOLD,textTransform:"uppercase",margin:0}}>{t("album_label")}</p></div>
