@@ -116,9 +116,22 @@ const ChatBot = ({ onReserver, onGalerie, onShowroom, onFormules }) => {
   }, [msgs, typing]);
 
   useEffect(() => {
-    const t = setTimeout(() => { if (!open) { setShowBubble(true); setTimeout(() => setShowBubble(false), 7000); } }, 10000);
+    // Sans cette vérification, la bulle apparaissait au même endroit fixe
+    // (bas-droite) quel que soit le défilement — repéré en QA interactive
+    // recouvrant le bouton "Voir tous les looks" de la Galerie quand le
+    // visiteur y était déjà à ce moment-là. Réservée au haut de page, où
+    // se trouve encore le visiteur 10s après l'arrivée dans la majorité
+    // des cas.
+    const t = setTimeout(() => { if (!open && window.scrollY < 500) { setShowBubble(true); setTimeout(() => setShowBubble(false), 7000); } }, 10000);
     return () => clearTimeout(t);
   }, []);
+
+  useEffect(() => {
+    if (!showBubble) return undefined;
+    const onScroll = () => { if (window.scrollY > 600) setShowBubble(false); };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [showBubble]);
 
   const handleAction = (btn) => {
     const text = cleanMessageText(btn);
