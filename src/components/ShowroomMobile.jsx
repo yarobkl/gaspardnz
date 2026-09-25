@@ -92,7 +92,11 @@ export default function ShowroomMobile({ refEl, onCatalogue }) {
       <motion.p initial={{opacity:0,y:14}} animate={inView?{opacity:1,y:0}:{}} style={{fontFamily:"'Montserrat',sans-serif",fontSize:10,letterSpacing:".4em",color:GOLD,textTransform:"uppercase",margin:"0 0 1rem"}}>{t("nav_showroom")}</motion.p>
       <motion.h2 initial={{opacity:0,y:18}} animate={inView?{opacity:1,y:0}:{}} transition={{delay:.1}} style={{fontFamily:"'Bebas Neue',sans-serif",fontSize:"clamp(44px,14vw,76px)",lineHeight:.9,letterSpacing:".04em",color:TEXT,margin:"0 0 1.4rem"}}>{t("custom_art_title")}</motion.h2>
       <motion.p initial={{opacity:0,y:16}} animate={inView?{opacity:1,y:0}:{}} transition={{delay:.2}} style={{fontFamily:"'Cormorant Garamond',serif",fontSize:"clamp(1rem,4vw,1.2rem)",fontStyle:"italic",lineHeight:1.8,color:"rgba(28,18,8,.75)",margin:"0 0 2rem"}}>{description}</motion.p>
-      <motion.button initial={{opacity:0,y:10}} animate={inView?{opacity:1,y:0}:{}} transition={{delay:.3}} onClick={onCatalogue} style={{width:"100%",minHeight:50,border:"1px solid rgba(184,151,62,.45)",background:"transparent",color:GOLD,fontFamily:"'Montserrat',sans-serif",fontSize:9,letterSpacing:".35em",textTransform:"uppercase",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:10}}>{t("showroom_cta")} <SvgArrow size={14}/></motion.button>
+      {/* GOLD (#b8973e) sur ce fond crème (#f5f0e8) tombe autour de 2.6:1,
+          bien sous le 4.5:1 requis pour un texte de cette taille (WCAG AA) —
+          TEXT (#1c1208), déjà la convention pour un texte lisible sur fond
+          clair ailleurs sur le site (ex. GalleryMobile), le remplace ici. */}
+      <motion.button initial={{opacity:0,y:10}} animate={inView?{opacity:1,y:0}:{}} transition={{delay:.3}} onClick={onCatalogue} style={{width:"100%",minHeight:50,border:"1px solid rgba(184,151,62,.45)",background:"transparent",color:TEXT,fontFamily:"'Montserrat',sans-serif",fontSize:9,letterSpacing:".35em",textTransform:"uppercase",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:10}}>{t("showroom_cta")} <SvgArrow size={14}/></motion.button>
     </div>
   </section>;
 }
