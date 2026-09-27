@@ -70,6 +70,6 @@ describe("HeroMobile — pas de <video> dans un navigateur intégré (évite le 
     vi.stubGlobal("navigator", { userAgent: "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) musical_ly_2024001 JsSdk/1.0" });
     const { container } = render(<HeroMobile onScrollDown={() => {}} />);
     expect(container.querySelector("video")).toBeNull();
-    expect(container.querySelector('img[src$="og-image.jpg"]')).not.toBeNull();
+    expect(container.querySelector('img[src$="hero-poster.jpg"]')).not.toBeNull();
   });
 });
