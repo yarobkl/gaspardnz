@@ -3,6 +3,8 @@ import { motion, useReducedMotion, useScroll, useTransform, useInView } from "fr
 import { GOLD, CREAM } from "../constants.js";
 import { useTr } from "../context.jsx";
 import PromotionBanner from "./PromotionBanner.jsx";
+import { isInAppBrowser } from "../utils/inAppBrowser.js";
+import useViewportHeightPx from "../hooks/useViewportHeightPx.js";
 
 const _HERO_SRC = (typeof import.meta !== "undefined" ? (import.meta.env.BASE_URL || "/") : "/") + "hero.mp4";
 const _VIDEO_STYLE = { position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 20%", filter: "brightness(0.82) contrast(1.05) saturate(1.0)" };
@@ -97,9 +99,20 @@ const HeroMobile = ({ onScrollDown }) => {
   const opacity = useTransform(scrollY, [0, 400], [1, 0]);
   const heroTextRef = useRef(null);
   const heroInView = useInView(heroTextRef, { once: false, margin: "-10% 0px" });
+  const [inAppBrowser] = useState(isInAppBrowser);
+  const viewportHeightPx = useViewportHeightPx();
+  // Un vrai utilisateur a signalé un lien ouvert depuis TikTok qui reste
+  // bloqué sur la vidéo d'accueil, impossible de faire défiler : ces
+  // navigateurs intégrés calculent parfois mal 100dvh sur une section plein
+  // écran. On mesure la hauteur réelle en JS (fiable partout) et on la
+  // limite à 92% pour laisser toujours apparaître le haut de la section
+  // suivante, un signal visuel qu'il y a plus à voir en dessous.
+  const heroHeight = inAppBrowser && viewportHeightPx
+    ? `${Math.round(viewportHeightPx * 0.92)}px`
+    : undefined;
 
   return (
-    <section style={{ minHeight: "100svh", height: "100dvh", position: "relative", overflow: "hidden", display: "flex", alignItems: "flex-end", justifyContent: "center", background: "#1c1208" }}>
+    <section style={{ minHeight: heroHeight || "100svh", height: heroHeight || "100dvh", position: "relative", overflow: "hidden", display: "flex", alignItems: "flex-end", justifyContent: "center", background: "#1c1208" }}>
       <motion.div initial={reduceMotion ? false : { scale: 1.08 }} animate={{ scale: 1 }} transition={{ duration: reduceMotion ? 0 : 1.2, ease: [0.16, 1, 0.3, 1] }} style={{ position: "absolute", inset: 0, willChange: "transform" }}>
         <HeroVideoLoop />
         <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0.05) 0%, transparent 30%, rgba(0,0,0,0.2) 60%, rgba(0,0,0,0.65) 100%)" }} />
