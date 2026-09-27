@@ -48,3 +48,28 @@ describe("HeroMobile — hauteur adaptée aux navigateurs intégrés (TikTok, In
     expect(getHeroSection()).toHaveStyle({ height: "736px" });
   });
 });
+
+// Bug réel confirmé par capture d'écran : dans le navigateur intégré de
+// TikTok, la vidéo d'accueil était happée par le lecteur vidéo plein écran
+// natif de l'iPhone (contrôles natifs superposés), une vraie prise de
+// contrôle de l'écran, plus seulement un souci de hauteur. Pour ces
+// navigateurs, aucune balise <video> n'est insérée : une image fixe la
+// remplace, qui ne peut déclencher aucun lecteur natif.
+describe("HeroMobile — pas de <video> dans un navigateur intégré (évite le lecteur plein écran natif de l'iPhone)", () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("affiche la vraie balise <video> dans un navigateur normal", () => {
+    vi.stubGlobal("navigator", { userAgent: "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 Version/17.0 Mobile/15E148 Safari/604.1" });
+    const { container } = render(<HeroMobile onScrollDown={() => {}} />);
+    expect(container.querySelector("video")).not.toBeNull();
+  });
+
+  it("remplace la vidéo par une image fixe depuis le navigateur intégré de TikTok", () => {
+    vi.stubGlobal("navigator", { userAgent: "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) musical_ly_2024001 JsSdk/1.0" });
+    const { container } = render(<HeroMobile onScrollDown={() => {}} />);
+    expect(container.querySelector("video")).toBeNull();
+    expect(container.querySelector('img[src$="og-image.jpg"]')).not.toBeNull();
+  });
+});

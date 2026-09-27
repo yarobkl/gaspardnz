@@ -7,9 +7,10 @@ import { isInAppBrowser } from "../utils/inAppBrowser.js";
 import useViewportHeightPx from "../hooks/useViewportHeightPx.js";
 
 const _HERO_SRC = (typeof import.meta !== "undefined" ? (import.meta.env.BASE_URL || "/") : "/") + "hero.mp4";
+const _HERO_POSTER = (typeof import.meta !== "undefined" ? (import.meta.env.BASE_URL || "/") : "/") + "og-image.jpg";
 const _VIDEO_STYLE = { position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 20%", filter: "brightness(0.82) contrast(1.05) saturate(1.0)" };
 
-const HeroVideoLoop = () => {
+const HeroVideoLoop = ({ skipVideo }) => {
   const t = useTr();
   const ref = useRef(null);
   const readyRef = useRef(false);
@@ -18,7 +19,7 @@ const HeroVideoLoop = () => {
   const [showPausedNotice, setShowPausedNotice] = useState(false);
 
   useEffect(() => {
-    if (!videoSrc) return;
+    if (skipVideo || !videoSrc) return;
     const v = ref.current;
     if (!v) return;
     const play = () => { if (document.hidden || !v.paused) return; v.play().catch(() => {}); };
@@ -77,7 +78,7 @@ const HeroVideoLoop = () => {
       document.removeEventListener("visibilitychange", onVis);
       if (playIntervalRef.current) clearInterval(playIntervalRef.current);
     };
-  }, [videoSrc]);
+  }, [videoSrc, skipVideo]);
 
   const retryPlay = () => {
     const v = ref.current;
@@ -85,6 +86,17 @@ const HeroVideoLoop = () => {
     const result = v.play();
     if (result && typeof result.catch === "function") result.then(() => setTimeout(() => { if (!v.paused) setShowPausedNotice(false); }, 300)).catch(() => setShowPausedNotice(true));
   };
+
+  // Signalé par un utilisateur (capture à l'appui) : dans le navigateur
+  // intégré de TikTok, la vidéo d'accueil était happée par le lecteur vidéo
+  // plein écran natif de l'iPhone (contrôles natifs, "playsinline" non
+  // respecté) — plus une page web du tout, impossible de revenir en
+  // arrière ou de défiler. Pour ces navigateurs, on n'insère aucune balise
+  // <video> : juste une image fixe, qui ne peut déclencher aucun lecteur
+  // natif.
+  if (skipVideo) {
+    return <img src={_HERO_POSTER} alt="" aria-hidden="true" style={{ ..._VIDEO_STYLE, background: "#1c1208" }} />;
+  }
 
   return <>
     <video ref={ref} src={videoSrc} autoPlay muted playsInline loop aria-hidden="true" tabIndex={-1} disablePictureInPicture disableRemotePlayback preload="auto" controls={false} x-webkit-airplay="deny" controlsList="nodownload nofullscreen noremoteplayback" onEnded={e => { e.target.currentTime = 0; e.target.play().catch(() => {}); }} style={{ ..._VIDEO_STYLE, background: "#1c1208" }}><track kind="captions" src="/captions/hero-fr.vtt" srcLang="fr" label="Français" /></video>
@@ -114,7 +126,7 @@ const HeroMobile = ({ onScrollDown }) => {
   return (
     <section style={{ minHeight: heroHeight || "100svh", height: heroHeight || "100dvh", position: "relative", overflow: "hidden", display: "flex", alignItems: "flex-end", justifyContent: "center", background: "#1c1208" }}>
       <motion.div initial={reduceMotion ? false : { scale: 1.08 }} animate={{ scale: 1 }} transition={{ duration: reduceMotion ? 0 : 1.2, ease: [0.16, 1, 0.3, 1] }} style={{ position: "absolute", inset: 0, willChange: "transform" }}>
-        <HeroVideoLoop />
+        <HeroVideoLoop skipVideo={inAppBrowser} />
         <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0.05) 0%, transparent 30%, rgba(0,0,0,0.2) 60%, rgba(0,0,0,0.65) 100%)" }} />
       </motion.div>
 
