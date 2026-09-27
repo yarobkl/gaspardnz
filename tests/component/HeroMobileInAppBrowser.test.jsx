@@ -30,7 +30,7 @@ const HeroMobile = (await import("../../src/components/HeroMobile.jsx")).default
 
 const getHeroSection = () => screen.getByText(/GASPARD/).closest("section");
 
-describe("HeroMobile — hauteur adaptée aux navigateurs intégrés (TikTok, Instagram...)", () => {
+describe("HeroMobile — hauteur adaptée uniquement au navigateur intégré de TikTok", () => {
   afterEach(() => {
     vi.unstubAllGlobals();
   });
@@ -71,5 +71,14 @@ describe("HeroMobile — pas de <video> dans un navigateur intégré (évite le 
     const { container } = render(<HeroMobile onScrollDown={() => {}} />);
     expect(container.querySelector("video")).toBeNull();
     expect(container.querySelector('img[src$="hero-poster.jpg"]')).not.toBeNull();
+  });
+
+  // Sur demande explicite de l'utilisateur : la photo ne remplace la vidéo
+  // QUE dans TikTok. Instagram (et tout autre navigateur) garde la vidéo,
+  // même s'il s'agit aussi d'un navigateur intégré.
+  it("garde la vraie vidéo dans le navigateur intégré d'Instagram", () => {
+    vi.stubGlobal("navigator", { userAgent: "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) Instagram 300.0.0" });
+    const { container } = render(<HeroMobile onScrollDown={() => {}} />);
+    expect(container.querySelector("video")).not.toBeNull();
   });
 });
