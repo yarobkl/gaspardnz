@@ -6,6 +6,7 @@ import {
   sendAdminPasswordReset,
 } from "../../services/adminPasswordRecovery.js";
 import { useSettings } from "../../hooks/useSettings.js";
+import PasswordField from "./PasswordField.jsx";
 import "../../styles/admin-v2.css";
 
 const AdminLogin = ({ onLoginSuccess }) => {
@@ -141,8 +142,7 @@ const AdminLogin = ({ onLoginSuccess }) => {
                     ? "Nouveau mot de passe"
                     : "Créer mon mot de passe"}
               </span>
-              <input
-                type="password"
+              <PasswordField
                 autoComplete={mode === "login" ? "current-password" : "new-password"}
                 minLength={mode === "login" ? 1 : 10}
                 value={password}
@@ -155,8 +155,7 @@ const AdminLogin = ({ onLoginSuccess }) => {
           {mode === "recovery" && (
             <label>
               <span>Confirmer le nouveau mot de passe</span>
-              <input
-                type="password"
+              <PasswordField
                 autoComplete="new-password"
                 minLength={10}
                 value={confirmPassword}

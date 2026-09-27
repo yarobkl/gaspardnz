@@ -70,6 +70,15 @@ body:has(.gnz-admin-shell), body:has(.gnz-login-shell) { background: var(--gnz-b
   border-color: var(--gnz-border-strong); box-shadow: 0 0 0 3px rgba(205,169,75,.08);
 }
 .gnz-textarea { min-height: 110px; resize: vertical; }
+.gnz-password-field { position: relative; }
+.gnz-password-field input { padding-right: 42px; }
+.gnz-password-toggle {
+  position: absolute; top: 50%; right: 6px; transform: translateY(-50%);
+  background: none; border: none; cursor: pointer; padding: 8px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--gnz-muted);
+}
+.gnz-password-toggle:hover, .gnz-password-toggle:focus-visible { color: var(--gnz-gold); }
 /* Fiche consultable mais non modifiable pour un rôle sans droit d'écriture. */
 .gnz-readonly-fieldset { border: 0; padding: 0; margin: 0; min-width: 0; }
 .gnz-primary-button, .gnz-secondary-button, .gnz-danger-button, .gnz-text-button, .gnz-icon-button {
