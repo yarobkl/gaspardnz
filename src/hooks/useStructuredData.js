@@ -76,7 +76,8 @@ export default function useStructuredData() {
         "provider": {
           "@type": "Person",
           "@id": "https://gaspardnz.style/#gaspardnz",
-          "name": "Gaspard NZ",
+          "name": "Nzaou Kimpolo Gaspard",
+          "alternateName": ["GaspardNZ", "Gaspard NZ"],
           "image": "https://gaspardnz.style/avatar.jpg"
         },
         "areaServed": {

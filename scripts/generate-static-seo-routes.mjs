@@ -10,7 +10,7 @@ const pages = {
     description: "Découvrez l'univers de GaspardNZ, styliste parisien spécialisé dans l'habillage premium, les mariages, les galas et le conseil en image.",
     eyebrow: "GaspardNZ · Paris",
     h1: "L’univers GaspardNZ : style, habillage et élégance masculine",
-    intro: "GaspardNZ développe un univers consacré à l’élégance masculine pour les mariages, galas et événements. L’approche associe conseil en image, composition de silhouettes et attention portée aux détails qui donnent de la cohérence à une tenue.",
+    intro: "GaspardNZ, de son nom Nzaou Kimpolo Gaspard, développe un univers consacré à l’élégance masculine pour les mariages, galas et événements. L’approche associe conseil en image, composition de silhouettes et attention portée aux détails qui donnent de la cohérence à une tenue.",
     points: [["Une vision du style", "Le contexte, le rôle dans l’événement et l’image recherchée guident les choix de tenue."], ["Mariages et événements", "Les différentes pièces sont pensées ensemble pour fonctionner du premier rendez-vous jusqu’au jour J."], ["Accompagnement personnalisé", "Chaque échange sert à préciser le besoin et le niveau d’accompagnement le plus adapté."]],
   },
   "/services": {
