@@ -61,6 +61,23 @@ const sitemap = readFileSync("public/sitemap.xml", "utf8");
 const rootSitemap = readFileSync("sitemap.xml", "utf8");
 assert.equal(rootSitemap, sitemap, "root and public sitemaps must stay aligned");
 
+const legalCanonicals = {
+  "public/mentions-legales.html": `${site}/mentions-legales.html`,
+  "public/cgv.html": `${site}/cgv.html`,
+  "public/confidentialite.html": `${site}/confidentialite.html`,
+};
+for (const [file, canonical] of Object.entries(legalCanonicals)) {
+  const html = readFileSync(file, "utf8");
+  assert.equal(html.includes(`<link rel="canonical" href="${canonical}" />`), true, `${file} has no self canonical`);
+}
+
+const constants = readFileSync("src/constants.js", "utf8");
+const googleIntegration = readFileSync("api/_lib/google.js", "utf8");
+assert.equal(constants.includes("G-231KK9HPKF"), true, "frontend GA4 measurement ID is not the GaspardNZ stream");
+assert.equal(googleIntegration.includes("G-231KK9HPKF"), true, "backend GA4 discovery does not target the GaspardNZ stream");
+assert.equal(constants.includes("G-N283W7662X"), false, "frontend still targets the former Bininga GA4 stream");
+assert.equal(googleIntegration.includes("G-N283W7662X"), false, "backend still targets the former Bininga GA4 stream");
+
 const generator = readFileSync("scripts/generate-static-seo-routes.mjs", "utf8");
 const vercel = JSON.parse(readFileSync("vercel.json", "utf8"));
 for (const route of seoRoutes) {

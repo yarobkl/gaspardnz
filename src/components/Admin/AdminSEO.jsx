@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { GA_ID } from "../../constants.js";
 import { getGoogleSnapshots, getIntegrationSettings } from "../../services/adminData.js";
 import { supabase } from "../../services/supabaseClient.js";
 import "../../styles/admin-v2.css";
@@ -121,7 +122,7 @@ export default function AdminSEO() {
 
     <div className="gnz-integration-grid" style={{ marginBottom: 12 }}>
       <article className="gnz-integration-card"><div className="gnz-integration-card-head"><div><h3>Google Search Console</h3><p>{gsc?.site_url || "https://gaspardnz.style"}<br/>{gsc?.account_label || "eliebakala@gmail.com"}</p></div><span className={`gnz-status ${gsc?.status === "connected" ? "success" : gsc?.status === "error" ? "danger" : "warning"}`}>{gsc?.status === "connected" ? "Connecté" : gsc?.status === "error" ? "Erreur" : "Autorisation requise"}</span></div>{gsc?.last_sync_at && <p>Dernière synchronisation : {new Date(gsc.last_sync_at).toLocaleString("fr-FR")}</p>}{gsc?.last_error && <p className="gnz-danger-text">{gsc.last_error}</p>}</article>
-      <article className="gnz-integration-card"><div className="gnz-integration-card-head"><div><h3>Google Analytics 4</h3><p>{ga?.property_id ? `Propriété ${ga.property_id}` : "Mesure G-N283W7662X"}<br/>{ga?.account_label || "eliebakala@gmail.com"}</p></div><span className={`gnz-status ${ga?.status === "connected" ? "success" : ga?.status === "error" ? "danger" : "warning"}`}>{ga?.status === "connected" ? "Connecté" : ga?.status === "error" ? "Erreur" : "Autorisation requise"}</span></div>{ga?.last_sync_at && <p>Dernière synchronisation : {new Date(ga.last_sync_at).toLocaleString("fr-FR")}</p>}{ga?.last_error && <p className="gnz-danger-text">{ga.last_error}</p>}</article>
+      <article className="gnz-integration-card"><div className="gnz-integration-card-head"><div><h3>Google Analytics 4</h3><p>{ga?.property_id ? `Propriété ${ga.property_id}` : `Mesure ${GA_ID}`}<br/>{ga?.account_label || "eliebakala@gmail.com"}</p></div><span className={`gnz-status ${ga?.status === "connected" ? "success" : ga?.status === "error" ? "danger" : "warning"}`}>{ga?.status === "connected" ? "Connecté" : ga?.status === "error" ? "Erreur" : "Autorisation requise"}</span></div>{ga?.last_sync_at && <p>Dernière synchronisation : {new Date(ga.last_sync_at).toLocaleString("fr-FR")}</p>}{ga?.last_error && <p className="gnz-danger-text">{ga.last_error}</p>}</article>
     </div>
 
     {!connected && <div className="gnz-alert" style={{ color: "var(--gnz-muted)", border: "1px solid rgba(205,169,75,.16)", background: "rgba(205,169,75,.035)" }}><strong style={{ color: "var(--gnz-gold-soft)" }}>Aucun chiffre Google n'est simulé.</strong><br/>Cliquez sur « Connecter Google », autorisez le compte propriétaire puis lancez la synchronisation. Les données déjà présentes chez Google seront importées dans l'administration.</div>}

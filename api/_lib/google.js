@@ -1,7 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 
 const FALLBACK_SUPABASE_URL = "https://imvjudhhtcdmtyhfhksm.supabase.co";
-const GA_MEASUREMENT_ID = "G-N283W7662X";
+const GA_MEASUREMENT_ID = process.env.GA_MEASUREMENT_ID || "G-231KK9HPKF";
 const GOOGLE_SCOPES = [
   "openid",
   "email",

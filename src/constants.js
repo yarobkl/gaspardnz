@@ -8,7 +8,7 @@ export const WA_NUM = "33664826920";
 export const SITE_URL = "https://gaspardnz.style";
 export const CALENDLY_URL = "https://calendly.com/gaspardnz";
 export const CDN_BASE = "https://res.cloudinary.com/dtzhbeebz";
-export const GA_ID = "G-N283W7662X";
+export const GA_ID = import.meta.env?.VITE_GA_MEASUREMENT_ID || "G-231KK9HPKF";
 
 export const SOCIAL_LINKS = {
   instagram: "https://www.instagram.com/gaspardnz_",
