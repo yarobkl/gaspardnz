@@ -95,3 +95,26 @@ describe("Partenaires — « Devenir partenaire » confirme sans attendre le ré
     expect(screen.queryByText(/Erreur/)).not.toBeInTheDocument();
   });
 });
+
+// Demandé par l'utilisateur : la catégorie "Animation / Divertissement" est
+// renommée "Maître de Cérémonie (MC)", et une nouvelle catégorie
+// "Retoucheur" est ajoutée (retouches des vêtements achetés chez Gaspardnz).
+describe("Partenaires — nouvelles catégories Maître de Cérémonie et Retoucheur", () => {
+  it("affiche « Maître de Cérémonie (MC) » avec le sigle MC dans le médaillon (pas « MD »)", async () => {
+    fake = createFakeSupabaseTables({
+      partners: [{ id: "p4", slug: "mc-slot", name: "À venir", category: "Maître de Cérémonie (MC)", published: true, status: "active", sort_order: 0, metadata: { placeholder: true } }],
+    });
+    render(<PartnersSection />);
+    expect(await screen.findByText("Maître de Cérémonie (MC)")).toBeInTheDocument();
+    expect(screen.getByText("MC")).toBeInTheDocument();
+  });
+
+  it("affiche une catégorie « Retoucheur » avec son propre appel à candidature", async () => {
+    fake = createFakeSupabaseTables({
+      partners: [{ id: "p5", slug: "retoucheur-slot", name: "À venir", category: "Retoucheur", published: true, status: "active", sort_order: 0, metadata: { placeholder: true } }],
+    });
+    render(<PartnersSection />);
+    expect(await screen.findByText("Retoucheur")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Devenir partenaire" })).toBeInTheDocument();
+  });
+});

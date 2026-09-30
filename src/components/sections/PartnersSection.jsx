@@ -16,8 +16,11 @@ const SHOW_PARTNER_DISCOUNT_BADGE = false;
 const categoryInitials = (label = "") => {
   const words = label.split(/[\s/&]+/).filter((w) => /[A-Za-zÀ-ÿ]/.test(w));
   if (!words.length) return "—";
-  const acronym = words.find((w) => w.length <= 3 && w === w.toUpperCase());
-  if (acronym) return acronym;
+  // Une parenthèse autour d'un sigle déjà écrit (ex. "(MC)") ne doit pas
+  // l'empêcher d'être reconnu comme tel — seules les lettres comptent ici.
+  const bareWords = words.map((w) => w.replace(/[^A-Za-zÀ-ÿ]/g, ""));
+  const acronymIndex = bareWords.findIndex((w) => w.length > 0 && w.length <= 3 && w === w.toUpperCase());
+  if (acronymIndex !== -1) return bareWords[acronymIndex];
   return words.slice(0, 2).map((w) => w[0]).join("").toUpperCase();
 };
 

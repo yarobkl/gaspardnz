@@ -12,7 +12,7 @@ const emptyPartner = { slug:"", name:"", category:"", description:"", logo_url:"
 // Liste de départ : les catégories déjà utilisées sur le site. Elle s'enrichit
 // ensuite toute seule avec celles que Gaspard tape via « + Ajouter une nouvelle
 // catégorie » — dès qu'un partenaire l'utilise, elle réapparaît dans la liste.
-const DEFAULT_PARTNER_CATEGORIES = ["Lieu Événement","Wedding Planner","Location Voiture Marié","Service Traiteur","DJ / Musique","Photographe","Fleuriste / Décoration","Décorateur","Coiffure & Maquillage","Animation / Divertissement","Pâtissier / Gâteau"];
+const DEFAULT_PARTNER_CATEGORIES = ["Lieu Événement","Wedding Planner","Location Voiture Marié","Service Traiteur","DJ / Musique","Photographe","Fleuriste / Décoration","Décorateur","Coiffure & Maquillage","Maître de Cérémonie (MC)","Pâtissier / Gâteau","Retoucheur"];
 const NEW_CATEGORY_OPTION = "__nouvelle_categorie__";
 const emptyNews = { slug:"", title:"", excerpt:"", body:"", cover_url:"", published:false, published_at:"", locale:"FR", gallery:[] };
 
