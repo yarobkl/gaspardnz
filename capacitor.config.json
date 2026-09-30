@@ -1,6 +1,6 @@
 {
   "appId": "com.gaspardnz.app",
-  "appName": "Gaspardnz",
+  "appName": "GaspardNZ",
   "webDir": "dist",
   "server": {
     "androidScheme": "https",

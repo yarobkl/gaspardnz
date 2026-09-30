@@ -1,0 +1,184 @@
+name: iOS — Build et TestFlight
+
+on:
+  push:
+    branches:
+      - codex/ios-app-store
+    paths:
+      - ".github/workflows/ios-testflight.yml"
+      - "ios/**"
+      - "src/**"
+      - "public/**"
+      - "package.json"
+      - "package-lock.json"
+      - "capacitor.config.json"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version publique (ex. 1.0.0)"
+        required: true
+        default: "1.0.0"
+      buildNumber:
+        description: "Numéro de build App Store (entier croissant)"
+        required: true
+        default: "1"
+      uploadToTestFlight:
+        description: "Signer et envoyer vers TestFlight"
+        type: boolean
+        required: true
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ios-testflight
+  cancel-in-progress: false
+
+jobs:
+  build-ios:
+    name: Build iOS
+    runs-on: macos-15
+    timeout-minutes: 45
+    env:
+      APP_BUNDLE_ID: com.gaspardnz.app
+      APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+      ASC_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+      ASC_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+      ASC_PRIVATE_KEY: ${{ secrets.APP_STORE_CONNECT_API_PRIVATE_KEY }}
+
+    steps:
+      - name: Récupérer le dépôt
+        uses: actions/checkout@v4
+
+      - name: Utiliser le Xcode stable le plus récent
+        run: |
+          XCODE_APP="$(find /Applications -maxdepth 1 -type d -name 'Xcode*.app' | sort -V | tail -1)"
+          test -n "$XCODE_APP"
+          sudo xcode-select --switch "$XCODE_APP/Contents/Developer"
+          xcodebuild -version
+
+      - name: Installer Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Installer les dépendances
+        run: npm ci --no-audit --no-fund
+
+      - name: Construire et synchroniser Capacitor iOS
+        run: npm run cap:sync:ios
+
+      - name: Appliquer la version iOS
+        env:
+          MARKETING_VERSION: ${{ inputs.version || '1.0.0' }}
+          BUILD_NUMBER: ${{ inputs.buildNumber || '1' }}
+        run: |
+          sed -i '' "s/MARKETING_VERSION = [^;]*;/MARKETING_VERSION = $MARKETING_VERSION;/g" ios/App/App.xcodeproj/project.pbxproj
+          sed -i '' "s/CURRENT_PROJECT_VERSION = [^;]*;/CURRENT_PROJECT_VERSION = $BUILD_NUMBER;/g" ios/App/App.xcodeproj/project.pbxproj
+
+      - name: Résoudre les dépendances Swift
+        run: xcodebuild -resolvePackageDependencies -project ios/App/App.xcodeproj -scheme App
+
+      - name: Compiler pour le simulateur
+        if: ${{ github.event_name != 'workflow_dispatch' || !inputs.uploadToTestFlight }}
+        run: |
+          set -o pipefail
+          xcodebuild build \
+            -project ios/App/App.xcodeproj \
+            -scheme App \
+            -configuration Release \
+            -sdk iphonesimulator \
+            -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath "$RUNNER_TEMP/DerivedData" \
+            CODE_SIGNING_ALLOWED=NO \
+            | xcpretty
+
+      - name: Vérifier les secrets Apple
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.uploadToTestFlight }}
+        env:
+          CERTIFICATE_P12: ${{ secrets.APPLE_DISTRIBUTION_CERTIFICATE_P12_BASE64 }}
+          CERTIFICATE_PASSWORD: ${{ secrets.APPLE_DISTRIBUTION_CERTIFICATE_PASSWORD }}
+        run: |
+          missing=0
+          for name in APPLE_TEAM_ID ASC_KEY_ID ASC_ISSUER_ID ASC_PRIVATE_KEY CERTIFICATE_P12 CERTIFICATE_PASSWORD; do
+            if [ -z "${!name}" ]; then
+              echo "::error::Secret manquant : $name"
+              missing=1
+            fi
+          done
+          exit "$missing"
+
+      - name: Installer le certificat Apple Distribution
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.uploadToTestFlight }}
+        uses: apple-actions/import-codesign-certs@v3
+        with:
+          p12-file-base64: ${{ secrets.APPLE_DISTRIBUTION_CERTIFICATE_P12_BASE64 }}
+          p12-password: ${{ secrets.APPLE_DISTRIBUTION_CERTIFICATE_PASSWORD }}
+
+      - name: Installer la clé App Store Connect
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.uploadToTestFlight }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/appstoreconnect/private_keys" "$HOME/.appstoreconnect/private_keys"
+          KEY_PATH="$RUNNER_TEMP/appstoreconnect/private_keys/AuthKey_${ASC_KEY_ID}.p8"
+          if printf '%s' "$ASC_PRIVATE_KEY" | grep -q '^-----BEGIN PRIVATE KEY-----'; then
+            printf '%s' "$ASC_PRIVATE_KEY" > "$KEY_PATH"
+          else
+            printf '%s' "$ASC_PRIVATE_KEY" | tr -d '[:space:]' | openssl base64 -d -A > "$KEY_PATH"
+          fi
+          grep -q '^-----BEGIN PRIVATE KEY-----' "$KEY_PATH"
+          cp "$KEY_PATH" "$HOME/.appstoreconnect/private_keys/AuthKey_${ASC_KEY_ID}.p8"
+          chmod 600 "$KEY_PATH" "$HOME/.appstoreconnect/private_keys/AuthKey_${ASC_KEY_ID}.p8"
+
+      - name: Archiver l’application signée
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.uploadToTestFlight }}
+        run: |
+          set -o pipefail
+          xcodebuild archive \
+            -project ios/App/App.xcodeproj \
+            -scheme App \
+            -configuration Release \
+            -destination 'generic/platform=iOS' \
+            -archivePath "$RUNNER_TEMP/GaspardNZ.xcarchive" \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$RUNNER_TEMP/appstoreconnect/private_keys/AuthKey_${ASC_KEY_ID}.p8" \
+            -authenticationKeyID "$ASC_KEY_ID" \
+            -authenticationKeyIssuerID "$ASC_ISSUER_ID" \
+            DEVELOPMENT_TEAM="$APPLE_TEAM_ID" \
+            | xcpretty
+
+      - name: Exporter l’IPA App Store
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.uploadToTestFlight }}
+        run: |
+          /usr/libexec/PlistBuddy -c "Add :teamID string $APPLE_TEAM_ID" ios/ExportOptions.plist
+          xcodebuild -exportArchive \
+            -archivePath "$RUNNER_TEMP/GaspardNZ.xcarchive" \
+            -exportPath "$RUNNER_TEMP/export" \
+            -exportOptionsPlist ios/ExportOptions.plist \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$RUNNER_TEMP/appstoreconnect/private_keys/AuthKey_${ASC_KEY_ID}.p8" \
+            -authenticationKeyID "$ASC_KEY_ID" \
+            -authenticationKeyIssuerID "$ASC_ISSUER_ID"
+
+      - name: Vérifier l’IPA
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.uploadToTestFlight }}
+        run: |
+          IPA_PATH="$(find "$RUNNER_TEMP/export" -maxdepth 1 -name '*.ipa' -print -quit)"
+          test -f "$IPA_PATH"
+          xcrun altool --validate-app --type ios --file "$IPA_PATH" --apiKey "$ASC_KEY_ID" --apiIssuer "$ASC_ISSUER_ID"
+
+      - name: Envoyer vers TestFlight
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.uploadToTestFlight }}
+        run: |
+          IPA_PATH="$(find "$RUNNER_TEMP/export" -maxdepth 1 -name '*.ipa' -print -quit)"
+          xcrun altool --upload-app --type ios --file "$IPA_PATH" --apiKey "$ASC_KEY_ID" --apiIssuer "$ASC_ISSUER_ID"
+
+      - name: Conserver l’IPA
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.uploadToTestFlight }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: GaspardNZ-iOS-${{ inputs.version }}-${{ inputs.buildNumber }}
+          path: ${{ runner.temp }}/export/*.ipa
+          if-no-files-found: error
+          retention-days: 14
