@@ -3,6 +3,7 @@ name: iOS — Build et TestFlight
 on:
   push:
     branches:
+      - main
       - codex/ios-app-store
     paths:
       - ".github/workflows/ios-testflight.yml"
@@ -94,6 +95,44 @@ jobs:
             -derivedDataPath "$RUNNER_TEMP/DerivedData" \
             CODE_SIGNING_ALLOWED=NO \
             | xcpretty
+
+      - name: Capturer l’écran d’accueil sur un simulateur iPhone
+        if: ${{ github.event_name != 'workflow_dispatch' || !inputs.uploadToTestFlight }}
+        run: |
+          DEVICE_UDID="$(xcrun simctl list devices available -j | python3 -c '
+          import json,sys
+          data=json.load(sys.stdin)["devices"]
+          preferred=[]
+          fallback=[]
+          for runtime, devices in data.items():
+              for device in devices:
+                  if not device.get("isAvailable"): continue
+                  row=(runtime, device["name"], device["udid"])
+                  fallback.append(row)
+                  if "iPhone 16 Pro Max" in device["name"]: preferred.append(row)
+                  elif "iPhone" in device["name"] and "Pro Max" in device["name"]: preferred.append(row)
+          rows=preferred or [r for r in fallback if "iPhone" in r[1]]
+          print(sorted(rows, reverse=True)[0][2] if rows else "")')"
+          test -n "$DEVICE_UDID"
+          xcrun simctl boot "$DEVICE_UDID" 2>/dev/null || true
+          xcrun simctl bootstatus "$DEVICE_UDID" -b
+          APP_PATH="$RUNNER_TEMP/DerivedData/Build/Products/Release-iphonesimulator/App.app"
+          test -d "$APP_PATH"
+          xcrun simctl install "$DEVICE_UDID" "$APP_PATH"
+          xcrun simctl launch "$DEVICE_UDID" "$APP_BUNDLE_ID"
+          sleep 8
+          mkdir -p app-store-assets/screenshots
+          xcrun simctl io "$DEVICE_UDID" screenshot app-store-assets/screenshots/iphone-home.png
+          sips -g pixelWidth -g pixelHeight app-store-assets/screenshots/iphone-home.png
+
+      - name: Conserver la capture App Store
+        if: ${{ github.event_name != 'workflow_dispatch' || !inputs.uploadToTestFlight }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: GaspardNZ-App-Store-Screenshot
+          path: app-store-assets/screenshots/iphone-home.png
+          if-no-files-found: error
+          retention-days: 14
 
       - name: Vérifier les secrets Apple
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.uploadToTestFlight }}
