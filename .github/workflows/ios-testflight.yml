@@ -1,6 +1,17 @@
 name: iOS — Build et TestFlight
 
 on:
+  push:
+    branches:
+      - codex/ios-app-store
+    paths:
+      - ".github/workflows/ios-testflight.yml"
+      - "ios/**"
+      - "src/**"
+      - "public/**"
+      - "package.json"
+      - "package-lock.json"
+      - "capacitor.config.json"
   workflow_dispatch:
     inputs:
       version:
@@ -61,8 +72,8 @@ jobs:
 
       - name: Appliquer la version iOS
         env:
-          MARKETING_VERSION: ${{ inputs.version }}
-          BUILD_NUMBER: ${{ inputs.buildNumber }}
+          MARKETING_VERSION: ${{ inputs.version || '1.0.0' }}
+          BUILD_NUMBER: ${{ inputs.buildNumber || '1' }}
         run: |
           sed -i '' "s/MARKETING_VERSION = [^;]*;/MARKETING_VERSION = $MARKETING_VERSION;/g" ios/App/App.xcodeproj/project.pbxproj
           sed -i '' "s/CURRENT_PROJECT_VERSION = [^;]*;/CURRENT_PROJECT_VERSION = $BUILD_NUMBER;/g" ios/App/App.xcodeproj/project.pbxproj
@@ -71,7 +82,7 @@ jobs:
         run: xcodebuild -resolvePackageDependencies -project ios/App/App.xcodeproj -scheme App
 
       - name: Compiler pour le simulateur
-        if: ${{ !inputs.uploadToTestFlight }}
+        if: ${{ github.event_name != 'workflow_dispatch' || !inputs.uploadToTestFlight }}
         run: |
           set -o pipefail
           xcodebuild build \
@@ -85,7 +96,7 @@ jobs:
             | xcpretty
 
       - name: Vérifier les secrets Apple
-        if: ${{ inputs.uploadToTestFlight }}
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.uploadToTestFlight }}
         env:
           CERTIFICATE_P12: ${{ secrets.APPLE_DISTRIBUTION_CERTIFICATE_P12_BASE64 }}
           CERTIFICATE_PASSWORD: ${{ secrets.APPLE_DISTRIBUTION_CERTIFICATE_PASSWORD }}
@@ -100,14 +111,14 @@ jobs:
           exit "$missing"
 
       - name: Installer le certificat Apple Distribution
-        if: ${{ inputs.uploadToTestFlight }}
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.uploadToTestFlight }}
         uses: apple-actions/import-codesign-certs@v3
         with:
           p12-file-base64: ${{ secrets.APPLE_DISTRIBUTION_CERTIFICATE_P12_BASE64 }}
           p12-password: ${{ secrets.APPLE_DISTRIBUTION_CERTIFICATE_PASSWORD }}
 
       - name: Installer la clé App Store Connect
-        if: ${{ inputs.uploadToTestFlight }}
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.uploadToTestFlight }}
         run: |
           mkdir -p "$RUNNER_TEMP/appstoreconnect/private_keys" "$HOME/.appstoreconnect/private_keys"
           KEY_PATH="$RUNNER_TEMP/appstoreconnect/private_keys/AuthKey_${ASC_KEY_ID}.p8"
@@ -121,7 +132,7 @@ jobs:
           chmod 600 "$KEY_PATH" "$HOME/.appstoreconnect/private_keys/AuthKey_${ASC_KEY_ID}.p8"
 
       - name: Archiver l’application signée
-        if: ${{ inputs.uploadToTestFlight }}
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.uploadToTestFlight }}
         run: |
           set -o pipefail
           xcodebuild archive \
@@ -138,7 +149,7 @@ jobs:
             | xcpretty
 
       - name: Exporter l’IPA App Store
-        if: ${{ inputs.uploadToTestFlight }}
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.uploadToTestFlight }}
         run: |
           /usr/libexec/PlistBuddy -c "Add :teamID string $APPLE_TEAM_ID" ios/ExportOptions.plist
           xcodebuild -exportArchive \
@@ -151,20 +162,20 @@ jobs:
             -authenticationKeyIssuerID "$ASC_ISSUER_ID"
 
       - name: Vérifier l’IPA
-        if: ${{ inputs.uploadToTestFlight }}
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.uploadToTestFlight }}
         run: |
           IPA_PATH="$(find "$RUNNER_TEMP/export" -maxdepth 1 -name '*.ipa' -print -quit)"
           test -f "$IPA_PATH"
           xcrun altool --validate-app --type ios --file "$IPA_PATH" --apiKey "$ASC_KEY_ID" --apiIssuer "$ASC_ISSUER_ID"
 
       - name: Envoyer vers TestFlight
-        if: ${{ inputs.uploadToTestFlight }}
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.uploadToTestFlight }}
         run: |
           IPA_PATH="$(find "$RUNNER_TEMP/export" -maxdepth 1 -name '*.ipa' -print -quit)"
           xcrun altool --upload-app --type ios --file "$IPA_PATH" --apiKey "$ASC_KEY_ID" --apiIssuer "$ASC_ISSUER_ID"
 
       - name: Conserver l’IPA
-        if: ${{ inputs.uploadToTestFlight }}
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.uploadToTestFlight }}
         uses: actions/upload-artifact@v4
         with:
           name: GaspardNZ-iOS-${{ inputs.version }}-${{ inputs.buildNumber }}
