@@ -63,14 +63,22 @@ android/app/build/outputs/bundle/release/app-release.aab
 
 ## iOS
 
-Pour iOS, il faut :
+La compilation iOS se fait sur un runner macOS GitHub Actions, sans Mac local.
 
-1. Compte Apple Developer.
-2. Build cloud ou Mac récent avec Xcode.
-3. Certificats/provisioning Apple.
-4. Upload vers App Store Connect.
-5. TestFlight.
-6. Validation App Store.
+Workflow : `.github/workflows/ios-testflight.yml`
+
+Secrets GitHub nécessaires pour l’envoi TestFlight :
+
+- `APPLE_TEAM_ID`
+- `APP_STORE_CONNECT_API_KEY_ID`
+- `APP_STORE_CONNECT_ISSUER_ID`
+- `APP_STORE_CONNECT_API_PRIVATE_KEY`
+- `APPLE_DISTRIBUTION_CERTIFICATE_P12_BASE64`
+- `APPLE_DISTRIBUTION_CERTIFICATE_PASSWORD`
+
+Le workflow peut être lancé sans signature avec `uploadToTestFlight=false` pour
+valider la compilation Xcode. Avec `uploadToTestFlight=true`, il archive, signe,
+valide puis envoie automatiquement l’IPA vers TestFlight.
 
 ## Commandes utiles
 
