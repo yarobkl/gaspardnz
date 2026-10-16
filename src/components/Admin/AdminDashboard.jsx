@@ -142,7 +142,7 @@ const AdminDashboard = ({ onNavigate }) => {
         <Kpi label="Conversion site" value={k.site_conversion_rate == null ? "—" : `${Number(k.site_conversion_rate).toFixed(2)}%`} trend={null} sub="Visiteurs convertis en prospects" onClick={() => setMetric({key:"site_conversion_rate",label:"Conversion site"})} />
       </section>
 
-      <MetricDetails key={`${metric?.key}-${days}`} metric={metric} data={data} onClose={()=>setMetric(null)} />
+      <MetricDetails key={`${metric?.key}-${days}`} metric={metric} data={metric?.key.startsWith("email_") ? email : data} onClose={()=>setMetric(null)} />
       <section className="gnz-kpi-grid">
         <Kpi label="Intentions de contact" value={fmt.format(k.intentions || 0)} sub="Clics, sans preuve d’envoi" onClick={()=>setMetric({key:'intentions',label:'Intentions de contact'})} />
         <Kpi label="Clients acquis" value={fmt.format(k.customers || 0)} sub="Fiches clients créées sur la période" onClick={()=>setMetric({key:'customers',label:'Clients acquis'})} />
@@ -198,10 +198,10 @@ const AdminDashboard = ({ onNavigate }) => {
           <header className="gnz-card-header"><div className="gnz-card-title"><strong>Emails</strong><span>Statuts réellement enregistrés</span></div><button className="gnz-secondary-button" onClick={() => onNavigate?.("emails")}>Détails</button></header>
           <div className="gnz-card-body">
             <div className="gnz-metric-mini-grid">
-              <div className="gnz-metric-mini"><span>Envoyés</span><strong>{fmt.format(email?.sent || 0)}</strong></div>
-              <div className="gnz-metric-mini"><span>Délivrés</span><strong>{fmt.format(email?.delivered || 0)}</strong></div>
-              <div className="gnz-metric-mini"><span>Ouverts</span><strong>{fmt.format(email?.opened || 0)}</strong></div>
-              <div className="gnz-metric-mini"><span>Échecs</span><strong>{fmt.format(email?.failed || 0)}</strong></div>
+              <button type="button" className="gnz-metric-mini" onClick={()=>setMetric({key:"email_sent",label:"Emails — Envoyés"})}><span>Envoyés</span><strong>{fmt.format(email?.sent || 0)}</strong></button>
+              <button type="button" className="gnz-metric-mini" onClick={()=>setMetric({key:"email_delivered",label:"Emails — Délivrés"})}><span>Délivrés</span><strong>{fmt.format(email?.delivered || 0)}</strong></button>
+              <button type="button" className="gnz-metric-mini" onClick={()=>setMetric({key:"email_opened",label:"Emails — Ouverts"})}><span>Ouverts</span><strong>{fmt.format(email?.opened || 0)}</strong></button>
+              <button type="button" className="gnz-metric-mini" onClick={()=>setMetric({key:"email_failed",label:"Emails — Échecs"})}><span>Échecs</span><strong>{fmt.format(email?.failed || 0)}</strong></button>
             </div>
           </div>
         </article>

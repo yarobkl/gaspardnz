@@ -1,6 +1,6 @@
 import { supabase } from './supabaseClient.js';
 import { commercialMetrics } from './commercialMetrics.js';
-async function allRows(table, columns, period, date='created_at') {
+export async function allRows(table, columns, period, date='created_at') {
  const rows=[];
  for(let start=0;;start+=1000) {
   let query=supabase.from(table).select(columns).order(date).order('id').range(start,start+999);

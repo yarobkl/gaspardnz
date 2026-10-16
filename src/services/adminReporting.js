@@ -1,3 +1,4 @@
+import { allRows } from "./commercialData.js";
 import { supabase } from "./supabaseClient.js";
 import { buildPeriod } from "./adminData.js";
 
@@ -21,12 +22,9 @@ export async function getReportingData(days = 7) {
 
 export async function getEmailSummary(days = 30) {
   const { from, to } = buildPeriod(days);
-  const { data, error } = await supabase
-    .from("email_messages")
-    .select("status,created_at")
-    .gte("created_at", from)
-    .lt("created_at", to);
-  if (error) throw error;
+  const data = await allRows("email_messages", "id,recipient,subject,status,created_at", {from,to});
+  const groups = {email_sent:["sent","delivered","opened","clicked"],email_delivered:["delivered","opened","clicked"],email_opened:["opened","clicked"],email_failed:["failed","bounced"]};
+  const details=Object.fromEntries(Object.entries(groups).map(([key,statuses])=>[key,data.filter(row=>statuses.includes(row.status)).map(row=>({...row,title:row.subject,email:row.recipient,event_name:row.status}))]));
   const counts = { total: 0, sent: 0, delivered: 0, opened: 0, clicked: 0, failed: 0 };
   for (const row of data || []) {
     counts.total += 1;
@@ -38,7 +36,7 @@ export async function getEmailSummary(days = 30) {
   }
   const rate = (value, base) => base ? Number(((value / base) * 100).toFixed(1)) : 0;
   return {
-    ...counts,
+    ...counts, period:{from,to}, details,
     deliveryRate: rate(counts.delivered, counts.sent),
     openRate: rate(counts.opened, counts.delivered),
     clickRate: rate(counts.clicked, counts.delivered),
