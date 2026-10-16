@@ -9,12 +9,14 @@ async function open(page){
 async function fill(page){await page.getByLabel(/votre nom/i).fill('Visiteur test');await page.getByLabel(/type de projet/i).selectOption('Autre');await page.getByLabel('Précisez votre projet').fill('Tenue de gala');await page.getByLabel('Téléphone',{exact:true}).fill('0612345678');await page.getByRole('button',{name:/continuer/i}).click();}
 test('mobile: optional description, all countries, failure blocks redirect, retry uses same request id',async({page})=>{
  await open(page);expect(await page.locator('#booking-country option').count()).toBeGreaterThan(240);await expect(page.locator('#booking-country')).toHaveValue('FR');
- await page.screenshot({path:'test-results/contact-mobile-step1.png'});
+ await expect(page.getByRole("dialog")).toHaveCSS("opacity","1");
+ await page.screenshot({animations:"disabled",path:'test-results/contact-mobile-step1.png'});
  await fill(page);await expect(page.getByText('Choisissez',{exact:true})).toBeVisible();
  const requests=[];await page.route('**/api/contact-intent',async r=>{requests.push(r.request().postDataJSON());await r.fulfill({status:503,json:{error:'Enregistrement indisponible'}});});
  await page.getByRole('button',{name:/discuter via whatsapp/i}).click();await expect(page.getByRole('alert')).toHaveText('Enregistrement indisponible');expect(page.url()).toContain('127.0.0.1');
  await page.getByRole('button',{name:/discuter via whatsapp/i}).click();await expect.poll(()=>requests.length).toBe(2);expect(requests[0].requestId).toBe(requests[1].requestId);expect(requests[0].phone).toBe('+33612345678');
- await page.screenshot({path:'test-results/contact-mobile-error.png'});
+ await expect(page.getByRole("dialog")).toHaveCSS("opacity","1");
+ await page.screenshot({animations:"disabled",path:'test-results/contact-mobile-error.png'});
 });
 test('mobile: waits for persisted success before redirect and ignores double taps',async({page})=>{
  await open(page);await fill(page);let calls=0;let release;
