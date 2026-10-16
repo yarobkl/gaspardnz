@@ -39,7 +39,7 @@ create or replace function public.save_contact_intent(p_id uuid,p_fingerprint te
 returns void language plpgsql security invoker set search_path = '' as $$
 declare request public.contact_requests; existing_lead uuid; tracked_visitor uuid;
 begin
- if p_id is null or p_fingerprint !~ '^[0-9a-f]{64}$' or length(trim(p_name)) not between 1 and 100
+ if p_id is null or p_fingerprint is null or p_name is null or p_phone is null or p_project is null or p_channel is null or p_fingerprint !~ '^[0-9a-f]{64}$' or length(trim(p_name)) not between 1 and 100
  or p_phone !~ '^\+[1-9][0-9]{6,14}$' or length(trim(p_project)) not between 1 and 120
  or length(p_description)>1000 or p_channel not in ('whatsapp','calendly') then raise exception 'Invalid contact'; end if;
  -- Serialize retries, including concurrent requests, in one transaction.
@@ -58,7 +58,10 @@ begin
    end if;
    insert into public.contact_requests(id,lead_id,fingerprint) values(p_id,existing_lead,p_fingerprint);
  end if;
- insert into public.contact_intents(request_id,lead_id,channel) values(p_id,existing_lead,p_channel) on conflict(request_id,channel) do nothing;
+ insert into public.contact_intents(request_id,lead_id,channel)
+ select p_id,existing_lead,p_channel where not exists (
+ select 1 from public.contact_intents where lead_id=existing_lead and channel=p_channel and created_at>now()-interval '24 hours'
+ ) on conflict(request_id,channel) do nothing;
 end $$;
 revoke all on function public.save_contact_intent(uuid,text,text,text,text,text,text,uuid) from public,anon,authenticated;
 grant execute on function public.save_contact_intent(uuid,text,text,text,text,text,text,uuid) to service_role;

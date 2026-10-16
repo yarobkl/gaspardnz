@@ -1,6 +1,7 @@
+import MetricDetails from "./components/MetricDetails.jsx";
 import { isCommercialLead } from "../../services/commercialMetrics.js";
 import { useEffect, useMemo, useState } from "react";
-import { addLeadNote, listLeads, updateLead } from "../../services/adminData.js";
+import { addLeadNote, getLead, listLeads, updateLead } from "../../services/adminData.js";
 import { hasPermission } from "../../services/adminAuth.js";
 import { requestTypeLabel } from "../../utils/requestTypes.js";
 import "../../styles/admin-v2.css";
@@ -34,10 +35,12 @@ const AdminCRM = ({ user }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [toast, setToast] = useState("");
+  const [metric,setMetric]=useState(null);
+  const drill=(key,label)=>({role:"button",tabIndex:0,onClick:()=>setMetric({key,label}),onKeyDown:e=>{if(["Enter"," "].includes(e.key)){e.preventDefault();setMetric({key,label});}}});
 
   const load = async () => {
     setLoading(true);
-    try { const rows = await listLeads({ status, search, limit: 200 }); setLeads(rows); const id=new URLSearchParams(window.location.search).get('lead'); if(id) { const row=rows.find(r=>r.id===id); if(row) setSelected(row); } setError(""); }
+    try { const rows = await listLeads({ status, search, limit: 200 }); setLeads(rows); const id=new URLSearchParams(window.location.search).get('lead'); if(id) { const row=rows.find(r=>r.id===id) || await getLead(id); if(row) setSelected(row); } setError(""); }
     catch (e) { setError(e?.message || "Impossible de charger le CRM."); }
     finally { setLoading(false); }
   };
@@ -77,12 +80,13 @@ const AdminCRM = ({ user }) => {
       {error && <div className="gnz-alert gnz-alert-error">{error}</div>}
 
       <div className="gnz-kpi-grid" style={{ marginBottom: 12 }}>
-        <article className="gnz-kpi-card"><span className="gnz-kpi-label">Prospects affichés</span><div className="gnz-kpi-value">{leads.filter(isCommercialLead).length}</div><div className="gnz-kpi-sub">Filtre actuel</div></article>
-        <article className="gnz-kpi-card"><span className="gnz-kpi-label">Nouveaux</span><div className="gnz-kpi-value">{stats.new || 0}</div><div className="gnz-kpi-sub">À traiter</div></article>
-        <article className="gnz-kpi-card"><span className="gnz-kpi-label">RDV</span><div className="gnz-kpi-value">{stats.appointment || 0}</div><div className="gnz-kpi-sub">Prospects au stade rendez-vous</div></article>
-        <article className="gnz-kpi-card"><span className="gnz-kpi-label">Clients</span><div className="gnz-kpi-value">{stats.client || 0}</div><div className="gnz-kpi-sub">Prospects transformés</div></article>
+        <article className="gnz-kpi-card" {...drill("all","Prospects affichés")}><span className="gnz-kpi-label">Prospects affichés</span><div className="gnz-kpi-value">{leads.filter(isCommercialLead).length}</div><div className="gnz-kpi-sub">Filtre actuel</div></article>
+        <article className="gnz-kpi-card" {...drill("new","Nouveaux")}><span className="gnz-kpi-label">Nouveaux</span><div className="gnz-kpi-value">{stats.new || 0}</div><div className="gnz-kpi-sub">À traiter</div></article>
+        <article className="gnz-kpi-card" {...drill("appointment","RDV")}><span className="gnz-kpi-label">RDV</span><div className="gnz-kpi-value">{stats.appointment || 0}</div><div className="gnz-kpi-sub">Prospects au stade rendez-vous</div></article>
+        <article className="gnz-kpi-card" {...drill("client","Clients")}><span className="gnz-kpi-label">Clients</span><div className="gnz-kpi-value">{stats.client || 0}</div><div className="gnz-kpi-sub">Prospects transformés</div></article>
       </div>
 
+      <MetricDetails key={metric?.key} metric={metric} data={{period:{from:leads.map(l=>l.created_at).sort()[0] || new Date().toISOString(),to:new Date().toISOString()},details:metric ? {[metric.key]:leads.filter(l=>isCommercialLead(l) && (metric.key==="all" || l.status===metric.key)).map(l=>({...l,lead_id:l.id}))}: {}}} onClose={()=>setMetric(null)} />
       <div className="gnz-toolbar"><input className="gnz-input" placeholder="Rechercher nom, email, téléphone…" value={search} onChange={(e) => setSearch(e.target.value)} /><select className="gnz-select" value={status} onChange={(e) => setStatus(e.target.value)}><option value="all">Tous les statuts</option>{STATUS.map(([key,label]) => <option key={key} value={key}>{label}</option>)}</select></div>
 
       <div className="gnz-split">

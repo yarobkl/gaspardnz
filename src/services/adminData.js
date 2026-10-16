@@ -86,6 +86,12 @@ export async function listLeads({ status = "all", search = "", limit = 100 } = {
   return data || [];
 }
 
+export async function getLead(id) {
+  const {data,error}=await supabase.from("leads").select("*").eq("id",id).maybeSingle();
+  if(error) throw error;
+  return data;
+}
+
 export async function updateLead(id, patch) {
   const { data, error } = await supabase.from("leads").update(patch).eq("id", id).select().single();
   if (error) throw error;

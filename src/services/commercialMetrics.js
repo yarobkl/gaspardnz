@@ -4,7 +4,7 @@ export const isCommercialLead = row => !TEST_LEAD_IDS.has(row.id) && row.metadat
 const unique = (rows, key) => [...new Map(rows.filter(row => key(row)).map(row => [key(row), row])).values()];
 const person = row => row.phone?.replace(/[^+0-9]/g,'') || row.email?.trim().toLowerCase() || row.id;
 export function commercialMetrics(raw, period) {
- const inside = row => row.created_at >= period.from && row.created_at < period.to;
+ const inside = row => Date.parse(row.created_at) >= Date.parse(period.from) && Date.parse(row.created_at) < Date.parse(period.to);
  const allLeads = raw.leads.filter(isCommercialLead);
  const leadById = new Map(allLeads.map(row => [row.id,row]));
  const excluded = new Set(raw.leads.filter(row => !isCommercialLead(row)).map(row => row.id));
@@ -15,7 +15,7 @@ export function commercialMetrics(raw, period) {
  const visitorIds = new Set(visitors.map(row => row.visitor_id));
  const intents = raw.intents.filter(inside).filter(row => !excluded.has(row.lead_id)).map(enrich);
  const customers = unique(raw.customers.filter(inside).filter(row => !excluded.has(row.lead_id)).map(enrich), person);
- const cohortCustomers = unique(allLeads.filter(inside).filter(lead => raw.customers.some(row => row.lead_id === lead.id && row.created_at < period.to)), person);
+ const cohortCustomers = unique(allLeads.filter(inside).filter(lead => raw.customers.some(row => row.lead_id === lead.id && Date.parse(row.created_at) < Date.parse(period.to))), person);
  const siteConverted = unique(allLeads.filter(inside).filter(row => visitorIds.has(row.visitor_id)), row => row.visitor_id);
  const legacy = events.filter(row => ['whatsapp_click','booking_click','booking_open','phone_click','tel_click'].includes(row.event_name));
  const details = {

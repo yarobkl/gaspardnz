@@ -12,6 +12,10 @@ const call=`select public.save_contact_intent('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaa
 await db.exec('set role service_role;');await db.exec(call);await db.exec(call);
 assert.equal((await db.query('select count(*)::int n from public.leads')).rows[0].n,1);
 assert.equal((await db.query('select count(*)::int n from public.contact_intents')).rows[0].n,1);
+await db.exec(call.replace('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa','bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb'));
+assert.equal((await db.query('select count(*)::int n from public.leads')).rows[0].n,1);
+assert.equal((await db.query('select count(*)::int n from public.contact_intents')).rows[0].n,1);
+await assert.rejects(db.exec(call.replace("'Test'",'null')));
 await db.exec(call.replace("'whatsapp'","'calendly'"));
 assert.equal((await db.query('select count(*)::int n from public.contact_intents')).rows[0].n,2);
 await assert.rejects(db.exec(call.replace('a'.repeat(64),'b'.repeat(64))));

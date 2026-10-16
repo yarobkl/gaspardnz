@@ -214,14 +214,14 @@ const BookingModal = ({ isOpen, onClose, boutiqueMode = false, onSwitchToBooking
                         </div>
                       ))}
                       <div>
-                        <label htmlFor="booking-country" style={{ color: CREAM, fontSize: 12 }}>Pays / indicatif</label>
+                        <label htmlFor="booking-country" style={{ fontFamily: "'Montserrat', sans-serif", fontSize: 10, letterSpacing: "0.35em", color: "rgba(245,240,232,0.72)", textTransform: "uppercase" }}>Pays / indicatif</label>
                         <select id="booking-country" value={form.country} onChange={e => setForm(f => ({ ...f, country: e.target.value }))} style={{ ...inputStyle, background: "#0a0602", marginTop: 8 }}>
                           {countries.map(code => <option key={code} value={code}>{regionNames.of(code)} (+{getCountryCallingCode(code)})</option>)}
                         </select>
-                        <label htmlFor="booking-phone" style={{ display: "block", color: CREAM, fontSize: 12, marginTop: 12 }}>Téléphone</label>
+                        <label htmlFor="booking-phone" style={{ display: "block", fontFamily: "'Montserrat', sans-serif", fontSize: 10, letterSpacing: "0.35em", color: "rgba(245,240,232,0.72)", textTransform: "uppercase", marginTop: 12 }}>Téléphone</label>
                         <input id="booking-phone" type="tel" autoComplete="tel" inputMode="tel" required maxLength={40} value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} placeholder="06 12 34 56 78" style={{ ...inputStyle, marginTop: 8 }} />
                       </div>
-                      <p style={{ color: "rgba(245,240,232,0.68)", fontSize: 12, lineHeight: 1.6 }}>En choisissant WhatsApp ou le calendrier à l’étape suivante, vos coordonnées et votre projet seront enregistrés par GaspardNZ pour traiter votre demande. <a href="/confidentialite.html" style={{ color: GOLD }}>Confidentialité</a></p>
+                      <p style={{ fontFamily: "'Montserrat', sans-serif", color: "rgba(245,240,232,0.68)", fontSize: 11, lineHeight: 1.6 }}>En choisissant WhatsApp ou le calendrier à l’étape suivante, vos coordonnées et votre projet seront enregistrés par GaspardNZ pour traiter votre demande. <a href="/confidentialite.html" style={{ color: GOLD }}>Confidentialité</a></p>
                       {/* Dans le <form> (et type="submit", pas un simple
                           onClick) : un clic avec des champs vides déclenche
                           la validation native du navigateur (message et
