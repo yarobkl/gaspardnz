@@ -252,8 +252,8 @@ const BookingModal = ({ isOpen, onClose, boutiqueMode = false, onSwitchToBooking
                     </p>
 
                     <div style={{ display: "flex", flexDirection: "column", gap: "0.9rem" }}>
-                      <a href={settings.calendlyUrl || CALENDLY_URL} data-contact-managed="true" aria-disabled={saving} onClick={e => continueTo(e, "calendly", settings.calendlyUrl || CALENDLY_URL)}
-                        style={{ display: "flex", alignItems: "center", gap: "1.1rem", border: "1px solid rgba(184,151,62,0.22)", padding: "1.3rem 1.4rem", textDecoration: "none", transition: "border-color 0.3s, background 0.3s" }}
+                      <button type="button" disabled={saving} data-contact-managed="true" onClick={e => continueTo(e, "calendly", settings.calendlyUrl || CALENDLY_URL)}
+                        style={{ textAlign: "left", cursor: saving ? "wait" : "pointer", background: "transparent", display: "flex", alignItems: "center", gap: "1.1rem", border: "1px solid rgba(184,151,62,0.22)", padding: "1.3rem 1.4rem", textDecoration: "none", transition: "border-color 0.3s, background 0.3s" }}
                         onTouchStart={e => { e.currentTarget.style.borderColor = GOLD; e.currentTarget.style.background = "rgba(184,151,62,0.04)"; }}
                         onTouchEnd={e => { e.currentTarget.style.borderColor = "rgba(184,151,62,0.22)"; e.currentTarget.style.background = "none"; }}>
                         <div style={{ width: "38px", height: "38px", border: `1px solid rgba(184,151,62,0.35)`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
@@ -263,10 +263,10 @@ const BookingModal = ({ isOpen, onClose, boutiqueMode = false, onSwitchToBooking
                           <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.15rem", letterSpacing: "0.07em", color: CREAM, marginBottom: "0.15rem" }}>{t("bk_cal_title")}</p>
                           <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.2em", color: "rgba(245,240,232,0.68)", textTransform: "uppercase" }}>{t("bk_cal_sub")}</p>
                         </div>
-                      </a>
+                      </button>
 
-                      <a href={waUrl} data-contact-managed="true" aria-disabled={saving} onClick={e => continueTo(e, "whatsapp", waUrl)}
-                        style={{ display: "flex", alignItems: "center", gap: "1.1rem", border: `1px solid ${GOLD}`, background: "rgba(184,151,62,0.04)", padding: "1.3rem 1.4rem", textDecoration: "none", transition: "background 0.3s" }}
+                      <button type="button" disabled={saving} data-contact-managed="true" onClick={e => continueTo(e, "whatsapp", waUrl)}
+                        style={{ textAlign: "left", cursor: saving ? "wait" : "pointer", display: "flex", alignItems: "center", gap: "1.1rem", border: `1px solid ${GOLD}`, background: "rgba(184,151,62,0.04)", padding: "1.3rem 1.4rem", textDecoration: "none", transition: "background 0.3s" }}
                         onTouchStart={e => e.currentTarget.style.background = "rgba(184,151,62,0.12)"}
                         onTouchEnd={e => e.currentTarget.style.background = "rgba(184,151,62,0.04)"}>
                         <div style={{ width: "38px", height: "38px", border: `1px solid ${GOLD}`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
@@ -276,7 +276,7 @@ const BookingModal = ({ isOpen, onClose, boutiqueMode = false, onSwitchToBooking
                           <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.15rem", letterSpacing: "0.07em", color: CREAM, marginBottom: "0.15rem" }}>{t("bk_wa_title")}</p>
                           <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.2em", color: "rgba(245,240,232,0.68)", textTransform: "uppercase" }}>{t("bk_wa_sub")}</p>
                         </div>
-                      </a>
+                      </button>
                     </div>
 
                     <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.28em", color: "rgba(245,240,232,0.6)", textTransform: "uppercase", textAlign: "center", marginTop: "1.5rem" }}>

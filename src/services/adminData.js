@@ -63,6 +63,7 @@ export function subscribeDashboard(onChange) {
     .channel("gnz-admin-dashboard")
     .on("postgres_changes", { event: "*", schema: "public", table: "leads" }, onChange)
     .on("postgres_changes", { event: "*", schema: "public", table: "bookings" }, onChange)
+    .on("postgres_changes", { event: "INSERT", schema: "public", table: "contact_intents" }, onChange)
     .on("postgres_changes", { event: "*", schema: "public", table: "email_messages" }, onChange)
     .on("postgres_changes", { event: "INSERT", schema: "public", table: "activity_log" }, onChange)
     .subscribe();

@@ -12,13 +12,13 @@ test('mobile: optional description, all countries, failure blocks redirect, retr
  await page.screenshot({path:'test-results/contact-mobile-step1.png'});
  await fill(page);await expect(page.getByText('Choisissez')).toBeVisible();
  const requests=[];await page.route('**/api/contact-intent',async r=>{requests.push(r.request().postDataJSON());await r.fulfill({status:503,json:{error:'Enregistrement indisponible'}});});
- await page.getByRole('link',{name:/discuter via whatsapp/i}).click();await expect(page.getByRole('alert')).toHaveText('Enregistrement indisponible');expect(page.url()).toContain('127.0.0.1');
- await page.getByRole('link',{name:/discuter via whatsapp/i}).click();await expect.poll(()=>requests.length).toBe(2);expect(requests[0].requestId).toBe(requests[1].requestId);expect(requests[0].phone).toBe('+33612345678');
+ await page.getByRole('button',{name:/discuter via whatsapp/i}).click();await expect(page.getByRole('alert')).toHaveText('Enregistrement indisponible');expect(page.url()).toContain('127.0.0.1');
+ await page.getByRole('button',{name:/discuter via whatsapp/i}).click();await expect.poll(()=>requests.length).toBe(2);expect(requests[0].requestId).toBe(requests[1].requestId);expect(requests[0].phone).toBe('+33612345678');
  await page.screenshot({path:'test-results/contact-mobile-error.png'});
 });
 test('mobile: waits for persisted success before redirect and ignores double taps',async({page})=>{
  await open(page);await fill(page);let calls=0;let release;
  const gate=new Promise(resolve=>release=resolve);await page.route('**/api/contact-intent',async r=>{calls++;await gate;await r.fulfill({json:{ok:true}});});
  await page.route('https://wa.me/**',r=>r.fulfill({body:'WhatsApp test destination'}));
- const link=page.getByRole('link',{name:/discuter via whatsapp/i});await link.click();await link.click();await expect(page.getByRole('status')).toBeVisible();expect(calls).toBe(1);expect(page.url()).toContain('127.0.0.1');release();await expect(page).toHaveURL(/wa.me/);
+ const link=page.getByRole('button',{name:/discuter via whatsapp/i});await link.click();await link.click({force:true});await expect(page.getByRole('status')).toBeVisible();expect(calls).toBe(1);expect(page.url()).toContain('127.0.0.1');release();await expect(page).toHaveURL(/wa.me/);
 });
