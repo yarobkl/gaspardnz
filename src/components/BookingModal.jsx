@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { GOLD, CREAM, CALENDLY_URL } from "../constants.js";
 import { useTr } from "../context.jsx";
@@ -7,8 +7,13 @@ import { useEscapeKey } from "../hooks/useEscapeKey.js";
 import { SvgCalendar, SvgWA, SvgArrow } from "../icons.jsx";
 import { useSettings } from "../hooks/useSettings.js";
 import { getWhatsappUrl } from "../utils/whatsappUtil.js";
+import { getCountries, getCountryCallingCode } from "libphonenumber-js/max";
+import { SERVICES, normalizeContact } from "../../shared/contact.js";
+import { saveContactIntent } from "../services/contactIntent.js";
 import Portal from "./ui/Portal.jsx";
 
+const regionNames = new Intl.DisplayNames(["fr"], { type: "region" });
+const countries = getCountries().sort((a, b) => regionNames.of(a).localeCompare(regionNames.of(b), "fr"));
 const BoutiqueModal = ({ onClose, onReserver }) => {
   const t = useTr();
   return (
@@ -66,12 +71,30 @@ const BookingModal = ({ isOpen, onClose, boutiqueMode = false, onSwitchToBooking
   const settings = useSettings();
   const focusTrapRef = useFocusTrap(isOpen);
   const [step, setStep] = useState(1);
-  const [form, setForm] = useState({ nom: "", projet: "", besoin: "" });
+  const [form, setForm] = useState({ nom: "", projet: "", autre: "", besoin: "", phone: "", country: "FR" });
 
-  const ok = form.nom.trim() && form.projet.trim() && form.besoin.trim();
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+  const pending = useRef(false);
+  const submission = useRef(null);
+  let contact = null;
+  try { contact = normalizeContact({ name: form.nom, project: form.projet === "Autre" ? form.autre : form.projet, description: form.besoin, phone: form.phone, country: form.country }); } catch {}
+  const ok = Boolean(contact);
+  const continueTo = async (event, channel, url) => {
+    event.preventDefault();
+    if (pending.current || !contact) return;
+    pending.current = true; setSaving(true); setError("");
+    const fingerprint = JSON.stringify(contact);
+    if (submission.current?.fingerprint !== fingerprint) submission.current = { fingerprint, id: crypto.randomUUID() };
+    try {
+      await saveContactIntent(contact, submission.current.id, channel);
+      window.location.assign(url);
+    } catch (err) { setError(err.message || "Enregistrement impossible. Réessayez."); }
+    finally { pending.current = false; setSaving(false); }
+  };
 
   const nom = form.nom.trim();
-  const projet = form.projet.trim();
+  const projet = contact?.project || form.projet.trim();
   const besoin = form.besoin.trim();
   const waMsg = t("bk_wa", nom, projet, besoin);
   const waUrl = getWhatsappUrl(settings.whatsappNumber, waMsg);
@@ -138,16 +161,18 @@ const BookingModal = ({ isOpen, onClose, boutiqueMode = false, onSwitchToBooking
             </div>
 
             <div style={{ padding: "1.8rem", overflowY: "auto", flex: 1 }}>
+              {error && <p role="alert" style={{ color: CREAM, border: `1px solid ${GOLD}`, padding: 12 }}>{error}</p>}
+              {saving && <p role="status" style={{ color: CREAM }}>Enregistrement de votre demande…</p>}
               <AnimatePresence mode="wait">
                 {step === 1 ? (
                   <motion.div key="step1"
                     initial={{ x: 0, opacity: 1 }} exit={{ x: -60, opacity: 0 }}
                     transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}>
-                    <form style={{ display: "flex", flexDirection: "column", gap: "1.2rem" }} onSubmit={e => { e.preventDefault(); ok && setStep(2); }}>
+                    <form style={{ display: "flex", flexDirection: "column", gap: "1.2rem" }} onSubmit={e => { e.preventDefault(); if (ok) { setError(""); setStep(2); } else setError("Vérifiez votre téléphone et les champs obligatoires."); }}>
                       {[
                         { k: "nom",    lbl: t("bk_lbl_nom"), ph: t("bk_ph_nom") },
                         { k: "projet", lbl: t("bk_lbl_projet"), ph: t("bk_ph_projet") },
-                        { k: "besoin", lbl: t("bk_lbl_besoin"), ph: t("bk_ph_besoin") },
+                        { k: "besoin", lbl: `${t("bk_lbl_besoin")} (facultatif)`, ph: t("bk_ph_besoin") },
                       ].map(({ k, lbl, ph }) => (
                         <div key={k}>
                           <label htmlFor={`booking-${k}`} style={{ display: "block", fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.35em", color: "rgba(245,240,232,0.72)", textTransform: "uppercase", marginBottom: "0.5rem", cursor: "pointer" }}>
@@ -160,12 +185,18 @@ const BookingModal = ({ isOpen, onClose, boutiqueMode = false, onSwitchToBooking
                               rows={3}
                               placeholder={ph}
                               maxLength={1000}
-                              required
-                              aria-required="true"
                               onChange={e => setForm(f => ({ ...f, [k]: e.target.value }))}
                               onFocus={e => e.target.style.borderColor = GOLD}
                               onBlur={e => e.target.style.borderColor = "rgba(184,151,62,0.2)"}
                               style={{ ...inputStyle, resize: "none", display: "block" }} />
+                          ) : k === "projet" ? (
+                            <>
+                              <select id="booking-projet" required value={form.projet} onChange={e => setForm(f => ({ ...f, projet: e.target.value }))} style={{ ...inputStyle, background: "#0a0602" }}>
+                                <option value="">Choisissez une prestation</option>
+                                {SERVICES.map(service => <option key={service}>{service}</option>)}
+                              </select>
+                              {form.projet === "Autre" && <input aria-label="Précisez votre projet" required maxLength={120} value={form.autre} onChange={e => setForm(f => ({ ...f, autre: e.target.value }))} placeholder="Précisez votre projet" style={{ ...inputStyle, marginTop: 8 }} />}
+                            </>
                           ) : (
                             <input
                               id={`booking-${k}`}
@@ -182,6 +213,15 @@ const BookingModal = ({ isOpen, onClose, boutiqueMode = false, onSwitchToBooking
                           )}
                         </div>
                       ))}
+                      <div>
+                        <label htmlFor="booking-country" style={{ fontFamily: "'Montserrat', sans-serif", fontSize: 10, letterSpacing: "0.35em", color: "rgba(245,240,232,0.72)", textTransform: "uppercase" }}>Pays / indicatif</label>
+                        <select id="booking-country" value={form.country} onChange={e => setForm(f => ({ ...f, country: e.target.value }))} style={{ ...inputStyle, background: "#0a0602", marginTop: 8 }}>
+                          {countries.map(code => <option key={code} value={code}>{regionNames.of(code)} (+{getCountryCallingCode(code)})</option>)}
+                        </select>
+                        <label htmlFor="booking-phone" style={{ display: "block", fontFamily: "'Montserrat', sans-serif", fontSize: 10, letterSpacing: "0.35em", color: "rgba(245,240,232,0.72)", textTransform: "uppercase", marginTop: 12 }}>Téléphone</label>
+                        <input id="booking-phone" type="tel" autoComplete="tel" inputMode="tel" required maxLength={40} value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} placeholder="06 12 34 56 78" style={{ ...inputStyle, marginTop: 8 }} />
+                      </div>
+                      <p style={{ fontFamily: "'Montserrat', sans-serif", color: "rgba(245,240,232,0.68)", fontSize: 11, lineHeight: 1.6 }}>En choisissant WhatsApp ou le calendrier à l’étape suivante, vos coordonnées et votre projet seront enregistrés par GaspardNZ pour traiter votre demande. <a href="/confidentialite.html" style={{ color: GOLD }}>Confidentialité</a></p>
                       {/* Dans le <form> (et type="submit", pas un simple
                           onClick) : un clic avec des champs vides déclenche
                           la validation native du navigateur (message et
@@ -212,8 +252,8 @@ const BookingModal = ({ isOpen, onClose, boutiqueMode = false, onSwitchToBooking
                     </p>
 
                     <div style={{ display: "flex", flexDirection: "column", gap: "0.9rem" }}>
-                      <a href={settings.calendlyUrl || CALENDLY_URL} target="_blank" rel="noopener noreferrer"
-                        style={{ display: "flex", alignItems: "center", gap: "1.1rem", border: "1px solid rgba(184,151,62,0.22)", padding: "1.3rem 1.4rem", textDecoration: "none", transition: "border-color 0.3s, background 0.3s" }}
+                      <button type="button" disabled={saving} data-contact-managed="true" onClick={e => continueTo(e, "calendly", settings.calendlyUrl || CALENDLY_URL)}
+                        style={{ textAlign: "left", cursor: saving ? "wait" : "pointer", background: "transparent", display: "flex", alignItems: "center", gap: "1.1rem", border: "1px solid rgba(184,151,62,0.22)", padding: "1.3rem 1.4rem", textDecoration: "none", transition: "border-color 0.3s, background 0.3s" }}
                         onTouchStart={e => { e.currentTarget.style.borderColor = GOLD; e.currentTarget.style.background = "rgba(184,151,62,0.04)"; }}
                         onTouchEnd={e => { e.currentTarget.style.borderColor = "rgba(184,151,62,0.22)"; e.currentTarget.style.background = "none"; }}>
                         <div style={{ width: "38px", height: "38px", border: `1px solid rgba(184,151,62,0.35)`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
@@ -223,10 +263,10 @@ const BookingModal = ({ isOpen, onClose, boutiqueMode = false, onSwitchToBooking
                           <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.15rem", letterSpacing: "0.07em", color: CREAM, marginBottom: "0.15rem" }}>{t("bk_cal_title")}</p>
                           <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.2em", color: "rgba(245,240,232,0.68)", textTransform: "uppercase" }}>{t("bk_cal_sub")}</p>
                         </div>
-                      </a>
+                      </button>
 
-                      <a href={waUrl} target="_blank" rel="noopener noreferrer"
-                        style={{ display: "flex", alignItems: "center", gap: "1.1rem", border: `1px solid ${GOLD}`, background: "rgba(184,151,62,0.04)", padding: "1.3rem 1.4rem", textDecoration: "none", transition: "background 0.3s" }}
+                      <button type="button" disabled={saving} data-contact-managed="true" onClick={e => continueTo(e, "whatsapp", waUrl)}
+                        style={{ textAlign: "left", cursor: saving ? "wait" : "pointer", display: "flex", alignItems: "center", gap: "1.1rem", border: `1px solid ${GOLD}`, background: "rgba(184,151,62,0.04)", padding: "1.3rem 1.4rem", textDecoration: "none", transition: "background 0.3s" }}
                         onTouchStart={e => e.currentTarget.style.background = "rgba(184,151,62,0.12)"}
                         onTouchEnd={e => e.currentTarget.style.background = "rgba(184,151,62,0.04)"}>
                         <div style={{ width: "38px", height: "38px", border: `1px solid ${GOLD}`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
@@ -236,14 +276,14 @@ const BookingModal = ({ isOpen, onClose, boutiqueMode = false, onSwitchToBooking
                           <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.15rem", letterSpacing: "0.07em", color: CREAM, marginBottom: "0.15rem" }}>{t("bk_wa_title")}</p>
                           <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.2em", color: "rgba(245,240,232,0.68)", textTransform: "uppercase" }}>{t("bk_wa_sub")}</p>
                         </div>
-                      </a>
+                      </button>
                     </div>
 
                     <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.28em", color: "rgba(245,240,232,0.6)", textTransform: "uppercase", textAlign: "center", marginTop: "1.5rem" }}>
                       {t("bk_guarantee")}
                     </p>
 
-                    <button onClick={() => setStep(1)}
+                    <button disabled={saving} onClick={() => setStep(1)}
                       style={{ display: "block", background: "none", border: "none", margin: "1.1rem auto 0", cursor: "pointer", fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.22em", color: "rgba(245,240,232,0.58)", textTransform: "uppercase" }}>
                       {t("bk_back")}
                     </button>

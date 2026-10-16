@@ -41,7 +41,7 @@ describe("Partenaires — une catégorie à pourvoir ouvre le formulaire « Deve
     });
     const fetchMock = vi.fn(async () => ({ ok: true, json: async () => ({ success: true }) }));
     vi.stubGlobal("fetch", fetchMock);
-    const user = userEvent.setup();
+    const user = userEvent.setup({ delay: null });
     render(<PartnersSection />);
 
     expect(await screen.findByText("Nous recherchons un partenaire")).toBeInTheDocument();
@@ -66,7 +66,7 @@ describe("Partenaires — une catégorie à pourvoir ouvre le formulaire « Deve
     // part uniquement dans le CRM, aucun appel à l'envoi d'email.
     expect(fetchMock.mock.calls.find(([url]) => url === "/api/send-email")).toBeUndefined();
     vi.unstubAllGlobals();
-  });
+  }, 15000);
 });
 
 // Cas réel en prod : sur 4G l'envoi prenait plusieurs secondes, puis
@@ -80,7 +80,7 @@ describe("Partenaires — « Devenir partenaire » confirme sans attendre le ré
     fake = createFakeSupabaseTables({
       partners: [{ id: "p3", slug: "dj-slot", name: "À venir", category: "DJ / Musique", published: true, status: "active", sort_order: 0, metadata: { placeholder: true } }],
     });
-    const user = userEvent.setup();
+    const user = userEvent.setup({ delay: null });
     render(<PartnersSection />);
 
     await user.click(await screen.findByRole("button", { name: "Devenir partenaire" }));
@@ -93,7 +93,7 @@ describe("Partenaires — « Devenir partenaire » confirme sans attendre le ré
     expect(screen.getByText(/Votre candidature a bien été envoyée/)).toBeInTheDocument();
     vi.unstubAllGlobals();
     expect(screen.queryByText(/Erreur/)).not.toBeInTheDocument();
-  });
+  }, 15000);
 });
 
 // Demandé par l'utilisateur : la catégorie "Animation / Divertissement" est

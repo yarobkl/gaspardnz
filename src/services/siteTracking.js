@@ -106,35 +106,13 @@ export function trackPageViewToSupabase(path = window.location.pathname) {
   return trackSiteEvent("page_view", { pagePath: path });
 }
 
-async function recordBookingIntent({ label, href }) {
-  if (!hasConsent("analytics")) return;
-  const context = getTrackingContext();
-  const provider = /calendly/i.test(href || "") ? "calendly" : /wa\.me|whatsapp/i.test(href || "") ? "whatsapp" : "site";
-  const dedupeKey = `${provider}:${href || label || "booking"}`.slice(0, 300);
-  let sent = [];
-  try { sent = JSON.parse(sessionStorage.getItem(BOOKING_SENT_KEY) || "[]"); } catch {}
-  if (sent.includes(dedupeKey)) return;
-
-  const result = await sendPublicEvent("booking_request", {
-    ...context,
-    provider,
-    request_type: "booking_intent",
-    title: label || "Demande de rendez-vous",
-    metadata: { href: href ? href.slice(0, 300) : null, page_path: window.location.pathname },
-  });
-  if (result?.ok) {
-    sent.push(dedupeKey);
-    try { sessionStorage.setItem(BOOKING_SENT_KEY, JSON.stringify(sent.slice(-20))); } catch {}
-  }
-}
-
 export function initializeSupabaseTracking() {
   if (typeof window === "undefined" || window.location.pathname.startsWith("/admin") || !hasConsent("analytics")) return () => {};
   let lastPath = `${window.location.pathname}${window.location.search}`;
 
   const clickHandler = (event) => {
     const target = event.target?.closest?.("a,button,[data-track]");
-    if (!target) return;
+    if (!target || target.hasAttribute("data-contact-managed")) return;
     const explicit = target.getAttribute?.("data-track");
     const label = (target.getAttribute?.("aria-label") || target.textContent || "").trim().replace(/\s+/g, " ").slice(0, 120);
     const href = target.getAttribute?.("href") || "";
@@ -146,8 +124,8 @@ export function initializeSupabaseTracking() {
     if (!eventName && /promotion|offre|promo/i.test(label)) eventName = "promo_click";
     if (!eventName) return;
 
-    trackSiteEvent(eventName, { metadata: { label: label || null, href: href ? href.slice(0, 300) : null } });
-    if (eventName === "booking_click") recordBookingIntent({ label, href });
+    trackSiteEvent(eventName, { metadata: { label: label || null, href: href ? href.split("?")[0].slice(0, 300) : null } });
+    // A click is an intention only; confirmed bookings come from Calendly.
   };
 
   const routeCheck = () => {

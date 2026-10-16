@@ -1,5 +1,7 @@
+import MetricDetails from "./components/MetricDetails.jsx";
+import { isCommercialLead } from "../../services/commercialMetrics.js";
 import { useEffect, useMemo, useState } from "react";
-import { addLeadNote, listLeads, updateLead } from "../../services/adminData.js";
+import { addLeadNote, getLead, listLeads, updateLead } from "../../services/adminData.js";
 import { hasPermission } from "../../services/adminAuth.js";
 import { requestTypeLabel } from "../../utils/requestTypes.js";
 import "../../styles/admin-v2.css";
@@ -33,16 +35,18 @@ const AdminCRM = ({ user }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [toast, setToast] = useState("");
+  const [metric,setMetric]=useState(null);
+  const drill=(key,label)=>({role:"button",tabIndex:0,onClick:()=>setMetric({key,label}),onKeyDown:e=>{if(["Enter"," "].includes(e.key)){e.preventDefault();setMetric({key,label});}}});
 
   const load = async () => {
     setLoading(true);
-    try { setLeads(await listLeads({ status, search, limit: 200 })); setError(""); }
+    try { const rows = await listLeads({ status, search, limit: 200 }); setLeads(rows); const id=new URLSearchParams(window.location.search).get('lead'); if(id) { const row=rows.find(r=>r.id===id) || await getLead(id); if(row) setSelected(row); } setError(""); }
     catch (e) { setError(e?.message || "Impossible de charger le CRM."); }
     finally { setLoading(false); }
   };
   useEffect(() => { const t = setTimeout(load, 180); return () => clearTimeout(t); }, [status, search]);
 
-  const stats = useMemo(() => Object.fromEntries(STATUS.map(([key]) => [key, leads.filter((l) => l.status === key).length])), [leads]);
+  const stats = useMemo(() => Object.fromEntries(STATUS.map(([key]) => [key, leads.filter((l) => isCommercialLead(l) && l.status === key).length])), [leads]);
 
   const patch = async (id, values) => {
     try {
@@ -76,18 +80,19 @@ const AdminCRM = ({ user }) => {
       {error && <div className="gnz-alert gnz-alert-error">{error}</div>}
 
       <div className="gnz-kpi-grid" style={{ marginBottom: 12 }}>
-        <article className="gnz-kpi-card"><span className="gnz-kpi-label">Prospects affichés</span><div className="gnz-kpi-value">{leads.length}</div><div className="gnz-kpi-sub">Filtre actuel</div></article>
-        <article className="gnz-kpi-card"><span className="gnz-kpi-label">Nouveaux</span><div className="gnz-kpi-value">{stats.new || 0}</div><div className="gnz-kpi-sub">À traiter</div></article>
-        <article className="gnz-kpi-card"><span className="gnz-kpi-label">RDV</span><div className="gnz-kpi-value">{stats.appointment || 0}</div><div className="gnz-kpi-sub">Prospects au stade rendez-vous</div></article>
-        <article className="gnz-kpi-card"><span className="gnz-kpi-label">Clients</span><div className="gnz-kpi-value">{stats.client || 0}</div><div className="gnz-kpi-sub">Prospects transformés</div></article>
+        <article className="gnz-kpi-card" {...drill("all","Prospects affichés")}><span className="gnz-kpi-label">Prospects affichés</span><div className="gnz-kpi-value">{leads.filter(isCommercialLead).length}</div><div className="gnz-kpi-sub">Filtre actuel</div></article>
+        <article className="gnz-kpi-card" {...drill("new","Nouveaux")}><span className="gnz-kpi-label">Nouveaux</span><div className="gnz-kpi-value">{stats.new || 0}</div><div className="gnz-kpi-sub">À traiter</div></article>
+        <article className="gnz-kpi-card" {...drill("appointment","RDV")}><span className="gnz-kpi-label">RDV</span><div className="gnz-kpi-value">{stats.appointment || 0}</div><div className="gnz-kpi-sub">Prospects au stade rendez-vous</div></article>
+        <article className="gnz-kpi-card" {...drill("client","Clients")}><span className="gnz-kpi-label">Clients</span><div className="gnz-kpi-value">{stats.client || 0}</div><div className="gnz-kpi-sub">Prospects transformés</div></article>
       </div>
 
+      <MetricDetails key={metric?.key} metric={metric} data={{period:{from:leads.map(l=>l.created_at).sort()[0] || new Date().toISOString(),to:new Date().toISOString()},details:metric ? {[metric.key]:leads.filter(l=>isCommercialLead(l) && (metric.key==="all" || l.status===metric.key)).map(l=>({...l,lead_id:l.id}))}: {}}} onClose={()=>setMetric(null)} />
       <div className="gnz-toolbar"><input className="gnz-input" placeholder="Rechercher nom, email, téléphone…" value={search} onChange={(e) => setSearch(e.target.value)} /><select className="gnz-select" value={status} onChange={(e) => setStatus(e.target.value)}><option value="all">Tous les statuts</option>{STATUS.map(([key,label]) => <option key={key} value={key}>{label}</option>)}</select></div>
 
       <div className="gnz-split">
         <article className="gnz-card">
           <div className="gnz-table-wrap gnz-table-wrap--capped"><table className="gnz-table"><thead><tr><th>Prospect</th><th>Besoin</th><th>Source</th><th>Statut</th><th>Valeur</th><th>Créé</th></tr></thead><tbody>
-            {loading ? <tr><td colSpan="6"><div className="gnz-empty-state">Chargement…</div></td></tr> : leads.length ? leads.map((lead) => <tr key={lead.id} onClick={() => setSelected(lead)} style={{ cursor: "pointer" }}><td><strong>{lead.full_name || "Sans nom"}</strong><span className="gnz-table-sub">{lead.email || lead.phone || "—"}</span></td><td>{requestTypeLabel(lead.request_type)}</td><td>{lead.source || lead.channel || "Site"}</td><td><span className={`gnz-status ${lead.status}`}>{STATUS.find(([k]) => k === lead.status)?.[1] || lead.status}</span></td><td>{lead.estimated_value ? `${Number(lead.estimated_value).toLocaleString("fr-FR")} €` : "—"}</td><td>{fmtDate(lead.created_at)}</td></tr>) : <tr><td colSpan="6"><div className="gnz-empty-state">Aucun prospect ne correspond à ce filtre.</div></td></tr>}
+            {loading ? <tr><td colSpan="6"><div className="gnz-empty-state">Chargement…</div></td></tr> : leads.length ? leads.map((lead) => <tr key={lead.id} onClick={() => setSelected(lead)} style={{ cursor: "pointer" }}><td><strong>{lead.full_name || "Sans nom"}</strong>{!isCommercialLead(lead) && <span className="gnz-status">Test · hors statistiques</span>}<span className="gnz-table-sub">{lead.email || lead.phone || "—"}</span></td><td>{requestTypeLabel(lead.request_type)}</td><td>{lead.source || lead.channel || "Site"}</td><td><span className={`gnz-status ${lead.status}`}>{STATUS.find(([k]) => k === lead.status)?.[1] || lead.status}</span></td><td>{lead.estimated_value ? `${Number(lead.estimated_value).toLocaleString("fr-FR")} €` : "—"}</td><td>{fmtDate(lead.created_at)}</td></tr>) : <tr><td colSpan="6"><div className="gnz-empty-state">Aucun prospect ne correspond à ce filtre.</div></td></tr>}
           </tbody></table></div>
         </article>
 
