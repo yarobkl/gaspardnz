@@ -11,7 +11,7 @@ test.describe("Modale de réservation", () => {
 
   test("bloque le passage à l'étape 2 avec des champs vides (validation native)", async ({ page }) => {
     await page.getByRole("button", { name: /continuer/i }).click();
-    await expect(page.getByText("Choisissez")).toHaveCount(0);
+    await expect(page.getByText("Choisissez",{exact:true})).toHaveCount(0);
   });
 
   test("le parcours complet mène au choix Calendly / WhatsApp", async ({ page }) => {
@@ -21,7 +21,7 @@ test.describe("Modale de réservation", () => {
     await page.getByLabel(/votre besoin/i).fill("Costume complet pour la cérémonie");
     await page.getByRole("button", { name: /continuer/i }).click();
 
-    await expect(page.getByText("Choisissez")).toBeVisible();
+    await expect(page.getByText("Choisissez",{exact:true})).toBeVisible();
     await expect(page.getByText(/prendre rendez-vous/i)).toBeVisible();
     await expect(page.getByText(/discuter via whatsapp/i)).toBeVisible();
   });

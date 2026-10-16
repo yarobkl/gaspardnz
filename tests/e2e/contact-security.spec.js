@@ -10,7 +10,7 @@ async function fill(page){await page.getByLabel(/votre nom/i).fill('Visiteur tes
 test('mobile: optional description, all countries, failure blocks redirect, retry uses same request id',async({page})=>{
  await open(page);expect(await page.locator('#booking-country option').count()).toBeGreaterThan(240);await expect(page.locator('#booking-country')).toHaveValue('FR');
  await page.screenshot({path:'test-results/contact-mobile-step1.png'});
- await fill(page);await expect(page.getByText('Choisissez')).toBeVisible();
+ await fill(page);await expect(page.getByText('Choisissez',{exact:true})).toBeVisible();
  const requests=[];await page.route('**/api/contact-intent',async r=>{requests.push(r.request().postDataJSON());await r.fulfill({status:503,json:{error:'Enregistrement indisponible'}});});
  await page.getByRole('button',{name:/discuter via whatsapp/i}).click();await expect(page.getByRole('alert')).toHaveText('Enregistrement indisponible');expect(page.url()).toContain('127.0.0.1');
  await page.getByRole('button',{name:/discuter via whatsapp/i}).click();await expect.poll(()=>requests.length).toBe(2);expect(requests[0].requestId).toBe(requests[1].requestId);expect(requests[0].phone).toBe('+33612345678');
