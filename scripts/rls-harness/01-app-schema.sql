@@ -39,6 +39,9 @@ create table public.analytics_events (
 );
 
 create table public.leads (
+  channel text,
+  visitor_id uuid references public.visitors(id),
+  metadata jsonb not null default '{}',
   id uuid primary key default gen_random_uuid(),
   email text,
   full_name text,

@@ -16,7 +16,8 @@ test.describe("Modale de réservation", () => {
 
   test("le parcours complet mène au choix Calendly / WhatsApp", async ({ page }) => {
     await page.getByLabel(/votre nom/i).fill("Marc Ferrand");
-    await page.getByLabel(/type de projet/i).fill("Mariage");
+    await page.getByLabel(/type de projet/i).selectOption("Habillage mariage");
+    await page.getByLabel("Téléphone", { exact: true }).fill("0612345678");
     await page.getByLabel(/votre besoin/i).fill("Costume complet pour la cérémonie");
     await page.getByRole("button", { name: /continuer/i }).click();
 

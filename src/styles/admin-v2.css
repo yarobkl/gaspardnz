@@ -339,3 +339,6 @@ a.gnz-primary-button, a.gnz-secondary-button, a.gnz-danger-button, a.gnz-text-bu
 .gnz-pricing-add-group .gnz-input:nth-child(2) { flex: 1 1 160px; }
 .gnz-pricing-total { display: flex; justify-content: space-between; align-items: center; margin-top: 16px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,.1); font-size: 13px; }
 .gnz-pricing-total strong { color: var(--gnz-gold); font-size: 16px; }
+
+button.gnz-funnel-step { background: transparent; color: inherit; border: 0; padding: 4px 0; width: 100%; cursor: pointer; font: inherit; text-align: left; }
+.gnz-kpi-card[role="button"], .gnz-metric-mini[role="button"] { cursor: pointer; }

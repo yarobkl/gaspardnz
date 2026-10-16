@@ -9,7 +9,7 @@ import userEvent from "@testing-library/user-event";
 // contenu injecté depuis l'extérieur).
 const emptyQuery = {
   select: () => emptyQuery, eq: () => emptyQuery, gte: () => emptyQuery,
-  lt: () => emptyQuery, order: () => emptyQuery, limit: () => emptyQuery,
+  range: () => emptyQuery, lt: () => emptyQuery, order: () => emptyQuery, limit: () => emptyQuery,
   maybeSingle: async () => ({ data: null, error: null }),
   single: async () => ({ data: null, error: null }),
   then: (resolve) => resolve({ data: [], error: null }),
@@ -194,6 +194,6 @@ describe("arrivée sur l'admin et menu mobile", () => {
     const kpi = (await screen.findByText("Demandes reçues")).closest('[role="button"]');
     kpi.focus();
     await user.keyboard("{Enter}");
-    expect(onSectionChange).toHaveBeenCalledWith("crm");
+    expect(await screen.findByRole("region", { name: "Détail Demandes reçues" })).toBeVisible();
   });
 });

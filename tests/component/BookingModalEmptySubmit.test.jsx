@@ -36,7 +36,8 @@ describe("BookingModal — le bouton Continuer est un vrai bouton de formulaire"
   it("passe à l'étape 2 une fois les champs remplis", () => {
     render(<BookingModal isOpen onClose={() => {}} />);
     fireEvent.change(screen.getByLabelText(/nom/i), { target: { value: "Marc Ferrand" } });
-    fireEvent.change(screen.getByLabelText(/projet/i), { target: { value: "Mariage" } });
+    fireEvent.change(screen.getByLabelText(/projet/i), { target: { value: "Habillage mariage" } });
+    fireEvent.change(screen.getByLabelText(/téléphone/i), { target: { value: "0612345678" } });
     fireEvent.change(screen.getByLabelText(/besoin/i), { target: { value: "Costume complet" } });
 
     fireEvent.click(screen.getByRole("button", { name: /continuer/i }));
