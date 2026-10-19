@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { listEmails } from "../../services/adminData.js";
 import { getEmailSummary } from "../../services/adminReporting.js";
+import { supabase } from "../../services/supabaseClient.js";
 import "../../styles/admin-v2.css";
 
 const fmtDate = (value) => value ? new Date(value).toLocaleString("fr-FR", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" }) : "—";
@@ -12,6 +13,8 @@ export default function AdminEmails() {
   const [filter, setFilter] = useState("all");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [checking, setChecking] = useState(false);
+  const [smtpHealth, setSmtpHealth] = useState(null);
 
   const load = async () => {
     setLoading(true);
@@ -22,8 +25,35 @@ export default function AdminEmails() {
   useEffect(() => { load(); }, []);
   const visible = useMemo(() => filter === "all" ? rows : rows.filter((r) => r.status === filter), [rows, filter]);
 
+  const verifySmtp = async () => {
+    setChecking(true);
+    setSmtpHealth(null);
+    try {
+      const { data } = await supabase.auth.getSession();
+      const token = data?.session?.access_token;
+      if (!token) throw new Error("Session administrateur expirée.");
+      const response = await fetch("/api/email-health", {
+        method: "GET",
+        headers: { Authorization: `Bearer ${token}` },
+        cache: "no-store",
+      });
+      const result = await response.json().catch(() => ({}));
+      setSmtpHealth({ ...result, ok: response.ok && result.ok === true });
+    } catch (e) {
+      setSmtpHealth({ ok: false, reason: e?.message || "Diagnostic impossible" });
+    } finally {
+      setChecking(false);
+    }
+  };
+
   return <div>
-    <div className="gnz-page-heading"><div><h1>Emails</h1><p>Suivi des messages émis par GaspardNZ. Aucune ouverture ou délivrabilité n'est inventée.</p></div><div className="gnz-page-actions"><button className="gnz-secondary-button" onClick={load}>Actualiser</button></div></div>
+    <div className="gnz-page-heading"><div><h1>Emails</h1><p>Suivi des messages émis par GaspardNZ. Aucune ouverture ou délivrabilité n'est inventée.</p></div><div className="gnz-page-actions"><button className="gnz-secondary-button" onClick={load}>Actualiser</button><button className="gnz-secondary-button" onClick={verifySmtp} disabled={checking}>{checking ? "Test SMTP…" : "Tester le serveur email"}</button></div></div>
+    {smtpHealth && <div role="status" className={`gnz-alert ${smtpHealth.ok ? "gnz-alert-success" : "gnz-alert-error"}`}>
+      <strong>{smtpHealth.ok ? "SMTP : connexion authentifiée" : "SMTP : envoi non vérifié"}</strong>
+      {" · "}{smtpHealth.ok ? "Serveur prêt à accepter une connexion. Aucun email n'a été envoyé." : (smtpHealth.reason || "Vérifier les variables Vercel et les identifiants SMTP.")}
+      {smtpHealth.missing?.length ? ` Variables absentes : ${smtpHealth.missing.join(", ")}.` : ""}
+      {smtpHealth.smtpCode ? ` Code SMTP : ${smtpHealth.smtpCode}.` : ""}
+    </div>}
     {error && <div className="gnz-alert gnz-alert-error">{error}</div>}
     <section className="gnz-kpi-grid" style={{ marginBottom: 12 }}>
       <article className="gnz-kpi-card"><span className="gnz-kpi-label">Envoyés</span><div className="gnz-kpi-value">{summary?.sent || 0}</div><div className="gnz-kpi-sub">Messages acceptés par le système d'envoi</div></article>

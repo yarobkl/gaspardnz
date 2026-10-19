@@ -33,6 +33,8 @@ const PartnersContactModal = ({ isOpen, onClose, partner }) => {
   const [website, setWebsite] = useState("");
   const [formStartedAt, setFormStartedAt] = useState(() => Date.now());
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
 
   // Chaque ouverture repart avec un challenge temporel neuf et un honeypot vide.
   // Ces valeurs ne sont pas des données métier et ne sont jamais envoyées au CRM.
@@ -47,10 +49,13 @@ const PartnersContactModal = ({ isOpen, onClose, partner }) => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  // Confirmation immédiate : l'enregistrement dans le CRM part en
-  // arrière-plan (avec nouveaux essais), le client n'attend pas le réseau.
-  const handleSubmit = (e) => {
+  // Un succès n'est affiché qu'après l'enregistrement confirmé en CRM.
+  // Une notification SMTP échouée n'efface jamais la demande.
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    if (submitting) return;
+    setSubmitting(true);
+    setSubmitError("");
     const safeData = {
       ...formData,
       name: cleanLine(formData.name),
@@ -63,20 +68,26 @@ const PartnersContactModal = ({ isOpen, onClose, partner }) => {
       formStartedAt,
     };
 
-    trackPartnerContact(partner.id, safeData).then((trackResult) => {
-      if (!trackResult.success) return;
-      sendPartnerContactEmail(partner.id, partner.email || "", safeData, partner.status, partner.name);
-    });
-
-    setSubmitted(true);
-    setFormData(EMPTY_FORM);
-    setWebsite("");
-    setFormStartedAt(Date.now());
-
-    setTimeout(() => {
-      setSubmitted(false);
-      onClose();
-    }, 2000);
+    try {
+      const trackResult = await trackPartnerContact(partner.id, safeData);
+      if (!trackResult.success) {
+        throw new Error(trackResult.error || "La demande n'a pas été enregistrée. Réessayez.");
+      }
+      // Le client a bien déposé une demande ; cela ne garantit pas l'email.
+      void sendPartnerContactEmail(partner.id, partner.email || "", safeData, partner.status, partner.name);
+      setSubmitted(true);
+      setFormData(EMPTY_FORM);
+      setWebsite("");
+      setFormStartedAt(Date.now());
+      setTimeout(() => {
+        setSubmitted(false);
+        onClose();
+      }, 2000);
+    } catch (error) {
+      setSubmitError(error?.message || "Enregistrement impossible. Réessayez.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -156,6 +167,7 @@ const PartnersContactModal = ({ isOpen, onClose, partner }) => {
                   {partner.name}
                 </p>
 
+                {submitError && <p role="alert" style={{ color: CREAM, border: `1px solid ${GOLD}`, padding: "0.8rem" }}>{submitError}</p>}
                 <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "1.2rem" }}>
                   <div
                     aria-hidden="true"
@@ -325,6 +337,8 @@ const PartnersContactModal = ({ isOpen, onClose, partner }) => {
 
                   <motion.button
                     type="submit"
+                    disabled={submitting}
+                    aria-busy={submitting}
                     whileHover={{ background: `${GOLD}20` }}
                     whileTap={{ scale: 0.98 }}
                     style={{
@@ -339,7 +353,7 @@ const PartnersContactModal = ({ isOpen, onClose, partner }) => {
                       cursor: "pointer",
                       borderRadius: "4px",
                     }}>
-                    {t("partners_form_submit") || "Envoyer"}
+                    {submitting ? "Enregistrement…" : (t("partners_form_submit") || "Envoyer")}
                   </motion.button>
                 </form>
               </>
