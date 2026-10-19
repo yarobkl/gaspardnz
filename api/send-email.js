@@ -229,8 +229,12 @@ export default async function handler(req, res) {
     leadId: verifiedLeadId,
   });
 
+  const smtpFailure = (error) => error?.responseCode === 535
+    ? "SMTP 535 : identifiants refusés"
+    : error?.code === "ETIMEDOUT" ? "SMTP : délai expiré" : "SMTP : envoi impossible";
+
+  const transporter = createTransporter();
   try {
-    const transporter = createTransporter();
     const emailBody = isApplication
       ? formatApplicationInternalBody(applicationData)
       : formatInternalEmailBody({ partnerId, partnerName, clientName, clientEmail, clientPhone, eventType, eventDate, message, timestamp }, isComingSoon);
@@ -243,6 +247,10 @@ export default async function handler(req, res) {
       html: emailBody.split("\n").map(escapeHtml).join("<br>"),
       replyTo: normalizedClientEmail,
     });
+    if (Array.isArray(info.accepted) && info.accepted.length
+        && !info.accepted.map(normalizeEmail).includes(internalRecipient)) {
+      throw Object.assign(new Error("Primary recipient rejected"), { responseCode: 550 });
+    }
     await updateEmailLog(db, internalLogId, {
       status: "sent",
       provider_message_id: info.messageId || null,
@@ -250,32 +258,58 @@ export default async function handler(req, res) {
       metadata: { cc: recipients.cc, accepted: info.accepted || [], rejected: info.rejected || [], partner_id: partnerId || null },
     });
 
-    const clientBody = isApplication
-      ? formatApplicationAckBody(applicationData)
-      : formatClientEmailBody({ partnerId, partnerName, clientName, eventType, eventDate });
-    const clientInfo = await transporter.sendMail({
-      from: process.env.EMAIL_FROM,
-      to: normalizedClientEmail,
-      subject: ackSubject,
-      text: clientBody,
-      html: clientBody.split("\n").map(escapeHtml).join("<br>"),
-      replyTo: process.env.EMAIL_FROM,
-    });
-    await updateEmailLog(db, clientLogId, {
-      status: "sent",
-      provider_message_id: clientInfo.messageId || null,
-      sent_at: new Date().toISOString(),
-      metadata: { accepted: clientInfo.accepted || [], rejected: clientInfo.rejected || [], partner_id: partnerId || null },
-    });
-
-    return res.status(200).json({ success: true, message: "Email envoyé avec succès", messageId: info.messageId, clientMessageId: clientInfo.messageId });
+    // L'accusé client est indépendant : son échec ne doit JAMAIS transformer
+    // une notification interne réellement acceptée en faux échec.
+    try {
+      const clientBody = isApplication
+        ? formatApplicationAckBody(applicationData)
+        : formatClientEmailBody({ partnerId, partnerName, clientName, eventType, eventDate });
+      const clientInfo = await transporter.sendMail({
+        from: process.env.EMAIL_FROM,
+        to: normalizedClientEmail,
+        subject: ackSubject,
+        text: clientBody,
+        html: clientBody.split("\n").map(escapeHtml).join("<br>"),
+        replyTo: process.env.EMAIL_FROM,
+      });
+      if (Array.isArray(clientInfo.accepted) && clientInfo.accepted.length
+          && !clientInfo.accepted.map(normalizeEmail).includes(normalizedClientEmail)) {
+        throw Object.assign(new Error("Client recipient rejected"), { responseCode: 550 });
+      }
+      await updateEmailLog(db, clientLogId, {
+        status: "sent",
+        provider_message_id: clientInfo.messageId || null,
+        sent_at: new Date().toISOString(),
+        metadata: { accepted: clientInfo.accepted || [], rejected: clientInfo.rejected || [], partner_id: partnerId || null },
+      });
+      return res.status(200).json({
+        success: true, internalSent: true, acknowledgementSent: true,
+        message: "Notification interne acceptée par SMTP", messageId: info.messageId,
+        clientMessageId: clientInfo.messageId,
+      });
+    } catch (ackError) {
+      await updateEmailLog(db, clientLogId, {
+        status: "failed", error_message: smtpFailure(ackError), failed_at: new Date().toISOString(),
+      });
+      return res.status(200).json({
+        success: true, internalSent: true, acknowledgementSent: false,
+        message: "Notification interne acceptée ; accusé client non envoyé",
+        messageId: info.messageId,
+      });
+    }
   } catch (error) {
     const failedAt = new Date().toISOString();
     await Promise.all([
-      updateEmailLog(db, internalLogId, { status: "failed", error_message: sanitizeText(error?.message || "SMTP error", 1000), failed_at: failedAt }),
-      updateEmailLog(db, clientLogId, { status: "failed", error_message: sanitizeText(error?.message || "SMTP error", 1000), failed_at: failedAt }),
+      updateEmailLog(db, internalLogId, {
+        status: "failed", error_message: smtpFailure(error), failed_at: failedAt,
+      }),
+      updateEmailLog(db, clientLogId, {
+        status: "failed", error_message: "Accusé non tenté : notification interne non envoyée", failed_at: failedAt,
+      }),
     ]);
-    console.error("Email error", error?.message || error);
+    console.error("Internal notification SMTP failed", error?.code || error?.responseCode || "SMTP");
     return res.status(500).json({ success: false, error: "Erreur lors de l'envoi de l'email" });
+  } finally {
+    transporter.close?.();
   }
 }
