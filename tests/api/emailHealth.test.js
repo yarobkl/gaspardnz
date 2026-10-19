@@ -64,6 +64,13 @@ describe("Admin-only email health probe", () => {
     expect(res.body.smtpCode).toBe(535);
     expect(JSON.stringify(res.body)).not.toContain("SECRET");
   });
+  it("forbids a viewer", async () => {
+    calls.maybeSingle.mockResolvedValue({data: {active: true, role: "viewer"}, error: null});
+    const res = response();
+    await handler({ method: "GET", headers: { authorization: "Bearer token" } }, res);
+    expect(res.code).toBe(403);
+    expect(calls.verify).not.toHaveBeenCalled();
+  });
   it("forbids a non-admin session", async () => {
     calls.maybeSingle.mockResolvedValue({ data: null, error: null });
     const res = response();
