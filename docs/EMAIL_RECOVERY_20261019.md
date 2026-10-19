@@ -23,3 +23,6 @@
 
 ## Remarque sur les réservations
 Le composant de réservation public actuellement déployé redirige vers Calendly/WhatsApp ; il n'enregistre pas à lui seul une réservation confirmée. La PR #24 contient un nouveau parcours d'intention de contact sécurisé, encore non fusionné et requérant une migration en production. Ne pas fusionner sans validations Supabase / Vercel. Calendly reste déconnecté dans `integration_settings` (19/10).
+
+## Import Calendly
+La synchronisation administrateur conserve les réservations même si SMTP échoue. Les nouvelles réservations futures confirmées créent une notification interne liée à `booking_id` et journalisée. Une synchronisation répétée ne doit pas renvoyer les notifications réussies. Les anciennes réservations et clics WhatsApp ne sont pas transformés en réservations confirmées ni notifiés abusivement. La synchronisation nécessite toujours un jeton Calendly autorisé ; la connexion était `disconnected` lors du diagnostic.

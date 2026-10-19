@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import { sendCalendlyBookingNotification } from "../_lib/booking-email.js";
 
 const SUPABASE_URL = process.env.SUPABASE_URL || "https://imvjudhhtcdmtyhfhksm.supabase.co";
 const json = (res, status, payload) => res.status(status).setHeader("Cache-Control", "no-store").json(payload);
@@ -109,11 +110,11 @@ async function upsertBooking(db, event, invitee, leadId) {
   if (existing?.id) {
     const { data, error } = await db.from("bookings").update(payload).eq("id",existing.id).select("id").single();
     if (error) throw error;
-    return data?.id || null;
+    return { id: data?.id || existing.id, created: false };
   }
   const { data, error } = await db.from("bookings").insert(payload).select("id").single();
   if (error) throw error;
-  return data?.id || null;
+  return { id: data?.id || null, created: true };
 }
 
 export default async function handler(req, res) {
@@ -133,6 +134,8 @@ export default async function handler(req, res) {
     const events = await listScheduledEvents(token, organization, req.body?.days || 180);
     let bookings = 0;
     let leads = 0;
+    let alertsSent = 0;
+    let alertsFailed = 0;
     for (const event of events) {
       const invitees = await listInvitees(token, event.uri);
       if (!invitees.length) {
@@ -143,8 +146,19 @@ export default async function handler(req, res) {
       for (const invitee of invitees) {
         const leadId = await upsertLead(db, invitee, event);
         leads += leadId ? 1 : 0;
-        await upsertBooking(db, event, invitee, leadId);
+        const booking = await upsertBooking(db, event, invitee, leadId);
         bookings += 1;
+        // N'envoyer une nouvelle alerte que pour un rendez-vous confirmé et futur.
+        // Les imports historiques restent silencieux, les tentatives échouées
+        // pourront être relancées lors de la prochaine synchronisation.
+        const isFuture = Date.parse(event.start_time || "") > Date.now();
+        if (booking?.id && isFuture && event.status !== "canceled" && invitee.status !== "canceled") {
+          const outcome = await sendCalendlyBookingNotification(db, {
+            bookingId: booking.id, created: booking.created, event, invitee,
+          });
+          if (outcome === "sent") alertsSent++;
+          if (outcome === "failed") alertsFailed++;
+        }
       }
     }
 
@@ -160,7 +174,10 @@ export default async function handler(req, res) {
       updated_at:new Date().toISOString(),
     }, { onConflict:"provider" });
 
-    return json(res, 200, { ok:true, events:events.length, bookings, leads, account:user.name || user.email || null });
+    return json(res, 200, {
+      ok:true, events:events.length, bookings, leads, alertsSent, alertsFailed,
+      account:user.name || user.email || null,
+    });
   } catch (error) {
     try {
       const db = serverDb();

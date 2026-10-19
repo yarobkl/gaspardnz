@@ -60,7 +60,7 @@ export default function AdminBookings({ user }) {
       });
       const payload = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(payload.error || "Synchronisation Calendly impossible.");
-      setToast(`${payload.events || 0} rendez-vous Calendly synchronisés.`);
+      setToast(`${payload.events || 0} rendez-vous Calendly synchronisés · ${payload.alertsSent || 0} notification(s) envoyée(s)${payload.alertsFailed ? ` · ${payload.alertsFailed} échec(s) SMTP (voir Emails)` : ""}.`);
       await load();
     } catch (e) { setError(e?.message || "Synchronisation Calendly impossible."); }
     finally { setSyncing(false); }
