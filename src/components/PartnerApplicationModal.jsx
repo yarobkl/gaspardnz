@@ -16,28 +16,28 @@ const COPY = {
     title: "Devenir partenaire", intro: "Vous êtes professionnel de l'événementiel ? Présentez-vous, Gaspard vous répondra personnellement.",
     name: "Votre nom", company: "Entreprise", trade: "Métier", email: "Email", phone: "Téléphone", portfolio: "Instagram ou site", city: "Ville", cityPh: "Tapez votre ville…",
     message: "Message", messagePh: "Votre activité, vos références, ce que vous aimeriez construire ensemble…",
-    submit: "Envoyer ma candidature", successTitle: "Merci !", successMsg: "Votre candidature a bien été envoyée. Gaspard reviendra vers vous rapidement.",
+    submit: "Envoyer ma candidature", successTitle: "Merci !", successMsg: "Votre candidature a été enregistrée. Gaspard pourra la consulter dans son espace.",
     close: "Fermer",
   },
   EN: {
     title: "Become a partner", intro: "Are you an event professional? Introduce yourself and Gaspard will get back to you personally.",
     name: "Your name", company: "Company", trade: "Profession", email: "Email", phone: "Phone", portfolio: "Instagram or website", city: "City", cityPh: "Type your city…",
     message: "Message", messagePh: "Your business, your references, what you would like to build together…",
-    submit: "Send my application", successTitle: "Thank you!", successMsg: "Your application has been sent. Gaspard will get back to you shortly.",
+    submit: "Send my application", successTitle: "Thank you!", successMsg: "Your application has been recorded for Gaspard to review.",
     close: "Close",
   },
   ES: {
     title: "Ser socio", intro: "¿Eres profesional de eventos? Preséntate y Gaspard te responderá personalmente.",
     name: "Tu nombre", company: "Empresa", trade: "Profesión", email: "Email", phone: "Teléfono", portfolio: "Instagram o web", city: "Ciudad", cityPh: "Escribe tu ciudad…",
     message: "Mensaje", messagePh: "Tu actividad, tus referencias, lo que te gustaría construir juntos…",
-    submit: "Enviar mi candidatura", successTitle: "¡Gracias!", successMsg: "Tu candidatura se ha enviado. Gaspard te responderá pronto.",
+    submit: "Enviar mi candidatura", successTitle: "¡Gracias!", successMsg: "Tu candidatura se ha registrado para la revisión de Gaspard.",
     close: "Cerrar",
   },
   ZH: {
     title: "成为合作伙伴", intro: "您是活动行业的专业人士吗？请介绍一下自己，Gaspard 会亲自回复您。",
     name: "您的姓名", company: "公司", trade: "职业", email: "邮箱", phone: "电话", portfolio: "Instagram 或网站", city: "城市", cityPh: "输入您的城市…",
     message: "留言", messagePh: "您的业务、案例，以及希望共同打造的合作…",
-    submit: "发送申请", successTitle: "谢谢！", successMsg: "您的申请已发送，Gaspard 会尽快与您联系。",
+    submit: "发送申请", successTitle: "谢谢！", successMsg: "您的申请已保存，Gaspard 可以查看。" ,
     close: "关闭",
   },
 };
@@ -56,6 +56,8 @@ const PartnerApplicationModal = ({ isOpen, onClose, trade = "" }) => {
   const [website, setWebsite] = useState("");
   const [formStartedAt, setFormStartedAt] = useState(() => Date.now());
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [queuedLocally, setQueuedLocally] = useState(false);
 
   // Chaque ouverture préremplit le métier de la carte cliquée et repart
   // avec un honeypot vide et un challenge temporel neuf.
@@ -65,6 +67,7 @@ const PartnerApplicationModal = ({ isOpen, onClose, trade = "" }) => {
     setWebsite("");
     setFormStartedAt(Date.now());
     setSubmitted(false);
+    setQueuedLocally(false);
   }, [isOpen, trade]);
 
   const handleChange = (e) => {
@@ -72,19 +75,29 @@ const PartnerApplicationModal = ({ isOpen, onClose, trade = "" }) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Confirmation immédiate : l'enregistrement dans le CRM part en
-  // arrière-plan (avec nouveaux essais), le visiteur n'attend pas le réseau.
-  // Si les 3 tentatives échouent malgré tout (réseau coupé, Supabase
-  // indisponible), la candidature est mise en file d'attente locale plutôt
-  // que perdue — retentée au prochain démarrage du site.
-  const handleSubmit = (e) => {
+  // Ne jamais présenter une candidature comme envoyée avant confirmation
+  // de l'enregistrement CRM. Hors ligne, garder la saisie et une copie locale.
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    if (submitting) return;
     const payload = { ...formData, website, formStartedAt };
-    submitPartnerApplication(payload).then((result) => {
-      if (!result?.success) enqueuePartnerApplication(payload);
-    });
-    setSubmitted(true);
-    setFormData(emptyForm());
+    setSubmitting(true);
+    setQueuedLocally(false);
+    try {
+      const result = await submitPartnerApplication(payload);
+      if (result?.success) {
+        setSubmitted(true);
+        setFormData(emptyForm());
+      } else {
+        enqueuePartnerApplication(payload);
+        setQueuedLocally(true);
+      }
+    } catch {
+      enqueuePartnerApplication(payload);
+      setQueuedLocally(true);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const field = (name, { type = "text", required = false, maxLength = 150, placeholder } = {}) => (
@@ -127,6 +140,7 @@ const PartnerApplicationModal = ({ isOpen, onClose, trade = "" }) => {
               ) : (
                 <>
                   <p style={{ color: "rgba(245,240,232,0.75)", fontFamily: "'Cormorant Garamond', serif", fontSize: "16px", fontStyle: "italic", lineHeight: 1.5, margin: "0 0 1.5rem" }}>{copy.intro}</p>
+                  {queuedLocally && <p role="alert" style={{ color: CREAM, border: `1px solid ${GOLD}`, padding: 12 }}>Connexion indisponible : votre candidature n'a pas été transmise à Gaspard. Une copie est conservée dans ce navigateur pour réessayer automatiquement. Vous pouvez aussi réessayer maintenant.</p>}
                   <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "1.1rem" }}>
                     <div aria-hidden="true" style={{ position: "absolute", left: "-10000px", width: "1px", height: "1px", overflow: "hidden" }}>
                       <label htmlFor="application-website">Ne pas remplir ce champ</label>
@@ -149,9 +163,9 @@ const PartnerApplicationModal = ({ isOpen, onClose, trade = "" }) => {
                         placeholder={copy.messagePh} style={{ ...inputStyle, resize: "vertical" }} />
                     </div>
 
-                    <button type="submit"
+                    <button type="submit" disabled={submitting} aria-busy={submitting}
                       style={{ background: `rgba(184,151,62,0.14)`, border: `1px solid ${GOLD}`, color: CREAM, padding: "0.9rem", fontFamily: "'Montserrat', sans-serif", fontSize: "12px", letterSpacing: "0.1em", textTransform: "uppercase", cursor: "pointer", borderRadius: "4px" }}>
-                      {copy.submit}
+                      {submitting ? "Enregistrement…" : copy.submit}
                     </button>
                   </form>
                 </>

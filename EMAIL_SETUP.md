@@ -1,3 +1,5 @@
+> **Incident confirmé le 19 octobre 2026 :** les identifiants du serveur SMTP de production ont été rejetés (code 535 en septembre), et les notifications ont été suspendues. Ne pas considérer cette ancienne configuration comme opérationnelle sans lancer le diagnostic sécurisé Admin > Emails. Voir [docs/EMAIL_RECOVERY_20261019.md](./docs/EMAIL_RECOVERY_20261019.md). Aucun mot de passe ne doit être partagé dans GitHub ou le chat.
+
 # 📧 Configuration Email - Gaspardnz
 
 ## Vue d'ensemble

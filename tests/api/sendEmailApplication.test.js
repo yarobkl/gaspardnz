@@ -6,9 +6,15 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 // le professionnel un accusé de réception adapté.
 const sent = [];
 const logs = [];
+const updates = [];
+const faults = { ack: false, internal: false };
 
 vi.mock("nodemailer", () => ({
-  default: { createTransport: () => ({ sendMail: async (mail) => { sent.push(mail); return { messageId: `m${sent.length}`, accepted: [mail.to] }; } }) },
+  default: { createTransport: () => ({ sendMail: async (mail) => {
+    sent.push(mail);
+    if ((faults.internal && sent.length === 1) || (faults.ack && sent.length === 2)) throw { responseCode: 535 };
+    return { messageId: `m${sent.length}`, accepted: [mail.to] };
+  } }) },
 }));
 
 vi.mock("@supabase/supabase-js", () => ({
@@ -16,7 +22,7 @@ vi.mock("@supabase/supabase-js", () => ({
     rpc: async () => ({ data: true, error: null }),
     from: () => ({
       insert(row) { logs.push(row); return this; },
-      update() { return this; },
+      update(patch) { updates.push(patch); return this; },
       select() { return this; },
       eq: async () => ({ error: null }),
       single: async () => ({ data: { id: `log${logs.length}` }, error: null }),
@@ -51,6 +57,9 @@ const application = (overrides = {}) => ({
 beforeEach(() => {
   sent.length = 0;
   logs.length = 0;
+  updates.length = 0;
+  faults.ack = false;
+  faults.internal = false;
   Object.assign(process.env, { EMAIL_FROM: "site@gaspardnz.style", EMAIL_PASSWORD: "x", SMTP_HOST: "smtp.test", SMTP_PORT: "465", SUPABASE_SERVICE_ROLE_KEY: "service-role-de-test" });
 });
 
@@ -82,6 +91,26 @@ describe("api/send-email — candidature partenaire", () => {
     await handler(application({ trade: "  " }), res);
     expect(res.statusCode).toBe(400);
     expect(sent).toHaveLength(0);
+  });
+
+  it("préserve le succès interne quand seul l'accusé client échoue", async () => {
+    faults.ack = true;
+    const res = makeRes();
+    await handler(application(), res);
+    expect(res.statusCode).toBe(200);
+    expect(res.body.internalSent).toBe(true);
+    expect(res.body.acknowledgementSent).toBe(false);
+    expect(updates.map(u => u.status)).toEqual(["sent", "failed"]);
+  });
+
+  it("enregistre l'échec interne sans prétendre envoyer un accusé client", async () => {
+    faults.internal = true;
+    const res = makeRes();
+    await handler(application(), res);
+    expect(res.statusCode).toBe(500);
+    expect(res.body.success).toBe(false);
+    expect(sent).toHaveLength(1);
+    expect(updates.map(u => u.status)).toEqual(["failed", "failed"]);
   });
 
   it("garde le modèle client pour une demande client classique", async () => {

@@ -40,11 +40,26 @@ try {
 
     for (const script of scripts) {
       console.log(`\n════ ${script} ════`);
+      // Une vérification Playwright bloquée ne doit jamais figer la CI
+      // pendant une durée indéfinie : elle échoue explicitement et la suite
+      // poursuit avec les autres scripts pour recueillir tous les résultats.
       const child = spawn(process.execPath, [join(HERE, script)], {
         stdio: "inherit", env: { ...process.env, BASE },
+        detached: process.platform !== "win32",
       });
+      let timedOut = false;
+      const limitMs = 180_000;
+      const watchdog = setTimeout(() => {
+        timedOut = true;
+        console.error(`E2E TIMEOUT: ${script} a dépassé ${limitMs / 1000}s.`);
+        try {
+          if (process.platform !== "win32") process.kill(-child.pid, "SIGKILL");
+          else child.kill("SIGKILL");
+        } catch { try { child.kill("SIGKILL"); } catch {} }
+      }, limitMs);
       const [code] = await once(child, "exit");
-      if (code !== 0) failures += 1;
+      clearTimeout(watchdog);
+      if (timedOut || code !== 0) failures += 1;
     }
 
     console.log(`\n════════ RÉSULTAT E2E ════════`);
