@@ -85,32 +85,37 @@ assert.match(
 );
 
 // ---------------------------------------------------------------------------
-// 3. App.jsx : l'état admin ne peut venir que d'une vérification réseau.
+// 3. La sécurité admin est répartie entre App, useAdminSession et AdminRoot.
+// Le contrôle doit couvrir les vrais fichiers actifs, pas l'ancien App monolithe.
 // ---------------------------------------------------------------------------
-assert.match(app, /refreshSession\(\)\.then\(applyProfile\)/, "App.jsx doit vérifier la session au montage");
-assert.match(app, /onAuthStateChange\(applyProfile\)/, "App.jsx doit réagir à l'expiration et à la déconnexion");
-assert.match(app, /setIsAdminLoggedIn\(Boolean\(profile\)\)/, "l'état connecté doit dériver du profil vérifié");
-assert.doesNotMatch(
-  app,
-  /getCachedProfile|getSession\(\)/,
-  "App.jsx ne doit jamais dériver l'état admin d'un cache navigateur",
-);
+const adminSession = readFileSync("src/hooks/useAdminSession.js", "utf8");
+const adminRoot = readFileSync("src/components/AdminRoot.jsx", "utf8");
+assert.match(app, /useAdminSession\(\)/, "App.jsx doit utiliser le hook d'authentification");
+assert.match(adminSession, /refreshSession\(\)\.then\(applyProfile\)/,
+  "useAdminSession doit vérifier la session au montage");
+assert.match(adminSession, /onAuthStateChange\(applyProfile\)/,
+  "useAdminSession doit suivre déconnexion et expiration");
+assert.match(adminSession, /setIsAdminLoggedIn\(Boolean\(profile\)\)/,
+  "l'état connecté doit dépendre du profil vérifié");
+assert.doesNotMatch(adminSession, /getCachedProfile|getSession\(\)/,
+  "le hook ne doit jamais dériver l'état admin d'un cache navigateur");
 
-// Aucun rendu de l'interface admin tant que la vérification n'a pas répondu.
-assert.match(app, /const \[adminAuthChecking, setAdminAuthChecking\] = useState\(true\)/,
-  "la vérification doit démarrer à true pour éviter tout flash de l'interface admin");
-assert.match(app, /\{adminAuthChecking \? null : isAdminLoggedIn \?/,
-  "l'interface admin ne doit pas être rendue pendant la vérification");
+// Aucun rendu admin avant la fin de la vérification.
+assert.match(adminSession, /const \[adminAuthChecking, setAdminAuthChecking\] = useState\(true\)/,
+  "la vérification admin doit démarrer à true");
+assert.match(adminRoot, /\{adminAuthChecking \? null : isAdminLoggedIn \?\s*\(/,
+  "AdminRoot ne doit pas rendre le dashboard avant la vérification");
 
+// ---------------------------------------------------------------------------
 // ---------------------------------------------------------------------------
 // 4. Non-régression : le lien de réinitialisation ouvre une vraie session
 //    Supabase (detectSessionInUrl). Sans garde, l'interface admin remplacerait
 //    le formulaire de nouveau mot de passe.
 // ---------------------------------------------------------------------------
 assert.match(supabaseClient, /detectSessionInUrl:\s*true/, "prérequis du flux de récupération");
-assert.match(app, /isPasswordRecoveryLink\(\)/, "App.jsx doit détecter le flux de récupération");
+assert.match(adminSession, /isPasswordRecoveryLink\(\)/, "useAdminSession doit détecter le flux de récupération");
 assert.match(
-  app,
+  adminSession,
   /if \(recoveryFlowRef\.current === null\) recoveryFlowRef\.current = isPasswordRecoveryLink\(\);/,
   "le flux de récupération doit être figé une seule fois par chargement de page",
 );
@@ -122,6 +127,8 @@ assert.match(login, /isPasswordRecoveryLink\(\)/, "AdminLogin doit basculer en m
 assert.match(settings, /refreshSession/, "AdminSettings doit lire le profil vérifié");
 for (const [file, source] of [
   ["src/App.jsx", app],
+  ["src/hooks/useAdminSession.js", adminSession],
+  ["src/components/AdminRoot.jsx", adminRoot],
   ["src/components/Admin/AdminSettings.jsx", settings],
   ["src/components/Admin/AdminLayout.jsx", readFileSync("src/components/Admin/AdminLayout.jsx", "utf8")],
   ["src/components/Admin/AdminLogin.jsx", login],

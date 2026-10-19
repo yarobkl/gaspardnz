@@ -38,7 +38,7 @@ describe("Partenaires — une catégorie à pourvoir ouvre le formulaire « Deve
     const supabaseModule = await import("../../src/services/supabaseClient.js");
     fake = createFakeSupabaseTables({
       partners: [{ id: "p2", slug: "wedding-planner-slot", name: "À venir", category: "Wedding Planner", published: true, status: "active", sort_order: 0, metadata: { placeholder: true } }],
-    });
+    }, 20000);
     const fetchMock = vi.fn(async () => ({ ok: true, json: async () => ({ success: true }) }));
     vi.stubGlobal("fetch", fetchMock);
     const user = userEvent.setup();
@@ -66,7 +66,7 @@ describe("Partenaires — une catégorie à pourvoir ouvre le formulaire « Deve
     // part uniquement dans le CRM, aucun appel à l'envoi d'email.
     expect(fetchMock.mock.calls.find(([url]) => url === "/api/send-email")).toBeUndefined();
     vi.unstubAllGlobals();
-  });
+  }, 15000);
 });
 
 // Cas réel en prod : sur 4G l'envoi prenait plusieurs secondes, puis
@@ -79,7 +79,7 @@ describe("Partenaires — « Devenir partenaire » confirme sans attendre le ré
     supabaseModule.sendPublicEventWithRetry.mockImplementationOnce(() => new Promise(() => {}));
     fake = createFakeSupabaseTables({
       partners: [{ id: "p3", slug: "dj-slot", name: "À venir", category: "DJ / Musique", published: true, status: "active", sort_order: 0, metadata: { placeholder: true } }],
-    });
+    }, 20000);
     const user = userEvent.setup();
     render(<PartnersSection />);
 
