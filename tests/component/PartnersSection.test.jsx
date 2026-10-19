@@ -33,7 +33,7 @@ describe("Partenaires — un partenaire masqué ne doit jamais réapparaître vi
 // aux professionnels : bouton « Devenir partenaire » qui ouvre un formulaire
 // dédié, métier prérempli, enregistré dans le CRM puis envoyé par email.
 describe("Partenaires — une catégorie à pourvoir ouvre le formulaire « Devenir partenaire »", () => {
-  it("préremplit le métier, enregistre la candidature et envoie l'email", async () => {
+  it("préremplit le métier, enregistre la candidature et tente l'email", async () => {
     const { default: userEvent } = await import("@testing-library/user-event");
     const supabaseModule = await import("../../src/services/supabaseClient.js");
     fake = createFakeSupabaseTables({
@@ -56,24 +56,25 @@ describe("Partenaires — une catégorie à pourvoir ouvre le formulaire « Deve
     await user.type(screen.getByLabelText(/Email/), "awa@events.fr");
     await user.click(screen.getByRole("button", { name: "Envoyer ma candidature" }));
 
-    expect(await screen.findByText(/Votre candidature a bien été envoyée/)).toBeInTheDocument();
+    expect(await screen.findByText(/Votre candidature a été enregistrée/)).toBeInTheDocument();
     expect(dialog).toBeInTheDocument();
     await vi.waitFor(() => expect(supabaseModule.sendPublicEventWithRetry).toHaveBeenCalledWith("lead", expect.objectContaining({
       full_name: "Awa Diop", email: "awa@events.fr", request_type: "partner_application",
       metadata: expect.objectContaining({ trade: "Wedding Planner", company: "Awa Events", city: "Versailles (78)" }),
     })));
-    // Emails en pause (EMAIL_NOTIFICATIONS_ENABLED = false) : la candidature
-    // part uniquement dans le CRM, aucun appel à l'envoi d'email.
-    expect(fetchMock.mock.calls.find(([url]) => url === "/api/send-email")).toBeUndefined();
+    await vi.waitFor(() => expect(fetchMock.mock.calls.find(([url]) => url === "/api/send-email")).toBeDefined());
+    const emailCall = fetchMock.mock.calls.find(([url]) => url === "/api/send-email");
+    expect(JSON.parse(emailCall[1].body)).toMatchObject({
+      kind: "partner_application", clientName: "Awa Diop", clientEmail: "awa@events.fr",
+    });
     vi.unstubAllGlobals();
-  });
+  }, 20000);
 });
 
-// Cas réel en prod : sur 4G l'envoi prenait plusieurs secondes, puis
-// affichait une erreur quand l'email échouait. Le visiteur doit voir la
-// confirmation immédiatement, l'enregistrement se fait en arrière-plan.
-describe("Partenaires — « Devenir partenaire » confirme sans attendre le réseau", () => {
-  it("affiche la confirmation tout de suite, même si l'enregistrement est encore en cours", async () => {
+// La confirmation "enregistrée" ne doit jamais apparaître tant que
+// l'écriture CRM n'a pas réussi.
+describe("Partenaires — « Devenir partenaire » attend le CRM", () => {
+  it("n'affiche pas un succès pendant un enregistrement en attente", async () => {
     const { default: userEvent } = await import("@testing-library/user-event");
     const supabaseModule = await import("../../src/services/supabaseClient.js");
     supabaseModule.sendPublicEventWithRetry.mockImplementationOnce(() => new Promise(() => {}));
@@ -90,10 +91,10 @@ describe("Partenaires — « Devenir partenaire » confirme sans attendre le ré
     await user.type(screen.getByLabelText(/Email/), "awa@events.fr");
     await user.click(screen.getByRole("button", { name: "Envoyer ma candidature" }));
 
-    expect(screen.getByText(/Votre candidature a bien été envoyée/)).toBeInTheDocument();
+    expect(screen.queryByText(/Votre candidature a été enregistrée/)).not.toBeInTheDocument();
+    expect(screen.getByText("Enregistrement…")).toBeInTheDocument();
     vi.unstubAllGlobals();
-    expect(screen.queryByText(/Erreur/)).not.toBeInTheDocument();
-  });
+  }, 20000);
 });
 
 // Demandé par l'utilisateur : la catégorie "Animation / Divertissement" est

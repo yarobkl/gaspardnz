@@ -29,5 +29,7 @@ describe("PartnerApplicationModal — file d'attente locale après échec résea
 
     await expect.poll(() => getQueuedPartnerApplications(), { timeout: 1000 }).toHaveLength(1);
     expect(getQueuedPartnerApplications()[0].data).toMatchObject({ name: "Jean Test", email: "jean@test.fr" });
+    expect(screen.getByRole("alert")).toHaveTextContent("n'a pas été transmise");
+    expect(screen.queryByText(/Votre candidature a été enregistrée/)).not.toBeInTheDocument();
   });
 });
