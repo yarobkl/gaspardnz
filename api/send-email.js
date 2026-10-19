@@ -123,13 +123,14 @@ const adminDb = () => process.env.SUPABASE_SERVICE_ROLE_KEY
   ? createClient(SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY, { auth: { persistSession: false, autoRefreshToken: false } })
   : null;
 
-async function createEmailLog(db, { recipient, subject, templateKey, metadata }) {
+async function createEmailLog(db, { recipient, subject, templateKey, metadata, leadId = null }) {
   if (!db) return null;
   const { data, error } = await db.from("email_messages").insert({
     provider: "smtp",
     recipient: normalizeEmail(recipient),
     subject: sanitizeText(subject, 200),
     template_key: templateKey,
+    lead_id: leadId,
     status: "queued",
     metadata: metadata || {},
   }).select("id").single();
@@ -165,7 +166,7 @@ export default async function handler(req, res) {
   try { requestBytes = Buffer.byteLength(JSON.stringify(body), "utf8"); } catch { return res.status(400).json({ error: "Invalid request" }); }
   if (requestBytes > MAX_REQUEST_BYTES) return res.status(413).json({ error: "Requête trop volumineuse" });
 
-  const { to, cc, subject, partnerId, partnerName, clientName, clientEmail, clientPhone, eventType, eventDate, message, timestamp, isComingSoon, website, formStartedAt, kind, company, trade, portfolio, city } = body;
+  const { to, cc, subject, partnerId, partnerName, clientName, clientEmail, clientPhone, eventType, eventDate, message, timestamp, isComingSoon, website, formStartedAt, kind, company, trade, portfolio, city, leadId } = body;
   const isApplication = kind === "partner_application";
   const recipients = resolveRecipients({ to, cc });
   if (!recipients.ok) return res.status(400).json({ error: recipients.error });
@@ -192,6 +193,18 @@ export default async function handler(req, res) {
     }
   }
 
+  // Le navigateur ne peut pas attribuer arbitrairement une notification à un lead.
+  // On ne conserve la référence que si l'identité correspond à un lead existant.
+  let verifiedLeadId = null;
+  if (/^[0-9a-f]{8}-[0-9a-f-]{27,}$/i.test(String(leadId || ""))) {
+    const { data: linkedLead, error: linkedError } = await db.from("leads")
+      .select("id,email,full_name").eq("id", leadId).maybeSingle();
+    if (!linkedError && linkedLead && normalizeEmail(linkedLead.email) === normalizedClientEmail
+        && sanitizeText(linkedLead.full_name, 140).toLowerCase() === sanitizeText(clientName, 140).toLowerCase()) {
+      verifiedLeadId = linkedLead.id;
+    }
+  }
+
   const applicationData = { clientName, clientEmail, clientPhone, company, trade, city, portfolio, message, timestamp };
   const safeSubject = isApplication
     ? sanitizeText(`Candidature partenaire : ${sanitizeText(trade, 120)}${sanitizeText(company, 160) ? `, ${sanitizeText(company, 160)}` : ""}`, 160)
@@ -206,12 +219,14 @@ export default async function handler(req, res) {
     subject: safeSubject,
     templateKey: isApplication ? "partner_application_internal" : "partner_contact_internal",
     metadata: { cc: recipients.cc, ...logMetadata },
+    leadId: verifiedLeadId,
   });
   const clientLogId = await createEmailLog(db, {
     recipient: clientEmail,
     subject: ackSubject,
     templateKey: isApplication ? "partner_application_ack" : "partner_contact_client_ack",
     metadata: logMetadata,
+    leadId: verifiedLeadId,
   });
 
   try {

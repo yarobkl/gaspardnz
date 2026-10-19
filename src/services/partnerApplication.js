@@ -28,6 +28,7 @@ export const submitPartnerApplication = async (data) => {
     message: String(data.message || "").slice(0, 2000).trim(),
   };
 
+  let crmLeadId = null;
   try {
     const leadPayload = {
       ...getTrackingContext(),
@@ -41,6 +42,7 @@ export const submitPartnerApplication = async (data) => {
     };
     const crm = await sendPublicEventWithRetry("lead", leadPayload);
     if (!crm?.ok) throw new Error("La candidature n'a pas pu être enregistrée.");
+    crmLeadId = crm.id || null;
   } catch (error) {
     console.error("Partner application error:", error);
     return { success: false, error: error?.message || "Erreur lors de l'envoi" };
@@ -58,6 +60,7 @@ export const submitPartnerApplication = async (data) => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         kind: "partner_application",
+        leadId: crmLeadId,
         to: ["gaspardnz.contact@gmail.com"],
         cc: ["eliebakala@gmail.com"],
         clientName: application.name,

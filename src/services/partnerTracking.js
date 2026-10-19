@@ -42,12 +42,13 @@ const cleanLine = (value) =>
     .join("")
     .trim();
 
-export const sendPartnerContactEmail = async (partnerId, partnerEmail, clientData, partnerStatus = null, partnerName = "") => {
+export const sendPartnerContactEmail = async (partnerId, partnerEmail, clientData, partnerStatus = null, partnerName = "", leadId = null) => {
   if (!EMAIL_NOTIFICATIONS_ENABLED) return { success: true, skipped: true };
   try {
     const gaspardEmail = "gaspardnz.contact@gmail.com";
     const userEmail = "eliebakala@gmail.com";
     const emailData = {
+      leadId,
       to: [gaspardEmail],
       cc: [userEmail],
       subject: `Nouvelle demande ${partnerName ? `- ${cleanLine(partnerName)}` : "partenaire"} - ${cleanLine(clientData.name)}`,

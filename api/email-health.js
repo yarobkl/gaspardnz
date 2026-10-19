@@ -20,7 +20,7 @@ export default async function handler(req, res) {
     if (authError || !auth?.user?.email) return reply(res, 401, { ok: false, reason: "Session invalide" });
     const { data: access, error: accessError } = await db.from("admin_access")
       .select("active,role").eq("email", auth.user.email.toLowerCase()).eq("active", true).maybeSingle();
-    if (accessError || !access) return reply(res, 403, { ok: false, reason: "Compte non autorisé" });
+    if (accessError || !access || !["admin", "owner"].includes(access.role)) return reply(res, 403, { ok: false, reason: "Compte non autorisé" });
 
     const missing = REQUIRED_ENV.filter((key) => !process.env[key]);
     if (missing.length) return reply(res, 503, { ok: false, reason: "Configuration du serveur incomplète", missing });

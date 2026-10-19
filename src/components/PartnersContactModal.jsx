@@ -74,7 +74,7 @@ const PartnersContactModal = ({ isOpen, onClose, partner }) => {
         throw new Error(trackResult.error || "La demande n'a pas été enregistrée. Réessayez.");
       }
       // Le client a bien déposé une demande ; cela ne garantit pas l'email.
-      void sendPartnerContactEmail(partner.id, partner.email || "", safeData, partner.status, partner.name);
+      void sendPartnerContactEmail(partner.id, partner.email || "", safeData, partner.status, partner.name, trackResult.leadId);
       setSubmitted(true);
       setFormData(EMPTY_FORM);
       setWebsite("");

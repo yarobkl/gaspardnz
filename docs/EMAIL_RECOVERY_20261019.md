@@ -26,3 +26,6 @@ Le composant de réservation public actuellement déployé redirige vers Calendl
 
 ## Import Calendly
 La synchronisation administrateur conserve les réservations même si SMTP échoue. Les nouvelles réservations futures confirmées créent une notification interne liée à `booking_id` et journalisée. Une synchronisation répétée ne doit pas renvoyer les notifications réussies. Les anciennes réservations et clics WhatsApp ne sont pas transformés en réservations confirmées ni notifiés abusivement. La synchronisation nécessite toujours un jeton Calendly autorisé ; la connexion était `disconnected` lors du diagnostic.
+
+## Relance CRM sécurisée
+Les nouvelles tentatives du formulaire partenaire peuvent enregistrer `lead_id` si le backend confirme l'identité du lead (nom et email cohérents) ; le navigateur ne peut pas lier arbitrairement un autre client. Dans Admin > Emails, un compte admin/owner peut relancer **une notification interne échouée** liée à un lead ou à une réservation, avec une limite de trois relances et un verrou de statut côté SQL. Une relance n'est jamais assimilée à une délivrance réelle. Les accusés clients ne sont jamais renvoyés par cette interface ; les anciens journaux sans référence CRM ne peuvent pas être reconstitués de façon sûre.
