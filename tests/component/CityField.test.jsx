@@ -23,9 +23,13 @@ describe("CityField — menu déroulant des villes de France", () => {
     render(<Harness />);
     expect(FRENCH_CITIES.length).toBeGreaterThan(1000);
     expect(FRENCH_CITIES.every(([, dep]) => ["75", "77", "78", "91", "92", "93", "94", "95"].includes(dep))).toBe(true);
-    expect(screen.getByRole("option", { name: "Paris (75)" })).toBeInTheDocument();
-    expect(screen.getByRole("option", { name: "Versailles (78)" })).toBeInTheDocument();
-    expect(screen.getByRole("option", { name: "Autre ville…" })).toBeInTheDocument();
+    // Inspecter directement la collection <option> : trois recherches ARIA
+    // dans plus de 1000 entrées dépassent parfois le délai CI sans tester
+    // davantage de comportement.
+    const labels = Array.from(screen.getByLabelText("Ville *").options, option => option.textContent.trim());
+    expect(labels).toContain("Paris (75)");
+    expect(labels).toContain("Versailles (78)");
+    expect(labels).toContain("Autre ville…");
   });
 
   it("« Autre ville » révèle une saisie libre", async () => {
