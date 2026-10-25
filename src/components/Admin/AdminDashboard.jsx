@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { getDashboardData, subscribeDashboard } from "../../services/adminData.js";
 import { getEmailSummary, getReportingData } from "../../services/adminReporting.js";
 import "../../styles/admin-v2.css";
@@ -81,27 +81,32 @@ const AdminDashboard = ({ onNavigate }) => {
   const [email, setEmail] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const requestId = useRef(0);
 
   const load = useCallback(async ({ quiet = false } = {}) => {
+    const currentRequest = ++requestId.current;
     if (!quiet) setLoading(true);
-    try {
-      const [dashboard, report, emailSummary] = await Promise.all([
-        getDashboardData(days),
-        getReportingData(days),
-        getEmailSummary(days),
-      ]);
-      setData(dashboard);
-      setReporting(report);
-      setEmail(emailSummary);
-      setError("");
-    } catch (err) {
-      setError(err?.message || "Impossible de charger le tableau de bord.");
-    } finally {
-      setLoading(false);
-    }
+    const results = await Promise.allSettled([
+      getDashboardData(days),
+      getReportingData(days),
+      getEmailSummary(days),
+    ]);
+    if (currentRequest !== requestId.current) return;
+
+    const [dashboard, report, emailSummary] = results;
+    if (dashboard.status === "fulfilled") setData(dashboard.value);
+    if (report.status === "fulfilled") setReporting(report.value);
+    if (emailSummary.status === "fulfilled") setEmail(emailSummary.value);
+
+    const failed = results.filter((result) => result.status === "rejected");
+    setError(failed.length ? "Certaines données sont temporairement indisponibles. Les autres informations restent accessibles." : "");
+    setLoading(false);
   }, [days]);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    load();
+    return () => { requestId.current += 1; };
+  }, [load]);
   useEffect(() => subscribeDashboard(() => load({ quiet: true })), [load]);
 
   if (loading && !data) return <div className="gnz-card"><div className="gnz-empty-state">Chargement des données réelles…</div></div>;
