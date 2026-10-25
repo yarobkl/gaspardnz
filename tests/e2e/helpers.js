@@ -2,8 +2,8 @@
 // page tant qu'il n'a pas été traité (position fixe, z-index élevé) : tous
 // les scénarios E2E qui interagissent avec la page doivent d'abord le fermer.
 export async function acceptCookies(page) {
-  const accept = page.getByText("TOUT ACCEPTER", { exact: true }).first();
-  if (await accept.isVisible({ timeout: 3000 }).catch(() => false)) {
+  const accept = page.getByRole("button", { name: /^tout accepter$/i });
+  if (await accept.waitFor({ state: "visible", timeout: 3000 }).then(() => true).catch(() => false)) {
     await accept.click();
   }
 }

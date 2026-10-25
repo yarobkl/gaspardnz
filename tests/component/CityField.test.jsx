@@ -23,9 +23,9 @@ describe("CityField — menu déroulant des villes de France", () => {
     render(<Harness />);
     expect(FRENCH_CITIES.length).toBeGreaterThan(1000);
     expect(FRENCH_CITIES.every(([, dep]) => ["75", "77", "78", "91", "92", "93", "94", "95"].includes(dep))).toBe(true);
-    expect(screen.getByRole("option", { name: "Paris (75)" })).toBeInTheDocument();
-    expect(screen.getByRole("option", { name: "Versailles (78)" })).toBeInTheDocument();
-    expect(screen.getByRole("option", { name: "Autre ville…" })).toBeInTheDocument();
+    expect(screen.getByText("Paris (75)", { selector: "option" })).toBeInTheDocument();
+    expect(screen.getByText("Versailles (78)", { selector: "option" })).toBeInTheDocument();
+    expect(screen.getByText("Autre ville…", { selector: "option" })).toBeInTheDocument();
   });
 
   it("« Autre ville » révèle une saisie libre", async () => {

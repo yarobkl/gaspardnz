@@ -6,7 +6,7 @@ import { existsSync } from "node:fs";
 // le réseau restreint. Ailleurs (poste de dev, CI standard), ce chemin
 // n'existe pas : Playwright retombe alors sur son propre Chromium managé,
 // installé via `npx playwright install`.
-const SANDBOX_CHROMIUM = "/opt/pw-browsers/chromium";
+const SANDBOX_CHROMIUM = process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE || "/opt/pw-browsers/chromium";
 const sandboxChromiumAvailable = existsSync(SANDBOX_CHROMIUM);
 
 const PORT = 4319;
@@ -19,13 +19,13 @@ export default defineConfig({
   reporter: "list",
   timeout: 30000,
   webServer: {
-    command: `npm run dev -- --port=${PORT} --strictPort`,
-    url: `http://localhost:${PORT}`,
+    command: `npm run dev -- --host=127.0.0.1 --port=${PORT} --strictPort`,
+    url: `http://127.0.0.1:${PORT}`,
     reuseExistingServer: !process.env.CI,
     timeout: 30000,
   },
   use: {
-    baseURL: `http://localhost:${PORT}`,
+    baseURL: `http://127.0.0.1:${PORT}`,
     trace: "retain-on-failure",
     screenshot: "only-on-failure",
   },

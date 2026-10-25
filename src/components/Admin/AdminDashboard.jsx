@@ -1,3 +1,4 @@
+import MetricDetails from "./components/MetricDetails.jsx";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { getDashboardData, subscribeDashboard } from "../../services/adminData.js";
 import { getEmailSummary, getReportingData } from "../../services/adminReporting.js";
@@ -75,6 +76,7 @@ const integrationLabel = (provider) => ({
 }[provider] || provider);
 
 const AdminDashboard = ({ onNavigate }) => {
+  const [metric, setMetric] = useState(null);
   const [days, setDays] = useState(7);
   const [data, setData] = useState(null);
   const [reporting, setReporting] = useState(null);
@@ -134,12 +136,17 @@ const AdminDashboard = ({ onNavigate }) => {
       {error && <div className="gnz-alert gnz-alert-error">{error}</div>}
 
       <section className="gnz-kpi-grid" aria-label="Indicateurs principaux">
-        <Kpi label="Visiteurs uniques" value={fmt.format(k.visitors || 0)} trend={changes.visitors} sub="Visiteurs identifiés sur la période" onClick={() => onNavigate?.("analytics")} />
-        <Kpi label="Demandes reçues" value={fmt.format(k.leads || 0)} trend={changes.leads} sub="Prospects réellement créés dans le CRM" onClick={() => onNavigate?.("crm")} />
-        <Kpi label="Réservations confirmées" value={fmt.format(k.confirmed_bookings || 0)} trend={changes.confirmed_bookings} sub="Rendez-vous au statut confirmé" onClick={() => onNavigate?.("bookings")} />
-        <Kpi label="Conversion site" value={`${Number(k.site_conversion_rate || 0).toFixed(2)}%`} trend={null} sub="Visiteurs convertis en prospects" onClick={() => onNavigate?.("analytics")} />
+        <Kpi label="Visiteurs uniques" value={fmt.format(k.visitors || 0)} trend={changes.visitors} sub="Visiteurs identifiés sur la période" onClick={() => setMetric({key:"visitors",label:"Visiteurs uniques"})} />
+        <Kpi label="Demandes reçues" value={fmt.format(k.leads || 0)} trend={changes.leads} sub="Prospects réellement créés dans le CRM" onClick={() => setMetric({key:"leads",label:"Demandes reçues"})} />
+        <Kpi label="Réservations confirmées" value={fmt.format(k.confirmed_bookings || 0)} trend={changes.confirmed_bookings} sub="Rendez-vous au statut confirmé" onClick={() => setMetric({key:"confirmed_bookings",label:"Réservations confirmées"})} />
+        <Kpi label="Conversion site" value={k.site_conversion_rate == null ? "—" : `${Number(k.site_conversion_rate).toFixed(2)}%`} trend={null} sub="Visiteurs convertis en prospects" onClick={() => setMetric({key:"site_conversion_rate",label:"Conversion site"})} />
       </section>
 
+      <MetricDetails key={`${metric?.key}-${days}`} metric={metric} data={metric?.key.startsWith("email_") ? email : data} onClose={()=>setMetric(null)} />
+      <section className="gnz-kpi-grid">
+        <Kpi label="Intentions de contact" value={fmt.format(k.intentions || 0)} sub="Clics, sans preuve d’envoi" onClick={()=>setMetric({key:'intentions',label:'Intentions de contact'})} />
+        <Kpi label="Clients acquis" value={fmt.format(k.customers || 0)} sub="Fiches clients créées sur la période" onClick={()=>setMetric({key:'customers',label:'Clients acquis'})} />
+      </section>
       <section className="gnz-dashboard-grid">
         <article className="gnz-card">
           <header className="gnz-card-header"><div className="gnz-card-title"><strong>Visiteurs & activité</strong><span>Visiteurs uniques par jour</span></div><span className="gnz-status info">Supabase</span></header>
@@ -182,7 +189,7 @@ const AdminDashboard = ({ onNavigate }) => {
         <article className="gnz-card gnz-col-4">
           <header className="gnz-card-header"><div className="gnz-card-title"><strong>Performance commerciale</strong><span>Du prospect au client</span></div></header>
           <div className="gnz-card-body">
-            <div className="gnz-kpi-value">{Number(k.sales_conversion_rate || 0).toFixed(2)}%</div>
+            <button className="gnz-secondary-button" onClick={()=>setMetric({key:"sales_conversion_rate",label:"Conversion commerciale"})}>{k.sales_conversion_rate == null ? "—" : `${Number(k.sales_conversion_rate).toFixed(2)}%`}</button>
             <div className="gnz-kpi-sub">{fmt.format(k.customers || 0)} client(s) · {money.format(Number(k.revenue || 0))} de valeur enregistrée</div>
             <button className="gnz-secondary-button" style={{ marginTop: 14 }} onClick={() => onNavigate?.("crm")}>Analyser le CRM</button>
           </div>
@@ -191,10 +198,10 @@ const AdminDashboard = ({ onNavigate }) => {
           <header className="gnz-card-header"><div className="gnz-card-title"><strong>Emails</strong><span>Statuts réellement enregistrés</span></div><button className="gnz-secondary-button" onClick={() => onNavigate?.("emails")}>Détails</button></header>
           <div className="gnz-card-body">
             <div className="gnz-metric-mini-grid">
-              <div className="gnz-metric-mini"><span>Envoyés</span><strong>{fmt.format(email?.sent || 0)}</strong></div>
-              <div className="gnz-metric-mini"><span>Délivrés</span><strong>{fmt.format(email?.delivered || 0)}</strong></div>
-              <div className="gnz-metric-mini"><span>Ouverts</span><strong>{fmt.format(email?.opened || 0)}</strong></div>
-              <div className="gnz-metric-mini"><span>Échecs</span><strong>{fmt.format(email?.failed || 0)}</strong></div>
+              <button type="button" className="gnz-metric-mini" onClick={()=>setMetric({key:"email_sent",label:"Emails — Envoyés"})}><span>Envoyés</span><strong>{fmt.format(email?.sent || 0)}</strong></button>
+              <button type="button" className="gnz-metric-mini" onClick={()=>setMetric({key:"email_delivered",label:"Emails — Délivrés"})}><span>Délivrés</span><strong>{fmt.format(email?.delivered || 0)}</strong></button>
+              <button type="button" className="gnz-metric-mini" onClick={()=>setMetric({key:"email_opened",label:"Emails — Ouverts"})}><span>Ouverts</span><strong>{fmt.format(email?.opened || 0)}</strong></button>
+              <button type="button" className="gnz-metric-mini" onClick={()=>setMetric({key:"email_failed",label:"Emails — Échecs"})}><span>Échecs</span><strong>{fmt.format(email?.failed || 0)}</strong></button>
             </div>
           </div>
         </article>

@@ -1,3 +1,4 @@
+import { getCommercialData } from "./commercialData.js";
 import { supabase } from "./supabaseClient.js";
 
 const nowIso = () => new Date().toISOString();
@@ -26,21 +27,18 @@ export async function getDashboardData(days = 7) {
   const period = buildPeriod(days);
   const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
 
-  const [currentRpc, previousRpc, trafficRpc, leads, activity, integrations, activeVisitors] = await Promise.all([
-    supabase.rpc("dashboard_kpis", { p_from: period.from, p_to: period.to }),
-    supabase.rpc("dashboard_kpis", { p_from: period.previousFrom, p_to: period.previousTo }),
-    supabase.rpc("traffic_sources", { p_from: period.from, p_to: period.to }),
-    supabase.from("leads").select("id,full_name,email,phone,request_type,source,channel,status,estimated_value,currency,created_at").gte("created_at", period.from).lt("created_at", period.to).order("created_at", { ascending: false }).limit(8),
+  const [commercial, activity, integrations, activeVisitors] = await Promise.all([
+    getCommercialData(period),
     supabase.from("activity_log").select("id,event_type,entity_type,entity_id,title,description,actor_email,created_at").order("created_at", { ascending: false }).limit(10),
     supabase.from("integration_settings").select("provider,status,account_label,property_id,stream_id,site_url,last_sync_at,last_error,metadata").order("provider"),
     supabase.from("visitors").select("id", { count: "exact", head: true }).gte("last_seen_at", fiveMinutesAgo),
   ]);
 
-  const firstError = [currentRpc, previousRpc, trafficRpc, leads, activity, integrations, activeVisitors].find((r) => r?.error)?.error;
+  const firstError = [activity, integrations, activeVisitors].find((r) => r?.error)?.error;
   if (firstError) throw firstError;
 
-  const current = currentRpc.data || {};
-  const previous = previousRpc.data || {};
+  const current = commercial.current;
+  const previous = commercial.previous;
   const compareKeys = ["visitors", "sessions", "leads", "confirmed_bookings", "customers", "revenue", "whatsapp_clicks"];
   const changes = Object.fromEntries(compareKeys.map((key) => [key, percentChange(current[key], previous[key])]));
 
@@ -49,8 +47,11 @@ export async function getDashboardData(days = 7) {
     current,
     previous,
     changes,
-    traffic: trafficRpc.data || [],
-    recentLeads: leads.data || [],
+    traffic: commercial.acquisition,
+    details: commercial.details,
+    funnel: commercial.funnel,
+    acquisition: commercial.acquisition,
+    recentLeads: commercial.recentLeads,
     activity: activity.data || [],
     integrations: integrations.data || [],
     activeVisitors: activeVisitors.count || 0,
@@ -62,6 +63,7 @@ export function subscribeDashboard(onChange) {
     .channel("gnz-admin-dashboard")
     .on("postgres_changes", { event: "*", schema: "public", table: "leads" }, onChange)
     .on("postgres_changes", { event: "*", schema: "public", table: "bookings" }, onChange)
+    .on("postgres_changes", { event: "INSERT", schema: "public", table: "contact_intents" }, onChange)
     .on("postgres_changes", { event: "*", schema: "public", table: "email_messages" }, onChange)
     .on("postgres_changes", { event: "INSERT", schema: "public", table: "activity_log" }, onChange)
     .subscribe();
@@ -82,6 +84,12 @@ export async function listLeads({ status = "all", search = "", limit = 100 } = {
   const { data, error } = await query;
   if (error) throw error;
   return data || [];
+}
+
+export async function getLead(id) {
+  const {data,error}=await supabase.from("leads").select("*").eq("id",id).maybeSingle();
+  if(error) throw error;
+  return data;
 }
 
 export async function updateLead(id, patch) {

@@ -87,9 +87,11 @@ assert.match(
 // ---------------------------------------------------------------------------
 // 3. App.jsx : l'état admin ne peut venir que d'une vérification réseau.
 // ---------------------------------------------------------------------------
-assert.match(app, /refreshSession\(\)\.then\(applyProfile\)/, "App.jsx doit vérifier la session au montage");
-assert.match(app, /onAuthStateChange\(applyProfile\)/, "App.jsx doit réagir à l'expiration et à la déconnexion");
-assert.match(app, /setIsAdminLoggedIn\(Boolean\(profile\)\)/, "l'état connecté doit dériver du profil vérifié");
+const sessionHook = readFileSync("src/hooks/useAdminSession.js", "utf8");
+assert.match(app, /useAdminSession\(\)/, "App.jsx doit utiliser le hook de session vérifié");
+assert.match(sessionHook, /refreshSession\(\)\.then\(applyProfile\)/, "App.jsx doit vérifier la session au montage");
+assert.match(sessionHook, /onAuthStateChange\(applyProfile\)/, "App.jsx doit réagir à l'expiration et à la déconnexion");
+assert.match(sessionHook, /setIsAdminLoggedIn\(Boolean\(profile\)\)/, "l'état connecté doit dériver du profil vérifié");
 assert.doesNotMatch(
   app,
   /getCachedProfile|getSession\(\)/,
@@ -97,9 +99,9 @@ assert.doesNotMatch(
 );
 
 // Aucun rendu de l'interface admin tant que la vérification n'a pas répondu.
-assert.match(app, /const \[adminAuthChecking, setAdminAuthChecking\] = useState\(true\)/,
+assert.match(sessionHook, /const \[adminAuthChecking, setAdminAuthChecking\] = useState\(true\)/,
   "la vérification doit démarrer à true pour éviter tout flash de l'interface admin");
-assert.match(app, /\{adminAuthChecking \? null : isAdminLoggedIn \?/,
+assert.match(readFileSync("src/components/AdminRoot.jsx", "utf8"), /\{adminAuthChecking \? null : isAdminLoggedIn \?/,
   "l'interface admin ne doit pas être rendue pendant la vérification");
 
 // ---------------------------------------------------------------------------
@@ -108,9 +110,9 @@ assert.match(app, /\{adminAuthChecking \? null : isAdminLoggedIn \?/,
 //    le formulaire de nouveau mot de passe.
 // ---------------------------------------------------------------------------
 assert.match(supabaseClient, /detectSessionInUrl:\s*true/, "prérequis du flux de récupération");
-assert.match(app, /isPasswordRecoveryLink\(\)/, "App.jsx doit détecter le flux de récupération");
+assert.match(sessionHook, /isPasswordRecoveryLink\(\)/, "App.jsx doit détecter le flux de récupération");
 assert.match(
-  app,
+  sessionHook,
   /if \(recoveryFlowRef\.current === null\) recoveryFlowRef\.current = isPasswordRecoveryLink\(\);/,
   "le flux de récupération doit être figé une seule fois par chargement de page",
 );

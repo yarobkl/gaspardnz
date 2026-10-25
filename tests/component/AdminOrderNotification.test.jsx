@@ -11,6 +11,7 @@ let capturedCallback = null;
 // de l'écran Commandes), pour pouvoir les déclencher tous à la fois.
 const allCallbacks = [];
 const emptyQuery = {
+  gte:()=>emptyQuery,lt:()=>emptyQuery,limit:()=>emptyQuery,range:()=>emptyQuery,
   select: () => emptyQuery, eq: () => emptyQuery, order: () => emptyQuery,
   then: (resolve) => resolve({ data: [], error: null }),
 };
@@ -21,6 +22,7 @@ vi.mock("../../src/services/supabaseClient.js", () => ({
       onAuthStateChange: () => ({ data: { subscription: { unsubscribe() {} } } }),
     },
     from: () => emptyQuery,
+    rpc: async()=>({data:[],error:null}),
     // Le nom du canal inclut un suffixe aléatoire depuis la correction du
     // blocage à l'ouverture de l'écran (deux abonnements simultanés sur un
     // même topic figé) : on reconnaît le canal par préfixe, pas par égalité.
