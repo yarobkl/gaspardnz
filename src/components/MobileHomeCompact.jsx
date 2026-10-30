@@ -21,7 +21,7 @@ const COPY = {
     attractionText: "Mariage, gala, cérémonie ou conseil en image : GaspardNZ compose une allure forte et vous accompagne jusqu’au jour J.",
     attractionPrimary: "Découvrir les formules",
     attractionSecondary: "Parler à Gaspard",
-    whatsapp: "Bonjour Gaspard, je souhaite être accompagné pour mon événement.",
+    whatsapp: "Bonjour Gaspard, je viens de consulter votre site et je suis intéressé par votre accompagnement pour mon événement. Pourriez-vous me recontacter afin que nous échangions sur mon projet ? Merci et à bientôt !",
     items: {
       heritage: "La Maison",
       journal: "Style Journal",
