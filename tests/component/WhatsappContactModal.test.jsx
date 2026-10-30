@@ -24,7 +24,7 @@ describe("WhatsApp contact modal", () => {
     const countries = screen.getByLabelText("Pays / indicatif");
     expect(countries).toHaveValue("FR");
     expect(countries.selectedOptions[0].textContent).toContain("France (+33)");
-    expect(countries.selectedOptions[0]).toHaveAttribute("label", "+33");
+    expect(countries.selectedOptions[0]).not.toHaveAttribute("label");
     expect(countries.parentElement).toContainElement(screen.getByLabelText("Votre téléphone"));
     expect(countries.options[0].textContent).not.toMatch(/[\u{1F1E6}-\u{1F1FF}]/u);
     expect(countries.options.length).toBeGreaterThan(230);
