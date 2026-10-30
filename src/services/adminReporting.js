@@ -24,6 +24,7 @@ export async function getEmailSummary(days = 30) {
   const { data, error } = await supabase
     .from("email_messages")
     .select("status,created_at")
+    .is("archived_at", null)
     .gte("created_at", from)
     .lt("created_at", to);
   if (error) throw error;
