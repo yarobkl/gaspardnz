@@ -245,7 +245,8 @@ export async function deleteMedia(asset) {
 export async function listEmails(limit = 100) {
   const { data, error } = await supabase
     .from("email_messages")
-    .select("id,recipient,subject,provider,provider_message_id,status,error_message,queued_at,sent_at,delivered_at,opened_at,clicked_at,failed_at,created_at")
+    .select("id,recipient,subject,provider,provider_message_id,status,error_message,queued_at,sent_at,delivered_at,opened_at,clicked_at,failed_at,archived_at,created_at")
+    .is("archived_at", null)
     .order("created_at", { ascending: false })
     .limit(limit);
   if (error) throw error;
