@@ -77,20 +77,20 @@ describe("Numéro WhatsApp — une seule source de vérité (settings.whatsappNu
   });
 
   it("MobileHomeCompact conserve le numéro configuré après la collecte CRM", async () => {
+    const directOpen = vi.spyOn(window, "open").mockReturnValue(window);
     fake = createFakeSupabaseTables({ site_settings: settingsFixture });
     const user = userEvent.setup();
     render(<MobileHomeCompact activeSection={null} onSelect={() => {}} />);
     await user.click(await screen.findByRole("button", { name: "Parler à Gaspard" }));
     await screen.findByRole("dialog", { name: "Parler à Gaspard" });
-    expect(screen.queryByRole("link", { name: "Continuer sur WhatsApp" })).not.toBeInTheDocument();
+    expect(directOpen).not.toHaveBeenCalled();
     await user.type(screen.getByLabelText("Votre prénom"), "Marc");
     await user.type(screen.getByLabelText("Votre téléphone"), "06 12 34 56 78");
     await user.selectOptions(screen.getByLabelText("Votre projet"), "wedding");
-    await user.click(screen.getByRole("button", { name: "Continuer", exact: true }));
-    const waLink = await screen.findByRole("link", { name: "Continuer sur WhatsApp" });
-    await expect.poll(() => waLink.getAttribute("href")).toContain("33611223344");
-    expect(waLink.getAttribute("href")).not.toContain("33664826920");
-    const message = new URL(waLink.href).searchParams.get("text");
+    await user.click(screen.getByRole("button", { name: "Enregistrer et ouvrir WhatsApp" }));
+    await expect.poll(() => directOpen.mock.calls[0]?.[0]).toContain("33611223344");
+    expect(directOpen.mock.calls[0][0]).not.toContain("33664826920");
+    const message = new URL(directOpen.mock.calls[0][0]).searchParams.get("text");
     expect(message).toContain("Je viens de consulter votre site");
     expect(message).toContain("Pourriez-vous me recontacter");
   });
