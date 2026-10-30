@@ -137,7 +137,10 @@ export function initializeSupabaseTracking() {
     if (!target) return;
     const explicit = target.getAttribute?.("data-track");
     const label = (target.getAttribute?.("aria-label") || target.textContent || "").trim().replace(/\s+/g, " ").slice(0, 120);
-    const href = target.getAttribute?.("href") || "";
+    const rawHref = target.getAttribute?.("href") || "";
+    // WhatsApp prefilled text can contain a client's name and project.
+    // Count the click without copying that personal message into analytics.
+    const href = /wa\.me|whatsapp/i.test(rawHref) ? rawHref.split(/[?#]/)[0] : rawHref;
     let eventName = explicit;
     if (!eventName && /wa\.me|whatsapp/i.test(href)) eventName = "whatsapp_click";
     if (!eventName && /calendly/i.test(href)) eventName = "booking_click";

@@ -85,12 +85,13 @@ describe("Numéro WhatsApp — une seule source de vérité (settings.whatsappNu
     expect(screen.queryByRole("link", { name: "Continuer sur WhatsApp" })).not.toBeInTheDocument();
     await user.type(screen.getByLabelText("Votre prénom"), "Marc");
     await user.type(screen.getByLabelText("Votre téléphone"), "06 12 34 56 78");
+    await user.selectOptions(screen.getByLabelText("Votre projet"), "wedding");
     await user.click(screen.getByRole("button", { name: "Continuer", exact: true }));
     const waLink = await screen.findByRole("link", { name: "Continuer sur WhatsApp" });
     await expect.poll(() => waLink.getAttribute("href")).toContain("33611223344");
     expect(waLink.getAttribute("href")).not.toContain("33664826920");
     const message = new URL(waLink.href).searchParams.get("text");
-    expect(message).toContain("je viens de consulter votre site");
+    expect(message).toContain("Je viens de consulter votre site");
     expect(message).toContain("Pourriez-vous me recontacter");
   });
 });

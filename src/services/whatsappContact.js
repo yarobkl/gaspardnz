@@ -1,17 +1,20 @@
 import { sendPublicEvent } from "./supabaseClient.js";
 import { getTrackingContext } from "./siteTracking.js";
+import { getCountryCallingCode, isSupportedCountry, parsePhoneNumberFromString } from "libphonenumber-js/min";
+import { buildContactMessage, contactProjectLabel, getContactProject } from "../data/contactProjects.js";
 
 export const CONTACT_NOTICE_VERSION = "2026-10-30";
 
-export function normalizeContactPhone(value) {
+export function normalizeContactPhone(value, country) {
   const raw = String(value || "").trim();
   if (!/^[+\d\s().-]+$/.test(raw)) return "";
   let phone = raw.replace(/[\s().-]/g, "");
   if (phone.startsWith("00")) phone = `+${phone.slice(2)}`;
-  if (/^0[1-9]\d{8}$/.test(phone)) phone = `+33${phone.slice(1)}`;
-  // International numbers must include their country code. No guessed
-  // country code for an ambiguous number.
-  return /^\+[1-9]\d{7,14}$/.test(phone) ? phone : "";
+  if (country && !isSupportedCountry(country)) return "";
+  const parsed = parsePhoneNumberFromString(phone, { defaultCountry: country || "FR", extract: false });
+  if (!parsed?.isPossible() || parsed.ext) return "";
+  if (country && parsed.countryCallingCode !== getCountryCallingCode(country)) return "";
+  return parsed.number;
 }
 
 export function normalizeContactName(value) {
@@ -22,13 +25,18 @@ export function normalizeContactName(value) {
 // Coalesces double submissions and reuses a successful save on reopening.
 const submissions = new Map();
 
-export async function submitWhatsappContact({ firstName, phone }) {
+export async function submitWhatsappContact({ firstName, phone, country = "FR", projectType, projectDetails = "", lang = "FR" }) {
   const name = normalizeContactName(firstName);
-  const normalizedPhone = normalizeContactPhone(phone);
+  const normalizedPhone = normalizeContactPhone(phone, country);
   if (!name || name.length > 80 || !normalizedPhone) {
     throw new Error("invalid_contact");
   }
-  const key = `${name.toLocaleLowerCase()}:${normalizedPhone}`;
+  const details = normalizeContactName(projectDetails);
+  if (!getContactProject(projectType) || (projectType === "other" && (!details || details.length > 300))) throw new Error("invalid_project");
+  const projectLabel = contactProjectLabel(projectType);
+  const relevantDetails = projectType === "other" ? details : "";
+  const whatsappMessage = buildContactMessage({ firstName: name, projectType, projectDetails: relevantDetails, lang });
+  const key = JSON.stringify([name.toLocaleLowerCase(), normalizedPhone, country, projectType, relevantDetails]);
   if (submissions.has(key)) return submissions.get(key);
 
   const save = (async () => {
@@ -40,9 +48,14 @@ export async function submitWhatsappContact({ firstName, phone }) {
       request_type: "whatsapp_contact",
       source: "Site GaspardNZ",
       channel: "whatsapp",
-      message: "Demande de contact depuis le bouton « Parler à Gaspard » du site.",
+      message: whatsappMessage,
       metadata: {
         entry_point: "parler_a_gaspard",
+        country_code: country,
+        calling_code: `+${getCountryCallingCode(country)}`,
+        project_type: projectType,
+        project_label: projectLabel,
+        project_details: relevantDetails || null,
         acquisition_source: context.source || null,
         page_path: window.location.pathname,
         contact_notice_version: CONTACT_NOTICE_VERSION,

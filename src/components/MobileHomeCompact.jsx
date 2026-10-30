@@ -3,7 +3,6 @@ import { motion } from "framer-motion";
 import { GOLD } from "../constants.js";
 import { LangCtx } from "../context.jsx";
 import { useSettings } from "../hooks/useSettings.js";
-import { getWhatsappUrl } from "../utils/whatsappUtil.js";
 // Chargées en différé même si elles s'affichent tout de suite ici : ça sort
 // leur code du paquet principal, téléchargé et exécuté par TOUT visiteur.
 // App.jsx les charge déjà ainsi pour la mise en page large — un import
@@ -22,7 +21,6 @@ const COPY = {
     attractionText: "Mariage, gala, cérémonie ou conseil en image : GaspardNZ compose une allure forte et vous accompagne jusqu’au jour J.",
     attractionPrimary: "Découvrir les formules",
     attractionSecondary: "Parler à Gaspard",
-    whatsapp: "Bonjour Gaspard, je viens de consulter votre site et je suis intéressé par votre accompagnement pour mon événement. Pourriez-vous me recontacter afin que nous échangions sur mon projet ? Merci et à bientôt !",
     items: {
       heritage: "La Maison",
       journal: "Style Journal",
@@ -47,7 +45,6 @@ const COPY = {
     attractionText: "Wedding, gala, ceremony or image consulting: GaspardNZ builds a strong look and supports you through the big day.",
     attractionPrimary: "Discover packages",
     attractionSecondary: "Talk to Gaspard",
-    whatsapp: "Hello Gaspard, I would like support for my event.",
     items: { heritage: "The House", journal: "Style Journal", gallery: "Looks", video: "Videos", wedding: "Wedding", formules: "Packages", partners: "Partners", news: "News", vip: "Dressed by GaspardNZ", styleMonth: "Style of the month", community: "Community" },
   },
   ES: {
@@ -60,7 +57,6 @@ const COPY = {
     attractionText: "Boda, gala, ceremonia o asesoría de imagen: GaspardNZ crea una presencia fuerte y te acompaña hasta el gran día.",
     attractionPrimary: "Descubrir las fórmulas",
     attractionSecondary: "Hablar con Gaspard",
-    whatsapp: "Hola Gaspard, me gustaría recibir acompañamiento para mi evento.",
     items: { heritage: "La Casa", journal: "Style Journal", gallery: "Looks", video: "Vídeos", wedding: "Boda", formules: "Fórmulas", partners: "Socios", news: "Noticias", vip: "Vestidos por GaspardNZ", styleMonth: "Estilo del mes", community: "Comunidad" },
   },
   ZH: {
@@ -73,7 +69,6 @@ const COPY = {
     attractionText: "婚礼、晚宴、仪式或形象顾问服务：GaspardNZ 为你打造有力量的造型，并陪伴你直到重要当天。",
     attractionPrimary: "查看服务方案",
     attractionSecondary: "联系 Gaspard",
-    whatsapp: "你好 Gaspard，我想咨询我的活动造型服务。",
     items: { heritage: "品牌故事", journal: "风格日志", gallery: "造型", video: "视频", wedding: "婚礼", formules: "服务方案", partners: "合作伙伴", news: "动态", vip: "GaspardNZ 造型客户", styleMonth: "本月风格", community: "社区" },
   },
 };
@@ -176,7 +171,7 @@ export default function MobileHomeCompact({ activeSection, onSelect }) {
       </section>
       {contactOpen && (
         <Suspense fallback={null}>
-          <WhatsappContactModal isOpen onClose={() => setContactOpen(false)} whatsappUrl={getWhatsappUrl(settings.whatsappNumber, copy.whatsapp)} />
+          <WhatsappContactModal isOpen onClose={() => setContactOpen(false)} whatsappNumber={settings.whatsappNumber} />
         </Suspense>
       )}
     </>
