@@ -8,6 +8,7 @@ import Portal from "./ui/Portal.jsx";
 import { CONTACT_PROJECTS, buildContactMessage } from "../data/contactProjects.js";
 import { contactCountries } from "../utils/contactCountries.js";
 import { getWhatsappUrl } from "../utils/whatsappUtil.js";
+import "./WhatsappContactModal.css";
 
 const COPY = {
   FR: {
@@ -113,8 +114,8 @@ export default function WhatsappContactModal({ isOpen, onClose, whatsappNumber }
   if (!isOpen) return null;
   return (
     <Portal>
-      <div onClick={close} style={{ position: "fixed", inset: 0, zIndex: 750, background: "rgba(0,0,0,.92)", display: "flex", alignItems: "flex-start", justifyContent: "center", padding: "3.5rem 1rem 1rem", overflowY: "auto" }}>
-        <div ref={focusTrapRef} role="dialog" aria-modal="true" aria-labelledby="whatsapp-contact-title" aria-busy={saving} onClick={e => e.stopPropagation()} style={{ width: "100%", maxWidth: 480, background: "#0a0602", color: CREAM, borderTop: `2px solid ${GOLD}`, padding: "1.8rem", boxSizing: "border-box", fontFamily: "'Montserrat',sans-serif" }}>
+      <div className="gnz-contact-backdrop" onClick={close} style={{ position: "fixed", inset: 0, zIndex: 750, background: "rgba(0,0,0,.92)", display: "flex", alignItems: "flex-start", justifyContent: "center", padding: "3.5rem 1rem 1rem", overflowY: "auto" }}>
+        <div className="gnz-contact-dialog" ref={focusTrapRef} role="dialog" aria-modal="true" aria-labelledby="whatsapp-contact-title" aria-busy={saving} onClick={e => e.stopPropagation()} style={{ width: "100%", maxWidth: 480, background: "#0a0602", color: CREAM, borderTop: `2px solid ${GOLD}`, padding: "1.8rem", boxSizing: "border-box", fontFamily: "'Montserrat',sans-serif" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12 }}>
             <div>
               <p style={{ fontSize: 10, letterSpacing: ".3em", color: GOLD, textTransform: "uppercase" }}>{copy.step} {step} / 2</p>

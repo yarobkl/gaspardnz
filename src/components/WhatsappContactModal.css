@@ -1,0 +1,25 @@
+.gnz-contact-backdrop {
+  animation: gnz-contact-fade-in 280ms ease-out both;
+}
+
+.gnz-contact-dialog {
+  transform-origin: center top;
+  animation: gnz-contact-rise-in 420ms cubic-bezier(.2, .8, .2, 1) both;
+}
+
+@keyframes gnz-contact-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes gnz-contact-rise-in {
+  from { opacity: 0; transform: translateY(22px) scale(.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gnz-contact-backdrop,
+  .gnz-contact-dialog {
+    animation: none;
+  }
+}
