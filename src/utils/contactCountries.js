@@ -10,6 +10,5 @@ export function contactCountries(lang = "FR") {
     code,
     name: names?.of(code) || code,
     callingCode: `+${getCountryCallingCode(code)}`,
-    flag: String.fromCodePoint(...[...code].map(c => c.charCodeAt(0) + 127397)),
   })).sort((a, b) => a.name.localeCompare(b.name, locale));
 }

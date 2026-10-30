@@ -128,14 +128,15 @@ export default function WhatsappContactModal({ isOpen, onClose, whatsappNumber }
               <label style={labelStyle} htmlFor="whatsapp-first-name">{copy.firstName}
                 <input id="whatsapp-first-name" name="given-name" autoComplete="given-name" required maxLength={80} value={firstName} onChange={e => setFirstName(e.target.value)} disabled={saving} style={inputStyle} />
               </label>
-              <label style={labelStyle} htmlFor="whatsapp-country">{copy.country}
-                <select id="whatsapp-country" name="country" autoComplete="country" required value={country} onChange={e => setCountry(e.target.value)} disabled={saving} style={{ ...inputStyle, background: "#0a0602" }}>
-                  {countries.map(item => <option key={item.code} value={item.code}>{item.flag} {item.name} ({item.callingCode})</option>)}
-                </select>
-              </label>
-              <label style={labelStyle} htmlFor="whatsapp-phone">{copy.phone}
-                <input id="whatsapp-phone" name="tel-national" type="tel" inputMode="tel" autoComplete="tel-national" required maxLength={30} value={phone} onChange={e => setPhone(e.target.value)} disabled={saving} aria-describedby="whatsapp-phone-hint" style={inputStyle} />
-              </label>
+              <div style={{ display: "grid", gap: 8 }}>
+                <label htmlFor="whatsapp-phone" style={{ fontSize: 12, letterSpacing: ".08em" }}>{copy.phone}</label>
+                <div style={{ display: "flex", width: "100%" }}>
+                  <select id="whatsapp-country" name="country" aria-label={copy.country} autoComplete="country" required value={country} onChange={e => setCountry(e.target.value)} disabled={saving} style={{ ...inputStyle, width: 105, flex: "0 0 105px", background: "#0a0602", padding: ".85rem .4rem", cursor: "pointer" }}>
+                    {countries.map(item => <option key={item.code} value={item.code} label={item.callingCode}>{item.name} ({item.callingCode})</option>)}
+                  </select>
+                  <input id="whatsapp-phone" name="tel-national" type="tel" inputMode="tel" autoComplete="tel-national" required maxLength={30} value={phone} onChange={e => setPhone(e.target.value)} disabled={saving} aria-describedby="whatsapp-phone-hint" style={{ ...inputStyle, minWidth: 0, flex: 1, borderLeft: 0 }} />
+                </div>
+              </div>
               <p id="whatsapp-phone-hint" style={{ fontSize: 11, lineHeight: 1.6, margin: "-.6rem 0 0", color: "rgba(245,240,232,.75)" }}>{copy.phoneHint}</p>
               <label style={labelStyle} htmlFor="whatsapp-project">{copy.project}
                 <select id="whatsapp-project" name="project" required value={projectType} onChange={e => setProjectType(e.target.value)} disabled={saving} style={{ ...inputStyle, background: "#0a0602" }}>

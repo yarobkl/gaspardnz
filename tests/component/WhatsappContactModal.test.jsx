@@ -24,6 +24,9 @@ describe("WhatsApp contact modal", () => {
     const countries = screen.getByLabelText("Pays / indicatif");
     expect(countries).toHaveValue("FR");
     expect(countries.selectedOptions[0].textContent).toContain("France (+33)");
+    expect(countries.selectedOptions[0]).toHaveAttribute("label", "+33");
+    expect(countries.parentElement).toContainElement(screen.getByLabelText("Votre téléphone"));
+    expect(countries.options[0].textContent).not.toMatch(/[\u{1F1E6}-\u{1F1FF}]/u);
     expect(countries.options.length).toBeGreaterThan(230);
     expect([...screen.getByLabelText("Votre projet").options].slice(1).map(o => o.textContent)).toEqual([
       "Mariage — stylisme et habillage", "Gala de prestige", "Soirée VIP", "Événement professionnel", "Cérémonie",
