@@ -7,6 +7,7 @@ let service;
 beforeEach(async () => {
   vi.resetModules();
   send.mockReset();
+  vi.stubGlobal("fetch", vi.fn(async () => ({ ok: true, json: async () => ({ success: true }) })));
   context.mockReturnValue({});
   service = await import("../../src/services/whatsappContact.js");
 });
@@ -25,6 +26,10 @@ describe("WhatsApp prospect capture", () => {
     send.mockResolvedValue({ ok: true, id: "lead-1" });
     const result = await service.submitWhatsappContact({ projectType: "wedding", firstName: " Élodie ", phone: "06 12 34 56 78" });
     expect(result.id).toBe("lead-1");
+    expect(result.notificationSent).toBe(true);
+    expect(fetch).toHaveBeenCalledWith("/api/notify-whatsapp-contact", expect.objectContaining({
+      method: "POST", body: JSON.stringify({ leadId: "lead-1" }), keepalive: true,
+    }));
     expect(send).toHaveBeenCalledWith("lead", expect.objectContaining({
       full_name: "Élodie", phone: "+33612345678", source: "Site GaspardNZ", channel: "whatsapp", request_type: "whatsapp_contact",
       metadata: expect.objectContaining({ country_code: "FR", calling_code: "+33", project_type: "wedding", project_label: "Mariage — stylisme et habillage", entry_point: "parler_a_gaspard", whatsapp_message_status: "unknown", contact_notice_version: "2026-10-30" }),
@@ -70,4 +75,11 @@ describe("WhatsApp prospect capture", () => {
     }
     expect(send).not.toHaveBeenCalled();
   });
+  it("keeps the saved prospect and access to WhatsApp even when email fails", async () => {
+    send.mockResolvedValue({ ok: true, id: "saved-without-email" });
+    fetch.mockResolvedValue({ ok: false, status: 502 });
+    await expect(service.submitWhatsappContact({ projectType: "wedding", firstName: "Marc", phone: "+33612345678" })).resolves.toMatchObject({ id: "saved-without-email", notificationSent: false });
+    expect(send).toHaveBeenCalledTimes(1);
+  });
+
 });

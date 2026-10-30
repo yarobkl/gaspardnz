@@ -111,15 +111,15 @@ export const consumePersistentRateLimit = async (db, { key, action, limit, windo
   return { ok: true, allowed: data === true, reason: data === true ? "allowed" : "limited" };
 };
 
-const validateEnv = () => requiredEnvVars.every((key) => Boolean(process.env[key]));
-const createTransporter = () => nodemailer.createTransport({
+export const validateEnv = () => requiredEnvVars.every((key) => Boolean(process.env[key]));
+export const createTransporter = () => nodemailer.createTransport({
   host: process.env.SMTP_HOST,
   port: parseInt(process.env.SMTP_PORT, 10),
   secure: process.env.SMTP_SECURE === "true" || parseInt(process.env.SMTP_PORT, 10) === 465,
   auth: { user: process.env.EMAIL_FROM, pass: process.env.EMAIL_PASSWORD },
 });
 
-const adminDb = () => process.env.SUPABASE_SERVICE_ROLE_KEY
+export const adminDb = () => process.env.SUPABASE_SERVICE_ROLE_KEY
   ? createClient(SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY, { auth: { persistSession: false, autoRefreshToken: false } })
   : null;
 
@@ -137,7 +137,7 @@ async function createEmailLog(db, { recipient, subject, templateKey, metadata })
   return data?.id || null;
 }
 
-async function updateEmailLog(db, id, patch) {
+export async function updateEmailLog(db, id, patch) {
   if (!db || !id) return;
   const { error } = await db.from("email_messages").update({ ...patch, updated_at: new Date().toISOString() }).eq("id", id);
   if (error) console.warn("Email log update failed", error.message);

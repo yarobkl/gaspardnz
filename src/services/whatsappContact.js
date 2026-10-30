@@ -25,6 +25,19 @@ export function normalizeContactName(value) {
 // Coalesces double submissions and reuses a successful save on reopening.
 const submissions = new Map();
 
+async function notifyContact(leadId) {
+  try {
+    const response = await fetch("/api/notify-whatsapp-contact", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ leadId }),
+      keepalive: true,
+    });
+    if (!response.ok) return false;
+    return (await response.json())?.success === true;
+  } catch { return false; }
+}
+
 export async function submitWhatsappContact({ firstName, phone, country = "FR", projectType, projectDetails = "", lang = "FR" }) {
   const name = normalizeContactName(firstName);
   const normalizedPhone = normalizeContactPhone(phone, country);
@@ -66,7 +79,11 @@ export async function submitWhatsappContact({ firstName, phone, country = "FR", 
       },
     });
     if (!result?.ok || !result?.id) throw new Error("contact_save_failed");
-    return result;
+    // The lead stays saved even if SMTP is unavailable. The server logs
+    // each recipient's result; no client acknowledgement is sent, because
+    // this form deliberately collects no email address.
+    const notificationSent = await notifyContact(result.id);
+    return { ...result, notificationSent };
   })();
   submissions.set(key, save);
   try {
