@@ -12,6 +12,7 @@ const CUSTOM_NUMBER = "+33611223344";
 let fake;
 vi.mock("../../src/services/supabaseClient.js", () => ({
   get supabase() { return fake.supabase; },
+  sendPublicEvent: async () => ({ ok: true, id: "number-consistency-lead" }),
 }));
 
 const WeddingInspirationSection = (await import("../../src/components/sections/WeddingInspirationSection.jsx")).default;
@@ -75,16 +76,21 @@ describe("Numéro WhatsApp — une seule source de vérité (settings.whatsappNu
     expect(url).not.toContain("33664826920");
   });
 
-  it("MobileHomeCompact (bouton WhatsApp direct) pointe vers le numéro configuré dans l'admin", async () => {
+  it("MobileHomeCompact conserve le numéro configuré après la collecte CRM", async () => {
     fake = createFakeSupabaseTables({ site_settings: settingsFixture });
+    const user = userEvent.setup();
     render(<MobileHomeCompact activeSection={null} onSelect={() => {}} />);
-    await new Promise((resolve) => setTimeout(resolve, 50));
-    const link = await screen.findByRole("link", { name: /whatsapp|réserver|contact/i }).catch(() => null);
-    // Repli : chercher tout lien wa.me si le libellé exact diffère.
-    const links = screen.getAllByRole("link");
-    const waLink = link || links.find((l) => l.getAttribute("href")?.includes("wa.me"));
-    expect(waLink).toBeTruthy();
+    await user.click(await screen.findByRole("button", { name: "Parler à Gaspard" }));
+    await screen.findByRole("dialog", { name: "Parler à Gaspard" });
+    expect(screen.queryByRole("link", { name: "Continuer sur WhatsApp" })).not.toBeInTheDocument();
+    await user.type(screen.getByLabelText("Votre prénom"), "Marc");
+    await user.type(screen.getByLabelText("Votre téléphone"), "06 12 34 56 78");
+    await user.click(screen.getByRole("button", { name: "Continuer", exact: true }));
+    const waLink = await screen.findByRole("link", { name: "Continuer sur WhatsApp" });
     await expect.poll(() => waLink.getAttribute("href")).toContain("33611223344");
     expect(waLink.getAttribute("href")).not.toContain("33664826920");
+    const message = new URL(waLink.href).searchParams.get("text");
+    expect(message).toContain("je viens de consulter votre site");
+    expect(message).toContain("Pourriez-vous me recontacter");
   });
 });

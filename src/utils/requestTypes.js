@@ -1,5 +1,6 @@
 // Libellés lisibles pour les types de demande enregistrés par le site.
 export const REQUEST_TYPE_LABELS = {
+  whatsapp_contact: "Contact WhatsApp depuis le site",
   partner_application: "Candidature partenaire",
   partner_contact: "Demande via partenaire",
   booking_intent: "Demande de rendez-vous",

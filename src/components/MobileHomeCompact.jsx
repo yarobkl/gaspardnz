@@ -1,4 +1,4 @@
-import { Suspense, lazy, useContext } from "react";
+import { Suspense, lazy, useContext, useState } from "react";
 import { motion } from "framer-motion";
 import { GOLD } from "../constants.js";
 import { LangCtx } from "../context.jsx";
@@ -9,6 +9,7 @@ import { getWhatsappUrl } from "../utils/whatsappUtil.js";
 // App.jsx les charge déjà ainsi pour la mise en page large — un import
 // statique ici annulait ce découpage pour tout le monde, mobile compris.
 const PartnersSection = lazy(() => import("./sections/PartnersSection.jsx"));
+const WhatsappContactModal = lazy(() => import("./WhatsappContactModal.jsx"));
 
 const COPY = {
   FR: {
@@ -80,6 +81,7 @@ const COPY = {
 const ORDER = ["formules", "gallery", "wedding", "styleMonth", "journal", "heritage", "video", "news", "partners", "vip", "community"];
 
 export default function MobileHomeCompact({ activeSection, onSelect }) {
+  const [contactOpen, setContactOpen] = useState(false);
   const { lang } = useContext(LangCtx);
   const settings = useSettings();
   const copy = COPY[lang] || COPY.FR;
@@ -110,13 +112,13 @@ export default function MobileHomeCompact({ activeSection, onSelect }) {
               style={{ minHeight: 50, border: `1px solid ${GOLD}`, background: GOLD, color: "#0a0602", fontFamily: "'Montserrat',sans-serif", fontSize: 9, fontWeight: 700, letterSpacing: ".18em", textTransform: "uppercase", cursor: "pointer", touchAction: "manipulation" }}>
               {copy.attractionPrimary}
             </button>
-            <a
-              href={getWhatsappUrl(settings.whatsappNumber, copy.whatsapp)}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{ minHeight: 50, border: "1px solid rgba(184,151,62,.42)", color: GOLD, textDecoration: "none", fontFamily: "'Montserrat',sans-serif", fontSize: 9, fontWeight: 600, letterSpacing: ".18em", textTransform: "uppercase", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <button
+              type="button"
+              onClick={() => setContactOpen(true)}
+              aria-haspopup="dialog"
+              style={{ minHeight: 50, border: "1px solid rgba(184,151,62,.42)", background: "transparent", cursor: "pointer", color: GOLD, textDecoration: "none", fontFamily: "'Montserrat',sans-serif", fontSize: 9, fontWeight: 600, letterSpacing: ".18em", textTransform: "uppercase", display: "flex", alignItems: "center", justifyContent: "center" }}>
               {copy.attractionSecondary}
-            </a>
+            </button>
           </div>
         </motion.div>
       </section>
@@ -172,6 +174,11 @@ export default function MobileHomeCompact({ activeSection, onSelect }) {
           )}
         </div>
       </section>
+      {contactOpen && (
+        <Suspense fallback={null}>
+          <WhatsappContactModal isOpen onClose={() => setContactOpen(false)} whatsappUrl={getWhatsappUrl(settings.whatsappNumber, copy.whatsapp)} />
+        </Suspense>
+      )}
     </>
   );
 }
