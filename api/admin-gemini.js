@@ -52,16 +52,26 @@ Données CRM :
 - Valeur estimée : ${clean(lead.estimated_value, 80)} ${clean(lead.currency, 20)}`;
 
   try {
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(MODEL)}:generateContent?key=${encodeURIComponent(process.env.GEMINI_API_KEY)}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: prompt }] }], generationConfig: { temperature: 0.2, maxOutputTokens: 700 } }),
-    });
-    const data = await response.json();
-    if (!response.ok) { console.error("Gemini error", data?.error?.message || response.status); return res.status(502).json({ error: "Gemini n'a pas répondu correctement" }); }
-    const text = data?.candidates?.[0]?.content?.parts?.map((part) => part.text || "").join("\n").trim();
-    if (!text) return res.status(502).json({ error: "Réponse Gemini vide" });
-    return res.status(200).json({ analysis: text, model: MODEL });
+    const models = [...new Set([MODEL, "gemini-3.6-flash", "gemini-3.5-flash-lite"])]
+    let lastDetail = "Erreur Gemini inconnue";
+    for (const model of models) {
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(process.env.GEMINI_API_KEY)}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: prompt }] }], generationConfig: { temperature: 0.2, maxOutputTokens: 700 } }),
+      });
+      const data = await response.json();
+      if (response.ok) {
+        const text = data?.candidates?.[0]?.content?.parts?.map((part) => part.text || "").join("\n").trim();
+        if (text) return res.status(200).json({ analysis: text, model });
+        lastDetail = "Réponse Gemini vide";
+        continue;
+      }
+      lastDetail = String(data?.error?.message || `Gemini HTTP ${response.status}`).slice(0, 240);
+      console.error("Gemini error", { status: response.status, detail: lastDetail, model });
+      if (![429, 500, 503].includes(response.status)) break;
+    }
+    return res.status(502).json({ error: "Gemini n'a pas répondu correctement", detail: lastDetail });
   } catch (error) {
     console.error("admin-gemini error", error?.message || error);
     return res.status(502).json({ error: "Analyse Gemini indisponible" });
