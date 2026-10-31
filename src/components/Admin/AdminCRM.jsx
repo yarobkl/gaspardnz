@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { addLeadNote, listLeads, updateLead } from "../../services/adminData.js";
 import { hasPermission } from "../../services/adminAuth.js";
 import { requestTypeLabel } from "../../utils/requestTypes.js";
+import { analyzeLeadWithGemini } from "../../services/adminGemini.js";
 import "../../styles/admin-v2.css";
 
 const STATUS = [
@@ -37,6 +38,8 @@ const AdminCRM = ({ user }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [toast, setToast] = useState("");
+  const [geminiLoading, setGeminiLoading] = useState(false);
+  const [geminiAnalysis, setGeminiAnalysis] = useState("");
 
   const load = async () => {
     setLoading(true);
@@ -65,6 +68,14 @@ const AdminCRM = ({ user }) => {
     try { await addLeadNote(selected.id, note.trim()); setNote(""); setToast("Note ajoutée au dossier."); setTimeout(() => setToast(""), 2200); }
     catch (e) { setError(e?.message || "Impossible d'ajouter la note."); }
     finally { setNoteSaving(false); }
+  };
+
+  const analyzeWithGemini = async () => {
+    if (!selected || geminiLoading) return;
+    setGeminiLoading(true); setGeminiAnalysis("");
+    try { const result = await analyzeLeadWithGemini(selected); setGeminiAnalysis(result.analysis); }
+    catch (e) { setError(e?.message || "Analyse Gemini impossible."); }
+    finally { setGeminiLoading(false); }
   };
 
   const exportCsv = () => {
@@ -110,6 +121,7 @@ const AdminCRM = ({ user }) => {
             <label className="gnz-field">Téléphone<input className="gnz-input" value={selected.phone || ""} onChange={(e) => setSelected({ ...selected, phone: e.target.value })} onBlur={() => patch(selected.id, { phone: selected.phone || null })} /></label>
             <div className="gnz-field"><span>Origine de la demande</span><strong>{selected.source || selected.channel || "Site GaspardNZ"}</strong><span className="gnz-table-sub">{selected.campaign ? `Campagne : ${selected.campaign}` : "Aucune campagne attribuée"}</span></div>
             <div className="gnz-field"><span>Besoin identifié</span><strong>{requestTypeLabel(selected.request_type)}</strong></div>
+            <div className="gnz-field" style={{ display: "grid", gap: 8 }}><span>Assistant commercial</span><button type="button" className="gnz-secondary-button" onClick={analyzeWithGemini} disabled={geminiLoading}>{geminiLoading ? "Analyse en cours…" : "Analyser avec Gemini"}</button>{geminiAnalysis && <div className="gnz-field" style={{ whiteSpace: "pre-wrap", padding: 12, borderRadius: 10, background: "rgba(214,175,77,.08)", border: "1px solid rgba(214,175,77,.28)" }}>{geminiAnalysis}</div>}</div>
             <div className="gnz-field" style={{ display: "grid", gap: 8 }}>
               <span>Qualification marketing</span>
               <label style={{ display: "flex", gap: 8, alignItems: "center" }}><input className="gnz-checkbox" type="checkbox" checked={Boolean(selected.marketing_consent)} onChange={(e) => patch(selected.id, { marketing_consent: e.target.checked, marketing_consent_at: e.target.checked ? new Date().toISOString() : null })} /> Autorise les communications commerciales</label>
