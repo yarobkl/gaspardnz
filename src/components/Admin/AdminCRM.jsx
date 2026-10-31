@@ -8,8 +8,10 @@ const STATUS = [
   ["new", "Nouveau"], ["contacted", "Contacté"], ["qualified", "Qualifié"], ["appointment", "RDV"], ["client", "Client"], ["lost", "Perdu"], ["archived", "Archivé"],
 ];
 const fmtDate = (value) => value ? new Date(value).toLocaleString("fr-FR", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" }) : "—";
+const fmtDateInput = (value) => value ? new Date(value).toISOString().slice(0, 16) : "";
 const statusLabel = (value) => STATUS.find(([key]) => key === value)?.[1] || value || "Nouveau";
 const identityFields = (lead) => [lead?.full_name, lead?.phone, lead?.email].filter((value) => String(value || "").trim()).length;
+const normalizeTags = (value) => String(value || "").split(",").map((tag) => tag.trim().toLowerCase()).filter(Boolean).filter((tag, index, all) => all.indexOf(tag) === index);
 
 // Détail d'une candidature « Devenir partenaire » (enregistré dans metadata).
 const APPLICATION_FIELDS = [["trade", "Métier"], ["company", "Entreprise"], ["city", "Ville"], ["portfolio", "Instagram / site"]];
@@ -44,7 +46,7 @@ const AdminCRM = ({ user }) => {
   };
   useEffect(() => { const t = setTimeout(load, 180); return () => clearTimeout(t); }, [status, search]);
 
-  const stats = useMemo(() => Object.fromEntries(STATUS.map(([key]) => [key, leads.filter((l) => l.status === key).length])), [leads]);
+  const stats = useMemo(() => ({ ...Object.fromEntries(STATUS.map(([key]) => [key, leads.filter((l) => l.status === key).length])), marketing: leads.filter((l) => l.marketing_consent).length }), [leads]);
 
   const patch = async (id, values) => {
     try {
@@ -67,7 +69,7 @@ const AdminCRM = ({ user }) => {
 
   const exportCsv = () => {
     const esc = (v) => `"${String(v ?? "").replaceAll('"', '""')}"`;
-    const rows = [["Nom","Email","Téléphone","Besoin","Source","Canal","Statut","Valeur estimée","Créé le"], ...leads.map((l) => [l.full_name,l.email,l.phone,l.request_type,l.source,l.channel,l.status,l.estimated_value,l.created_at])];
+    const rows = [["Nom","Email","Téléphone","Besoin","Source","Canal","Statut","Emailing autorisé","Tags","Dernier contact","Prochaine relance","Valeur estimée","Créé le"], ...leads.map((l) => [l.full_name,l.email,l.phone,l.request_type,l.source,l.channel,l.status,l.marketing_consent ? "Oui" : "Non",(l.tags || []).join(", "),l.last_contacted_at,l.next_follow_up_at,l.estimated_value,l.created_at])];
     const blob = new Blob(["\uFEFF" + rows.map((r) => r.map(esc).join(";")).join("\n")], { type: "text/csv;charset=utf-8" });
     const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = `gaspardnz-crm-${new Date().toISOString().slice(0,10)}.csv`; a.click(); URL.revokeObjectURL(url);
   };
@@ -82,6 +84,7 @@ const AdminCRM = ({ user }) => {
         <article className="gnz-kpi-card"><span className="gnz-kpi-label">Nouveaux</span><div className="gnz-kpi-value">{stats.new || 0}</div><div className="gnz-kpi-sub">À traiter</div></article>
         <article className="gnz-kpi-card"><span className="gnz-kpi-label">RDV</span><div className="gnz-kpi-value">{stats.appointment || 0}</div><div className="gnz-kpi-sub">Prospects au stade rendez-vous</div></article>
         <article className="gnz-kpi-card"><span className="gnz-kpi-label">Clients</span><div className="gnz-kpi-value">{stats.client || 0}</div><div className="gnz-kpi-sub">Prospects transformés</div></article>
+        <article className="gnz-kpi-card"><span className="gnz-kpi-label">Emailing autorisé</span><div className="gnz-kpi-value">{stats.marketing || 0}</div><div className="gnz-kpi-sub">Contacts opt-in dans la vue</div></article>
       </div>
 
       <div className="gnz-toolbar"><input className="gnz-input" placeholder="Rechercher nom, email, téléphone…" value={search} onChange={(e) => setSearch(e.target.value)} /><select className="gnz-select" value={status} onChange={(e) => setStatus(e.target.value)}><option value="all">Tous les statuts</option>{STATUS.map(([key,label]) => <option key={key} value={key}>{label}</option>)}</select></div>
@@ -107,6 +110,13 @@ const AdminCRM = ({ user }) => {
             <label className="gnz-field">Téléphone<input className="gnz-input" value={selected.phone || ""} onChange={(e) => setSelected({ ...selected, phone: e.target.value })} onBlur={() => patch(selected.id, { phone: selected.phone || null })} /></label>
             <div className="gnz-field"><span>Origine de la demande</span><strong>{selected.source || selected.channel || "Site GaspardNZ"}</strong><span className="gnz-table-sub">{selected.campaign ? `Campagne : ${selected.campaign}` : "Aucune campagne attribuée"}</span></div>
             <div className="gnz-field"><span>Besoin identifié</span><strong>{requestTypeLabel(selected.request_type)}</strong></div>
+            <div className="gnz-field" style={{ display: "grid", gap: 8 }}>
+              <span>Qualification marketing</span>
+              <label style={{ display: "flex", gap: 8, alignItems: "center" }}><input className="gnz-checkbox" type="checkbox" checked={Boolean(selected.marketing_consent)} onChange={(e) => patch(selected.id, { marketing_consent: e.target.checked, marketing_consent_at: e.target.checked ? new Date().toISOString() : null })} /> Autorise les communications commerciales</label>
+              <span className="gnz-table-sub">{selected.marketing_consent ? `Consentement enregistré ${fmtDate(selected.marketing_consent_at)}` : "Aucun consentement enregistré"}</span>
+            </div>
+            <label className="gnz-field">Tags de segmentation<input className="gnz-input" value={(selected.tags || []).join(", ")} placeholder="mariage, premium, relance" onChange={(e) => setSelected({ ...selected, tags: normalizeTags(e.target.value) })} onBlur={() => patch(selected.id, { tags: normalizeTags((selected.tags || []).join(",")) })} /><span className="gnz-table-sub">Séparez les tags par des virgules.</span></label>
+            <div className="gnz-field" style={{ display: "grid", gap: 8 }}><span>Suivi commercial</span><div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}><label className="gnz-field">Dernier contact<input className="gnz-input" type="datetime-local" value={fmtDateInput(selected.last_contacted_at)} onChange={(e) => setSelected({ ...selected, last_contacted_at: e.target.value ? new Date(e.target.value).toISOString() : null })} onBlur={() => patch(selected.id, { last_contacted_at: selected.last_contacted_at || null })} /></label><label className="gnz-field">Prochaine relance<input className="gnz-input" type="datetime-local" value={fmtDateInput(selected.next_follow_up_at)} onChange={(e) => setSelected({ ...selected, next_follow_up_at: e.target.value ? new Date(e.target.value).toISOString() : null })} onBlur={() => patch(selected.id, { next_follow_up_at: selected.next_follow_up_at || null })} /></label></div><button type="button" className="gnz-secondary-button" onClick={() => patch(selected.id, { status: "contacted", last_contacted_at: new Date().toISOString() })}>Marquer contacté aujourd’hui</button></div>
             <label className="gnz-field">Valeur estimée (€)<input className="gnz-input" type="number" min="0" value={selected.estimated_value ?? ""} onChange={(e) => setSelected({ ...selected, estimated_value: e.target.value })} onBlur={() => patch(selected.id, { estimated_value: selected.estimated_value === "" ? null : Number(selected.estimated_value) })} /></label>
             {selected.request_type === "partner_application" && <ApplicationDetails metadata={selected.metadata} />}
             <label className="gnz-field">Message<textarea className="gnz-textarea" value={selected.message || ""} onChange={(e) => setSelected({ ...selected, message: e.target.value })} onBlur={() => patch(selected.id, { message: selected.message || null })} /></label>
