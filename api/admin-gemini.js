@@ -1,7 +1,8 @@
 import { createClient } from "@supabase/supabase-js";
 
 const SUPABASE_URL = process.env.SUPABASE_URL || "https://imvjudhhtcdmtyhfhksm.supabase.co";
-const MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash";
+const configuredModel = String(process.env.GEMINI_MODEL || "").trim();
+const MODEL = !configuredModel || configuredModel === "gemini-2.5-flash" ? "gemini-3.8-flash" : configuredModel;
 
 function adminClient() {
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -66,3 +67,4 @@ Données CRM :
     return res.status(502).json({ error: "Analyse Gemini indisponible" });
   }
 }
+
