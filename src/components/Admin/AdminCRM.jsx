@@ -70,6 +70,8 @@ const AdminCRM = ({ user }) => {
     finally { setNoteSaving(false); }
   };
 
+  const selectLead = (lead) => { setSelected(lead); setGeminiAnalysis(""); setError(""); };
+
   const analyzeWithGemini = async () => {
     if (!selected || geminiLoading) return;
     setGeminiLoading(true); setGeminiAnalysis("");
@@ -103,7 +105,7 @@ const AdminCRM = ({ user }) => {
       <div className="gnz-split">
         <article className="gnz-card">
           <div className="gnz-table-wrap gnz-table-wrap--capped"><table className="gnz-table"><thead><tr><th>Prospect</th><th>Besoin</th><th>Source</th><th>Statut</th><th>Valeur</th><th>Créé</th></tr></thead><tbody>
-            {loading ? <tr><td colSpan="6"><div className="gnz-empty-state">Chargement…</div></td></tr> : leads.length ? leads.map((lead) => <tr key={lead.id} onClick={() => setSelected(lead)} style={{ cursor: "pointer" }}><td><strong>{lead.full_name || "Identité à compléter"}</strong><span className="gnz-table-sub">{lead.email || lead.phone || "Coordonnée manquante"}</span></td><td>{requestTypeLabel(lead.request_type)}</td><td>{lead.source || lead.channel || "Site"}</td><td><span className={`gnz-status ${lead.status}`}>{statusLabel(lead.status)}</span></td><td>{lead.estimated_value ? `${Number(lead.estimated_value).toLocaleString("fr-FR")} €` : "—"}</td><td>{fmtDate(lead.created_at)}</td></tr>) : <tr><td colSpan="6"><div className="gnz-empty-state">Aucun prospect ne correspond à ce filtre.</div></td></tr>}
+            {loading ? <tr><td colSpan="6"><div className="gnz-empty-state">Chargement…</div></td></tr> : leads.length ? leads.map((lead) => <tr key={lead.id} onClick={() => selectLead(lead)} style={{ cursor: "pointer" }}><td><strong>{lead.full_name || "Identité à compléter"}</strong><span className="gnz-table-sub">{lead.email || lead.phone || "Coordonnée manquante"}</span></td><td>{requestTypeLabel(lead.request_type)}</td><td>{lead.source || lead.channel || "Site"}</td><td><span className={`gnz-status ${lead.status}`}>{statusLabel(lead.status)}</span></td><td>{lead.estimated_value ? `${Number(lead.estimated_value).toLocaleString("fr-FR")} €` : "—"}</td><td>{fmtDate(lead.created_at)}</td></tr>) : <tr><td colSpan="6"><div className="gnz-empty-state">Aucun prospect ne correspond à ce filtre.</div></td></tr>}
           </tbody></table></div>
         </article>
 
@@ -121,7 +123,12 @@ const AdminCRM = ({ user }) => {
             <label className="gnz-field">Téléphone<input className="gnz-input" value={selected.phone || ""} onChange={(e) => setSelected({ ...selected, phone: e.target.value })} onBlur={() => patch(selected.id, { phone: selected.phone || null })} /></label>
             <div className="gnz-field"><span>Origine de la demande</span><strong>{selected.source || selected.channel || "Site GaspardNZ"}</strong><span className="gnz-table-sub">{selected.campaign ? `Campagne : ${selected.campaign}` : "Aucune campagne attribuée"}</span></div>
             <div className="gnz-field"><span>Besoin identifié</span><strong>{requestTypeLabel(selected.request_type)}</strong></div>
-            <div className="gnz-field" style={{ display: "grid", gap: 8 }}><span>Assistant commercial</span><button type="button" className="gnz-secondary-button" onClick={analyzeWithGemini} disabled={geminiLoading}>{geminiLoading ? "Analyse en cours…" : "Analyser avec Gemini"}</button>{geminiAnalysis && <div className="gnz-field" style={{ whiteSpace: "pre-wrap", padding: 12, borderRadius: 10, background: "rgba(214,175,77,.08)", border: "1px solid rgba(214,175,77,.28)" }}>{geminiAnalysis}</div>}</div>
+            <div className="gnz-field" style={{ display: "grid", gap: 8, padding: 14, borderRadius: 12, background: "linear-gradient(135deg, rgba(214,175,77,.12), rgba(255,255,255,.025))", border: "1px solid rgba(214,175,77,.3)" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", gap: 10, alignItems: "center" }}><strong>Copilote commercial</strong><span className="gnz-table-sub">Gemini · contexte de cette fiche</span></div>
+              <span className="gnz-table-sub">Une recommandation pour mieux qualifier ce prospect et décider de la prochaine action.</span>
+              <button type="button" className="gnz-primary-button" onClick={analyzeWithGemini} disabled={geminiLoading}>{geminiLoading ? "Analyse en cours…" : "Obtenir la recommandation"}</button>
+              {geminiAnalysis && <div aria-live="polite" className="gnz-field" style={{ whiteSpace: "pre-wrap", padding: 12, borderRadius: 10, background: "rgba(0,0,0,.15)", border: "1px solid rgba(255,255,255,.12)" }}><span className="gnz-table-sub">Analyse proposée — validation humaine requise</span>{geminiAnalysis}</div>}
+            </div>
             <div className="gnz-field" style={{ display: "grid", gap: 8 }}>
               <span>Qualification marketing</span>
               <label style={{ display: "flex", gap: 8, alignItems: "center" }}><input className="gnz-checkbox" type="checkbox" checked={Boolean(selected.marketing_consent)} onChange={(e) => patch(selected.id, { marketing_consent: e.target.checked, marketing_consent_at: e.target.checked ? new Date().toISOString() : null })} /> Autorise les communications commerciales</label>
