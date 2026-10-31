@@ -49,16 +49,23 @@ export default async function handler(req, res) {
   const context = { site: "GaspardNZ, styliste parisien : mariages, galas, cérémonies, conseil en image, showroom et partenaires événementiels.", section: clean(req.body?.context?.section, 80), leads: leadsResult.data || [], bookings: bookingsResult.data || [], emails: emailsResult.data || [], packages: packagesResult.data || [], partners: partnersResult.data || [], promotions: promotionsResult.data || [] };
   const prompt = `Tu es l'Assistant GaspardNZ intégré à son espace d'administration. Réponds en français, clairement et directement. Tu peux expliquer le site, les modules admin, les prospects, les réservations, les emails et les statistiques à partir des données fournies. Ne fabrique jamais une donnée absente. Si l'information n'est pas disponible, dis-le. Ne réalise aucune action et ne prétends pas en avoir réalisé une. Pour toute modification, suppression, envoi ou campagne, explique que la validation humaine est nécessaire. Réponds avec des paragraphes courts et, si utile, une liste d'actions. Question : ${question}. Contexte : ${JSON.stringify(context)}`;
   try {
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(MODEL)}:generateContent?key=${encodeURIComponent(process.env.GEMINI_API_KEY)}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: prompt }] }], generationConfig: { temperature: 0.2, maxOutputTokens: 1000 } }) });
-    const data = await response.json();
-    if (!response.ok) {
-      const detail = clean(data?.error?.message || `Gemini HTTP ${response.status}`, 240);
-      console.error("Admin assistant Gemini error", { status: response.status, detail, model: MODEL });
-      return res.status(502).json({ error: "Gemini n’a pas répondu", detail });
+    const models = [...new Set([MODEL, "gemini-3.6-flash", "gemini-3.5-flash-lite"])]
+    let lastDetail = "Erreur Gemini inconnue";
+    for (const model of models) {
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(process.env.GEMINI_API_KEY)}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: prompt }] }], generationConfig: { temperature: 0.2, maxOutputTokens: 1000 } }) });
+      const data = await response.json();
+      if (response.ok) {
+        const answer = data?.candidates?.[0]?.content?.parts?.map((part) => part.text || "").join("\n").trim();
+        if (answer) return res.status(200).json({ answer, model });
+        lastDetail = "Réponse vide de l’assistant";
+        continue;
+      }
+      lastDetail = clean(data?.error?.message || `Gemini HTTP ${response.status}`, 240);
+      console.error("Admin assistant Gemini error", { status: response.status, detail: lastDetail, model });
+      // Les erreurs de capacité sont temporaires : on essaie un modèle de secours.
+      if (![429, 500, 503].includes(response.status)) break;
     }
-    const answer = data?.candidates?.[0]?.content?.parts?.map((part) => part.text || "").join("\n").trim();
-    if (!answer) return res.status(502).json({ error: "Réponse vide de l’assistant" });
-    return res.status(200).json({ answer, model: MODEL });
+    return res.status(502).json({ error: "Gemini n’a pas répondu", detail: lastDetail });
   } catch (error) {
     console.error("Admin assistant request error", error?.message || error);
     return res.status(502).json({ error: "Assistant indisponible", detail: clean(error?.message || "Erreur réseau", 240) });
