@@ -30,12 +30,15 @@ export default async function handler(req, res) {
   if (!auth.ok) return res.status(auth.status).json({ error: auth.error });
   const question = clean(req.body?.question, 1200).trim();
   if (!question) return res.status(400).json({ error: "Question vide" });
-  const [leadsResult, bookingsResult, emailsResult] = await Promise.all([
+  const [leadsResult, bookingsResult, emailsResult, packagesResult, partnersResult, promotionsResult] = await Promise.all([
     supabase.from("leads").select("full_name,request_type,source,channel,status,marketing_consent,next_follow_up_at,created_at").order("created_at", { ascending: false }).limit(100),
     supabase.from("bookings").select("status,starts_at,title,source,created_at").order("starts_at", { ascending: false }).limit(50),
     supabase.from("email_messages").select("subject,status,provider,created_at,archived_at").is("archived_at", null).order("created_at", { ascending: false }).limit(50),
+    supabase.from("packages").select("title,description,price,published,status,updated_at").order("updated_at", { ascending: false }).limit(30),
+    supabase.from("partners").select("name,category,description,published,updated_at").order("updated_at", { ascending: false }).limit(30),
+    supabase.from("promotions").select("title,description,status,published,starts_at,ends_at,updated_at").order("updated_at", { ascending: false }).limit(30),
   ]);
-  const context = { site: "GaspardNZ, styliste parisien : mariages, galas, cérémonies, conseil en image, showroom et partenaires événementiels.", section: clean(req.body?.context?.section, 80), leads: leadsResult.data || [], bookings: bookingsResult.data || [], emails: emailsResult.data || [] };
+  const context = { site: "GaspardNZ, styliste parisien : mariages, galas, cérémonies, conseil en image, showroom et partenaires événementiels.", section: clean(req.body?.context?.section, 80), leads: leadsResult.data || [], bookings: bookingsResult.data || [], emails: emailsResult.data || [], packages: packagesResult.data || [], partners: partnersResult.data || [], promotions: promotionsResult.data || [] };
   const prompt = `Tu es l'Assistant GaspardNZ intégré à son espace d'administration. Réponds en français, clairement et directement. Tu peux expliquer le site, les modules admin, les prospects, les réservations, les emails et les statistiques à partir des données fournies. Ne fabrique jamais une donnée absente. Si l'information n'est pas disponible, dis-le. Ne réalise aucune action et ne prétends pas en avoir réalisé une. Pour toute modification, suppression, envoi ou campagne, explique que la validation humaine est nécessaire. Réponds avec des paragraphes courts et, si utile, une liste d'actions. Question : ${question}. Contexte : ${JSON.stringify(context)}`;
   try {
     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(MODEL)}:generateContent?key=${encodeURIComponent(process.env.GEMINI_API_KEY)}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: prompt }] }], generationConfig: { temperature: 0.2, maxOutputTokens: 1000 } }) });
