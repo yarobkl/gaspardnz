@@ -124,9 +124,9 @@ const AdminCRM = ({ user }) => {
             <div className="gnz-field"><span>Origine de la demande</span><strong>{selected.source || selected.channel || "Site GaspardNZ"}</strong><span className="gnz-table-sub">{selected.campaign ? `Campagne : ${selected.campaign}` : "Aucune campagne attribuée"}</span></div>
             <div className="gnz-field"><span>Besoin identifié</span><strong>{requestTypeLabel(selected.request_type)}</strong></div>
             <div className="gnz-field" style={{ display: "grid", gap: 8, padding: 14, borderRadius: 12, background: "linear-gradient(135deg, rgba(214,175,77,.12), rgba(255,255,255,.025))", border: "1px solid rgba(214,175,77,.3)" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", gap: 10, alignItems: "center" }}><strong>Copilote commercial</strong><span className="gnz-table-sub">Gemini · contexte de cette fiche</span></div>
-              <span className="gnz-table-sub">Une recommandation pour mieux qualifier ce prospect et décider de la prochaine action.</span>
-              <button type="button" className="gnz-primary-button" onClick={analyzeWithGemini} disabled={geminiLoading}>{geminiLoading ? "Analyse en cours…" : "Obtenir la recommandation"}</button>
+              <div style={{ display: "flex", justifyContent: "space-between", gap: 10, alignItems: "center" }}><strong>Assistant GaspardNZ</strong><span className="gnz-table-sub">Intelligence commerciale intégrée</span></div>
+              <span className="gnz-table-sub">L’assistant lit cette fiche pour vous aider à qualifier le prospect et décider de la prochaine action.</span>
+              <button type="button" className="gnz-primary-button" onClick={analyzeWithGemini} disabled={geminiLoading}>{geminiLoading ? "Lecture du dossier…" : "Analyser le dossier"}</button>
               {geminiAnalysis && <div aria-live="polite" className="gnz-field" style={{ whiteSpace: "pre-wrap", padding: 12, borderRadius: 10, background: "rgba(0,0,0,.15)", border: "1px solid rgba(255,255,255,.12)" }}><span className="gnz-table-sub">Analyse proposée — validation humaine requise</span>{geminiAnalysis}</div>}
             </div>
             <div className="gnz-field" style={{ display: "grid", gap: 8 }}>
