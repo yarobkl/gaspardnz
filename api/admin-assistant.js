@@ -1,7 +1,11 @@
 import { createClient } from "@supabase/supabase-js";
 
 const SUPABASE_URL = process.env.SUPABASE_URL || "https://imvjudhhtcdmtyhfhksm.supabase.co";
-const MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash";
+const configuredModel = String(process.env.GEMINI_MODEL || "").trim();
+// Gemini a retiré gemini-2.5-flash pour les nouveaux comptes : on bascule
+// automatiquement vers le modèle recommandé, même si l'ancienne variable
+// d'environnement est encore présente dans Vercel.
+const MODEL = !configuredModel || configuredModel === "gemini-2.5-flash" ? "gemini-3.8-flash" : configuredModel;
 const clean = (value, max = 1200) => String(value ?? "").slice(0, max);
 
 function adminClient() {
@@ -34,7 +38,7 @@ export default async function handler(req, res) {
     supabase.from("leads").select("full_name,request_type,source,channel,status,marketing_consent,next_follow_up_at,created_at").order("created_at", { ascending: false }).limit(100),
     supabase.from("bookings").select("status,starts_at,title,source,created_at").order("starts_at", { ascending: false }).limit(50),
     supabase.from("email_messages").select("subject,status,provider,created_at,archived_at").is("archived_at", null).order("created_at", { ascending: false }).limit(50),
-    supabase.from("packages").select("title,description,price,published,status,updated_at").order("updated_at", { ascending: false }).limit(30),
+    supabase.from("packages").select("slug,price,metadata,published,updated_at").order("updated_at", { ascending: false }).limit(30),
     supabase.from("partners").select("name,category,description,published,updated_at").order("updated_at", { ascending: false }).limit(30),
     supabase.from("promotions").select("title,description,status,published,starts_at,ends_at,updated_at").order("updated_at", { ascending: false }).limit(30),
   ]);
