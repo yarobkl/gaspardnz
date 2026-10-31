@@ -2,6 +2,7 @@ import { Suspense, useEffect, useRef, useState } from "react";
 import { hasPermission, logout } from "../../services/adminAuth.js";
 import { subscribeTailoringOrders } from "../../services/adminData.js";
 import { ALL_SECTIONS, NAV_GROUPS } from "./adminSections.js";
+import AdminAssistant from "./AdminAssistant.jsx";
 import "../../styles/admin-v2.css";
 
 const DEFAULT_SECTION = "dashboard";
@@ -90,6 +91,7 @@ const AdminLayout = ({ currentSection, onSectionChange, user }) => {
           )}
         </div>
       </main>
+      <AdminAssistant currentSection={current?.id} />
     </div>
   );
 };
