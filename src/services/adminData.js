@@ -71,7 +71,7 @@ export function subscribeDashboard(onChange) {
 export async function listLeads({ status = "all", search = "", limit = 100 } = {}) {
   let query = supabase
     .from("leads")
-    .select("id,full_name,email,phone,request_type,message,source,channel,campaign,status,estimated_value,currency,assigned_to,metadata,created_at,updated_at")
+    .select("id,full_name,email,phone,request_type,message,source,channel,campaign,status,estimated_value,currency,assigned_to,metadata,marketing_consent,marketing_consent_at,tags,last_contacted_at,next_follow_up_at,created_at,updated_at")
     .order("created_at", { ascending: false })
     .limit(limit);
   if (status !== "all") query = query.eq("status", status);
