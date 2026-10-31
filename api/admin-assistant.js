@@ -49,10 +49,10 @@ export default async function handler(req, res) {
   const context = { site: "GaspardNZ, styliste parisien : mariages, galas, cérémonies, conseil en image, showroom et partenaires événementiels.", section: clean(req.body?.context?.section, 80), leads: leadsResult.data || [], bookings: bookingsResult.data || [], emails: emailsResult.data || [], packages: packagesResult.data || [], partners: partnersResult.data || [], promotions: promotionsResult.data || [] };
   const prompt = `Tu es l'Assistant GaspardNZ intégré à son espace d'administration. Réponds en français, clairement et directement. Tu peux expliquer le site, les modules admin, les prospects, les réservations, les emails et les statistiques à partir des données fournies. Ne fabrique jamais une donnée absente. Si l'information n'est pas disponible, dis-le. Ne réalise aucune action et ne prétends pas en avoir réalisé une. Pour toute modification, suppression, envoi ou campagne, explique que la validation humaine est nécessaire. Réponds avec des paragraphes courts et, si utile, une liste d'actions. Question : ${question}. Contexte : ${JSON.stringify(context)}`;
   try {
-    const models = [...new Set([MODEL, "gemini-3.6-flash", "gemini-3.5-flash-lite"])]
+    const models = [...new Set(["gemini-3.5-flash-lite", MODEL, "gemini-3.6-flash"])]
     let lastDetail = "Erreur Gemini inconnue";
     for (const model of models) {
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(process.env.GEMINI_API_KEY)}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: prompt }] }], generationConfig: { temperature: 0.2, maxOutputTokens: 1000 } }) });
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(process.env.GEMINI_API_KEY)}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: prompt }] }], generationConfig: { temperature: 0.1, maxOutputTokens: 600 } }) });
       const data = await response.json();
       if (response.ok) {
         const answer = data?.candidates?.[0]?.content?.parts?.map((part) => part.text || "").join("\n").trim();
