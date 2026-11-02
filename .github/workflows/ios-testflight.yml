@@ -71,9 +71,14 @@ jobs:
       - name: Construire et synchroniser Capacitor iOS
         run: npm run cap:sync:ios
 
+      - name: Installer Python pour les icônes
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
       - name: Préparer les icônes officielles GNZ sans transparence
         run: |
-          python3 -m pip install --user Pillow
+          python3 -m pip install Pillow
           python3 ios/scripts/prepare_app_icon.py
 
       - name: Appliquer la version iOS
