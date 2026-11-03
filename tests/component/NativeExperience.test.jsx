@@ -8,6 +8,9 @@ import NativeExperience from "../../src/components/NativeExperience.jsx";
 vi.mock("../../src/hooks/useSettings.js", () => ({
   useSettings: () => ({ whatsappNumber: "+33600000000", lookbookHidden: true }),
 }));
+vi.mock("../../src/hooks/usePublicCollection.js", () => ({
+  usePublicCollection: () => ({ rows: [], loading: false, error: null }),
+}));
 vi.mock("../../src/components/NativeServices.jsx", () => ({
   default: ({ onContact }) => <button onClick={() => onContact("image_consulting")}>Parler de ce projet</button>,
 }));
