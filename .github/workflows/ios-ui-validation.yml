@@ -4,6 +4,9 @@ on:
     paths:
       - "src/**"
       - "tests/component/NativeExperience.test.jsx"
+      - "tests/api/whatsappNotification.test.js"
+      - "api/notify-whatsapp-contact.js"
+      - "scripts/validate-admin-auth.mjs"
       - "public/**"
       - "package.json"
       - "package-lock.json"
@@ -25,6 +28,8 @@ jobs:
         run: npm ci
       - name: Test native tabs, translations and CRM lead routing
         run: npm run test:unit -- tests/component/NativeExperience.test.jsx
+      - name: Test native CRM notification CORS and source tracking
+        run: npm run test:unit -- tests/api/whatsappNotification.test.js
       - name: Build native Capacitor web assets
         run: npm run build:app
       - name: Verify HTML and original uploaded portrait
