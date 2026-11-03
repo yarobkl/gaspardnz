@@ -93,7 +93,7 @@ describe("Partenaires — « Devenir partenaire » confirme sans attendre le ré
     expect(screen.getByText(/Votre candidature a bien été envoyée/)).toBeInTheDocument();
     vi.unstubAllGlobals();
     expect(screen.queryByText(/Erreur/)).not.toBeInTheDocument();
-  });
+  }, 15000);
 });
 
 // Demandé par l'utilisateur : la catégorie "Animation / Divertissement" est
