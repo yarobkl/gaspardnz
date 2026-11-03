@@ -36,7 +36,11 @@ for (const bogus of [undefined, null, "", "superadmin", "OWNER "]) {
 // ---------------------------------------------------------------------------
 // 2. Défense en profondeur dans l'interface.
 // ---------------------------------------------------------------------------
-const navBlock = layout.slice(layout.indexOf("const NAV_GROUPS"), layout.indexOf("const allItems"));
+// NAV_GROUPS was extracted into a single shared source, while AdminLayout
+// keeps role-filtered rendering. Follow both sources rather than requiring
+// the old inline declaration.
+const navSource = readFileSync("src/components/Admin/adminSections.js", "utf8");
+const navBlock = navSource.slice(navSource.indexOf("export const NAV_GROUPS"), navSource.indexOf("export const ALL_SECTIONS"));
 const entries = [...navBlock.matchAll(/\{\s*id:\s*"([a-z]+)"[^}]*\}/g)];
 assert.ok(entries.length >= 10, "la navigation admin doit être détectée");
 for (const [raw, id] of entries) {
@@ -47,10 +51,13 @@ const minOf = (id) => navBlock.match(new RegExp(`id: "${id}"[^}]*min: "(\\w+)"`)
 assert.equal(minOf("users"), "owner");
 assert.equal(minOf("settings"), "admin");
 assert.match(layout, /import \{ hasPermission, logout \}/);
+assert.match(layout, /import \{ ALL_SECTIONS, NAV_GROUPS \}/);
 assert.match(layout, /visibleGroups\.map\(\(group\)/);
+assert.match(layout, /group\.items\.filter\(allowed\)/);
+assert.match(layout, /const sectionRefused = Boolean\(requested\) && !allowed\(requested\) && !landingFallback/);
+assert.match(layout, /const ActiveComponent = !sectionRefused \? current\?\.component : null/);
+assert.match(layout, /\{sectionRefused \? \(/);
 assert.doesNotMatch(layout, /<nav className="gnz-nav"[^>]*>\{NAV_GROUPS\.map/);
-assert.match(layout, /sectionRefused/);
-assert.match(layout, /let rendered = sectionRefused \? null : children;/);
 
 // ---------------------------------------------------------------------------
 // 3. Migrations additives et rollbacks présents.
