@@ -90,8 +90,9 @@ try {
   }
   const journalHotspots = section.locator("button[aria-pressed]");
   if (await journalHotspots.count()) {
-    await journalHotspots.first().click({ force: true }); await wait(400);
+    await journalHotspots.first().click({ force: true });
     const dialog = page.getByRole("dialog").last();
+    await dialog.waitFor({ state: "visible", timeout: 2500 }).catch(() => {});
     const buttons = dialog.locator("button");
     const ok = await dialog.count() > 0 && await buttons.count() >= 2;
     if (ok) { await buttons.first().click({ force: true }); await wait(50); }
