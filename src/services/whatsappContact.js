@@ -1,4 +1,6 @@
 import { sendPublicEvent } from "./supabaseClient.js";
+import { Capacitor } from "@capacitor/core";
+import { SITE_URL } from "../constants.js";
 import { getTrackingContext } from "./siteTracking.js";
 import { getCountryCallingCode, isSupportedCountry, parsePhoneNumberFromString } from "libphonenumber-js/min";
 import { buildContactMessage, contactProjectLabel, getContactProject } from "../data/contactProjects.js";
@@ -27,7 +29,8 @@ const submissions = new Map();
 
 async function notifyContact(leadId) {
   try {
-    const response = await fetch("/api/notify-whatsapp-contact", {
+    const endpoint = Capacitor.getPlatform() === "ios" ? `${SITE_URL}/api/notify-whatsapp-contact` : "/api/notify-whatsapp-contact";
+    const response = await fetch(endpoint, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ leadId }),
@@ -54,16 +57,17 @@ export async function submitWhatsappContact({ firstName, phone, country = "FR", 
 
   const save = (async () => {
     const context = getTrackingContext();
+    const isIosApp = Capacitor.getPlatform() === "ios";
     const result = await sendPublicEvent("lead", {
       ...context,
       full_name: name,
       phone: normalizedPhone,
       request_type: "whatsapp_contact",
-      source: "Site GaspardNZ",
+      source: isIosApp ? "Application GaspardNZ iOS" : "Site GaspardNZ",
       channel: "whatsapp",
       message: whatsappMessage,
       metadata: {
-        entry_point: "parler_a_gaspard",
+        entry_point: isIosApp ? "parler_a_gaspard_ios" : "parler_a_gaspard",
         country_code: country,
         calling_code: `+${getCountryCallingCode(country)}`,
         project_type: projectType,
