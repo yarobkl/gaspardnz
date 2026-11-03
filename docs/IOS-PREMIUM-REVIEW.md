@@ -19,12 +19,16 @@
 ## Parcours clients
 - Tous les boutons de contact principaux natifs ainsi que les demandes issues des formules et du showroom ouvrent `WhatsappContactModal`.
 - Le formulaire valide le prénom, téléphone avec pays et type de projet, puis envoie la demande au CRM avant l'ouverture de WhatsApp.
+- **Important :** la fonction Supabase `public-event` déployée ne permet pas l'origine `capacitor://localhost`. Sur iOS, `sendPublicEvent` passe donc par `CapacitorHttp.post` (transport natif et clé publiable uniquement), sans modifier la fonction en production.
+- La notification par e-mail utilise `https://gaspardnz.style/api/notify-whatsapp-contact` en natif. Le code de l'API dans cette branche accepte l'origine iOS et son preflight, mais **cette correction serveur n'est pas encore déployée**. Ne pas considérer les notifications app comme opérationnelles avant publication autorisée et test réel.
 - L'onglet « Réserver » présente une **demande de rendez-vous**, pas une réservation confirmée. Aucun créneau temps réel n'est promis.
 - Le chatbot existant renvoie vers les pages de la navigation native ou le formulaire de contact.
 - Une erreur de téléchargement du Lookbook n'est plus silencieuse.
 
 ## Contrôles automatisés
 - `npm run test:unit -- tests/component/NativeExperience.test.jsx` : navigation des cinq onglets, photo, langues, galerie, CTA vers CRM.
+- `npm run test:unit -- tests/unit/nativePublicEvent.test.js` : transport HTTP natif vers Supabase, erreurs réseau et compatibilité site.
+- `npm run test:unit -- tests/api/whatsappNotification.test.js` : origine iOS autorisée, autres origines refusées, envois et anti-doublons.
 - `npm run build:app` : build Vite des assets Capacitor.
 - Le workflow `.github/workflows/ios-ui-validation.yml` vérifie aussi la présence de `dist/images/Photo application .JPG`.
 - La validation générale du projet doit aussi passer (script `validate-admin-auth.mjs` mis à jour pour la séparation du hook `useAdminSession`).
