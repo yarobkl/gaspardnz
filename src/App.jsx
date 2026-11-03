@@ -29,6 +29,10 @@ import { getWhatsappUrl } from "./utils/whatsappUtil.js";
 import SectionDivider from "./components/ui/SectionDivider.jsx";
 
 const NativeExperience = lazy(() => import("./components/NativeExperience.jsx"));
+// A shareable browser preview lets the iOS layout be reviewed before a signed build.
+// The normal website remains the default for every visitor.
+const iosDesignPreview = typeof window !== "undefined" &&
+  new URLSearchParams(window.location.search).get("ios-preview") === "1";
 
 const AboutSection = lazy(() => import("./components/sections/AboutSection.jsx"));
 const HeritageMobile = lazy(() => import("./components/HeritageMobile.jsx"));
@@ -276,7 +280,7 @@ export default function App() {
             onSectionChange={onAdminSectionChange}
             onLoginSuccess={onLoginSuccess}
           />
-        ) : Capacitor.getPlatform() === "ios" ? (
+        ) : (Capacitor.getPlatform() === "ios" || iosDesignPreview) ? (
           <Suspense fallback={<div style={{minHeight:"100dvh",background:"#FAF8F4"}} />}><NativeExperience /></Suspense>
         ) : (
           <>
