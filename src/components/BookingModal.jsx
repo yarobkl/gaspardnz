@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { GOLD, CREAM, CALENDLY_URL } from "../constants.js";
+import { GOLD, CREAM } from "../constants.js";
 import { useTr } from "../context.jsx";
 import { useFocusTrap } from "../hooks/useFocusTrap.js";
 import { useEscapeKey } from "../hooks/useEscapeKey.js";
 import { SvgCalendar, SvgWA, SvgArrow } from "../icons.jsx";
 import { useSettings } from "../hooks/useSettings.js";
 import { getWhatsappUrl } from "../utils/whatsappUtil.js";
+import { formatAvailabilitySlot, normalizeBookingAvailability } from "../utils/bookingAvailability.js";
 import Portal from "./ui/Portal.jsx";
 
 const BoutiqueModal = ({ onClose, onReserver }) => {
@@ -67,13 +68,16 @@ const BookingModal = ({ isOpen, onClose, boutiqueMode = false, onSwitchToBooking
   const focusTrapRef = useFocusTrap(isOpen);
   const [step, setStep] = useState(1);
   const [form, setForm] = useState({ nom: "", projet: "", besoin: "" });
+  const [selectedSlot, setSelectedSlot] = useState(null);
+  const availability = normalizeBookingAvailability(settings.bookingAvailability);
 
   const ok = form.nom.trim() && form.projet.trim() && form.besoin.trim();
 
   const nom = form.nom.trim();
   const projet = form.projet.trim();
   const besoin = form.besoin.trim();
-  const waMsg = t("bk_wa", nom, projet, besoin);
+  const slotLabel = selectedSlot ? formatAvailabilitySlot(selectedSlot, "fr-FR") : "Aucun créneau sélectionné";
+  const waMsg = `${t("bk_wa", nom, projet, besoin)}\nCréneau souhaité : ${slotLabel}`;
   const waUrl = getWhatsappUrl(settings.whatsappNumber, waMsg);
 
   // Fermer (fond cliqué, "×" ou Échap) ne doit PAS effacer une saisie en
@@ -212,18 +216,13 @@ const BookingModal = ({ isOpen, onClose, boutiqueMode = false, onSwitchToBooking
                     </p>
 
                     <div style={{ display: "flex", flexDirection: "column", gap: "0.9rem" }}>
-                      <a href={settings.calendlyUrl || CALENDLY_URL} target="_blank" rel="noopener noreferrer"
-                        style={{ display: "flex", alignItems: "center", gap: "1.1rem", border: "1px solid rgba(184,151,62,0.22)", padding: "1.3rem 1.4rem", textDecoration: "none", transition: "border-color 0.3s, background 0.3s" }}
-                        onTouchStart={e => { e.currentTarget.style.borderColor = GOLD; e.currentTarget.style.background = "rgba(184,151,62,0.04)"; }}
-                        onTouchEnd={e => { e.currentTarget.style.borderColor = "rgba(184,151,62,0.22)"; e.currentTarget.style.background = "none"; }}>
-                        <div style={{ width: "38px", height: "38px", border: `1px solid rgba(184,151,62,0.35)`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                          <SvgCalendar />
+                      <div style={{ border: "1px solid rgba(184,151,62,0.22)", padding: "1.3rem 1.4rem" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: "1.1rem", marginBottom: "1rem" }}>
+                          <div style={{ width: "38px", height: "38px", border: `1px solid rgba(184,151,62,0.35)`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><SvgCalendar /></div>
+                          <div><p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.15rem", letterSpacing: "0.07em", color: CREAM, marginBottom: "0.15rem" }}>Créneaux publiés par GaspardNZ</p><p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.2em", color: "rgba(245,240,232,0.68)", textTransform: "uppercase" }}>Réservation centralisée</p></div>
                         </div>
-                        <div>
-                          <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.15rem", letterSpacing: "0.07em", color: CREAM, marginBottom: "0.15rem" }}>{t("bk_cal_title")}</p>
-                          <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.2em", color: "rgba(245,240,232,0.68)", textTransform: "uppercase" }}>{t("bk_cal_sub")}</p>
-                        </div>
-                      </a>
+                        {availability.slots.length ? <div style={{ display: "grid", gap: "0.55rem" }}>{availability.slots.slice(0, 8).map(slot => <button key={slot.id} type="button" onClick={() => setSelectedSlot(slot)} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, width: "100%", border: selectedSlot?.id === slot.id ? `1px solid ${GOLD}` : "1px solid rgba(184,151,62,0.18)", background: selectedSlot?.id === slot.id ? "rgba(184,151,62,0.12)" : "transparent", color: CREAM, padding: "0.75rem 0.85rem", textAlign: "left", cursor: "pointer" }}><span>{formatAvailabilitySlot(slot, "fr-FR")}</span><span aria-hidden="true">›</span></button>)}</div> : <p style={{ margin: 0, color: "rgba(245,240,232,0.68)", fontSize: 12, lineHeight: 1.6 }}>Les prochains créneaux seront publiés ici par GaspardNZ.</p>}
+                      </div>
 
                       <a href={waUrl} target="_blank" rel="noopener noreferrer"
                         style={{ display: "flex", alignItems: "center", gap: "1.1rem", border: `1px solid ${GOLD}`, background: "rgba(184,151,62,0.04)", padding: "1.3rem 1.4rem", textDecoration: "none", transition: "background 0.3s" }}
