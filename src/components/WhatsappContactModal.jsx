@@ -8,6 +8,7 @@ import Portal from "./ui/Portal.jsx";
 import { CONTACT_PROJECTS, buildContactMessage } from "../data/contactProjects.js";
 import { contactCountries } from "../utils/contactCountries.js";
 import { getWhatsappUrl } from "../utils/whatsappUtil.js";
+import { Capacitor } from "@capacitor/core";
 import "./WhatsappContactModal.css";
 
 const COPY = {
@@ -65,13 +66,13 @@ const inputStyle = { width: "100%", boxSizing: "border-box", background: "none",
 const labelStyle = { display: "grid", gap: 8, fontSize: 12, letterSpacing: ".08em" };
 const primaryStyle = { display: "block", boxSizing: "border-box", width: "100%", border: `1px solid ${GOLD}`, padding: "1rem", minHeight: 50, background: GOLD, color: "#1c1208", textAlign: "center", textDecoration: "none", fontFamily: "'Montserrat',sans-serif", fontSize: 12, fontWeight: 700, cursor: "pointer" };
 
-export default function WhatsappContactModal({ isOpen, onClose, whatsappNumber }) {
+export default function WhatsappContactModal({ isOpen, onClose, whatsappNumber, initialProjectType = "", native = false }) {
   const { lang } = useContext(LangCtx);
   const copy = COPY[lang] || COPY.FR;
   const [firstName, setFirstName] = useState("");
   const [phone, setPhone] = useState("");
   const [country, setCountry] = useState("FR");
-  const [projectType, setProjectType] = useState("");
+  const [projectType, setProjectType] = useState(initialProjectType);
   const [projectDetails, setProjectDetails] = useState("");
   const [fallbackUrl, setFallbackUrl] = useState("");
   const countries = useMemo(() => contactCountries(lang), [lang]);
@@ -94,7 +95,7 @@ export default function WhatsappContactModal({ isOpen, onClose, whatsappNumber }
     setFallbackUrl("");
     try {
       await submitWhatsappContact({ firstName, phone, country, projectType, projectDetails, lang });
-      const message = buildContactMessage({ firstName: normalizeContactName(firstName), projectType, projectDetails: normalizeContactName(projectDetails), lang });
+      const message = buildContactMessage({ firstName: normalizeContactName(firstName), projectType, projectDetails: normalizeContactName(projectDetails), lang, source: Capacitor.getPlatform() === "ios" ? "app" : "site" });
       const url = getWhatsappUrl(whatsappNumber, message);
       try {
         if (!url || !window.open(url, "_self")) {
@@ -116,8 +117,8 @@ export default function WhatsappContactModal({ isOpen, onClose, whatsappNumber }
   if (!isOpen) return null;
   return (
     <Portal>
-      <div className="gnz-contact-backdrop" onClick={close} style={{ position: "fixed", inset: 0, zIndex: 750, background: "rgba(0,0,0,.92)", display: "flex", alignItems: "flex-start", justifyContent: "center", padding: "3.5rem 1rem 1rem", overflowY: "auto" }}>
-        <div className="gnz-contact-dialog" ref={focusTrapRef} role="dialog" aria-modal="true" aria-labelledby="whatsapp-contact-title" aria-busy={saving} onClick={e => e.stopPropagation()} style={{ width: "100%", maxWidth: 480, background: "#0a0602", color: CREAM, borderTop: `2px solid ${GOLD}`, padding: "1.8rem", boxSizing: "border-box", fontFamily: "'Montserrat',sans-serif" }}>
+      <div className={`gnz-contact-backdrop${native ? " gnz-contact-native-backdrop" : ""}`} onClick={close} style={{ position: "fixed", inset: 0, zIndex: 750, background: "rgba(0,0,0,.92)", display: "flex", alignItems: "flex-start", justifyContent: "center", padding: "3.5rem 1rem 1rem", overflowY: "auto" }}>
+        <div className={`gnz-contact-dialog${native ? " gnz-contact-native" : ""}`} ref={focusTrapRef} role="dialog" aria-modal="true" aria-labelledby="whatsapp-contact-title" aria-busy={saving} onClick={e => e.stopPropagation()} style={{ width: "100%", maxWidth: 480, background: "#0a0602", color: CREAM, borderTop: `2px solid ${GOLD}`, padding: "1.8rem", boxSizing: "border-box", fontFamily: "'Montserrat',sans-serif" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12 }}>
             <div>
               <h2 id="whatsapp-contact-title" style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: 28, fontWeight: 400, margin: ".5rem 0 1.5rem" }}>{copy.title}</h2>

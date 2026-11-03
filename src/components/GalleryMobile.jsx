@@ -30,7 +30,7 @@ const absoluteMedia = (src) => {
   return `${import.meta.env.BASE_URL}${String(src).replace(/^\/+/, "")}`;
 };
 
-export default function GalleryMobile({ refEl }) {
+export default function GalleryMobile({ refEl, native = false }) {
   const t = useTr();
   const { lang } = useContext(LangCtx);
   const settings = useSettings();
@@ -64,7 +64,7 @@ export default function GalleryMobile({ refEl }) {
   }, [rows, fallback, spots]);
 
   const [expanded, setExpanded] = useState(false);
-  const visibleItems = isCompactMobile && !expanded ? items.slice(0, 4) : items;
+  const visibleItems = native ? items : isCompactMobile && !expanded ? items.slice(0, 4) : items;
   const copy = COPY[lang] || COPY.FR;
   const [cur, setCur] = useState(0);
   const [activeSpot, setActiveSpot] = useState(null);
@@ -73,12 +73,12 @@ export default function GalleryMobile({ refEl }) {
 
   useEffect(() => { if (cur >= n) setCur(0); }, [n, cur]);
   useEffect(() => {
-    if (n < 2 || activeSpot !== null) return undefined;
+    if (native || n < 2 || activeSpot !== null) return undefined;
     timerRef.current = window.setInterval(() => setCur((value) => (value + 1) % n), 5000);
     return () => window.clearInterval(timerRef.current);
-  }, [n, activeSpot]);
+  }, [n, activeSpot, native]);
 
-  if (!n) return null;
+  if (!n) return native ? <p className="gnz-native-muted">{lang === "FR" ? "La galerie sera bientôt disponible." : lang === "EN" ? "The gallery will be available soon." : lang === "ES" ? "La galería estará disponible pronto." : "图库即将上线。"}</p> : null;
   const current = visibleItems[cur];
   const selected = activeSpot !== null ? current?.hotspots?.[activeSpot] : null;
   const go = (direction) => { setActiveSpot(null); setCur((value) => (value + direction + n) % n); };
@@ -99,6 +99,23 @@ export default function GalleryMobile({ refEl }) {
     if (navigator.share) { try { await navigator.share(payload); return; } catch {} }
     try { await navigator.clipboard.writeText(SITE_URL); } catch {}
   };
+
+  if (native) return (
+    <section ref={refEl} className="gnz-native-gallery" aria-label={t("nav_galerie")}>
+      <div className="gnz-native-gallery-grid">
+        {items.map((item, index) => (
+          <button type="button" key={item.src} onClick={() => { setCur(index); setActiveSpot(null); }} aria-label={item.label} aria-pressed={cur === index}>
+            <img src={item.src} alt="" loading={index < 4 ? "eager" : "lazy"} decoding="async" />
+          </button>
+        ))}
+      </div>
+      <div className="gnz-native-gallery-detail">
+        <span>{String(cur + 1).padStart(2, "0")} / {String(items.length).padStart(2, "0")}</span>
+        <strong>{items[cur]?.label}</strong>
+        <button type="button" onClick={share}>Partager ce look</button>
+      </div>
+    </section>
+  );
 
   return (
     <section ref={refEl} style={{ background:CREAM, paddingBottom:isCompactMobile ? "3rem" : "4rem", overflow:"hidden" }}>

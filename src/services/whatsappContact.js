@@ -51,7 +51,7 @@ export async function submitWhatsappContact({ firstName, phone, country = "FR", 
   if (!getContactProject(projectType) || (projectType === "other" && (!details || details.length > 300))) throw new Error("invalid_project");
   const projectLabel = contactProjectLabel(projectType);
   const relevantDetails = projectType === "other" ? details : "";
-  const whatsappMessage = buildContactMessage({ firstName: name, projectType, projectDetails: relevantDetails, lang });
+  const whatsappMessage = buildContactMessage({ firstName: name, projectType, projectDetails: relevantDetails, lang, source: Capacitor.getPlatform() === "ios" ? "app" : "site" });
   const key = JSON.stringify([name.toLocaleLowerCase(), normalizedPhone, country, projectType, relevantDetails]);
   if (submissions.has(key)) return submissions.get(key);
 

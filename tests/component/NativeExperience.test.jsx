@@ -8,15 +8,15 @@ import NativeExperience from "../../src/components/NativeExperience.jsx";
 vi.mock("../../src/hooks/useSettings.js", () => ({
   useSettings: () => ({ whatsappNumber: "+33600000000", lookbookHidden: true }),
 }));
-vi.mock("../../src/components/sections/FormulesSection.jsx", () => ({
-  default: ({ onContact }) => <button onClick={onContact}>Demander un devis</button>,
+vi.mock("../../src/components/NativeServices.jsx", () => ({
+  default: ({ onContact }) => <button onClick={() => onContact("image_consulting")}>Parler de ce projet</button>,
 }));
 vi.mock("../../src/components/GalleryMobile.jsx", () => ({
   default: () => <div data-testid="gallery">Galerie chargée</div>,
 }));
 vi.mock("../../src/components/WhatsappContactModal.jsx", () => ({
-  default: ({ isOpen, onClose }) => isOpen
-    ? <div role="dialog" aria-label="Contact CRM"><button onClick={onClose}>Fermer le contact</button></div>
+  default: ({ isOpen, onClose, initialProjectType }) => isOpen
+    ? <div role="dialog" aria-label="Contact CRM" data-project={initialProjectType}><button onClick={onClose}>Fermer le contact</button></div>
     : null,
 }));
 
@@ -59,16 +59,17 @@ describe("GaspardNZ native iOS experience", () => {
   it("sends the services lead to the CRM form, not directly to WhatsApp", async () => {
     render(<Harness />);
     openTab("Services");
-    fireEvent.click(await screen.findByRole("button", { name: "Demander un devis" }));
-    expect(await screen.findByRole("dialog", { name: "Contact CRM" })).toBeInTheDocument();
+    fireEvent.click(await screen.findByRole("button", { name: "Parler de ce projet" }));
+    expect(await screen.findByRole("dialog", { name: "Contact CRM" })).toHaveAttribute("data-project", "image_consulting");
   });
 
   it("presents booking as a request and opens the CRM contact form", async () => {
     render(<Harness />);
     openTab("Réserver");
     expect(screen.getByText(/GaspardNZ pourra ensuite vous recontacter/)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Préparation de mariage" }));
     fireEvent.click(screen.getByRole("button", { name: "Envoyer ma demande →" }));
-    expect(await screen.findByRole("dialog", { name: "Contact CRM" })).toBeInTheDocument();
+    expect(await screen.findByRole("dialog", { name: "Contact CRM" })).toHaveAttribute("data-project", "wedding");
   });
 
   it("translates all five tabs when switching to English", async () => {
