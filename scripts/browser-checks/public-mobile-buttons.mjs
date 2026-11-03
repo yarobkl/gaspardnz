@@ -63,7 +63,7 @@ try {
   await home();
 
   const introBeforeExplorer = await page.evaluate(() => {
-    const intro = document.querySelector('img[alt*="Inspirateur"]')?.closest("section");
+    const intro = [...document.querySelectorAll("section")].find((section) => /Votre événement mérite plus qu’une tenue/i.test(section.textContent || ""));
     const explorer = document.querySelector("#gnz-mobile-home");
     if (!intro || !explorer) return false;
     return Boolean(intro.compareDocumentPosition(explorer) & Node.DOCUMENT_POSITION_FOLLOWING);
