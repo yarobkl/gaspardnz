@@ -106,7 +106,7 @@ try {
   const contactButton = page.getByRole("button", { name: "Parler à Gaspard" });
   await contactButton.click({ force: true });
   const contactDialog = page.getByRole("dialog");
-  const contactOpened = await contactDialog.isVisible().catch(() => false);
+  const contactOpened = await contactDialog.waitFor({ state: "visible", timeout: 8000 }).then(() => true).catch(() => false);
   report.record("PUB-06", "Parler à Gaspard", "ouvre le formulaire de contact avant WhatsApp", `dialogue=${contactOpened}`, contactOpened && jsErrors.length === 0);
   await home();
 
