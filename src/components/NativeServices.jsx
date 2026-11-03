@@ -56,7 +56,7 @@ export default function NativeServices({ lang, onContact }) {
   return <div className="gnz-native-service-list">
     {selected && <button className="gnz-native-inline-back" type="button" onClick={() => setSelected(null)}>‹ {labels.back}</button>}
     {selected === null && selectedFormula === null ? <>
-      {categories.map((item, index) => <button key={item.title} type="button" className="gnz-native-service-card" onClick={() => setSelected(index)}>
+      {categories.map((item) => <button key={item.title} type="button" className="gnz-native-service-card" onClick={() => setSelected(item)}>
         <img src={item.image} alt="" loading="lazy" />
         <span><strong>{item.title}</strong><small>{item.detail}</small></span><span aria-hidden="true">›</span>
       </button>)}
@@ -83,9 +83,10 @@ export default function NativeServices({ lang, onContact }) {
       </button>)}
       <button className="gnz-native-primary" type="button" onClick={() => onContact("other")}>{labels.ask}</button>
     </> : <>
-      <div className="gnz-native-service-feature"><img src={categories[selected].image} alt="" /><h2>{categories[selected].title}</h2></div>
-      <p className="gnz-native-muted">{categories[selected].detail}</p>
-      <button className="gnz-native-primary" type="button" onClick={() => onContact(categories[selected].project)}>{labels.ask}</button>
+      <div className="gnz-native-service-feature"><img src={selected.image} alt="" /><h2>{selected.title}</h2></div>
+      <p className="gnz-native-muted">{selected.detail}</p>
+      <button className="gnz-native-primary" type="button" onClick={() => onContact(selected.project)}>{labels.ask}</button>
     </>}
   </div>;
 }
+

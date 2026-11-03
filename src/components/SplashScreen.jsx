@@ -2,8 +2,7 @@ import { useEffect } from "react";
 import { motion } from "framer-motion";
 import { GOLD } from "../constants.js";
 
-const SPLASH_MAX_MS = 700;
-const SPLASH_IMG = (typeof import.meta !== "undefined" ? (import.meta.env.BASE_URL || "/") : "/") + "images/style-parisien.jpg";
+const SPLASH_MAX_MS = 900;
 
 const SplashScreen = ({ onDone, loading }) => {
   useEffect(() => {
@@ -15,52 +14,38 @@ const SplashScreen = ({ onDone, loading }) => {
     <motion.div
       exit={{ opacity: 0 }}
       transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-      style={{ position: "fixed", inset: 0, zIndex: 9999, background: "#070400", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "2.4rem", overflow: "hidden" }}>
-
-    {/* Photo de fond */}
-    <motion.img
-      src={SPLASH_IMG}
-      width="1200"
-      height="1600"
-      alt="Gaspardnz splash screen background - styliste parisien"
-      initial={{ opacity: 0, scale: 1.06 }}
-      animate={{ opacity: 0.45, scale: 1 }}
-      transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-      style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center top" }}
-    />
-    {/* Overlay sombre */}
-    <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(4,2,0,0.5) 0%, rgba(4,2,0,0.3) 40%, rgba(4,2,0,0.6) 100%)" }} />
+      style={{ position: "fixed", inset: 0, zIndex: 9999, background: "radial-gradient(circle at 50% 42%, #3a291b 0%, #170f09 72%)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "1.2rem", overflow: "hidden" }}>
 
     {/* Bouton Passer */}
     <motion.button
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 2, duration: 0.6 }}
+      transition={{ delay: 0.55, duration: 0.35 }}
       onClick={onDone}
       aria-label="Skip splash screen"
-      style={{ position: "absolute", top: "2rem", right: "2rem", zIndex: 10, background: "rgba(184,151,62,0.15)", border: "1px solid rgba(184,151,62,0.4)", color: "rgba(245,240,232,0.88)", padding: "0.7rem 1.2rem", minHeight: "44px", minWidth: "44px", fontFamily: "'Montserrat', sans-serif", fontSize: "11px", letterSpacing: "0.05em", textTransform: "uppercase", cursor: "pointer", borderRadius: "2px", transition: "all 0.3s ease" }}
+      style={{ position: "absolute", top: "2rem", right: "2rem", zIndex: 10, background: "transparent", border: "1px solid rgba(220,178,91,0.42)", color: "rgba(245,240,232,0.88)", padding: "0.7rem 1.2rem", minHeight: "44px", minWidth: "44px", fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.05em", textTransform: "uppercase", cursor: "pointer", borderRadius: "999px", transition: "all 0.3s ease" }}
       onHoverStart={{ background: "rgba(184,151,62,0.25)" }}>
       Passer
     </motion.button>
 
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 1.4, ease: [0.16, 1, 0.3, 1] }}
+      transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
       style={{ textAlign: "center", position: "relative", zIndex: 1 }}>
       <motion.p
-        initial={{ letterSpacing: "0.12em", opacity: 0 }}
-        animate={{ letterSpacing: "0.38em", opacity: 1 }}
-        transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-        style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "3.5rem", color: "#faf7f2", margin: 0, lineHeight: 1, textShadow: "0 2px 20px rgba(0,0,0,0.6)" }}>
-        GASPARDNZ
+        initial={{ letterSpacing: "0.08em", opacity: 0 }}
+        animate={{ letterSpacing: "0.16em", opacity: 1 }}
+        transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1] }}
+        style={{ fontFamily: "'Snell Roundhand', 'Apple Chancery', cursive", fontSize: "clamp(5.4rem, 24vw, 8rem)", fontWeight: 700, color: "#e2b75f", margin: 0, lineHeight: 0.9, textShadow: "0 0 12px rgba(226,183,95,.35), 0 3px 26px rgba(0,0,0,.55)" }}>
+        GNZ
       </motion.p>
       <motion.p
         initial={{ opacity: 0, letterSpacing: "0.3em" }}
-        animate={{ opacity: 1, letterSpacing: "0.44em" }}
-        transition={{ duration: 0.75, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
-        style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", color: GOLD, textTransform: "uppercase", marginTop: "10px" }}>
-        Paris
+        animate={{ opacity: 1, letterSpacing: "0.16em" }}
+        transition={{ duration: 0.7, delay: 0.28, ease: [0.16, 1, 0.3, 1] }}
+        style={{ fontFamily: "Georgia, serif", fontSize: "13px", color: "#f5e7cf", marginTop: "17px", fontStyle: "italic" }}>
+        S'habiller autrement !
       </motion.p>
     </motion.div>
 
@@ -85,3 +70,4 @@ const SplashScreen = ({ onDone, loading }) => {
 };
 
 export default SplashScreen;
+
