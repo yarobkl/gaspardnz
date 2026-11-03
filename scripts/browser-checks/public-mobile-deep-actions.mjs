@@ -43,12 +43,14 @@ try {
   const galleryCounter = section.locator("span").filter({ hasText: /\d{2}\s*\/\s*\d{2}/ }).first();
   const beforeCounter = (await galleryCounter.textContent())?.trim() || "";
   const next = section.locator("button").filter({ hasText: "›" }).first();
-  await next.click({ force: true }); await wait();
+  await next.click({ force: true });
+  await page.waitForFunction((before) => document.querySelector("#gnz-mobile-active-section")?.textContent?.includes(before) === false, beforeCounter, { timeout: 3000 }).catch(() => {});
+  await wait(450);
   const afterCounter = (await galleryCounter.textContent())?.trim() || "";
   report.record("DEEP-GAL-01", "Galerie — suivant", "la photo suivante est sélectionnée", `${beforeCounter} -> ${afterCounter}`, beforeCounter !== afterCounter && errors.length === 0);
 
   const prev = section.locator("button").filter({ hasText: "‹" }).first();
-  await prev.click({ force: true }); await wait();
+  await prev.click({ force: true }); await wait(450);
   const backCounter = (await galleryCounter.textContent())?.trim() || "";
   report.record("DEEP-GAL-02", "Galerie — précédent", "retour à la photo précédente", `${afterCounter} -> ${backCounter}`, backCounter === beforeCounter && errors.length === 0);
 
@@ -84,7 +86,8 @@ try {
     // hauteur (framer-motion), et cliquer un hotspot avant la fin de cette
     // transition atterrit sur une position qui n'est plus la bonne —
     // observé de façon reproductible avec le délai par défaut (120ms).
-    await openJournal.click({ force: true }); await wait(400);
+    await openJournal.click({ force: true });
+    await section.getByRole("button", { name: /Réduire le journal/i }).waitFor({ state: "visible", timeout: 4000 }).catch(() => {});
     const collapseJournal = section.getByRole("button", { name: /Réduire le journal/i });
     report.record("DEEP-JOURNAL-01", "Style Journal — développer", "affiche le journal complet", `réduire visible=${await collapseJournal.count() > 0}`, await collapseJournal.count() > 0 && errors.length === 0);
   }
@@ -157,6 +160,7 @@ try {
       if (!el) return false;
       return el.querySelector('button[aria-expanded]') || /indisponibles/i.test(el.textContent || "");
     },
+    null,
     { timeout: 4000 },
   ).catch(() => {});
   const accordions = section.locator("button[aria-expanded]");
