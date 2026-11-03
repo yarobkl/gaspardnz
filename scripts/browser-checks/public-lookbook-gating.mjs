@@ -62,6 +62,7 @@ async function readFormulesState(page) {
     return {
       soon: /à venir/i.test(txt),
       buyLabel: /télécharger gratuitement/i.test(txt),
+      disabled: block.querySelector('button[data-track="lookbook_download"]')?.disabled ?? null,
       texte: txt.replace(/\s+/g, ' ').trim(),
     };
   });
@@ -87,7 +88,7 @@ async function readNavState(page) {
   record('FORMULES-vide', "section Formules sans lien Stripe",
     '« À venir » affiché, pas de bouton d\'achat',
     JSON.stringify(formules),
-    Boolean(formules?.soon) && !formules?.buyLabel);
+    Boolean(formules?.soon) && formules?.disabled === true);
 
   const nav = await readNavState(page);
   record('NAV-vide', "entrée Lookbook du menu sans lien Stripe",
@@ -104,7 +105,7 @@ async function readNavState(page) {
   record('FORMULES-actif', "section Formules avec lien Stripe",
     'bouton de téléchargement affiché, pas de « À venir »',
     JSON.stringify(formules),
-    Boolean(formules?.buyLabel) && !formules?.soon);
+    Boolean(formules?.buyLabel) && formules?.disabled === false && !formules?.soon);
 
   const nav = await readNavState(page);
   record('NAV-actif', "entrée Lookbook du menu avec lien Stripe",
@@ -121,7 +122,7 @@ async function readNavState(page) {
   record('FORMULES-masque-manuel', "section Formules avec lien Stripe mais case « Masquer » cochée",
     'message personnalisé « Bientôt disponible » affiché, pas de bouton d\'achat',
     JSON.stringify(formules),
-    !formules?.buyLabel && /bientôt disponible/i.test(formules?.texte || ''));
+    formules?.disabled === true && /bientôt disponible/i.test(formules?.texte || ''));
 
   const nav = await readNavState(page);
   record('NAV-masque-manuel', "entrée Lookbook du menu, masquée manuellement",
