@@ -99,7 +99,7 @@ try {
     await dialog.waitFor({ state: "visible", timeout: 2500 }).catch(() => {});
     const buttons = dialog.locator("button");
     const ok = await dialog.count() > 0 && await buttons.count() >= 2;
-    if (ok) { await buttons.first().click({ force: true }); await wait(50); }
+    if (ok) { await buttons.first().evaluate((button) => button.click()); await wait(50); }
     const urls = await opened();
     report.record("DEEP-JOURNAL-02", "Style Journal — hotspot", "ouvre le détail et l'action WhatsApp", `dialog=${ok}, url=${urls.at(-1) || "aucune"}`, ok && /wa\.me/.test(urls.at(-1) || "") && errors.length === 0);
   }
