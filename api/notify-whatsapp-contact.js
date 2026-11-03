@@ -16,13 +16,14 @@ export function notificationId(leadId, recipient) {
 
 export function formatContactNotification(lead) {
   const name = sanitizeText(lead.full_name, 80);
+  const email = sanitizeText(lead.email, 320);
   const phone = sanitizeText(lead.phone, 30);
   const project = sanitizeText(lead.metadata?.project_label || "Projet non précisé", 150);
   const details = sanitizeText(lead.metadata?.project_details || "", 300);
   const date = new Date(lead.created_at).toLocaleString("fr-FR", { timeZone: "Europe/Paris" });
   const whatsapp = `https://wa.me/${phone.replace(/\D/g, "")}`;
   const entrySource = lead.metadata?.entry_point === "parler_a_gaspard_ios" ? "application iPhone GaspardNZ" : "site GaspardNZ";
-  const text = `NOUVELLE DEMANDE CLIENT — GASPARDNZ\n\nPrénom : ${name}\nTéléphone : ${phone}\nPays : ${sanitizeText(lead.metadata?.country_code, 10)} (${sanitizeText(lead.metadata?.calling_code, 10)})\nProjet : ${project}${details ? `\nPrécisions : ${details}` : ""}\nReçue le : ${date} (heure de Paris)\nSource : ${entrySource} — Parler à Gaspard\n\nMessage préparé par le client :\n${sanitizeText(lead.message, 2000)}\n\nContacter le prospect sur WhatsApp : ${whatsapp}\nRetrouver la demande dans le CRM : https://gaspardnz.style/admin\n\nLes coordonnées ont été validées sur le site. L’envoi du message WhatsApp par le client n’est pas confirmé.`;
+  const text = `NOUVELLE DEMANDE CLIENT — GASPARDNZ\n\nPrénom : ${name}\nE-mail : ${email || "Non renseigné"}\nTéléphone : ${phone}\nPays : ${sanitizeText(lead.metadata?.country_code, 10)} (${sanitizeText(lead.metadata?.calling_code, 10)})\nProjet : ${project}${details ? `\nPrécisions : ${details}` : ""}\nReçue le : ${date} (heure de Paris)\nSource : ${entrySource} — demande professionnelle\n\nMessage préparé par le client :\n${sanitizeText(lead.message, 2000)}\n\nContacter le prospect sur WhatsApp : ${whatsapp}\nRépondre par e-mail : ${email || "non renseigné"}\nRetrouver la demande dans le CRM : https://gaspardnz.style/admin\n\nLa demande a été enregistrée dans le CRM. Aucun message WhatsApp n’est envoyé automatiquement.`;
   return {
     subject: sanitizeText(`Nouvelle demande — ${name} — ${project}`, 180),
     text,
@@ -81,7 +82,7 @@ export default async function handler(req, res) {
     if (!rate.allowed) { res.setHeader("Retry-After", String(rule.windowSeconds)); return res.status(429).json({ success: false, error: "Too many requests" }); }
   }
   try {
-    const { data: lead, error } = await db.from("leads").select("id,full_name,phone,request_type,message,metadata,created_at").eq("id", body.leadId).single();
+    const { data: lead, error } = await db.from("leads").select("id,full_name,email,phone,request_type,message,metadata,created_at").eq("id", body.leadId).single();
     const age = Date.now() - new Date(lead?.created_at).getTime();
     if (error || !lead || lead.request_type !== "whatsapp_contact" || !Number.isFinite(age) || age > 86400000 || age < -60000) return res.status(404).json({ success: false, error: "Contact unavailable" });
     const content = formatContactNotification(lead);

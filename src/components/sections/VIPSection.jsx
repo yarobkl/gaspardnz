@@ -61,10 +61,10 @@ const AlbumModal = ({ photos, name, onClose }) => {
       aria-modal="true"
       aria-label={`Album photos de ${name}`}
       initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-      onClick={onClose}
+      onClick={(event) => { if (event.target === event.currentTarget) onClose(); }}
       style={{ position: "fixed", inset: 0, zIndex: 9999, background: "rgba(0,0,0,0.95)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
 
-      <button aria-label={t("close")} onClick={onClose} style={{ position: "absolute", top: "1.2rem", right: "1.2rem", background: "none", border: "none", color: "rgba(245,240,232,0.82)", fontSize: "1.8rem", cursor: "pointer", zIndex: 1, width: "44px", height: "44px" }}>✕</button>
+      <button type="button" aria-label={t("close")} onClick={(event) => { event.stopPropagation(); onClose(); }} style={{ position: "absolute", top: "calc(1.2rem + env(safe-area-inset-top))", right: "1.2rem", background: "rgba(0,0,0,.22)", border: "1px solid rgba(245,240,232,.28)", borderRadius: "50%", color: "rgba(245,240,232,0.92)", fontSize: "1.5rem", cursor: "pointer", zIndex: 3, width: "44px", height: "44px", display: "grid", placeItems: "center" }}>✕</button>
 
       <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.4em", color: GOLD, textTransform: "uppercase", marginBottom: "1.2rem", zIndex: 1 }}>ALBUM · {name.toUpperCase()}</p>
 

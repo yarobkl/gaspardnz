@@ -18,6 +18,22 @@
 .gnz-native-hero-content button span{margin-left:10px}
 .gnz-native-hero-content .gnz-native-outline{background:transparent;color:var(--gnz-brown);border:1px solid var(--gnz-brown)}
 .gnz-native-section{padding:26px 18px 34px}
+.gnz-native-section-back{display:flex;align-items:center;gap:6px;border:0;background:none;color:var(--gnz-brown);font-size:14px;font-weight:600;padding:0 0 16px;min-height:44px}
+.gnz-native-brand-icon{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;flex:0 0 42px}
+.gnz-native-brand-icon svg{width:25px;height:25px}
+.gnz-native-brand-whatsapp{background:#dff5e8;color:#148a4b}
+.gnz-native-brand-email{background:#eee5d8;color:#8a5a2b}
+.gnz-native-brand-request{background:#f1e9dc;color:#8a5a2b}
+.gnz-native-formula-detail{padding:8px 2px 10px}
+.gnz-native-formula-detail h2{font-family:Georgia,serif;font-size:clamp(28px,8vw,40px);line-height:1.08;margin:0 0 10px;color:var(--gnz-ink)}
+.gnz-native-formula-subtitle{font-size:15px;font-weight:600;color:var(--gnz-brown);margin:0 0 14px}
+.gnz-native-formula-breakdown{display:grid;gap:12px;margin:22px 0}
+.gnz-native-formula-breakdown h3{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--gnz-brown);margin:0}
+.gnz-native-formula-breakdown>div{display:grid;gap:5px;padding:14px;border:1px solid #e8dfd3;border-radius:14px;background:#fffdf9}
+.gnz-native-formula-breakdown strong{font-size:15px}
+.gnz-native-formula-breakdown small{color:#76685d}
+.gnz-native-formula-breakdown span{font-size:14px;color:#4f4339}
+.gnz-native-formula-request{font-weight:600;color:var(--gnz-ink);margin:22px 0 10px}
 .gnz-native-heading{padding:6px 0 22px}
 .gnz-native-heading h1{font-family:Georgia,serif;font-size:clamp(32px,9vw,42px);line-height:1.1;font-weight:400;margin:9px 0}
 .gnz-native-heading p{font-size:14px;line-height:1.55;color:#6c6055;max-width:380px}

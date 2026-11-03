@@ -42,11 +42,9 @@ export function NativeShowroom({ onContact }) {
   const { rows } = usePublicCollection("content_albums", {
     fallback: [], filters: [{ type: "eq", column: "section_key", value: "showroom" }], orderBy: "sort_order",
   });
-  const fallback = [
-    { src: "/images/decontracte/showroom.jpg", label: "Au showroom GaspardNZ" },
-    { src: "/images/decontracte/look-navy.jpg", label: "Style casual chic" },
-    { src: "/images/decontracte/look-jaune.jpg", label: "Style estival" },
-  ];
+  // Une seule photo officielle est disponible pour l'instant. La structure
+  // accepte déjà plusieurs éléments lorsqu'ils seront publiés depuis l'admin.
+  const fallback = [{ src: "/images/decontracte/showroom.jpg", label: "Au showroom GaspardNZ" }];
   const photos = Array.isArray(rows[0]?.items) && rows[0].items.length ? rows[0].items : fallback;
   const active = photos[index % photos.length];
   return <div className="gnz-native-showroom">

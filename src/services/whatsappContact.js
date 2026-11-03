@@ -22,6 +22,10 @@ export function normalizeContactPhone(value, country) {
 export function normalizeContactName(value) {
   return String(value || "").replace(/[\u0000-\u001f\u007f]/g, "").trim().replace(/\s+/g, " ");
 }
+export function normalizeContactEmail(value) {
+  const email = String(value || "").trim().toLowerCase();
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ? email.slice(0, 320) : "";
+}
 
 // Kept in memory only: no contact details in localStorage or analytics.
 // Coalesces double submissions and reuses a successful save on reopening.
@@ -41,18 +45,20 @@ async function notifyContact(leadId) {
   } catch { return false; }
 }
 
-export async function submitWhatsappContact({ firstName, phone, country = "FR", projectType, projectDetails = "", lang = "FR" }) {
+export async function submitWhatsappContact({ firstName, email = "", phone, country = "FR", projectType, projectDetails = "", lang = "FR" }) {
   const name = normalizeContactName(firstName);
   const normalizedPhone = normalizeContactPhone(phone, country);
   if (!name || name.length > 80 || !normalizedPhone) {
     throw new Error("invalid_contact");
   }
   const details = normalizeContactName(projectDetails);
+  const normalizedEmail = email ? normalizeContactEmail(email) : "";
+  if (email && !normalizedEmail) throw new Error("invalid_email");
   if (!getContactProject(projectType) || (projectType === "other" && (!details || details.length > 300))) throw new Error("invalid_project");
   const projectLabel = contactProjectLabel(projectType);
   const relevantDetails = projectType === "other" ? details : "";
   const whatsappMessage = buildContactMessage({ firstName: name, projectType, projectDetails: relevantDetails, lang, source: Capacitor.getPlatform() === "ios" ? "app" : "site" });
-  const key = JSON.stringify([name.toLocaleLowerCase(), normalizedPhone, country, projectType, relevantDetails]);
+  const key = JSON.stringify([name.toLocaleLowerCase(), normalizedEmail, normalizedPhone, country, projectType, relevantDetails]);
   if (submissions.has(key)) return submissions.get(key);
 
   const save = (async () => {
@@ -61,10 +67,11 @@ export async function submitWhatsappContact({ firstName, phone, country = "FR", 
     const result = await sendPublicEvent("lead", {
       ...context,
       full_name: name,
+      email: normalizedEmail || null,
       phone: normalizedPhone,
       request_type: "whatsapp_contact",
       source: isIosApp ? "Application GaspardNZ iOS" : "Site GaspardNZ",
-      channel: "whatsapp",
+      channel: normalizedEmail ? "contact_form" : "whatsapp",
       message: whatsappMessage,
       metadata: {
         entry_point: isIosApp ? "parler_a_gaspard_ios" : "parler_a_gaspard",
