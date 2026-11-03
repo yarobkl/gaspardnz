@@ -1,6 +1,7 @@
 import { useSyncExternalStore } from "react";
 import { getSettings, subscribeToSettingsChanges } from "../services/settingsService.js";
 import { supabase } from "../services/supabaseClient.js";
+import { DEFAULT_BOOKING_AVAILABILITY, normalizeBookingAvailability } from "../utils/bookingAvailability.js";
 
 const normalizeWhatsapp = (value, fallback) => {
   const digits = String(value || "").replace(/\D/g, "");
@@ -32,6 +33,7 @@ async function loadRemoteSettings(base) {
   const payment = map.payment || {};
   const brand = map.brand || {};
   const lookbook = map.lookbook || {};
+  const bookingAvailability = normalizeBookingAvailability(map.booking_availability || DEFAULT_BOOKING_AVAILABILITY);
   const formulaPrices = { ...(base.formulaPrices || {}) };
   for (const row of packagesRes.data || []) {
     const key = packageKey(row);
@@ -78,6 +80,7 @@ async function loadRemoteSettings(base) {
     lookbookHiddenMessage: payment.lookbook_hidden_message || base.lookbookHiddenMessage || "",
     lookbookPdfUrl: lookbook.pdf_url || base.lookbookPdfUrl || "",
     lookbookFilename: lookbook.pdf_filename || base.lookbookFilename || "",
+    bookingAvailability,
     formulaPrices,
     // Un vrai résultat Supabase vide (plus rien de publié) doit rester vide :
     // retomber sur `base` ici resterait bloqué sur les VIP/inspirations mis en

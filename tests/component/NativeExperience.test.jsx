@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { LangCtx } from "../../src/context.jsx";
 import NativeExperience from "../../src/components/NativeExperience.jsx";
 
@@ -8,15 +8,18 @@ import NativeExperience from "../../src/components/NativeExperience.jsx";
 vi.mock("../../src/hooks/useSettings.js", () => ({
   useSettings: () => ({ whatsappNumber: "+33600000000", lookbookHidden: true }),
 }));
-vi.mock("../../src/components/sections/FormulesSection.jsx", () => ({
-  default: ({ onContact }) => <button onClick={onContact}>Demander un devis</button>,
+vi.mock("../../src/hooks/usePublicCollection.js", () => ({
+  usePublicCollection: () => ({ rows: [], loading: false, error: null }),
+}));
+vi.mock("../../src/components/NativeServices.jsx", () => ({
+  default: ({ onContact }) => <button onClick={() => onContact("image_consulting")}>Parler de ce projet</button>,
 }));
 vi.mock("../../src/components/GalleryMobile.jsx", () => ({
   default: () => <div data-testid="gallery">Galerie chargée</div>,
 }));
 vi.mock("../../src/components/WhatsappContactModal.jsx", () => ({
-  default: ({ isOpen, onClose }) => isOpen
-    ? <div role="dialog" aria-label="Contact CRM"><button onClick={onClose}>Fermer le contact</button></div>
+  default: ({ isOpen, onClose, initialProjectType }) => isOpen
+    ? <div role="dialog" aria-label="Contact CRM" data-project={initialProjectType}><button onClick={onClose}>Fermer le contact</button></div>
     : null,
 }));
 
@@ -42,48 +45,60 @@ describe("GaspardNZ native iOS experience", () => {
       .toHaveAttribute("src", "/images/Photo%20application%20.JPG");
     const tabs = within(navigation()).getAllByRole("button");
     expect(tabs).toHaveLength(5);
-    expect(tabs.map((tab) => tab.textContent)).toEqual(["Accueil", "Services", "Galerie", "Réserver", "Plus"]);
+    expect(tabs.map((tab) => tab.textContent)).toEqual(["Accueil", "Services", "Galerie", "Actualités", "Plus"]);
     expect(screen.queryByTestId("native-chatbot")).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Notifications" })).toBeInTheDocument();
     expect(tabs.every((tab) => tab.querySelector("svg"))).toBe(true);
   });
 
-  it("opens and closes the notifications panel", () => {
+  it("opens and closes the notifications panel", async () => {
     render(<Harness />);
     fireEvent.click(screen.getByRole("button", { name: "Notifications" }));
     expect(screen.getByText("Aucune notification pour le moment")).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Fermer" }));
-    expect(screen.queryByText("Aucune notification pour le moment")).not.toBeInTheDocument();
+    await waitFor(() => expect(screen.queryByText("Aucune notification pour le moment")).not.toBeInTheDocument());
   });
 
   it("sends the services lead to the CRM form, not directly to WhatsApp", async () => {
     render(<Harness />);
     openTab("Services");
-    fireEvent.click(await screen.findByRole("button", { name: "Demander un devis" }));
-    expect(await screen.findByRole("dialog", { name: "Contact CRM" })).toBeInTheDocument();
+    fireEvent.click(await screen.findByRole("button", { name: "Parler de ce projet" }));
+    expect(await screen.findByRole("dialog", { name: "Contact CRM" })).toHaveAttribute("data-project", "image_consulting");
   });
 
-  it("presents booking as a request and opens the CRM contact form", async () => {
+  it("opens admin-published booking availability and the CRM contact form for a project", async () => {
     render(<Harness />);
-    openTab("Réserver");
-    expect(screen.getByText(/GaspardNZ pourra ensuite vous recontacter/)).toBeInTheDocument();
+    openTab("Plus");
+    fireEvent.click(await screen.findByRole("button", { name: /Réserver/ }));
+    expect(await screen.findByText("Créneaux disponibles")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Préparation de mariage" }));
     fireEvent.click(screen.getByRole("button", { name: "Envoyer ma demande →" }));
-    expect(await screen.findByRole("dialog", { name: "Contact CRM" })).toBeInTheDocument();
+    expect(await screen.findByRole("dialog", { name: "Contact CRM" })).toHaveAttribute("data-project", "wedding");
   });
 
   it("translates all five tabs when switching to English", async () => {
     render(<Harness />);
     openTab("Plus");
-    fireEvent.change(screen.getByLabelText("Langue"), { target: { value: "EN" } });
+    fireEvent.change(await screen.findByLabelText("Langue"), { target: { value: "EN" } });
     const tabs = within(navigation()).getAllByRole("button");
-    expect(tabs.map((tab) => tab.textContent)).toEqual(["Home", "Services", "Gallery", "Book", "More"]);
-    openTab("Book");
-    expect(screen.getByRole("button", { name: "Send my request →" })).toBeInTheDocument();
+    expect(tabs.map((tab) => tab.textContent)).toEqual(["Home", "Services", "Gallery", "News", "More"]);
+    fireEvent.click(await screen.findByRole("button", { name: "Book" }));
+    expect(await screen.findByRole("button", { name: "Send my request →" })).toBeInTheDocument();
   });
 
   it("opens the image gallery from the bottom bar", async () => {
     render(<Harness />);
     openTab("Galerie");
     expect(await screen.findByTestId("gallery")).toBeInTheDocument();
+  });
+
+  it("finishes on the most recently selected screen after rapid tab changes", async () => {
+    render(<Harness />);
+    openTab("Services");
+    openTab("Galerie");
+    openTab("Plus");
+    fireEvent.click(await screen.findByRole("button", { name: /Réserver/ }));
+    expect(await screen.findByText("Créneaux disponibles")).toBeInTheDocument();
+    expect(within(navigation()).getByRole("button", { name: "Plus" })).toHaveAttribute("aria-current", "page");
   });
 });

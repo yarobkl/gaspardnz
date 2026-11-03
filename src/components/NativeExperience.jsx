@@ -1,15 +1,19 @@
-import { lazy, Suspense, useContext, useEffect, useState } from "react";
+import { lazy, Suspense, useContext, useEffect, useRef, useState } from "react";
 import { LangCtx } from "../context.jsx";
 import { StatusBar, Style } from "@capacitor/status-bar";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useSettings } from "../hooks/useSettings.js";
+import { usePublicCollection } from "../hooks/usePublicCollection.js";
 import { downloadFile } from "../utils/downloadFile.js";
+import { nativeFeedback } from "../utils/nativeHaptics.js";
+import { formatAvailabilitySlot, normalizeBookingAvailability } from "../utils/bookingAvailability.js";
 import "./nativeExperience.css";
 
 const Gallery = lazy(() => import("./GalleryMobile.jsx"));
-const Formules = lazy(() => import("./sections/FormulesSection.jsx"));
-const News = lazy(() => import("./sections/ActualitesSection.jsx"));
+const Services = lazy(() => import("./NativeServices.jsx"));
+const News = lazy(() => import("./NativeEditorial.jsx").then(module => ({ default: module.NativeNews })));
 const Journal = lazy(() => import("./sections/StyleJournalSection.jsx"));
-const Showroom = lazy(() => import("./ShowroomMobile.jsx"));
+const Showroom = lazy(() => import("./NativeEditorial.jsx").then(module => ({ default: module.NativeShowroom })));
 const Wedding = lazy(() => import("./sections/WeddingInspirationSection.jsx"));
 const Video = lazy(() => import("./sections/VideoSection.jsx"));
 const VIP = lazy(() => import("./sections/VIPSection.jsx"));
@@ -21,7 +25,7 @@ const Contact = lazy(() => import("./WhatsappContactModal.jsx"));
 
 const tabs = [
   ["home","Accueil"],["services","Services"],["gallery","Galerie"],
-  ["booking","Réserver"],["more","Plus"]
+  ["news","Actualités"],["more","Plus"]
 ];
 const NativeIcon = ({name}) => {
  const common={width:25,height:25,viewBox:"0 0 24 24",fill:"none",stroke:"currentColor",strokeWidth:1.8,strokeLinecap:"round",strokeLinejoin:"round","aria-hidden":true};
@@ -31,50 +35,106 @@ const NativeIcon = ({name}) => {
   gallery:<><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 16-5.5-5.5L5 21"/></>,
   booking:<><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18"/><path d="m9 15 2 2 4-4"/></>,
   more:<><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></>,
-  bell:<><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></>
+  bell:<><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></>,
+  showroom:<><path d="M3 21V8l9-5 9 5v13H3Z"/><path d="M7 21v-8h10v8M3 10h18"/></>,
+  news:<><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 7h10M7 11h10M7 15h5"/></>,
+  wedding:<><path d="M12 21s-9-5.5-9-12a5 5 0 0 1 9-2.5A5 5 0 0 1 21 9c0 6.5-9 12-9 12Z"/></>,
+  journal:<><path d="M12 5c-2-2-5-2-9-2v16c4 0 7 0 9 2 2-2 5-2 9-2V3c-4 0-7 0-9 2ZM12 5v16"/></>,
+  vip:<><circle cx="9" cy="8" r="3"/><path d="M3 20v-2a6 6 0 0 1 12 0v2M17 4l.8 1.8L20 6l-1.7 1.4.5 2.1L17 8.4l-1.8 1.1.5-2.1L14 6l2.2-.2L17 4Z"/></>,
+  styleMonth:<><path d="m12 2 3 6 7 .9-5 5 .9 7L12 17l-5.9 3.9L7 14l-5-5L9 8l3-6Z"/></>,
+  video:<><circle cx="12" cy="12" r="9"/><path d="m10 8 6 4-6 4V8Z"/></>,
+  partners:<><path d="M2 12 8 6l4 4 4-4 6 6-6 6-4-4-4 4-6-6ZM8 18l4 3 4-3"/></>,
+  community:<><circle cx="8" cy="8" r="3"/><circle cx="17" cy="9" r="2"/><path d="M2 20v-2a6 6 0 0 1 12 0v2H2ZM15 16a4 4 0 0 1 7 3v1h-6"/></>,
+  about:<><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7h.01"/></>,
+  contact:<><rect x="2" y="5" width="20" height="14" rx="2"/><path d="m2 7 10 7 10-7"/></>,
+  lookbook:<><path d="M6 2h9l4 4v16H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2ZM14 2v5h5M8 12h8M8 16h8"/></>
  };
  return <svg {...common}>{paths[name]}</svg>;
 };
+const ContactBrandIcon = ({ type }) => {
+ if (type === "whatsapp") return <span className="gnz-native-brand-icon gnz-native-brand-whatsapp" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3.2a8.8 8.8 0 0 0-7.5 13.4L3.2 21l4.6-1.2A8.8 8.8 0 1 0 12 3.2Z" stroke="currentColor" strokeWidth="1.8"/><path d="M8.6 8.2c.2-.4.4-.4.7-.4h.5c.2 0 .4.1.5.4l.8 1.8c.1.3.1.5-.1.7l-.6.7c.6 1 1.4 1.7 2.5 2.2l.7-.7c.2-.2.4-.2.7-.1l1.8.8c.3.1.4.3.4.6v.5c0 .3-.1.5-.4.7-.4.3-.9.5-1.5.5-2.6-.2-5.5-3-6.5-5.1-.3-.7-.2-1.5.5-2.4Z" fill="currentColor"/></svg></span>;
+ if (type === "email") return <span className="gnz-native-brand-icon gnz-native-brand-email" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" strokeWidth="1.8"/><path d="m4 7 8 6 8-6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg></span>;
+ return <span className="gnz-native-brand-icon gnz-native-brand-request" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M6 3h9l4 4v14H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z" stroke="currentColor" strokeWidth="1.8"/><path d="M14 3v5h5M8 12h8M8 16h6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/></svg></span>;
+};
 const extra = [
-  ["showroom","Showroom"],["news","Actualités"],["wedding","Mariage"],
+  ["showroom","Showroom"],["booking","Réserver"],["wedding","Mariage"],
   ["journal","Style Journal"],["vip","Habillés par GaspardNZ"],
   ["styleMonth","Style du mois"],["video","Vidéos"],
-  ["partners","Partenaires"],["community","Communauté"],["about","À propos"]
+  ["partners","Partenaires"],["community","Communauté"],["about","À propos"],["contact","Nous contacter"]
 ];
 const copy = {
- FR:{tagline:"S'habiller autrement",intro:"Conseil en style et accompagnement personnalisé.",discover:"Découvrir les services",talk:"Parler à Gaspard",explore:"Explorer GaspardNZ",booking:"Prendre rendez-vous",back:"Retour",more:"L'univers GaspardNZ",contact:"Contacter Gaspard"},
+ FR:{tagline:"S'habiller autrement",intro:"Styliste, habilleur et maître de cérémonie.",discover:"Découvrir les services",talk:"Parler à Gaspard",explore:"Explorer GaspardNZ",booking:"Prendre rendez-vous",back:"Retour",more:"L'univers GaspardNZ",contact:"Contacter Gaspard"},
  EN:{tagline:"Dress differently",intro:"Personal styling and tailored guidance.",discover:"Explore services",talk:"Talk to Gaspard",explore:"Explore GaspardNZ",booking:"Book an appointment",back:"Back",more:"The GaspardNZ universe",contact:"Contact Gaspard"},
  ES:{tagline:"Vestir de otra manera",intro:"Asesoría de imagen y acompañamiento personalizado.",discover:"Descubrir servicios",talk:"Hablar con Gaspard",explore:"Explorar GaspardNZ",booking:"Reservar una cita",back:"Volver",more:"El universo GaspardNZ",contact:"Contactar"},
  ZH:{tagline:"穿出不一样的风格",intro:"专属形象与穿搭咨询。",discover:"探索服务",talk:"联系 Gaspard",explore:"探索 GaspardNZ",booking:"预约",back:"返回",more:"GaspardNZ 世界",contact:"联系 Gaspard"}
 };
 const localUI = {
- FR:{ tabs:["Accueil","Services","Galerie","Réserver","Plus"],sections:{home:"Accueil",services:"Services",gallery:"Galerie",showroom:"Showroom",news:"Actualités",wedding:"Mariage",journal:"Style Journal",vip:"Habillés par GaspardNZ",styleMonth:"Style du mois",video:"Vidéos",partners:"Partenaires",community:"Communauté",about:"À propos"},language:"Langue",lookbook:"Lookbook PDF",loadError:"Impossible de télécharger le lookbook. Réessayez.",request:"Envoyer ma demande",bookingHint:"Présentez votre projet et vos coordonnées. GaspardNZ pourra ensuite vous recontacter pour convenir d'un rendez-vous.",seeServices:"Voir les prestations",loading:"Chargement…",navigation:"Navigation principale",photo:"Portrait de GaspardNZ",notifications:"Notifications",noNotifications:"Aucune notification pour le moment",close:"Fermer"},
- EN:{ tabs:["Home","Services","Gallery","Book","More"],sections:{home:"Home",services:"Services",gallery:"Gallery",showroom:"Showroom",news:"News",wedding:"Weddings",journal:"Style journal",vip:"Styled by GaspardNZ",styleMonth:"Style of the month",video:"Videos",partners:"Partners",community:"Community",about:"About"},language:"Language",lookbook:"Lookbook PDF",loadError:"Unable to download the lookbook. Try again.",request:"Send my request",bookingHint:"Tell us about your project and share your contact details. GaspardNZ can then get in touch to arrange an appointment.",seeServices:"Explore services",loading:"Loading…",navigation:"Main navigation",photo:"Portrait of GaspardNZ",notifications:"Notifications",noNotifications:"No notifications yet",close:"Close"},
- ES:{ tabs:["Inicio","Servicios","Galería","Reservar","Más"],sections:{home:"Inicio",services:"Servicios",gallery:"Galería",showroom:"Showroom",news:"Noticias",wedding:"Bodas",journal:"Revista de estilo",vip:"Vestidos por GaspardNZ",styleMonth:"Estilo del mes",video:"Vídeos",partners:"Colaboradores",community:"Comunidad",about:"Acerca de"},language:"Idioma",lookbook:"Catálogo PDF",loadError:"No se puede descargar el catálogo. Inténtelo de nuevo.",request:"Enviar mi solicitud",bookingHint:"Cuéntanos tu proyecto y deja tus datos. GaspardNZ podrá contactarte para concertar una cita.",seeServices:"Ver servicios",loading:"Cargando…",navigation:"Navegación principal",photo:"Retrato de GaspardNZ",notifications:"Notificaciones",noNotifications:"Aún no hay notificaciones",close:"Cerrar"},
- ZH:{ tabs:["首页","服务","图库","预约","更多"],sections:{home:"首页",services:"服务",gallery:"图库",showroom:"展厅",news:"资讯",wedding:"婚礼",journal:"风格日志",vip:"GaspardNZ 客户",styleMonth:"本月风格",video:"视频",partners:"合作伙伴",community:"社区",about:"关于"},language:"语言",lookbook:"造型画册 PDF",loadError:"画册下载失败，请重试。",request:"提交咨询",bookingHint:"请介绍您的需求并留下联系方式，GaspardNZ 会与您联系安排预约。",seeServices:"查看服务",loading:"加载中…",navigation:"主导航",photo:"GaspardNZ 肖像",notifications:"通知",noNotifications:"暂无通知",close:"关闭"},
+ FR:{ tabs:["Accueil","Services","Galerie","Actualités","Plus"],sections:{home:"Accueil",services:"Services",gallery:"Galerie",showroom:"Showroom",booking:"Réserver",news:"Actualités",wedding:"Mariage",journal:"Style Journal",vip:"Habillés par GaspardNZ",styleMonth:"Style du mois",video:"Vidéos",partners:"Partenaires",community:"Communauté",about:"À propos",contact:"Nous contacter"},language:"Langue",lookbook:"Lookbook PDF",loadError:"Impossible de télécharger le lookbook. Réessayez.",request:"Envoyer ma demande",calendar:"Choisir une date et une heure",bookingHint:"Choisissez un créneau disponible ou décrivez votre projet pour que GaspardNZ vous recontacte.",seeServices:"Voir les prestations",loading:"Chargement…",navigation:"Navigation principale",photo:"Portrait de GaspardNZ",notifications:"Notifications",noNotifications:"Aucune notification pour le moment",close:"Fermer"},
+ EN:{ tabs:["Home","Services","Gallery","News","More"],sections:{home:"Home",services:"Services",gallery:"Gallery",showroom:"Showroom",booking:"Book",news:"News",wedding:"Weddings",journal:"Style journal",vip:"Styled by GaspardNZ",styleMonth:"Style of the month",video:"Videos",partners:"Partners",community:"Community",about:"About",contact:"Contact us"},language:"Language",lookbook:"Lookbook PDF",loadError:"Unable to download the lookbook. Try again.",request:"Send my request",calendar:"Choose a date and time",bookingHint:"Choose an available time or describe your project so GaspardNZ can contact you.",seeServices:"Explore services",loading:"Loading…",navigation:"Main navigation",photo:"Portrait of GaspardNZ",notifications:"Notifications",noNotifications:"No notifications yet",close:"Close"},
+ ES:{ tabs:["Inicio","Servicios","Galería","Noticias","Más"],sections:{home:"Inicio",services:"Servicios",gallery:"Galería",showroom:"Showroom",booking:"Reservar",news:"Noticias",wedding:"Bodas",journal:"Revista de estilo",vip:"Vestidos por GaspardNZ",styleMonth:"Estilo del mes",video:"Vídeos",partners:"Colaboradores",community:"Comunidad",about:"Acerca de",contact:"Contactarnos"},language:"Idioma",lookbook:"Catálogo PDF",loadError:"No se puede descargar el catálogo. Inténtelo de nuevo.",request:"Enviar mi solicitud",calendar:"Elegir fecha y hora",bookingHint:"Elige un horario disponible o describe tu proyecto para que GaspardNZ te contacte.",seeServices:"Ver servicios",loading:"Cargando…",navigation:"Navegación principal",photo:"Retrato de GaspardNZ",notifications:"Notificaciones",noNotifications:"Aún no hay notificaciones",close:"Cerrar"},
+ ZH:{ tabs:["首页","服务","图库","资讯","更多"],sections:{home:"首页",services:"服务",gallery:"图库",showroom:"展厅",booking:"预约",news:"资讯",wedding:"婚礼",journal:"风格日志",vip:"GaspardNZ 客户",styleMonth:"本月风格",video:"视频",partners:"合作伙伴",community:"社区",about:"关于",contact:"联系我们"},language:"语言",lookbook:"造型画册 PDF",loadError:"画册下载失败，请重试。",request:"提交咨询",calendar:"选择日期和时间",bookingHint:"选择空闲时间，或介绍需求以便 GaspardNZ 与您联系。",seeServices:"查看服务",loading:"加载中…",navigation:"主导航",photo:"GaspardNZ 肖像",notifications:"通知",noNotifications:"暂无通知",close:"关闭"},
 };
 export default function NativeExperience(){
  const {lang,setLang}=useContext(LangCtx);
  const settings=useSettings();
+ const reduceMotion=useReducedMotion();
  const c=copy[lang]||copy.FR;
  const ui=localUI[lang]||localUI.FR;
  useEffect(()=>{StatusBar.setStyle({style:Style.Light}).catch(()=>{});},[]);
- const [page,setPage]=useState("home"),[contactOpen,setContactOpen]=useState(false),[downloadError,setDownloadError]=useState(""),[notificationsOpen,setNotificationsOpen]=useState(false);
- const select=(key)=>{setNotificationsOpen(false);setPage(key);setDownloadError("");window.scrollTo({top:0,behavior:"instant"});};
+ const [page,setPage]=useState("home"),[contactOpen,setContactOpen]=useState(false),[contactProject,setContactProject]=useState(""),[bookingProject,setBookingProject]=useState(""),[downloadError,setDownloadError]=useState(""),[notificationsOpen,setNotificationsOpen]=useState(false),[newsFocusId,setNewsFocusId]=useState(null);
+ const swipeStart = useRef(null);
+ const { rows: announcements } = usePublicCollection("news_posts", { fallback: [], filters: [{ type:"eq", column:"locale", value:lang }], orderBy:"published_at", ascending:false });
+ const notificationItems = announcements;
+ const select=(key)=>{setNotificationsOpen(false);if(key===page)return;window.scrollTo(0,0);setPage(key);setDownloadError("");};
+ const backToHome = () => select("home");
+ const topTabForPage = (value) => tabs.some(([key]) => key === value) ? value : "more";
+ const handleSwipeStart = (event) => {
+   const target = event.target;
+   if (target.closest("button,a,input,textarea,select,[data-no-tab-swipe],.gnz-native-photo-viewer")) return;
+   const touch = event.changedTouches?.[0];
+   if (touch) swipeStart.current = { x: touch.clientX, y: touch.clientY };
+ };
+ const handleSwipeEnd = (event) => {
+   const start = swipeStart.current;
+   swipeStart.current = null;
+   if (!start) return;
+   const touch = event.changedTouches?.[0];
+   if (!touch) return;
+   const dx = touch.clientX - start.x;
+   const dy = touch.clientY - start.y;
+   if (Math.abs(dx) < 55 || Math.abs(dx) < Math.abs(dy) * 1.2) return;
+   const current = tabs.findIndex(([key]) => key === topTabForPage(page));
+   const next = tabs[current + (dx < 0 ? 1 : -1)]?.[0];
+   if (next) { nativeFeedback("selection"); select(next); }
+ };
+ const handleAction=(event)=>{
+  const action=event.target.closest("button,a");
+  if(action && !action.disabled) nativeFeedback(action.dataset.haptic||"tap");
+ };
+ const openContact=(project="")=>{setContactProject(project);setContactOpen(true);};
  const heading=(title,subtitle)=> <header className="gnz-native-heading"><span className="gnz-native-eyebrow">GASPARDNZ · PARIS</span><h1>{title}</h1>{subtitle&&<p>{subtitle}</p>}</header>;
+ const bookingChoices=lang==="FR" ? [
+  ["image_consulting","Conseil en image"],["wedding","Préparation de mariage"],["master_of_ceremonies","Maître de cérémonie / animation"],["other","Autre demande"]
+ ] : lang==="EN" ? [["image_consulting","Image consulting"],["wedding","Wedding styling"],["master_of_ceremonies","Master of ceremonies / hosting"],["other","Other request"]]
+   : lang==="ES" ? [["image_consulting","Asesoría de imagen"],["wedding","Preparación de boda"],["master_of_ceremonies","Maestro de ceremonias / animación"],["other","Otra solicitud"]]
+   : [["image_consulting","形象咨询"],["wedding","婚礼造型"],["master_of_ceremonies","司仪与活动主持"],["other","其他需求"]];
+ const availability = normalizeBookingAvailability(settings.bookingAvailability);
  const content=()=>{
   switch(page){
-   case "home":return <><div className="gnz-native-hero"><img src="/images/Photo%20application%20.JPG" alt={ui.photo} loading="eager" fetchPriority="high" /><div className="gnz-native-hero-shade"/><div className="gnz-native-hero-content"><span>GASPARDNZ · PARIS</span><h1>{c.tagline}</h1><p>{c.intro}</p><button onClick={()=>select("services")}>{c.discover} <span>→</span></button><button className="gnz-native-outline" onClick={()=>setContactOpen(true)}>{c.talk}</button></div></div><section className="gnz-native-section">{heading(c.explore)}<div className="gnz-native-grid">{[["services","Services"],["gallery","Galerie"],["showroom","Showroom"],["news","Actualités"],["wedding","Mariage"],["journal","Style Journal"]].map(([key,label])=><button key={key} onClick={()=>select(key)}>{ui.sections[key]||label}<span>›</span></button>)}</div><button className="gnz-native-primary" onClick={()=>setContactOpen(true)}>{ui.request} →</button></section></>;
-   case "services":return <>{heading(ui.sections.services,c.intro)}<Formules onContact={()=>setContactOpen(true)}/></>;
-   case "gallery":return <>{heading(ui.sections.gallery)}<Gallery /></>;
-   case "booking":return <section className="gnz-native-section">{heading(c.booking)}<div className="gnz-native-booking"><p>{ui.bookingHint}</p><button className="gnz-native-primary" onClick={()=>setContactOpen(true)}>{ui.request} →</button><button className="gnz-native-secondary" onClick={()=>select("services")}>{ui.seeServices}</button></div></section>;
-   case "more":return <section className="gnz-native-section">{heading(c.more)}<div className="gnz-native-list">{extra.map(([key,label])=><button key={key} onClick={()=>select(key)}>{ui.sections[key]||label}<span>›</span></button>)}<button onClick={()=>setContactOpen(true)}>{c.contact}<span>›</span></button>{settings.lookbookPdfUrl && !settings.lookbookHidden && <button onClick={()=>{setDownloadError("");downloadFile(settings.lookbookPdfUrl,"lookbook-gaspardnz.pdf").catch(()=>setDownloadError(ui.loadError));}}>{ui.lookbook}<span>↓</span></button>}{downloadError&&<p className="gnz-native-error" role="alert">{downloadError}</p>}<label className="gnz-native-language">{ui.language} <select value={lang} onChange={e=>setLang(e.target.value)}><option value="FR">Français</option><option value="EN">English</option><option value="ES">Español</option><option value="ZH">中文</option></select></label></div></section>;
+   case "home":return <div className="gnz-native-hero"><img src="/images/Photo%20application%20.JPG" alt={ui.photo} loading="eager" /><div className="gnz-native-hero-shade"/><div className="gnz-native-hero-content"><h1>{c.tagline}</h1><p>{c.intro}</p><button onClick={()=>select("services")}>{c.discover} <span>→</span></button><button className="gnz-native-outline" onClick={()=>openContact()}>{c.talk}</button></div></div>;
+   case "services":return <section className="gnz-native-section">{heading(ui.sections.services,c.intro)}<Services lang={lang} onContact={openContact}/></section>;
+   case "gallery":return <section className="gnz-native-section"><button className="gnz-native-section-back" type="button" onClick={backToHome}>‹ {c.back}</button>{heading(ui.sections.gallery)}<Gallery native /></section>;
+   case "booking":return <section className="gnz-native-section gnz-native-booking-page"><button className="gnz-native-section-back" type="button" onClick={backToHome}>‹ {c.back}</button><div className="gnz-native-booking-icon" aria-hidden="true"><NativeIcon name="booking"/></div>{heading(c.booking,ui.bookingHint)}<div className="gnz-native-booking-options">{bookingChoices.map(([project,label])=><button key={project} type="button" data-haptic="selection" className={bookingProject===project?"selected":""} onClick={()=>setBookingProject(project)} aria-pressed={bookingProject===project}><NativeIcon name="booking"/><span>{label}</span><span aria-hidden="true">›</span></button>)}</div><div className="gnz-native-availability"><strong>{lang === "FR" ? "Créneaux disponibles" : lang === "EN" ? "Available appointments" : lang === "ES" ? "Citas disponibles" : "可预约时间"}</strong>{availability.slots.length ? availability.slots.map((slot)=><button key={slot.id} type="button" className={bookingProject === `slot:${slot.id}` ? "selected" : ""} onClick={()=>setBookingProject(`slot:${slot.id}`)}>{formatAvailabilitySlot(slot, lang === "FR" ? "fr-FR" : undefined)}<span>›</span></button>) : <p>{lang === "FR" ? "Les prochains créneaux seront publiés par Gaspard." : "New appointments will be published soon."}</p>}</div><button className="gnz-native-booking-contact" type="button" onClick={()=>openContact(bookingProject || "other")}>{ui.request} →</button></section>;
+   case "more":return <section className="gnz-native-section">{heading(c.more)}<div className="gnz-native-list">{extra.map(([key,label])=><button key={key} onClick={()=>select(key)}><span className="gnz-native-more-icon"><NativeIcon name={key}/></span><span className="gnz-native-more-label">{ui.sections[key]||label}</span><span aria-hidden="true">›</span></button>)}{settings.lookbookPdfUrl && !settings.lookbookHidden && <button onClick={()=>{setDownloadError("");downloadFile(settings.lookbookPdfUrl,"lookbook-gaspardnz.pdf").catch(()=>setDownloadError(ui.loadError));}}><span className="gnz-native-more-icon"><NativeIcon name="lookbook"/></span><span className="gnz-native-more-label">{ui.lookbook}</span><span aria-hidden="true">↓</span></button>}{downloadError&&<p className="gnz-native-error" role="alert">{downloadError}</p>}<label className="gnz-native-language">{ui.language} <select value={lang} onChange={e=>setLang(e.target.value)}><option value="FR">Français</option><option value="EN">English</option><option value="ES">Español</option><option value="ZH">中文</option></select></label></div></section>;
+   case "contact":return <section className="gnz-native-section"><button className="gnz-native-section-back" type="button" onClick={backToHome}>‹ {c.back}</button>{heading(ui.sections.contact)}<div className="gnz-native-contact-list"><button type="button" onClick={()=>openContact()}><ContactBrandIcon type="whatsapp"/><span><strong>WhatsApp</strong><small>{c.talk}</small></span><span aria-hidden="true">›</span></button>{settings.contactEmail&&<a href={`mailto:${settings.contactEmail}`}><ContactBrandIcon type="email"/><span><strong>E-mail</strong><small>{settings.contactEmail}</small></span><span aria-hidden="true">›</span></a>}<button type="button" onClick={()=>openContact()}><ContactBrandIcon type="request"/><span><strong>{ui.request}</strong><small>{ui.bookingHint}</small></span><span aria-hidden="true">›</span></button></div></section>;
+   case "news":return <section className="gnz-native-section"><button className="gnz-native-section-back" type="button" onClick={backToHome}>‹ {c.back}</button>{heading(ui.sections.news,lang==="FR"?"Les nouveautés et les histoires de GaspardNZ.":undefined)}<News initialId={newsFocusId} /></section>;
+   case "showroom":return <section className="gnz-native-section"><button className="gnz-native-section-back" type="button" onClick={backToHome}>‹ {c.back}</button>{heading(ui.sections.showroom,lang==="FR"?"Découvrez notre espace et nos réalisations.":undefined)}<Showroom onContact={()=>openContact()}/></section>;
    default:{
     const title=ui.sections[page]||extra.find(([key])=>key===page)?.[1]||page;
-    const component={showroom:<Showroom onCatalogue={()=>setContactOpen(true)} onGalerie={()=>select("gallery")} onFlammes={()=>select("gallery")}/>,news:<News/>,wedding:<Wedding/>,journal:<Journal/>,vip:<VIP/>,styleMonth:<StyleMonth/>,video:<Video/>,partners:<Partners/>,community:<Community/>,about:<About/>}[page];
+    const component={wedding:<Wedding/>,journal:<Journal/>,vip:<VIP/>,styleMonth:<StyleMonth/>,video:<Video/>,partners:<Partners/>,community:<Community/>,about:<About/>}[page];
     return <><section className="gnz-native-section"><button className="gnz-native-back" onClick={()=>select("more")}>‹ {c.back}</button>{heading(title)}</section>{component}</>;
    }
   }
  };
- return <div className="gnz-native"><div className="gnz-native-top"><strong>GASPARDNZ <small>PARIS</small></strong><button type="button" className="gnz-native-notification-trigger" onClick={()=>setNotificationsOpen(v=>!v)} aria-label={ui.notifications} aria-expanded={notificationsOpen} aria-controls="gnz-native-notifications"><NativeIcon name="bell"/></button></div>{notificationsOpen&&<section id="gnz-native-notifications" className="gnz-native-notifications" aria-label={ui.notifications}><div className="gnz-native-notifications-head"><strong>{ui.notifications}</strong><button type="button" onClick={()=>setNotificationsOpen(false)} aria-label={ui.close}>×</button></div><p>{ui.noNotifications}</p></section>}<main id="gnz-native-main"><Suspense fallback={<div className="gnz-native-loading" role="status">{ui.loading}</div>}>{content()}</Suspense></main><nav className="gnz-native-tabs" aria-label={ui.navigation}>{tabs.map(([key,label],idx)=><button type="button" key={key} onClick={()=>select(key)} aria-current={(page===key || (key==="more" && extra.some(([k])=>k===page)))?"page":undefined} className={(page===key || (key==="more" && extra.some(([k])=>k===page)))?"active":""}><span aria-hidden="true"><NativeIcon name={key}/></span><small>{ui.tabs[idx]||label}</small></button>)}</nav><Suspense fallback={null}>{contactOpen&&<Contact isOpen onClose={()=>setContactOpen(false)} whatsappNumber={settings.whatsappNumber}/>}</Suspense></div>;
+ return <div className="gnz-native" onClickCapture={handleAction} onChangeCapture={e=>{if(e.target.matches("select"))nativeFeedback("selection");}}><div className="gnz-native-top"><strong>GASPARDNZ <small>PARIS</small></strong><button type="button" className="gnz-native-notification-trigger" onClick={()=>setNotificationsOpen(v=>!v)} aria-label={ui.notifications} aria-expanded={notificationsOpen} aria-controls="gnz-native-notifications"><NativeIcon name="bell"/></button></div><AnimatePresence>{notificationsOpen&&<motion.section key="notifications" initial={reduceMotion?false:{opacity:0,y:-8}} animate={{opacity:1,y:0}} exit={reduceMotion?{opacity:0}:{opacity:0,y:-8}} transition={{duration:reduceMotion?0:.18}} id="gnz-native-notifications" className="gnz-native-notifications" aria-label={ui.notifications}><div className="gnz-native-notifications-head"><strong>{ui.notifications}</strong><button type="button" onClick={()=>setNotificationsOpen(false)} aria-label={ui.close}>×</button></div>{notificationItems.length ? notificationItems.slice(0,5).map((item)=><button type="button" className="gnz-native-notification-item" key={item.id} onClick={()=>{setNewsFocusId(item.id);setNotificationsOpen(false);select("news");}}><strong>{item.title}</strong><p>{item.excerpt || item.body || item.text || ""}</p>{(item.published_at || item.date) && <small>{item.published_at ? new Date(item.published_at).toLocaleDateString(lang === "FR" ? "fr-FR" : undefined) : item.date}</small>}</button>) : <p>{ui.noNotifications}</p>}</motion.section>}</AnimatePresence><main id="gnz-native-main" onTouchStart={handleSwipeStart} onTouchEnd={handleSwipeEnd}><AnimatePresence mode="wait" initial={false}><motion.div className="gnz-native-page" key={page} initial={reduceMotion?false:{opacity:0,y:10}} animate={{opacity:1,y:0}} exit={reduceMotion?{opacity:0}:{opacity:0,y:-6}} transition={{duration:reduceMotion?0:.18,ease:"easeOut"}}><Suspense fallback={<div className="gnz-native-loading" role="status">{ui.loading}</div>}>{content()}</Suspense></motion.div></AnimatePresence></main><nav className="gnz-native-tabs" aria-label={ui.navigation}>{tabs.map(([key,label],idx)=><button type="button" key={key} onClick={()=>select(key)} aria-current={(page===key || (key==="more" && extra.some(([k])=>k===page)))?"page":undefined} className={(page===key || (key==="more" && extra.some(([k])=>k===page)))?"active":""}><span aria-hidden="true"><NativeIcon name={key}/></span><small>{ui.tabs[idx]||label}</small></button>)}</nav><Suspense fallback={null}>{contactOpen&&<Contact native isOpen onClose={()=>setContactOpen(false)} whatsappNumber={settings.whatsappNumber} initialProjectType={contactProject}/>}</Suspense></div>;
 }

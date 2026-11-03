@@ -21,14 +21,14 @@ export function contactProjectLabel(id, lang = "FR") {
   return project?.[lang] || project?.FR || "";
 }
 
-export function buildContactMessage({ firstName, projectType, projectDetails = "", lang = "FR" }) {
+export function buildContactMessage({ firstName, projectType, projectDetails = "", lang = "FR", source = "site" }) {
   const project = getContactProject(projectType);
   if (!project) throw new Error("invalid_project");
   const detail = projectDetails.trim();
   if (projectType === "other" && !detail) throw new Error("invalid_project");
   const phrase = project.phrase?.[lang] || project.phrase?.FR;
-  if (lang === "EN") return `Hello Gaspard, my name is ${firstName}. I have just visited your website and I am interested in your support ${projectType === "other" ? `for the following project: ${detail}` : phrase}. Could you contact me so we can discuss my project? Thank you!`;
-  if (lang === "ES") return `Hola Gaspard, me llamo ${firstName}. Acabo de visitar su sitio web y estoy interesado en su acompañamiento ${projectType === "other" ? `para el siguiente proyecto: ${detail}` : phrase}. ¿Podría ponerse en contacto conmigo para hablar de mi proyecto? ¡Gracias!`;
-  if (lang === "ZH") return `您好 Gaspard，我叫${firstName}。我刚刚浏览了您的网站，希望咨询${projectType === "other" ? detail : phrase}。请与我联系，以便进一步讨论我的项目。谢谢！`;
-  return `Bonjour Mr GaspardNZ, je m’appelle ${firstName}. Je viens de consulter votre site et je suis intéressé par votre accompagnement ${projectType === "other" ? `pour le projet suivant : ${detail}` : phrase}. Pourriez-vous me recontacter afin que nous échangions sur mon projet ? Merci et à bientôt !`;
+  if (lang === "EN") return `Hello Gaspard, my name is ${firstName}. I have just visited your ${source === "app" ? "app" : "website"} and I am interested in your support ${projectType === "other" ? `for the following project: ${detail}` : phrase}. Could you contact me so we can discuss my project? Thank you!`;
+  if (lang === "ES") return `Hola Gaspard, me llamo ${firstName}. Acabo de visitar su ${source === "app" ? "aplicación" : "sitio web"} y estoy interesado en su acompañamiento ${projectType === "other" ? `para el siguiente proyecto: ${detail}` : phrase}. ¿Podría ponerse en contacto conmigo para hablar de mi proyecto? ¡Gracias!`;
+  if (lang === "ZH") return `您好 Gaspard，我叫${firstName}。我刚刚浏览了您的${source === "app" ? "应用" : "网站"}，希望咨询${projectType === "other" ? detail : phrase}。请与我联系，以便进一步讨论我的项目。谢谢！`;
+  return `Bonjour Mr GaspardNZ, je m’appelle ${firstName}. Je viens de consulter votre ${source === "app" ? "application" : "site"} et je suis intéressé par votre accompagnement ${projectType === "other" ? `pour le projet suivant : ${detail}` : phrase}. Pourriez-vous me recontacter afin que nous échangions sur mon projet ? Merci et à bientôt !`;
 }

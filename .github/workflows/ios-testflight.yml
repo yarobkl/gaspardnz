@@ -6,6 +6,7 @@ on:
       - main
       - codex/ios-app-store
       - feature/ios-premium-interface
+      - feature/native-ios-editorial
     paths:
       - ".github/workflows/ios-testflight.yml"
       - "ios/**"
@@ -28,7 +29,7 @@ on:
         description: "Signer et envoyer vers TestFlight"
         type: boolean
         required: true
-        default: false
+        default: true
 
 permissions:
   contents: read

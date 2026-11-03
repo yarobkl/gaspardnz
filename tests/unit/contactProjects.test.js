@@ -25,6 +25,11 @@ describe("Contact projects and international phone input", () => {
     for (const lang of ["EN", "ES", "ZH"]) expect(buildContactMessage({ firstName: "Marc", projectType: "wedding", lang })).toContain("Marc");
   });
 
+  it("names the app in the iOS contact message while preserving the site wording", () => {
+    expect(buildContactMessage({ firstName: "Marc", projectType: "wedding", source: "app" })).toContain("votre application");
+    expect(buildContactMessage({ firstName: "Marc", projectType: "wedding" })).toContain("votre site");
+  });
+
   it("covers the world's dialing plans including both Congos, with translated labels", () => {
     const countries = contactCountries("FR");
     expect(countries.length).toBeGreaterThan(230);

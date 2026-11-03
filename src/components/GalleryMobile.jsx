@@ -1,5 +1,6 @@
 import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { createPortal } from "react-dom";
 import { GOLD, CREAM, SITE_URL } from "../constants.js";
 import { LangCtx, useTr } from "../context.jsx";
 import { getGallerySpots } from "../data/galleryData.js";
@@ -29,8 +30,9 @@ const absoluteMedia = (src) => {
   if (/^(https?:|data:|blob:)/i.test(src)) return src;
   return `${import.meta.env.BASE_URL}${String(src).replace(/^\/+/, "")}`;
 };
+const FAVORITES_KEY = "gaspardnz.favorite-gallery-looks";
 
-export default function GalleryMobile({ refEl }) {
+export default function GalleryMobile({ refEl, native = false }) {
   const t = useTr();
   const { lang } = useContext(LangCtx);
   const settings = useSettings();
@@ -64,24 +66,65 @@ export default function GalleryMobile({ refEl }) {
   }, [rows, fallback, spots]);
 
   const [expanded, setExpanded] = useState(false);
-  const visibleItems = isCompactMobile && !expanded ? items.slice(0, 4) : items;
+  const visibleItems = native ? items : isCompactMobile && !expanded ? items.slice(0, 4) : items;
   const copy = COPY[lang] || COPY.FR;
   const [cur, setCur] = useState(0);
+  const [viewerOpen, setViewerOpen] = useState(false);
+  const [favorites, setFavorites] = useState(() => {
+    try { return new Set(JSON.parse(window.localStorage.getItem(FAVORITES_KEY) || "[]")); } catch { return new Set(); }
+  });
   const [activeSpot, setActiveSpot] = useState(null);
   const timerRef = useRef(null);
+  const touchStart = useRef(null);
+  const viewerCloseRef = useRef(null);
+  const viewerTriggerRef = useRef(null);
   const n = visibleItems.length;
 
   useEffect(() => { if (cur >= n) setCur(0); }, [n, cur]);
   useEffect(() => {
-    if (n < 2 || activeSpot !== null) return undefined;
+    if (native || n < 2 || activeSpot !== null) return undefined;
     timerRef.current = window.setInterval(() => setCur((value) => (value + 1) % n), 5000);
     return () => window.clearInterval(timerRef.current);
-  }, [n, activeSpot]);
+  }, [n, activeSpot, native]);
+  useEffect(() => {
+    if (!viewerOpen) return undefined;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    viewerCloseRef.current?.focus();
+    const onKeyDown = (event) => {
+      if (event.key === "Escape") setViewerOpen(false);
+      if (event.key === "ArrowRight" && n > 1) setCur((value) => (value + 1) % n);
+      if (event.key === "ArrowLeft" && n > 1) setCur((value) => (value - 1 + n) % n);
+      if (event.key === "Tab") {
+        const buttons = [...document.querySelectorAll(".gnz-native-photo-viewer button")];
+        const first = buttons[0];
+        const last = buttons[buttons.length - 1];
+        if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
+        else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", onKeyDown);
+      viewerTriggerRef.current?.focus();
+    };
+  }, [viewerOpen, n]);
 
-  if (!n) return null;
+  if (!n) return native ? <p className="gnz-native-muted">{lang === "FR" ? "La galerie sera bientôt disponible." : lang === "EN" ? "The gallery will be available soon." : lang === "ES" ? "La galería estará disponible pronto." : "图库即将上线。"}</p> : null;
   const current = visibleItems[cur];
   const selected = activeSpot !== null ? current?.hotspots?.[activeSpot] : null;
   const go = (direction) => { setActiveSpot(null); setCur((value) => (value + direction + n) % n); };
+  const isFavorite = (item = current) => favorites.has(item?.src);
+  const toggleFavorite = (item = current) => {
+    if (!item?.src) return;
+    setFavorites((previous) => {
+      const next = new Set(previous);
+      if (next.has(item.src)) next.delete(item.src); else next.add(item.src);
+      try { window.localStorage.setItem(FAVORITES_KEY, JSON.stringify([...next])); } catch {}
+      return next;
+    });
+  };
 
   const ask = () => {
     if (!selected) return;
@@ -99,6 +142,47 @@ export default function GalleryMobile({ refEl }) {
     if (navigator.share) { try { await navigator.share(payload); return; } catch {} }
     try { await navigator.clipboard.writeText(SITE_URL); } catch {}
   };
+
+  if (native) return (
+    <>
+    <section ref={refEl} className="gnz-native-gallery" aria-label={t("nav_galerie")}>
+      <div className="gnz-native-gallery-grid">
+        {items.map((item, index) => (
+          <button type="button" key={`${item.src}-${index}`} onClick={(event) => { viewerTriggerRef.current = event.currentTarget; setCur(index); setViewerOpen(true); }} aria-label={item.label}>
+            <img src={item.src} alt="" loading={index < 4 ? "eager" : "lazy"} decoding="async" />
+          </button>
+        ))}
+      </div>
+      {favorites.size > 0 && <div className="gnz-native-favorites" aria-label={lang === "FR" ? "Mes inspirations" : "My inspirations"}>
+        <strong>{lang === "FR" ? "Mes inspirations" : lang === "EN" ? "My inspirations" : lang === "ES" ? "Mis inspiraciones" : "我的灵感"}</strong>
+        <span>{favorites.size} {lang === "FR" ? "look(s) enregistré(s)" : lang === "EN" ? "saved look(s)" : ""}</span>
+      </div>}
+    </section>
+    {viewerOpen && createPortal(
+      <div className="gnz-native-photo-viewer" role="dialog" aria-modal="true" aria-label={t("nav_galerie")}>
+        <div className="gnz-native-photo-viewer-top">
+          <button ref={viewerCloseRef} type="button" onClick={() => setViewerOpen(false)} aria-label={lang === "FR" ? "Fermer la photo" : lang === "EN" ? "Close photo" : lang === "ES" ? "Cerrar foto" : "关闭照片"}>×</button>
+          <span>{String(cur + 1).padStart(2, "0")} / {String(n).padStart(2, "0")}</span>
+          <div className="gnz-native-photo-viewer-actions"><button type="button" onClick={() => toggleFavorite()} aria-label={isFavorite() ? "Retirer des inspirations" : "Ajouter aux inspirations"} aria-pressed={isFavorite()}>{isFavorite() ? "♥" : "♡"}</button><button type="button" onClick={share} aria-label={lang === "FR" ? "Partager ce look" : lang === "EN" ? "Share this look" : lang === "ES" ? "Compartir este look" : "分享此造型"}>↗</button></div>
+        </div>
+        <div className="gnz-native-photo-viewer-stage"
+          onTouchStart={(event) => { const touch = event.touches[0]; touchStart.current = { x:touch.clientX, y:touch.clientY }; }}
+          onTouchEnd={(event) => {
+            if (!touchStart.current || n < 2) return;
+            const dx = event.changedTouches[0].clientX - touchStart.current.x;
+            const dy = event.changedTouches[0].clientY - touchStart.current.y;
+            touchStart.current = null;
+            if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy) * 1.2) go(dx < 0 ? 1 : -1);
+          }}>
+          {n > 1 && <button type="button" className="gnz-native-photo-viewer-prev" onClick={() => go(-1)} aria-label={t("previous_photo")}>‹</button>}
+          <img key={current.src} src={current.src} alt={current.label} decoding="async" />
+          {n > 1 && <button type="button" className="gnz-native-photo-viewer-next" onClick={() => go(1)} aria-label={t("next_photo")}>›</button>}
+        </div>
+        <p className="gnz-native-photo-viewer-caption">{current.label}</p>
+      </div>, document.body)
+    }
+    </>
+  );
 
   return (
     <section ref={refEl} style={{ background:CREAM, paddingBottom:isCompactMobile ? "3rem" : "4rem", overflow:"hidden" }}>

@@ -18,6 +18,22 @@
 .gnz-native-hero-content button span{margin-left:10px}
 .gnz-native-hero-content .gnz-native-outline{background:transparent;color:var(--gnz-brown);border:1px solid var(--gnz-brown)}
 .gnz-native-section{padding:26px 18px 34px}
+.gnz-native-section-back{display:flex;align-items:center;gap:6px;border:0;background:none;color:var(--gnz-brown);font-size:14px;font-weight:600;padding:0 0 16px;min-height:44px}
+.gnz-native-brand-icon{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;flex:0 0 42px}
+.gnz-native-brand-icon svg{width:25px;height:25px}
+.gnz-native-brand-whatsapp{background:#dff5e8;color:#148a4b}
+.gnz-native-brand-email{background:#eee5d8;color:#8a5a2b}
+.gnz-native-brand-request{background:#f1e9dc;color:#8a5a2b}
+.gnz-native-formula-detail{padding:8px 2px 10px}
+.gnz-native-formula-detail h2{font-family:Georgia,serif;font-size:clamp(28px,8vw,40px);line-height:1.08;margin:0 0 10px;color:var(--gnz-ink)}
+.gnz-native-formula-subtitle{font-size:15px;font-weight:600;color:var(--gnz-brown);margin:0 0 14px}
+.gnz-native-formula-breakdown{display:grid;gap:12px;margin:22px 0}
+.gnz-native-formula-breakdown h3{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--gnz-brown);margin:0}
+.gnz-native-formula-breakdown>div{display:grid;gap:5px;padding:14px;border:1px solid #e8dfd3;border-radius:14px;background:#fffdf9}
+.gnz-native-formula-breakdown strong{font-size:15px}
+.gnz-native-formula-breakdown small{color:#76685d}
+.gnz-native-formula-breakdown span{font-size:14px;color:#4f4339}
+.gnz-native-formula-request{font-weight:600;color:var(--gnz-ink);margin:22px 0 10px}
 .gnz-native-heading{padding:6px 0 22px}
 .gnz-native-heading h1{font-family:Georgia,serif;font-size:clamp(32px,9vw,42px);line-height:1.1;font-weight:400;margin:9px 0}
 .gnz-native-heading p{font-size:14px;line-height:1.55;color:#6c6055;max-width:380px}
@@ -51,7 +67,7 @@
 .gnz-native-tabs button.active{position:relative}
 .gnz-native-tabs button.active:before{content:"";position:absolute;top:0;width:20px;height:2px;border-radius:2px;background:var(--gnz-brown)}
 .gnz-native-tabs button{min-width:0;padding-inline:2px}
-#gnz-native-main>section:not(.gnz-native-section){margin:0 12px 18px;border-radius:19px;overflow:hidden}
+#gnz-native-main>.gnz-native-page>section:not(.gnz-native-section){margin:0 12px 18px;border-radius:19px;overflow:hidden}
 @media (prefers-reduced-motion:reduce){.gnz-native-grid button,.gnz-native-list button{transition:none}}
 
 /* Native iOS navigation: consistent vector icons and notification drawer. */
@@ -62,6 +78,140 @@
 .gnz-native-notifications-head strong{font-family:Georgia,serif;font-size:19px;font-weight:500}
 .gnz-native-notifications-head button{background:transparent;border:0;color:var(--gnz-ink);font-size:26px;line-height:1;min-width:36px;min-height:36px}
 .gnz-native-notifications p{font-size:14px;color:#66584e;margin:15px 0 5px}
+.gnz-native-notification-item{padding:11px 0;border-top:1px solid #e8dfd3}.gnz-native-notification-item strong{font-family:Georgia,serif;font-size:16px;font-weight:500}.gnz-native-notification-item p{font-size:13px;line-height:1.4;margin:5px 0;color:#66584e}.gnz-native-notification-item small{font-size:10px;color:#8a5729}
 .gnz-native-tabs button>span{display:flex;align-items:center;justify-content:center;height:27px;line-height:1}
 .gnz-native-tabs button svg{display:block;width:25px;height:25px;stroke:currentColor}
 .gnz-native-tabs button.active svg{stroke-width:2.2}
+
+/* iOS editorial direction: dedicated screens with the same live content and CRM. */
+.gnz-native{--gnz-ivory:#f7f1e9;--gnz-beige:#eee3d4;--gnz-brown:#8a5729;--gnz-ink:#201810;background:radial-gradient(circle at 80% 14%,#fffaf3 0,#f7f1e9 48%,#efe4d7 100%);padding-bottom:calc(73px + env(safe-area-inset-bottom))}
+.gnz-native-top{height:calc(73px + env(safe-area-inset-top));min-height:0;padding:calc(env(safe-area-inset-top) + 12px) 18px 10px;align-items:center;justify-content:center;border-bottom:0;background:rgba(250,246,239,.96)}
+.gnz-native-top strong{font-family:Georgia,"Times New Roman",serif;font-size:21px;letter-spacing:.24em;line-height:1;text-align:center;white-space:nowrap;margin-left:.24em}
+.gnz-native-top small{font-family:Georgia,serif;font-size:9px;letter-spacing:.38em;line-height:1;margin-top:7px;position:relative}
+.gnz-native-top small:before,.gnz-native-top small:after{content:"";display:inline-block;width:31px;height:1px;background:#9a6b44;vertical-align:middle;margin:0 9px 3px 3px}
+.gnz-native-top .gnz-native-notification-trigger{position:absolute;right:14px;bottom:8px;color:#3b2b1e}
+.gnz-native-hero{height:calc(100dvh - 73px - env(safe-area-inset-top) - 69px - env(safe-area-inset-bottom));min-height:570px;isolation:isolate;background:#362a1d;color:#fff}
+.gnz-native-hero>img{position:absolute;inset:0;width:100%;height:100%;aspect-ratio:auto;object-fit:cover;object-position:67% 42%;background:#362a1d}
+.gnz-native-hero-shade{display:block;position:absolute;inset:0;background:linear-gradient(to bottom,transparent 31%,rgba(17,12,9,.14) 52%,rgba(12,8,6,.86) 100%)}
+.gnz-native-hero-content{position:absolute;left:0;right:0;bottom:0;padding:38px 24px 22px;gap:9px;align-items:stretch}
+.gnz-native-hero-content h1{font-size:clamp(39px,11vw,57px);font-weight:400;line-height:.96;max-width:340px;color:#fff;text-shadow:0 2px 14px #0005}
+.gnz-native-hero-content p{font-size:13px;line-height:1.35;max-width:300px;color:#fff;margin:0 0 7px;text-shadow:0 2px 12px #0008}
+.gnz-native-hero-content button,.gnz-native-primary{border-radius:999px;background:linear-gradient(180deg,#ac7841,#794719);color:#fff;box-shadow:0 8px 20px #42271033;font-size:14px;font-weight:700;min-height:48px;margin:0}
+.gnz-native-hero-content .gnz-native-outline{min-height:43px;background:#21170f38;color:#fff;border:1px solid #fff9;box-shadow:none}
+.gnz-native-section{padding:19px 20px 40px;max-width:600px;margin:0 auto}
+.gnz-native-heading{padding:2px 0 20px}
+.gnz-native-eyebrow{display:none}
+.gnz-native-heading h1{font-family:Georgia,"Times New Roman",serif;font-size:clamp(35px,9vw,46px);letter-spacing:-.045em;line-height:1.08;margin:0 0 9px}
+.gnz-native-heading p{font-size:14px;line-height:1.4;color:#433a32;margin:0;max-width:360px}
+.gnz-native-service-list{display:grid;gap:11px}
+.gnz-native-service-card,.gnz-native-package-card{width:100%;border:1px solid #e7d9c8;background:#fff9f1;border-radius:16px;display:flex;align-items:center;gap:12px;padding:7px;min-height:78px;text-align:left;color:var(--gnz-ink);box-shadow:0 3px 12px #46321e14}
+.gnz-native-service-card img{width:76px;height:68px;flex:none;object-fit:cover;border-radius:11px}
+.gnz-native-service-card span:nth-child(2),.gnz-native-package-card span:first-child{display:grid;gap:5px;min-width:0;flex:1}
+.gnz-native-service-card strong,.gnz-native-package-card strong{font-size:14px;line-height:1.2}
+.gnz-native-service-card small,.gnz-native-package-card small{font-size:11px;color:#695c50;line-height:1.3;max-height:2.6em;overflow:hidden}
+.gnz-native-service-card>span:last-child{font-size:25px;color:#51351f;padding:0 8px}
+.gnz-native-inline-back{border:0;background:transparent;color:var(--gnz-brown);min-height:40px;text-align:left;font-size:13px}
+.gnz-native-service-list h2,.gnz-native-service-feature h2{font-family:Georgia,serif;font-size:30px;font-weight:400;margin:8px 0}
+.gnz-native-service-feature{position:relative;height:290px;border-radius:18px;overflow:hidden}
+.gnz-native-service-feature img{width:100%;height:100%;object-fit:cover}
+.gnz-native-service-feature h2{position:absolute;bottom:0;left:0;right:0;color:#fff;margin:0;padding:60px 20px 20px;background:linear-gradient(transparent,#1b120bdd);text-shadow:0 2px 8px #0008}
+.gnz-native-muted{color:#65564b;font-size:14px;line-height:1.5}
+.gnz-native-package-card{padding:16px;min-height:76px}
+.gnz-native-package-card span:last-child{white-space:nowrap;color:var(--gnz-brown);font-size:12px}
+.gnz-native-gallery-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.gnz-native-gallery-grid button{border:0;background:#e5d5c4;padding:0;border-radius:13px;overflow:hidden;aspect-ratio:1;box-shadow:0 2px 9px #422a161a}
+.gnz-native-gallery-grid img{width:100%;height:100%;object-fit:cover;display:block}
+.gnz-native-gallery-grid button[aria-pressed="true"]{outline:2px solid var(--gnz-brown);outline-offset:2px}
+.gnz-native-gallery-detail{display:flex;align-items:center;flex-wrap:wrap;gap:8px;font-size:12px;color:#675744;margin:16px 0}
+.gnz-native-gallery-detail strong{font-family:Georgia,serif;font-size:15px;font-weight:400;color:var(--gnz-ink);flex:1}
+.gnz-native-gallery-detail button{background:transparent;border:0;text-decoration:underline;color:var(--gnz-brown);font-size:12px}
+.gnz-native-favorites{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-top:16px;padding:13px 14px;border:1px solid #e7d9c8;border-radius:14px;background:#fff9f1;color:var(--gnz-ink)}
+.gnz-native-favorites strong{font-family:Georgia,serif;font-size:16px;font-weight:400}.gnz-native-favorites span{font-size:11px;color:#675744}
+.gnz-native-photo-viewer{position:fixed;inset:0;z-index:2000;display:flex;flex-direction:column;background:#171310;color:#fff;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom);font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif}
+.gnz-native-photo-viewer-top{display:flex;align-items:center;justify-content:space-between;padding:10px 15px;min-height:62px;font-size:13px;letter-spacing:.12em}
+.gnz-native-photo-viewer-top button{width:44px;height:44px;border:0;background:transparent;color:#fff;font-size:31px;line-height:1;display:grid;place-items:center}
+.gnz-native-photo-viewer-actions{display:flex;gap:2px}.gnz-native-photo-viewer-actions button{font-size:25px}
+.gnz-native-photo-viewer-top button:focus-visible,.gnz-native-photo-viewer-stage button:focus-visible{outline:2px solid #e6cda9;outline-offset:2px}
+.gnz-native-photo-viewer-stage{position:relative;flex:1;min-height:0;display:flex;align-items:center;justify-content:center;touch-action:pan-y;overflow:hidden}
+.gnz-native-photo-viewer-stage img{display:block;width:100%;height:100%;object-fit:contain;user-select:none;-webkit-user-select:none;animation:gnz-photo-enter .18s ease-out}
+@keyframes gnz-photo-enter{from{opacity:.55}to{opacity:1}}
+.gnz-native-photo-viewer-stage button{position:absolute;top:50%;z-index:1;transform:translateY(-50%);border:0;border-radius:50%;width:44px;height:44px;background:#171310a8;color:white;font-size:32px;line-height:1}
+.gnz-native-photo-viewer-prev{left:8px}.gnz-native-photo-viewer-next{right:8px}
+.gnz-native-photo-viewer-caption{min-height:60px;margin:0;display:flex;justify-content:center;align-items:center;text-align:center;padding:10px 22px 16px;font-family:Georgia,serif;font-size:18px;line-height:1.25}
+@media (prefers-reduced-motion:reduce){.gnz-native-photo-viewer-stage img{animation:none}}
+.gnz-native-booking-page{padding-top:15px}
+.gnz-native-booking-icon{width:50px;height:50px;margin:0 auto 12px;display:grid;place-items:center;background:#eee0cc;color:var(--gnz-brown);border-radius:14px}
+.gnz-native-booking-page .gnz-native-heading{padding-bottom:16px}
+.gnz-native-booking-options{overflow:hidden;border:1px solid #e7d9c8;background:#fff9f1;border-radius:17px;box-shadow:0 3px 12px #46321e14;margin:3px 0 20px}
+.gnz-native-booking-options button{display:flex;align-items:center;gap:13px;width:100%;min-height:67px;padding:12px 16px;background:transparent;border:0;border-bottom:1px solid #e9ddd0;text-align:left;color:var(--gnz-ink);font-weight:600;font-size:14px}
+.gnz-native-booking-options button:last-child{border-bottom:0}
+.gnz-native-booking-options button svg{width:22px;color:var(--gnz-brown)}
+.gnz-native-booking-options button span:nth-child(2){flex:1}
+.gnz-native-booking-options button span:last-child{font-size:22px;font-weight:400}
+.gnz-native-booking-options button.selected{background:#f2e3ce}
+.gnz-native-calendar-link{display:flex;align-items:center;justify-content:center;text-align:center;text-decoration:none;padding:10px 14px;margin:0 0 12px}
+.gnz-native-booking-contact{display:block;width:100%;min-height:46px;border:1px solid #a97c52;border-radius:999px;background:transparent;color:var(--gnz-brown);font-size:14px;font-weight:700}
+.gnz-native-availability{display:grid;gap:8px;margin:0 0 18px}.gnz-native-availability>strong{font-family:Georgia,serif;font-size:20px;font-weight:400;margin-bottom:2px}.gnz-native-availability>button{display:flex;justify-content:space-between;align-items:center;min-height:52px;padding:12px 14px;border:1px solid #e7d9c8;border-radius:13px;background:#fff9f1;color:var(--gnz-ink);font-size:13px}.gnz-native-availability>button.selected{border-color:var(--gnz-brown);background:#f2e3ce}.gnz-native-availability>button span{font-size:21px;color:var(--gnz-brown)}.gnz-native-availability>p{margin:0;padding:13px;border-radius:12px;background:#efe2d2;color:#6b5b4f;font-size:13px;line-height:1.45}
+.gnz-native-news-feature{position:relative;overflow:hidden;border-radius:16px;aspect-ratio:1.08;background:#35291c;color:#fff}
+.gnz-native-news-feature img{width:100%;height:100%;object-fit:cover}
+.gnz-native-news-feature>div{position:absolute;inset:auto 0 0;padding:60px 17px 18px;background:linear-gradient(transparent,#110c0ad9)}
+.gnz-native-news-feature span{background:#f7eee3;color:#4d341e;border-radius:999px;padding:4px 10px;font-size:11px}
+.gnz-native-news-feature h2{font-family:Georgia,serif;font-size:27px;line-height:1.08;margin:12px 0 7px}
+.gnz-native-news-feature small{font-size:12px}
+.gnz-native-dots{display:flex;align-items:center;justify-content:center;gap:5px;margin:11px auto 18px}
+.gnz-native-dots button{width:28px;height:28px;border:0;background:transparent;display:grid;place-items:center;padding:0}
+.gnz-native-dots button:after{content:"";width:7px;height:7px;border-radius:50%;background:#cabbaa}
+.gnz-native-dots button[aria-current="true"]:after{background:var(--gnz-brown)}
+.gnz-native-subheading{font-family:Georgia,serif;font-size:23px;font-weight:400;margin:18px 0 12px}
+.gnz-native-article-list{display:grid;gap:9px}
+.gnz-native-article-list article{background:#fff9f1;border:1px solid #e7d9c8;border-radius:14px;padding:15px}
+.gnz-native-article-list span{font-size:10px;color:var(--gnz-brown)}
+.gnz-native-article-list h3{font-family:Georgia,serif;font-size:20px;margin:6px 0}
+.gnz-native-article-list p{font-size:12px;line-height:1.5;color:#65584c;margin:0}
+.gnz-native-news-feature,.gnz-native-article-list button{font:inherit;text-align:left;cursor:pointer}
+.gnz-native-news-reader{position:fixed;inset:0;z-index:2100;display:flex;align-items:flex-end;justify-content:center;padding:18px;background:rgba(18,10,5,.82);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.gnz-native-news-reader-card{position:relative;width:min(600px,100%);max-height:92dvh;overflow:auto;border-radius:22px;background:#21150d;color:#f8efe3;box-shadow:0 20px 80px rgba(0,0,0,.45)}
+.gnz-native-news-reader-close{position:absolute;right:12px;top:12px;z-index:2;width:42px;height:42px;border:1px solid rgba(255,255,255,.35);border-radius:50%;background:rgba(17,10,6,.65);color:#fff;font-size:28px;line-height:1}
+.gnz-native-news-reader-media{position:relative;aspect-ratio:4/3;background:#100a06;overflow:hidden}.gnz-native-news-reader-media img{width:100%;height:100%;object-fit:contain;display:block}.gnz-native-news-reader-media>button{position:absolute;top:50%;transform:translateY(-50%);width:42px;height:42px;border:0;border-radius:50%;background:rgba(0,0,0,.45);color:#fff;font-size:28px}.gnz-native-news-reader-media>button:nth-of-type(1){left:10px}.gnz-native-news-reader-media>button:nth-of-type(2){right:10px}.gnz-native-news-reader-dots{position:absolute;bottom:10px;left:0;right:0;display:flex;justify-content:center;gap:5px}.gnz-native-news-reader-dots span{width:7px;height:7px;border-radius:50%;background:#cbb39a}.gnz-native-news-reader-dots span.active{background:#d7a653}
+.gnz-native-news-reader-copy{padding:22px 20px 28px}.gnz-native-news-reader-copy>span{font-size:10px;letter-spacing:.12em;color:#d7a653;text-transform:uppercase}.gnz-native-news-reader-copy h2{font-family:Georgia,serif;font-size:30px;line-height:1.08;margin:10px 0 16px}.gnz-native-news-reader-copy p{white-space:pre-line;color:#eadbc9;font-size:15px;line-height:1.7;margin:0}
+.gnz-native-showroom>img{display:block;width:100%;aspect-ratio:4/5;object-fit:cover;border-radius:17px}
+.gnz-native-showroom .gnz-native-primary{width:100%}
+.gnz-native-list{gap:0;border:1px solid #e7d9c8;border-radius:17px;overflow:hidden;background:#fff9f1;box-shadow:0 3px 12px #46321e14}
+.gnz-native-list button,.gnz-native-language{border:0;border-bottom:1px solid #e9ddd0;border-radius:0;background:transparent;box-shadow:none;min-height:54px;padding:11px 16px;font-weight:500}
+.gnz-native-list button:last-of-type{border-bottom:1px solid #e9ddd0}
+.gnz-native-list button{justify-content:flex-start;gap:13px}
+.gnz-native-list .gnz-native-more-icon{display:grid;place-items:center;flex:none;width:23px;height:23px;color:#5b3b23}
+.gnz-native-list .gnz-native-more-icon svg{width:21px;height:21px}
+.gnz-native-list .gnz-native-more-label{flex:1;color:var(--gnz-ink);font-size:14px;font-weight:600;line-height:1.25}
+.gnz-native-language{border:0}
+.gnz-native-contact-list{display:grid;gap:10px}
+.gnz-native-contact-list button,.gnz-native-contact-list a{display:flex;align-items:center;gap:12px;text-align:left;text-decoration:none;width:100%;min-height:75px;border:1px solid #e7d9c8;border-radius:16px;background:#fff9f1;padding:12px;color:var(--gnz-ink);box-shadow:0 3px 12px #46321e14}
+.gnz-native-contact-list button>span:nth-child(2),.gnz-native-contact-list a>span:nth-child(2){display:grid;gap:3px;min-width:0;flex:1}
+.gnz-native-contact-list small{color:#65584c;font-size:11px;line-height:1.3;overflow-wrap:anywhere}
+.gnz-native-contact-icon{display:grid;place-items:center;width:42px;height:42px;border-radius:11px;background:#ede0cd;color:var(--gnz-brown);font-size:22px}
+.gnz-native-tabs{min-height:calc(69px + env(safe-area-inset-bottom));padding:5px 3px calc(4px + env(safe-area-inset-bottom));background:rgba(255,249,241,.97);border-color:#e6d7c4}
+.gnz-native-tabs button{min-height:54px;gap:2px}
+.gnz-native-tabs button svg{width:21px;height:21px}
+.gnz-native-tabs button small{font-size:10px}
+.gnz-native-tabs button.active:before{display:none}
+@media (max-height:720px){.gnz-native-hero{min-height:490px}.gnz-native-hero-content{padding-top:20px}.gnz-native-hero-content h1{font-size:38px}}
+
+/* Brief page fades and pressed states keep navigation responsive without moving the layout. */
+.gnz-native-page{min-width:0}
+.gnz-native :where(button,a){-webkit-tap-highlight-color:transparent}
+.gnz-native-tabs button,.gnz-native-booking-options button,.gnz-native-service-card,.gnz-native-gallery-grid button,.gnz-native-hero-content button,.gnz-native-booking-contact,.gnz-native-calendar-link{transition:transform .16s ease,background-color .16s ease,color .16s ease,opacity .16s ease}
+.gnz-native :where(.gnz-native-tabs button,.gnz-native-booking-options button,.gnz-native-service-card,.gnz-native-gallery-grid button,.gnz-native-hero-content button,.gnz-native-booking-contact,.gnz-native-calendar-link):active{transform:scale(.97)}
+.gnz-native-tabs button.active svg{transform:translateY(-2px);transition:transform .18s ease}
+@media (prefers-reduced-motion:reduce){.gnz-native-tabs button,.gnz-native-booking-options button,.gnz-native-service-card,.gnz-native-gallery-grid button,.gnz-native-hero-content button,.gnz-native-booking-contact,.gnz-native-calendar-link,.gnz-native-tabs button.active svg{transition:none}}
+.gnz-native{
+  --gnz-ivory:#eee4d8;
+  --gnz-beige:#e4d4c2;
+  background:radial-gradient(circle at 80% 14%,#f4e9dd 0,#eee4d8 48%,#e2d3c3 100%);
+}
+.gnz-native-notification-item{
+  width:100%;
+  border:0;
+  font:inherit;
+  text-align:left;
+  cursor:pointer;
+}
