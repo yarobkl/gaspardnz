@@ -42,7 +42,7 @@ describe("GaspardNZ native iOS experience", () => {
       .toHaveAttribute("src", "/images/Photo%20application%20.JPG");
     const tabs = within(navigation()).getAllByRole("button");
     expect(tabs).toHaveLength(5);
-    expect(tabs.map((tab) => tab.textContent)).toEqual(["Accueil", "Services", "Galerie", "Réserver", "Plus"]);
+    expect(tabs.map((tab) => tab.textContent)).toEqual(["Accueil", "Services", "Galerie", "Actualités", "Plus"]);
     expect(screen.queryByTestId("native-chatbot")).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Notifications" })).toBeInTheDocument();
     expect(tabs.every((tab) => tab.querySelector("svg"))).toBe(true);
@@ -63,11 +63,11 @@ describe("GaspardNZ native iOS experience", () => {
     expect(await screen.findByRole("dialog", { name: "Contact CRM" })).toHaveAttribute("data-project", "image_consulting");
   });
 
-  it("offers the existing calendar and opens the CRM contact form for a project", async () => {
+  it("opens admin-published booking availability and the CRM contact form for a project", async () => {
     render(<Harness />);
-    openTab("Réserver");
-    expect(await screen.findByRole("link", { name: "Choisir une date et une heure →" }))
-      .toHaveAttribute("href", "https://calendly.com/gaspardnz");
+    openTab("Plus");
+    fireEvent.click(await screen.findByRole("button", { name: /Réserver/ }));
+    expect(await screen.findByText("Créneaux disponibles")).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Préparation de mariage" }));
     fireEvent.click(screen.getByRole("button", { name: "Envoyer ma demande →" }));
     expect(await screen.findByRole("dialog", { name: "Contact CRM" })).toHaveAttribute("data-project", "wedding");
@@ -78,8 +78,8 @@ describe("GaspardNZ native iOS experience", () => {
     openTab("Plus");
     fireEvent.change(await screen.findByLabelText("Langue"), { target: { value: "EN" } });
     const tabs = within(navigation()).getAllByRole("button");
-    expect(tabs.map((tab) => tab.textContent)).toEqual(["Home", "Services", "Gallery", "Book", "More"]);
-    openTab("Book");
+    expect(tabs.map((tab) => tab.textContent)).toEqual(["Home", "Services", "Gallery", "News", "More"]);
+    fireEvent.click(await screen.findByRole("button", { name: "Book" }));
     expect(await screen.findByRole("button", { name: "Send my request →" })).toBeInTheDocument();
   });
 
@@ -93,8 +93,9 @@ describe("GaspardNZ native iOS experience", () => {
     render(<Harness />);
     openTab("Services");
     openTab("Galerie");
-    openTab("Réserver");
-    expect(await screen.findByRole("link", { name: "Choisir une date et une heure →" })).toBeInTheDocument();
-    expect(within(navigation()).getByRole("button", { name: "Réserver" })).toHaveAttribute("aria-current", "page");
+    openTab("Plus");
+    fireEvent.click(await screen.findByRole("button", { name: /Réserver/ }));
+    expect(await screen.findByText("Créneaux disponibles")).toBeInTheDocument();
+    expect(within(navigation()).getByRole("button", { name: "Plus" })).toHaveAttribute("aria-current", "page");
   });
 });
