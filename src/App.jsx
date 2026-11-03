@@ -276,7 +276,7 @@ export default function App() {
             onSectionChange={onAdminSectionChange}
             onLoginSuccess={onLoginSuccess}
           />
-        ) : Capacitor.isNativePlatform() ? (
+        ) : Capacitor.getPlatform() === "ios" ? (
           <Suspense fallback={<div style={{minHeight:"100dvh",background:"#FAF8F4"}} />}><NativeExperience /></Suspense>
         ) : (
           <>
