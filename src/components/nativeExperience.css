@@ -62,6 +62,7 @@
 .gnz-native-notifications-head strong{font-family:Georgia,serif;font-size:19px;font-weight:500}
 .gnz-native-notifications-head button{background:transparent;border:0;color:var(--gnz-ink);font-size:26px;line-height:1;min-width:36px;min-height:36px}
 .gnz-native-notifications p{font-size:14px;color:#66584e;margin:15px 0 5px}
+.gnz-native-notification-item{padding:11px 0;border-top:1px solid #e8dfd3}.gnz-native-notification-item strong{font-family:Georgia,serif;font-size:16px;font-weight:500}.gnz-native-notification-item p{font-size:13px;line-height:1.4;margin:5px 0;color:#66584e}.gnz-native-notification-item small{font-size:10px;color:#8a5729}
 .gnz-native-tabs button>span{display:flex;align-items:center;justify-content:center;height:27px;line-height:1}
 .gnz-native-tabs button svg{display:block;width:25px;height:25px;stroke:currentColor}
 .gnz-native-tabs button.active svg{stroke-width:2.2}
@@ -108,6 +109,20 @@
 .gnz-native-gallery-detail{display:flex;align-items:center;flex-wrap:wrap;gap:8px;font-size:12px;color:#675744;margin:16px 0}
 .gnz-native-gallery-detail strong{font-family:Georgia,serif;font-size:15px;font-weight:400;color:var(--gnz-ink);flex:1}
 .gnz-native-gallery-detail button{background:transparent;border:0;text-decoration:underline;color:var(--gnz-brown);font-size:12px}
+.gnz-native-favorites{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-top:16px;padding:13px 14px;border:1px solid #e7d9c8;border-radius:14px;background:#fff9f1;color:var(--gnz-ink)}
+.gnz-native-favorites strong{font-family:Georgia,serif;font-size:16px;font-weight:400}.gnz-native-favorites span{font-size:11px;color:#675744}
+.gnz-native-photo-viewer{position:fixed;inset:0;z-index:2000;display:flex;flex-direction:column;background:#171310;color:#fff;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom);font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif}
+.gnz-native-photo-viewer-top{display:flex;align-items:center;justify-content:space-between;padding:10px 15px;min-height:62px;font-size:13px;letter-spacing:.12em}
+.gnz-native-photo-viewer-top button{width:44px;height:44px;border:0;background:transparent;color:#fff;font-size:31px;line-height:1;display:grid;place-items:center}
+.gnz-native-photo-viewer-actions{display:flex;gap:2px}.gnz-native-photo-viewer-actions button{font-size:25px}
+.gnz-native-photo-viewer-top button:focus-visible,.gnz-native-photo-viewer-stage button:focus-visible{outline:2px solid #e6cda9;outline-offset:2px}
+.gnz-native-photo-viewer-stage{position:relative;flex:1;min-height:0;display:flex;align-items:center;justify-content:center;touch-action:pan-y;overflow:hidden}
+.gnz-native-photo-viewer-stage img{display:block;width:100%;height:100%;object-fit:contain;user-select:none;-webkit-user-select:none;animation:gnz-photo-enter .18s ease-out}
+@keyframes gnz-photo-enter{from{opacity:.55}to{opacity:1}}
+.gnz-native-photo-viewer-stage button{position:absolute;top:50%;z-index:1;transform:translateY(-50%);border:0;border-radius:50%;width:44px;height:44px;background:#171310a8;color:white;font-size:32px;line-height:1}
+.gnz-native-photo-viewer-prev{left:8px}.gnz-native-photo-viewer-next{right:8px}
+.gnz-native-photo-viewer-caption{min-height:60px;margin:0;display:flex;justify-content:center;align-items:center;text-align:center;padding:10px 22px 16px;font-family:Georgia,serif;font-size:18px;line-height:1.25}
+@media (prefers-reduced-motion:reduce){.gnz-native-photo-viewer-stage img{animation:none}}
 .gnz-native-booking-page{padding-top:15px}
 .gnz-native-booking-icon{width:50px;height:50px;margin:0 auto 12px;display:grid;place-items:center;background:#eee0cc;color:var(--gnz-brown);border-radius:14px}
 .gnz-native-booking-page .gnz-native-heading{padding-bottom:16px}
