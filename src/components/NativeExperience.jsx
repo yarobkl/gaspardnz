@@ -1,5 +1,6 @@
-import { lazy, Suspense, useContext, useState } from "react";
+import { lazy, Suspense, useContext, useEffect, useState } from "react";
 import { LangCtx } from "../context.jsx";
+import { StatusBar, Style } from "@capacitor/status-bar";
 import { useSettings } from "../hooks/useSettings.js";
 import { downloadFile } from "../utils/downloadFile.js";
 import "./nativeExperience.css";
@@ -46,6 +47,7 @@ export default function NativeExperience(){
  const settings=useSettings();
  const c=copy[lang]||copy.FR;
  const ui=localUI[lang]||localUI.FR;
+ useEffect(()=>{StatusBar.setStyle({style:Style.Light}).catch(()=>{});},[]);
  const [page,setPage]=useState("home"),[contactOpen,setContactOpen]=useState(false),[downloadError,setDownloadError]=useState("");
  const select=(key)=>{setPage(key);setDownloadError("");window.scrollTo({top:0,behavior:"instant"});};
  const heading=(title,subtitle)=> <header className="gnz-native-heading"><span className="gnz-native-eyebrow">GASPARDNZ · PARIS</span><h1>{title}</h1>{subtitle&&<p>{subtitle}</p>}</header>;
