@@ -103,9 +103,12 @@ try {
   report.record("PUB-05", "Découvrir les formules", "ouvre la section Formules", `bouton Formules actif=${formulaPressed > 0}`, formulaPressed > 0 && jsErrors.length === 0);
 
   await home();
-  const wa = page.getByRole("link", { name: "Parler à Gaspard" });
-  const waHref = await wa.getAttribute("href");
-  report.record("PUB-06", "Parler à Gaspard", "lien WhatsApp wa.me avec message", waHref || "href absent", Boolean(waHref?.startsWith("https://wa.me/")));
+  const contactButton = page.getByRole("button", { name: "Parler à Gaspard" });
+  await contactButton.click({ force: true });
+  const contactDialog = page.getByRole("dialog");
+  const contactOpened = await contactDialog.isVisible().catch(() => false);
+  report.record("PUB-06", "Parler à Gaspard", "ouvre le formulaire de contact avant WhatsApp", `dialogue=${contactOpened}`, contactOpened && jsErrors.length === 0);
+  await home();
 
   // Partenaires : aperçu -> section complète
   await page.getByRole("button", { name: "Voir tous nos partenaires" }).click({ force: true });
