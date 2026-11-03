@@ -33,7 +33,7 @@ async function openSection(label) {
   await home();
   await page.locator("#gnz-mobile-home").getByRole("button", { name: label, exact: true }).click({ force: true });
   await page.waitForSelector("#gnz-mobile-active-section", { timeout: 8000 });
-  await page.waitForFunction(() => document.getElementById("gnz-mobile-active-section")?.scrollHeight > 80, null, { timeout: 8000 });
+  // Some compact sections legitimately have a short or animated container.\n  // Wait for mounted content rather than assuming a minimum scroll height.\n  await page.waitForFunction(() => {\n    const el = document.getElementById("gnz-mobile-active-section");\n    return Boolean(el && el.children.length && el.getBoundingClientRect().width > 0);\n  }, null, { timeout: 8000 });
   return page.locator("#gnz-mobile-active-section");
 }
 
