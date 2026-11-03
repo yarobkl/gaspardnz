@@ -33,7 +33,7 @@ async function openSection(label) {
   await home();
   await page.locator("#gnz-mobile-home").getByRole("button", { name: label, exact: true }).click({ force: true });
   await page.waitForSelector("#gnz-mobile-active-section", { timeout: 8000 });
-  await page.waitForFunction(() => document.getElementById("gnz-mobile-active-section")?.scrollHeight > 80, { timeout: 8000 });
+  await page.waitForFunction(() => document.getElementById("gnz-mobile-active-section")?.scrollHeight > 80, null, { timeout: 8000 });
   return page.locator("#gnz-mobile-active-section");
 }
 
@@ -90,7 +90,8 @@ try {
   }
   const journalHotspots = section.locator("button[aria-pressed]");
   if (await journalHotspots.count()) {
-    await journalHotspots.first().click({ force: true });
+    await journalHotspots.first().scrollIntoViewIfNeeded();
+    await journalHotspots.first().click();
     const dialog = page.getByRole("dialog").last();
     await dialog.waitFor({ state: "visible", timeout: 2500 }).catch(() => {});
     const buttons = dialog.locator("button");
