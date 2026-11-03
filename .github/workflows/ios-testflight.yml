@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - codex/ios-app-store
+      - feature/ios-premium-interface
     paths:
       - ".github/workflows/ios-testflight.yml"
       - "ios/**"
