@@ -51,7 +51,7 @@
 .gnz-native-tabs button.active{position:relative}
 .gnz-native-tabs button.active:before{content:"";position:absolute;top:0;width:20px;height:2px;border-radius:2px;background:var(--gnz-brown)}
 .gnz-native-tabs button{min-width:0;padding-inline:2px}
-#gnz-native-main>section:not(.gnz-native-section){margin:0 12px 18px;border-radius:19px;overflow:hidden}
+#gnz-native-main>.gnz-native-page>section:not(.gnz-native-section){margin:0 12px 18px;border-radius:19px;overflow:hidden}
 @media (prefers-reduced-motion:reduce){.gnz-native-grid button,.gnz-native-list button{transition:none}}
 
 /* Native iOS navigation: consistent vector icons and notification drawer. */
@@ -157,3 +157,11 @@
 .gnz-native-tabs button small{font-size:10px}
 .gnz-native-tabs button.active:before{display:none}
 @media (max-height:720px){.gnz-native-hero{min-height:490px}.gnz-native-hero-content{padding-top:20px}.gnz-native-hero-content h1{font-size:38px}}
+
+/* Brief page fades and pressed states keep navigation responsive without moving the layout. */
+.gnz-native-page{min-width:0}
+.gnz-native :where(button,a){-webkit-tap-highlight-color:transparent}
+.gnz-native-tabs button,.gnz-native-booking-options button,.gnz-native-service-card,.gnz-native-gallery-grid button,.gnz-native-hero-content button,.gnz-native-booking-contact,.gnz-native-calendar-link{transition:transform .16s ease,background-color .16s ease,color .16s ease,opacity .16s ease}
+.gnz-native :where(.gnz-native-tabs button,.gnz-native-booking-options button,.gnz-native-service-card,.gnz-native-gallery-grid button,.gnz-native-hero-content button,.gnz-native-booking-contact,.gnz-native-calendar-link):active{transform:scale(.97)}
+.gnz-native-tabs button.active svg{transform:translateY(-2px);transition:transform .18s ease}
+@media (prefers-reduced-motion:reduce){.gnz-native-tabs button,.gnz-native-booking-options button,.gnz-native-service-card,.gnz-native-gallery-grid button,.gnz-native-hero-content button,.gnz-native-booking-contact,.gnz-native-calendar-link,.gnz-native-tabs button.active svg{transition:none}}
