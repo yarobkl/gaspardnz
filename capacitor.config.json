@@ -12,7 +12,7 @@
   },
   "ios": {
     "scheme": "Gaspardnz",
-    "backgroundColor": "#1c1208"
+    "backgroundColor": "#FAF8F4"
   },
   "plugins": {
     "SplashScreen": {
