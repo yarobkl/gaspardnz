@@ -3,6 +3,7 @@ on:
   pull_request:
     paths:
       - "src/**"
+      - "tests/component/NativeExperience.test.jsx"
       - "public/**"
       - "package.json"
       - "package-lock.json"
@@ -22,7 +23,11 @@ jobs:
           cache: npm
       - name: Install dependencies
         run: npm ci
+      - name: Test native tabs, translations and CRM lead routing
+        run: npm run test:unit -- tests/component/NativeExperience.test.jsx
       - name: Build native Capacitor web assets
-        run: BUILD_TARGET=capacitor npm run build
-      - name: Verify output
-        run: test -s dist/index.html
+        run: npm run build:app
+      - name: Verify HTML and original uploaded portrait
+        run: |
+          test -s dist/index.html
+          test -s "dist/images/Photo application .JPG"
