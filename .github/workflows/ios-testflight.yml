@@ -6,6 +6,7 @@ on:
       - main
       - codex/ios-app-store
       - feature/ios-premium-interface
+      - feature/native-ios-editorial
     paths:
       - ".github/workflows/ios-testflight.yml"
       - "ios/**"

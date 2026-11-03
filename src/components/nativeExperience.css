@@ -118,6 +118,8 @@
 .gnz-native-booking-options button span:nth-child(2){flex:1}
 .gnz-native-booking-options button span:last-child{font-size:22px;font-weight:400}
 .gnz-native-booking-options button.selected{background:#f2e3ce}
+.gnz-native-calendar-link{display:flex;align-items:center;justify-content:center;text-align:center;text-decoration:none;padding:10px 14px;margin:0 0 12px}
+.gnz-native-booking-contact{display:block;width:100%;min-height:46px;border:1px solid #a97c52;border-radius:999px;background:transparent;color:var(--gnz-brown);font-size:14px;font-weight:700}
 .gnz-native-news-feature{position:relative;overflow:hidden;border-radius:16px;aspect-ratio:1.08;background:#35291c;color:#fff}
 .gnz-native-news-feature img{width:100%;height:100%;object-fit:cover}
 .gnz-native-news-feature>div{position:absolute;inset:auto 0 0;padding:60px 17px 18px;background:linear-gradient(transparent,#110c0ad9)}
@@ -139,6 +141,10 @@
 .gnz-native-list{gap:0;border:1px solid #e7d9c8;border-radius:17px;overflow:hidden;background:#fff9f1;box-shadow:0 3px 12px #46321e14}
 .gnz-native-list button,.gnz-native-language{border:0;border-bottom:1px solid #e9ddd0;border-radius:0;background:transparent;box-shadow:none;min-height:54px;padding:11px 16px;font-weight:500}
 .gnz-native-list button:last-of-type{border-bottom:1px solid #e9ddd0}
+.gnz-native-list button{justify-content:flex-start;gap:13px}
+.gnz-native-list .gnz-native-more-icon{display:grid;place-items:center;flex:none;width:23px;height:23px;color:#5b3b23}
+.gnz-native-list .gnz-native-more-icon svg{width:21px;height:21px}
+.gnz-native-list .gnz-native-more-label{flex:1;color:var(--gnz-ink);font-size:14px;font-weight:600;line-height:1.25}
 .gnz-native-language{border:0}
 .gnz-native-contact-list{display:grid;gap:10px}
 .gnz-native-contact-list button,.gnz-native-contact-list a{display:flex;align-items:center;gap:12px;text-align:left;text-decoration:none;width:100%;min-height:75px;border:1px solid #e7d9c8;border-radius:16px;background:#fff9f1;padding:12px;color:var(--gnz-ink);box-shadow:0 3px 12px #46321e14}

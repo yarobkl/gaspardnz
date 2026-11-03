@@ -63,10 +63,11 @@ describe("GaspardNZ native iOS experience", () => {
     expect(await screen.findByRole("dialog", { name: "Contact CRM" })).toHaveAttribute("data-project", "image_consulting");
   });
 
-  it("presents booking as a request and opens the CRM contact form", async () => {
+  it("offers the existing calendar and opens the CRM contact form for a project", async () => {
     render(<Harness />);
     openTab("Réserver");
-    expect(screen.getByText(/GaspardNZ pourra ensuite vous recontacter/)).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Choisir une date et une heure →" }))
+      .toHaveAttribute("href", "https://calendly.com/gaspardnz");
     fireEvent.click(screen.getByRole("button", { name: "Préparation de mariage" }));
     fireEvent.click(screen.getByRole("button", { name: "Envoyer ma demande →" }));
     expect(await screen.findByRole("dialog", { name: "Contact CRM" })).toHaveAttribute("data-project", "wedding");
