@@ -14,9 +14,6 @@ vi.mock("../../src/components/sections/FormulesSection.jsx", () => ({
 vi.mock("../../src/components/GalleryMobile.jsx", () => ({
   default: () => <div data-testid="gallery">Galerie chargée</div>,
 }));
-vi.mock("../../src/components/ChatBot.jsx", () => ({
-  default: () => <div data-testid="native-chatbot">Assistant</div>,
-}));
 vi.mock("../../src/components/WhatsappContactModal.jsx", () => ({
   default: ({ isOpen, onClose }) => isOpen
     ? <div role="dialog" aria-label="Contact CRM"><button onClick={onClose}>Fermer le contact</button></div>
@@ -45,8 +42,18 @@ describe("GaspardNZ native iOS experience", () => {
       .toHaveAttribute("src", "/images/Photo%20application%20.JPG");
     const tabs = within(navigation()).getAllByRole("button");
     expect(tabs).toHaveLength(5);
-    expect(tabs.map((tab) => tab.textContent)).toEqual(["⌂Accueil", "◈Services", "▧Galerie", "▣Réserver", "•••Plus"]);
-    expect(await screen.findByTestId("native-chatbot")).toBeInTheDocument();
+    expect(tabs.map((tab) => tab.textContent)).toEqual(["Accueil", "Services", "Galerie", "Réserver", "Plus"]);
+    expect(screen.queryByTestId("native-chatbot")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Notifications" })).toBeInTheDocument();
+    expect(tabs.every((tab) => tab.querySelector("svg"))).toBe(true);
+  });
+
+  it("opens and closes the notifications panel", () => {
+    render(<Harness />);
+    fireEvent.click(screen.getByRole("button", { name: "Notifications" }));
+    expect(screen.getByText("Aucune notification pour le moment")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Fermer" }));
+    expect(screen.queryByText("Aucune notification pour le moment")).not.toBeInTheDocument();
   });
 
   it("sends the services lead to the CRM form, not directly to WhatsApp", async () => {
@@ -69,7 +76,7 @@ describe("GaspardNZ native iOS experience", () => {
     openTab("Plus");
     fireEvent.change(screen.getByLabelText("Langue"), { target: { value: "EN" } });
     const tabs = within(navigation()).getAllByRole("button");
-    expect(tabs.map((tab) => tab.textContent)).toEqual(["⌂Home", "◈Services", "▧Gallery", "▣Book", "•••More"]);
+    expect(tabs.map((tab) => tab.textContent)).toEqual(["Home", "Services", "Gallery", "Book", "More"]);
     openTab("Book");
     expect(screen.getByRole("button", { name: "Send my request →" })).toBeInTheDocument();
   });
