@@ -3,6 +3,8 @@ import { LangCtx } from "../context.jsx";
 import { getActualites } from "../data/actualitesData.js";
 import { usePublicCollection } from "../hooks/usePublicCollection.js";
 
+const readingMinutes = text => Math.max(1, Math.ceil(String(text || "").trim().split(/\\s+/).filter(Boolean).length / 200));
+const readingLabel = (text, lang) => `${readingMinutes(text)} ${lang === "FR" ? "min de lecture" : lang === "EN" ? "min read" : lang === "ES" ? "min de lectura" : "分钟阅读"}`;
 const mediaUrl = value => /^(https?:|data:|blob:)/i.test(value || "") ? value : `${import.meta.env.BASE_URL}${String(value || "").replace(/^\/+/, "")}`;
 
 export function NativeNews({ initialId = null }) {
@@ -37,14 +39,15 @@ export function NativeNews({ initialId = null }) {
   const openArticle = (item) => { setArticle(item); setPhotoIndex(0); };
   return <div className="gnz-native-news">
     {!items.length && <p className="gnz-native-muted">{lang === "FR" ? "Les actualités seront bientôt disponibles." : lang === "EN" ? "News will be available soon." : lang === "ES" ? "Las noticias estarán disponibles pronto." : "资讯即将上线。"}</p>}
+    {items.length > 0 && <div className="gnz-native-journal-intro"><span>{lang === "FR" ? "LE JOURNAL" : "THE JOURNAL"}</span><h2>{lang === "FR" ? "Le style se raconte." : "Stories of style."}</h2><p>{lang === "FR" ? "Inspirations, conseils du styliste et regards sur l’élégance." : "Style inspiration and advice from the stylist."}</p></div>}
     {active && <button type="button" className="gnz-native-news-feature" onClick={() => openArticle(active)}>
       <img src={mediaUrl(active.photos[0])} alt="" loading="eager" />
-      <div><span>{active.tag}</span><h2>{active.title}</h2><small>{active.date}</small></div>
+      <div><span>{lang === "FR" ? "À LA UNE" : "FEATURED"} · {active.tag}</span><h2>{active.title}</h2><small>{[active.date, readingLabel(active.text, lang)].filter(Boolean).join(" · ")}</small></div>
     </button>}
     {featured.length > 1 && <div className="gnz-native-dots" aria-label="Choisir une actualité">
       {featured.map((item, i) => <button key={item.id} type="button" onClick={() => setIndex(i)} aria-label={item.title} aria-current={index % featured.length === i ? "true" : undefined} />)}
     </div>}
-    {items.length > 0 && <><h2 className="gnz-native-subheading">{lang === "FR" ? "Articles récents" : lang === "EN" ? "Recent stories" : lang === "ES" ? "Artículos recientes" : "最新文章"}</h2>
+    {items.length > 0 && <><h2 className="gnz-native-subheading">{lang === "FR" ? "À découvrir" : lang === "EN" ? "Recent stories" : lang === "ES" ? "Artículos recientes" : "最新文章"}</h2>
       <div className="gnz-native-article-list">{items.map(item => <button type="button" key={item.id} onClick={() => openArticle(item)}>
         <span>{item.tag} · {item.date}</span><h3>{item.title}</h3><p>{String(item.text || "").split("\n\n")[0]}</p>
       </button>)}</div></>}
@@ -52,7 +55,7 @@ export function NativeNews({ initialId = null }) {
       <div className="gnz-native-news-reader-card">
         <button type="button" className="gnz-native-news-reader-close" onClick={() => setArticle(null)} aria-label="Fermer">×</button>
         {article.photos?.length > 0 && <div className="gnz-native-news-reader-media"><img src={mediaUrl(article.photos[photoIndex])} alt={article.title} />{article.photos.length > 1 && <><button type="button" onClick={() => setPhotoIndex((photoIndex - 1 + article.photos.length) % article.photos.length)} aria-label="Photo précédente">‹</button><button type="button" onClick={() => setPhotoIndex((photoIndex + 1) % article.photos.length)} aria-label="Photo suivante">›</button><div className="gnz-native-news-reader-dots">{article.photos.map((_, i) => <span key={i} className={i === photoIndex ? "active" : ""} />)}</div></>}</div>}
-        <div className="gnz-native-news-reader-copy"><span>{article.tag} · {article.date}</span><h2>{article.title}</h2><p>{article.text}</p></div>
+        <div className="gnz-native-news-reader-copy"><span>{[article.tag, article.date, readingLabel(article.text, lang)].filter(Boolean).join(" · ")}</span><h2>{article.title}</h2><p>{article.text}</p></div>
       </div>
     </div>}
   </div>;
