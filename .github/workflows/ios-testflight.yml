@@ -358,7 +358,7 @@ jobs:
             echo "::error::Le profil de distribution IPA ne contient pas aps-environment=production"
             exit 1
           fi
-          codesign -d --entitlements - "$APP_PATH" > "$RUNNER_TEMP/distribution-entitlements.plist" 2>/dev/null
+          codesign --display --entitlements - --xml "$APP_PATH" > "$RUNNER_TEMP/distribution-entitlements.plist" 2>/dev/null
           SIGNATURE_APS="$(/usr/libexec/PlistBuddy -c 'Print :aps-environment' "$RUNNER_TEMP/distribution-entitlements.plist")"
           if [ "$SIGNATURE_APS" != "production" ]; then
             echo "::error::La signature IPA ne contient pas aps-environment=production"
