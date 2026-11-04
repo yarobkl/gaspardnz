@@ -1,6 +1,8 @@
 import { lazy, Suspense, useContext, useEffect, useRef, useState } from "react";
 import { LangCtx } from "../context.jsx";
 import { StatusBar, Style } from "@capacitor/status-bar";
+import { Capacitor } from "@capacitor/core";
+import { PushNotifications } from "@capacitor/push-notifications";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useSettings } from "../hooks/useSettings.js";
 import { usePublicCollection } from "../hooks/usePublicCollection.js";
@@ -82,6 +84,40 @@ export default function NativeExperience(){
  const ui=localUI[lang]||localUI.FR;
  useEffect(()=>{StatusBar.setStyle({style:Style.Light}).catch(()=>{});},[]);
  const [page,setPage]=useState("home"),[contactOpen,setContactOpen]=useState(false),[contactProject,setContactProject]=useState(""),[bookingProject,setBookingProject]=useState(""),[downloadError,setDownloadError]=useState(""),[notificationsOpen,setNotificationsOpen]=useState(false),[newsFocusId,setNewsFocusId]=useState(null);
+ const [pairCode,setPairCode]=useState(""),[pairStatus,setPairStatus]=useState(""),[pairBusy,setPairBusy]=useState(false);
+ const pushToken=useRef("");
+ useEffect(()=>{
+   if(Capacitor.getPlatform()!=="ios")return;
+   let active=true;const listeners=[];
+   (async()=>{
+     listeners.push(await PushNotifications.addListener("registration",token=>{if(active)pushToken.current=token.value;}));
+     listeners.push(await PushNotifications.addListener("registrationError",error=>{if(active)setPairStatus("Apple : "+(error?.error||"enregistrement impossible"));}));
+     listeners.push(await PushNotifications.addListener("pushNotificationActionPerformed",event=>{
+       const url=event.notification?.data?.url;
+       if(typeof url==="string"&&url.startsWith("https://gaspardnz.style/"))window.location.assign(url);
+     }));
+   })().catch(()=>{});
+   return()=>{active=false;listeners.forEach(listener=>listener.remove());};
+ },[]);
+ async function pairIphone(){
+   if(!/^[a-f0-9]{48}$/.test(pairCode.trim())){setPairStatus("Code invalide.");return;}
+   setPairBusy(true);setPairStatus("");
+   try{
+     const permission=await PushNotifications.requestPermissions();
+     if(permission.receive!=="granted")throw new Error("Autorisation de notifications refusée sur cet iPhone.");
+     const token=await new Promise(async(resolve,reject)=>{
+       if(pushToken.current)return resolve(pushToken.current);
+       const listener=await PushNotifications.addListener("registration",async t=>{await listener.remove();resolve(t.value);});
+       const failure=await PushNotifications.addListener("registrationError",async e=>{await listener.remove();reject(new Error(e?.error||"Apple a refusé l’inscription"));});
+       try{await PushNotifications.register();}catch(e){await listener.remove();reject(e);}finally{setTimeout(()=>failure.remove(),20000);}
+       setTimeout(()=>{listener.remove();reject(new Error("Délai Apple dépassé"));},20000);
+     });
+     const response=await fetch("https://gaspardnz.style/api/push-test-device",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({code:pairCode.trim(),deviceToken:token})});
+     const result=await response.json().catch(()=>({}));
+     if(!response.ok)throw new Error(result.error||"Association impossible");
+     setPairCode("");setPairStatus("iPhone associé. Vous pouvez envoyer un test depuis l’administration.");
+   }catch(e){setPairStatus(e.message||"Association impossible");}finally{setPairBusy(false);}
+ }
  const swipeStart = useRef(null);
  const { rows: announcements } = usePublicCollection("news_posts", { fallback: [], filters: [{ type:"eq", column:"locale", value:lang }], orderBy:"published_at", ascending:false });
  const notificationItems = announcements;
