@@ -1,5 +1,5 @@
 import { randomBytes, createHash } from "node:crypto";
-import { notificationAdminDb } from "./_lib/apns.js";
+import { notificationAdminDb } from "../apns.js";
 const hash = s => createHash("sha256").update(s).digest("hex");
 export default async function handler(req,res){
   res.setHeader("Cache-Control","no-store");

@@ -1,4 +1,4 @@
-import { notificationAdminDb, sendApns } from "./_lib/apns.js";
+import { notificationAdminDb, sendApns } from "../apns.js";
 
 export default async function handler(req,res) {
  if(req.method!=="POST") return res.status(405).json({error:"Méthode non autorisée"});
