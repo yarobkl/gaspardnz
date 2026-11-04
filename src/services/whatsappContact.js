@@ -27,8 +27,6 @@ export function normalizeContactEmail(value) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ? email.slice(0, 320) : "";
 }
 
-// Kept in memory only: no contact details in localStorage or analytics.
-// Coalesces double submissions and reuses a successful save on reopening.
 const submissions = new Map();
 
 async function notifyContact(leadId) {
@@ -48,9 +46,7 @@ async function notifyContact(leadId) {
 export async function submitWhatsappContact({ firstName, email = "", phone, country = "FR", projectType, projectDetails = "", lang = "FR" }) {
   const name = normalizeContactName(firstName);
   const normalizedPhone = normalizeContactPhone(phone, country);
-  if (!name || name.length > 80 || !normalizedPhone) {
-    throw new Error("invalid_contact");
-  }
+  if (!name || name.length > 80 || !normalizedPhone) throw new Error("invalid_contact");
   const details = normalizeContactName(projectDetails);
   const normalizedEmail = email ? normalizeContactEmail(email) : "";
   if (email && !normalizedEmail) throw new Error("invalid_email");
@@ -64,10 +60,9 @@ export async function submitWhatsappContact({ firstName, email = "", phone, coun
   const save = (async () => {
     const context = getTrackingContext();
     const isIosApp = Capacitor.getPlatform() === "ios";
-    const result = await sendPublicEvent("lead", {
+    const leadPayload = {
       ...context,
       full_name: name,
-      email: normalizedEmail || null,
       phone: normalizedPhone,
       request_type: "whatsapp_contact",
       source: isIosApp ? "Application GaspardNZ iOS" : "Site GaspardNZ",
@@ -84,23 +79,15 @@ export async function submitWhatsappContact({ firstName, email = "", phone, coun
         page_path: window.location.pathname,
         contact_notice_version: CONTACT_NOTICE_VERSION,
         contact_requested_at: new Date().toISOString(),
-        // A submitted contact is a prospect, never proof of a WhatsApp
-        // message sent, a confirmed appointment or a converted customer.
         whatsapp_message_status: "unknown",
       },
-    });
+    };
+    if (normalizedEmail) leadPayload.email = normalizedEmail;
+    const result = await sendPublicEvent("lead", leadPayload);
     if (!result?.ok || !result?.id) throw new Error("contact_save_failed");
-    // The lead stays saved even if SMTP is unavailable. The server logs
-    // each recipient's result; no client acknowledgement is sent, because
-    // this form deliberately collects no email address.
     const notificationSent = await notifyContact(result.id);
     return { ...result, notificationSent };
   })();
   submissions.set(key, save);
-  try {
-    return await save;
-  } catch (error) {
-    submissions.delete(key);
-    throw error;
-  }
+  try { return await save; } catch (error) { submissions.delete(key); throw error; }
 }
