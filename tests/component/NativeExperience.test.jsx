@@ -51,24 +51,26 @@ describe("GaspardNZ native iOS experience", () => {
     expect(tabs.every((tab) => tab.querySelector("svg"))).toBe(true);
   });
 
-  it("moves a single animated pill to the active tab without altering the five-tab layout", async () => {
+  it("places one full-size capsule behind the selected tab and keeps five accessible buttons", async () => {
     render(<Harness />);
     const nav = navigation();
-    const activePills = () => [...within(nav).getAllByRole("button")]
-      .filter(button => button.querySelector(".gnz-native-tab-pill"));
-    expect(activePills()).toHaveLength(1);
-    expect(activePills()[0]).toHaveAttribute("aria-current", "page");
-    expect(activePills()[0]).toHaveTextContent("Accueil");
+    const pill = () => nav.querySelectorAll(":scope > .gnz-native-tab-pill");
+    const activeButton = () => within(nav).getAllByRole("button")
+      .find(button => button.getAttribute("aria-current") === "page");
+
+    expect(pill()).toHaveLength(1);
+    expect(pill()[0]).toHaveAttribute("aria-hidden", "true");
+    expect(activeButton()).toHaveTextContent("Accueil");
 
     openTab("Galerie");
-    expect(activePills()).toHaveLength(1);
-    expect(activePills()[0]).toHaveTextContent("Galerie");
+    expect(pill()).toHaveLength(1);
+    expect(activeButton()).toHaveTextContent("Galerie");
     expect(within(nav).getAllByRole("button")).toHaveLength(5);
 
     openTab("Plus");
     fireEvent.click(await screen.findByRole("button", { name: /Réserver/ }));
-    expect(activePills()).toHaveLength(1);
-    expect(activePills()[0]).toHaveTextContent("Plus");
+    expect(pill()).toHaveLength(1);
+    expect(activeButton()).toHaveTextContent("Plus");
   });
 
   it("opens and closes the notifications panel", async () => {
