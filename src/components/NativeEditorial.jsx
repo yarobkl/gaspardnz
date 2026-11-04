@@ -49,7 +49,7 @@ export function NativeNews({ initialId = null }) {
     </div>}
     {items.length > 0 && <><h2 className="gnz-native-subheading">{lang === "FR" ? "À découvrir" : lang === "EN" ? "Recent stories" : lang === "ES" ? "Artículos recientes" : "最新文章"}</h2>
       <div className="gnz-native-article-list">{items.map(item => <button type="button" key={item.id} onClick={() => openArticle(item)}>
-        <span>{item.tag} · {item.date}</span><h3>{item.title}</h3><p>{String(item.text || "").split("\n\n")[0]}</p>
+        {item.photos?.[0] && <img className="gnz-native-article-thumb" src={mediaUrl(item.photos[0])} alt="" loading="lazy" />}<div className="gnz-native-article-summary"><span>{[item.tag, item.date, readingLabel(item.text, lang)].filter(Boolean).join(" · ")}</span><h3>{item.title}</h3><p>{String(item.text || "").split("\n\n")[0]}</p></div>
       </button>)}</div></>}
     {article && <div className="gnz-native-news-reader" role="dialog" aria-modal="true" aria-label={article.title}>
       <div className="gnz-native-news-reader-card">
