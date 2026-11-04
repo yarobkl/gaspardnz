@@ -201,6 +201,78 @@ jobs:
           cp "$KEY_PATH" "$HOME/.appstoreconnect/private_keys/AuthKey_${ASC_KEY_ID}.p8"
           chmod 600 "$KEY_PATH" "$HOME/.appstoreconnect/private_keys/AuthKey_${ASC_KEY_ID}.p8"
 
+      - name: Télécharger le profil App Store renouvelé
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.uploadToTestFlight }}
+        run: |
+          set -euo pipefail
+          python3 -m pip install --quiet --disable-pip-version-check "PyJWT[crypto]>=2.9,<3"
+          python3 - "$RUNNER_TEMP/GaspardNZ-AppStore.mobileprovision" <<'PY'
+          import base64
+          import json
+          import os
+          import sys
+          import time
+          import urllib.error
+          import urllib.parse
+          import urllib.request
+
+          import jwt
+
+          key_path = os.path.join(os.environ["RUNNER_TEMP"], "appstoreconnect",
+                                  "private_keys", "AuthKey_" + os.environ["ASC_KEY_ID"] + ".p8")
+          with open(key_path, "rb") as f:
+              private_key = f.read()
+          now = int(time.time())
+          token = jwt.encode(
+              {"iss": os.environ["ASC_ISSUER_ID"], "iat": now,
+               "exp": now + 600, "aud": "appstoreconnect-v1"},
+              private_key, algorithm="ES256",
+              headers={"kid": os.environ["ASC_KEY_ID"], "typ": "JWT"},
+          )
+          query = urllib.parse.urlencode({
+              "filter[name]": "GaspardNZ App Store Distribution", "limit": "200"
+          })
+          req = urllib.request.Request(
+              "https://api.appstoreconnect.apple.com/v1/profiles?" + query,
+              headers={"Authorization": "Bearer " + token, "Accept": "application/json"},
+          )
+          try:
+              with urllib.request.urlopen(req, timeout=40) as response:
+                  profiles = json.load(response)["data"]
+          except urllib.error.HTTPError as error:
+              raise SystemExit(
+                  "::error::Téléchargement du profil App Store refusé par l'API Apple "
+                  f"(HTTP {error.code}). Vérifier les droits de la clé App Store Connect."
+              )
+          matching = [
+              p for p in profiles
+              if p["attributes"].get("name") == "GaspardNZ App Store Distribution"
+              and p["attributes"].get("profileState") == "ACTIVE"
+              and p["attributes"].get("profileType") == "IOS_APP_STORE"
+              and p["attributes"].get("profileContent")
+          ]
+          if len(matching) != 1:
+              raise SystemExit(
+                  "::error::Un profil App Store actif GaspardNZ unique est requis "
+                  f"(trouvés : {len(matching)})."
+              )
+          content = base64.b64decode(matching[0]["attributes"]["profileContent"], validate=True)
+          with open(sys.argv[1], "wb") as f:
+              f.write(content)
+          print("Profil App Store actif téléchargé depuis Apple Developer (contenu masqué).")
+          PY
+          security cms -D -i "$RUNNER_TEMP/GaspardNZ-AppStore.mobileprovision" > "$RUNNER_TEMP/renewed-profile.plist"
+          PROFILE_NAME="$(/usr/libexec/PlistBuddy -c 'Print :Name' "$RUNNER_TEMP/renewed-profile.plist")"
+          PROFILE_UUID="$(/usr/libexec/PlistBuddy -c 'Print :UUID' "$RUNNER_TEMP/renewed-profile.plist")"
+          APS="$(/usr/libexec/PlistBuddy -c 'Print :Entitlements:aps-environment' "$RUNNER_TEMP/renewed-profile.plist")"
+          APP_ID="$(/usr/libexec/PlistBuddy -c 'Print :Entitlements:application-identifier' "$RUNNER_TEMP/renewed-profile.plist")"
+          test "$PROFILE_NAME" = 'GaspardNZ App Store Distribution'
+          test "$APS" = 'production' || { echo "::error::Le profil renouvelé ne permet pas les Push de production."; exit 1; }
+          test "$APP_ID" = "$APPLE_TEAM_ID.com.gaspardnz.app" || { echo "::error::Profil App Store associé à un autre App ID."; exit 1; }
+          mkdir -p "$HOME/Library/MobileDevice/Provisioning Profiles"
+          cp "$RUNNER_TEMP/GaspardNZ-AppStore.mobileprovision" "$HOME/Library/MobileDevice/Provisioning Profiles/$PROFILE_UUID.mobileprovision"
+          echo "Profil App Store renouvelé installé, capacités Push production confirmées."
+
       - name: Archiver l’application signée
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.uploadToTestFlight }}
         run: |
@@ -234,16 +306,26 @@ jobs:
       - name: Exporter l’IPA App Store
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.uploadToTestFlight }}
         run: |
+          set -o pipefail
           /usr/libexec/PlistBuddy -c "Add :teamID string $APPLE_TEAM_ID" ios/ExportOptions.plist
-          /usr/libexec/PlistBuddy -c 'Set :signingStyle automatic' ios/ExportOptions.plist
+          /usr/libexec/PlistBuddy -c 'Set :signingStyle manual' ios/ExportOptions.plist
+          /usr/libexec/PlistBuddy -c 'Add :signingCertificate string Apple Distribution' ios/ExportOptions.plist
+          /usr/libexec/PlistBuddy -c 'Add :provisioningProfiles dict' ios/ExportOptions.plist
+          /usr/libexec/PlistBuddy -c 'Add :provisioningProfiles:com.gaspardnz.app string GaspardNZ App Store Distribution' ios/ExportOptions.plist
           xcodebuild -exportArchive \
             -archivePath "$RUNNER_TEMP/GaspardNZ.xcarchive" \
             -exportPath "$RUNNER_TEMP/export" \
             -exportOptionsPlist ios/ExportOptions.plist \
-            -allowProvisioningUpdates \
-            -authenticationKeyPath "$RUNNER_TEMP/appstoreconnect/private_keys/AuthKey_${ASC_KEY_ID}.p8" \
-            -authenticationKeyID "$ASC_KEY_ID" \
-            -authenticationKeyIssuerID "$ASC_ISSUER_ID"
+            2>&1 | tee "$RUNNER_TEMP/GaspardNZ-export.log"
+
+      - name: Conserver les erreurs d'export IPA
+        if: ${{ failure() && github.event_name == 'workflow_dispatch' && inputs.uploadToTestFlight }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: GaspardNZ-IPA-export-diagnostic-${{ inputs.buildNumber }}
+          path: ${{ runner.temp }}/GaspardNZ-export.log
+          if-no-files-found: warn
+          retention-days: 7
 
       - name: Vérifier la signature Push de l'IPA de distribution
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.uploadToTestFlight }}
