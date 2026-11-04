@@ -86,6 +86,55 @@ describe("GaspardNZ native iOS experience", () => {
     expect(await screen.findByRole("button", { name: "Send my request →" })).toBeInTheDocument();
   });
 
+  it("exposes privacy, legal terms and support from the native More tab", async () => {
+    render(<Harness />);
+    openTab("Plus");
+
+    const legal = within(screen.getByRole("region", { name: "Informations légales et assistance" }));
+    const links = [
+      ["Politique de confidentialité", "https://gaspardnz.style/confidentialite.html"],
+      ["Mentions légales", "https://gaspardnz.style/mentions-legales.html"],
+      ["Conditions générales de vente", "https://gaspardnz.style/cgv.html"],
+      ["Assistance", "mailto:gaspardnz.contact@gmail.com"],
+    ];
+    for (const [label, href] of links) {
+      const link = legal.getByRole("link", { name: label });
+      expect(link).toHaveAttribute("href", href);
+      if (href.startsWith("https://")) {
+        expect(link).toHaveAttribute("target", "_blank");
+        expect(link).toHaveAttribute("rel", "noopener noreferrer");
+      }
+    }
+  });
+
+  it("lets native users reopen privacy consent preferences from More", async () => {
+    render(<Harness />);
+    openTab("Plus");
+    const onOpen = vi.fn();
+    window.addEventListener("gnz:open-cookie-settings", onOpen);
+    try {
+      const legal = within(screen.getByRole("region", { name: "Informations légales et assistance" }));
+      fireEvent.click(legal.getByRole("button", { name: "Gérer mes cookies" }));
+      expect(onOpen).toHaveBeenCalledTimes(1);
+    } finally {
+      window.removeEventListener("gnz:open-cookie-settings", onOpen);
+    }
+  });
+
+  it("localizes native legal links when the visitor changes language", async () => {
+    render(<Harness />);
+    openTab("Plus");
+    fireEvent.change(screen.getByLabelText("Langue"), { target: { value: "EN" } });
+    const legal = within(screen.getByRole("region", { name: "Legal information and support" }));
+    expect(legal.getByRole("link", { name: "Privacy policy" })).toHaveAttribute(
+      "href", "https://gaspardnz.style/confidentialite.html"
+    );
+    expect(legal.getByRole("link", { name: "Support" })).toHaveAttribute(
+      "href", "mailto:gaspardnz.contact@gmail.com"
+    );
+    expect(legal.getByRole("button", { name: "Manage cookie preferences" })).toBeInTheDocument();
+  });
+
   it("opens the image gallery from the bottom bar", async () => {
     render(<Harness />);
     openTab("Galerie");
