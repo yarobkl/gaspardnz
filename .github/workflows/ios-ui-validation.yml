@@ -1,5 +1,8 @@
 name: iOS UI — Validation (sans déploiement)
 on:
+  push:
+    branches:
+      - feature/build15-journal-editorial
   pull_request:
     paths:
       - "src/**"
