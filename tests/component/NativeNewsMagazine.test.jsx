@@ -30,7 +30,7 @@ describe("Actualités iOS — maquette magazine avec les données existantes", (
     expect(screen.queryByText("Le style se raconte.")).not.toBeInTheDocument();
     expect(within(carousel()).getByRole("button", { name: "Défilé de GaspardNZ" }))
       .toHaveClass("gnz-native-news-feature");
-    const image = within(carousel()).getByRole("img", { hidden: true });
+    const image = carousel().querySelector(".gnz-native-news-feature img");
     expect(image).toHaveAttribute("src", "https://example.test/photos/existante-1.jpg");
     expect(screen.getByRole("region", { name: "Articles récents" })).toBeInTheDocument();
   });
@@ -52,7 +52,7 @@ describe("Actualités iOS — maquette magazine avec les données existantes", (
     const region = carousel();
     fireEvent.click(within(region).getByRole("button", { name: "Nouvelle tenue GaspardNZ" }));
     expect(within(region).getByRole("button", { name: "Nouvelle tenue GaspardNZ" })).toHaveClass("gnz-native-news-feature");
-    expect(within(region).getByRole("img", { hidden: true, name: "" })).toHaveAttribute("src", "https://example.test/photos/existante-2.jpg");
+    expect(region.querySelector(".gnz-native-news-feature img[src='https://example.test/photos/existante-2.jpg']")).not.toBeNull();
 
     fireEvent.touchStart(region, { touches: [{clientX: 260, clientY: 200}] });
     fireEvent.touchEnd(region, { changedTouches: [{clientX: 100, clientY: 205}] });
