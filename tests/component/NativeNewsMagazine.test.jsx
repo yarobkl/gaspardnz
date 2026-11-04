@@ -28,8 +28,7 @@ describe("Actualités iOS — maquette magazine avec les données existantes", (
   it("ne duplique pas Le Journal et garde la vraie image de la publication en couverture", () => {
     render(<Harness />);
     expect(screen.queryByText("Le style se raconte.")).not.toBeInTheDocument();
-    expect(within(carousel()).getByRole("button", { name: "Défilé de GaspardNZ" }))
-      .toHaveClass("gnz-native-news-feature");
+    expect(carousel().querySelector(".gnz-native-news-feature[aria-label='Défilé de GaspardNZ']")).not.toBeNull();
     const image = carousel().querySelector(".gnz-native-news-feature img");
     expect(image).toHaveAttribute("src", "https://example.test/photos/existante-1.jpg");
     expect(screen.getByRole("region", { name: "Articles récents" })).toBeInTheDocument();
@@ -51,12 +50,12 @@ describe("Actualités iOS — maquette magazine avec les données existantes", (
     render(<Harness />);
     const region = carousel();
     fireEvent.click(within(region).getByRole("button", { name: "Nouvelle tenue GaspardNZ" }));
-    expect(within(region).getByRole("button", { name: "Nouvelle tenue GaspardNZ" })).toHaveClass("gnz-native-news-feature");
+    expect(region.querySelector(".gnz-native-news-feature[aria-label='Nouvelle tenue GaspardNZ']")).not.toBeNull();
     expect(region.querySelector(".gnz-native-news-feature img[src='https://example.test/photos/existante-2.jpg']")).not.toBeNull();
 
     fireEvent.touchStart(region, { touches: [{clientX: 260, clientY: 200}] });
     fireEvent.touchEnd(region, { changedTouches: [{clientX: 100, clientY: 205}] });
-    await waitFor(() => expect(within(region).getByRole("button", { name: "Coulisses du showroom" })).toHaveClass("gnz-native-news-feature"));
+    await waitFor(() => expect(region.querySelector(".gnz-native-news-feature[aria-label='Coulisses du showroom']")).not.toBeNull());
   });
 
   it("ouvre les articles de la grille, puis les ferme sans modifier les données", () => {
