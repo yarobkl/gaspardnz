@@ -1,10 +1,10 @@
 import { useState } from "react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { act, fireEvent, render, screen, within } from "@testing-library/react";
 import NativeTabBar from "../../src/components/NativeTabBar.jsx";
-import { nativeFeedback } from "../../src/utils/nativeHaptics.js";
+import { nativeTabFeedback } from "../../src/utils/nativeHaptics.js";
 
-vi.mock("../../src/utils/nativeHaptics.js", () => ({ nativeFeedback: vi.fn() }));
+vi.mock("../../src/utils/nativeHaptics.js", () => ({ nativeFeedback: vi.fn(), nativeTabFeedback: vi.fn() }));
 
 const tabs = [
   ["home", "Accueil"], ["services", "Services"], ["gallery", "Galerie"],
@@ -33,6 +33,7 @@ const setupGeometry = () => {
 };
 
 beforeEach(() => vi.clearAllMocks());
+afterEach(() => vi.useRealTimers());
 
 describe("barre iOS à capsule tactile", () => {
   it("encadre la cellule entière, y compris le texte, et conserve cinq boutons", () => {
@@ -59,8 +60,9 @@ describe("barre iOS à capsule tactile", () => {
       pointerId: 1, pointerType: "touch", clientX: 259, clientY: 41,
     });
     expect(selected()).toHaveTextContent("Galerie");
-    expect(nativeFeedback).toHaveBeenCalledWith("selection");
-    expect(nativeFeedback).toHaveBeenCalledTimes(1);
+    expect(nativeTabFeedback).toHaveBeenCalledWith("grab");
+    expect(nativeTabFeedback).toHaveBeenCalledWith("snap");
+    expect(nativeTabFeedback).toHaveBeenCalledTimes(2);
     // Le clic synthétique qui suit un glissement ne doit pas changer l'onglet.
     fireEvent.click(nav());
     expect(selected()).toHaveTextContent("Galerie");
@@ -82,6 +84,67 @@ describe("barre iOS à capsule tactile", () => {
       pointerId: 2, pointerType: "touch", clientX: 64, clientY: 80,
     });
     expect(selected()).toHaveTextContent("Accueil");
-    expect(nativeFeedback).not.toHaveBeenCalled();
+    expect(nativeTabFeedback).not.toHaveBeenCalled();
   });
+  it("déclenche une impulsion puissante après un appui maintenu, sans déplacement", () => {
+    vi.useFakeTimers();
+    render(<Harness />);
+    setupGeometry();
+    fireEvent.pointerDown(buttons()[0], {
+      pointerId: 3, pointerType: "touch", clientX: 60, clientY: 40,
+    });
+    act(() => vi.advanceTimersByTime(164));
+    expect(nativeTabFeedback).not.toHaveBeenCalled();
+    act(() => vi.advanceTimersByTime(1));
+    expect(nativeTabFeedback).toHaveBeenCalledWith("grab");
+    fireEvent.pointerUp(nav(), {
+      pointerId: 3, pointerType: "touch", clientX: 60, clientY: 40,
+    });
+    expect(nativeTabFeedback).toHaveBeenLastCalledWith("cancel");
+    expect(nativeTabFeedback).not.toHaveBeenCalledWith("snap");
+  });
+
+  it("produit des crans pendant le glissement puis un snap au relâchement", () => {
+    vi.useFakeTimers();
+    render(<Harness />);
+    setupGeometry();
+    fireEvent.pointerDown(buttons()[0], {
+      pointerId: 4, pointerType: "touch", clientX: 60, clientY: 40,
+    });
+    act(() => vi.advanceTimersByTime(175));
+    fireEvent.pointerMove(nav(), {
+      pointerId: 4, pointerType: "touch", clientX: 170, clientY: 41,
+    });
+    act(() => vi.advanceTimersByTime(65));
+    fireEvent.pointerMove(nav(), {
+      pointerId: 4, pointerType: "touch", clientX: 270, clientY: 41,
+    });
+    act(() => vi.advanceTimersByTime(65));
+    fireEvent.pointerMove(nav(), {
+      pointerId: 4, pointerType: "touch", clientX: 370, clientY: 41,
+    });
+    expect(nativeTabFeedback.mock.calls.filter(([phase]) => phase === "grab")).toHaveLength(1);
+    expect(nativeTabFeedback.mock.calls.filter(([phase]) => phase === "step")).toHaveLength(2);
+    fireEvent.pointerUp(nav(), {
+      pointerId: 4, pointerType: "touch", clientX: 370, clientY: 41,
+    });
+    expect(nativeTabFeedback).toHaveBeenLastCalledWith("snap");
+    expect(selected()).toHaveTextContent("Actualités");
+  });
+
+  it("ne lance aucun effet puissant lors d'un simple tap rapide", () => {
+    vi.useFakeTimers();
+    render(<Harness />);
+    setupGeometry();
+    fireEvent.pointerDown(buttons()[0], {
+      pointerId: 5, pointerType: "touch", clientX: 60, clientY: 40,
+    });
+    act(() => vi.advanceTimersByTime(80));
+    fireEvent.pointerUp(nav(), {
+      pointerId: 5, pointerType: "touch", clientX: 60, clientY: 40,
+    });
+    act(() => vi.advanceTimersByTime(200));
+    expect(nativeTabFeedback).not.toHaveBeenCalled();
+  });
+
 });
