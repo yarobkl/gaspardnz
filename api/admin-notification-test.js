@@ -11,8 +11,10 @@ export default async function handler(req,res) {
  if(!email) return res.status(401).json({error:"Session invalide"});
  const {data:access}=await db.from("admin_access").select("role,active").eq("email",email).maybeSingle();
  if(!access?.active || !["owner","admin"].includes(access.role)) return res.status(403).json({error:"Accès refusé"});
- let {deviceToken,title,body}=req.body||{};
- if(!deviceToken){const {data:device,error}=await db.from("notification_test_devices").select("device_token").eq("id","owner-iphone").maybeSingle();if(error)return res.status(503).json({error:"Registre des appareils indisponible"});deviceToken=device?.device_token;}
+ const {title,body}=req.body||{};
+ const {data:device,error:deviceError}=await db.from("notification_test_devices").select("device_token").eq("id","owner-iphone").maybeSingle();
+ if(deviceError)return res.status(503).json({error:"Registre des appareils indisponible"});
+ const deviceToken=device?.device_token;
  if(!deviceToken)return res.status(409).json({error:"Aucun iPhone de test associé. Appairez-le depuis l’application."});
  if(typeof deviceToken!=="string" || !/^[a-f0-9]{64,}$/i.test(deviceToken) || typeof title!=="string" || !title.trim() || title.length>120 || typeof body!=="string" || !body.trim() || body.length>500)
    return res.status(400).json({error:"Paramètres de test invalides"});
