@@ -17,6 +17,8 @@ globalThis.window = { localStorage, location: { hash: "", pathname: "/admin", se
 
 const adminAuth = readFileSync("src/services/adminAuth.js", "utf8");
 const app = readFileSync("src/App.jsx", "utf8");
+const adminSessionHook = readFileSync("src/hooks/useAdminSession.js", "utf8");
+const adminRoot = readFileSync("src/components/AdminRoot.jsx", "utf8");
 const settings = readFileSync("src/components/Admin/AdminSettings.jsx", "utf8");
 const supabaseClient = readFileSync("src/services/supabaseClient.js", "utf8");
 const login = readFileSync("src/components/Admin/AdminLogin.jsx", "utf8");
@@ -85,22 +87,25 @@ assert.match(
 );
 
 // ---------------------------------------------------------------------------
-// 3. App.jsx : l'état admin ne peut venir que d'une vérification réseau.
+// 3. Le hook admin doit valider la session et bloquer le rendu jusqu'à la réponse.
 // ---------------------------------------------------------------------------
-assert.match(app, /refreshSession\(\)\.then\(applyProfile\)/, "App.jsx doit vérifier la session au montage");
-assert.match(app, /onAuthStateChange\(applyProfile\)/, "App.jsx doit réagir à l'expiration et à la déconnexion");
-assert.match(app, /setIsAdminLoggedIn\(Boolean\(profile\)\)/, "l'état connecté doit dériver du profil vérifié");
-assert.doesNotMatch(
-  app,
-  /getCachedProfile|getSession\(\)/,
-  "App.jsx ne doit jamais dériver l'état admin d'un cache navigateur",
-);
+assert.match(app, /useAdminSession\(\)/, "App.jsx doit utiliser le hook de session administrateur");
+assert.match(adminSessionHook, /refreshSession\(\)\.then\(applyProfile\)/,
+  "useAdminSession doit vérifier la session au montage");
+assert.match(adminSessionHook, /onAuthStateChange\(applyProfile\)/,
+  "useAdminSession doit réagir à l'expiration et à la déconnexion");
+assert.match(adminSessionHook, /setIsAdminLoggedIn\(Boolean\(profile\)\)/,
+  "l'état connecté doit dériver du profil vérifié");
+for (const [file, source] of [["src/App.jsx", app], ["src/hooks/useAdminSession.js", adminSessionHook]]) {
+  assert.doesNotMatch(source, /getCachedProfile|getSession\(\)/,
+    file + " ne doit jamais dériver l'état admin d'un cache navigateur");
+}
 
 // Aucun rendu de l'interface admin tant que la vérification n'a pas répondu.
-assert.match(app, /const \[adminAuthChecking, setAdminAuthChecking\] = useState\(true\)/,
+assert.match(adminSessionHook, /const \[adminAuthChecking, setAdminAuthChecking\] = useState\(true\)/,
   "la vérification doit démarrer à true pour éviter tout flash de l'interface admin");
-assert.match(app, /\{adminAuthChecking \? null : isAdminLoggedIn \?/,
-  "l'interface admin ne doit pas être rendue pendant la vérification");
+assert.match(adminRoot, /\{adminAuthChecking \? null : isAdminLoggedIn \?/,
+  "AdminRoot ne doit pas rendre l'administration pendant la vérification");
 
 // ---------------------------------------------------------------------------
 // 4. Non-régression : le lien de réinitialisation ouvre une vraie session
@@ -108,9 +113,9 @@ assert.match(app, /\{adminAuthChecking \? null : isAdminLoggedIn \?/,
 //    le formulaire de nouveau mot de passe.
 // ---------------------------------------------------------------------------
 assert.match(supabaseClient, /detectSessionInUrl:\s*true/, "prérequis du flux de récupération");
-assert.match(app, /isPasswordRecoveryLink\(\)/, "App.jsx doit détecter le flux de récupération");
+assert.match(adminSessionHook, /isPasswordRecoveryLink\(\)/, "useAdminSession doit détecter le flux de récupération");
 assert.match(
-  app,
+  adminSessionHook,
   /if \(recoveryFlowRef\.current === null\) recoveryFlowRef\.current = isPasswordRecoveryLink\(\);/,
   "le flux de récupération doit être figé une seule fois par chargement de page",
 );
@@ -122,6 +127,8 @@ assert.match(login, /isPasswordRecoveryLink\(\)/, "AdminLogin doit basculer en m
 assert.match(settings, /refreshSession/, "AdminSettings doit lire le profil vérifié");
 for (const [file, source] of [
   ["src/App.jsx", app],
+  ["src/hooks/useAdminSession.js", adminSessionHook],
+  ["src/components/AdminRoot.jsx", adminRoot],
   ["src/components/Admin/AdminSettings.jsx", settings],
   ["src/components/Admin/AdminLayout.jsx", readFileSync("src/components/Admin/AdminLayout.jsx", "utf8")],
   ["src/components/Admin/AdminLogin.jsx", login],
