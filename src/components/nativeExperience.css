@@ -215,3 +215,18 @@
   text-align:left;
   cursor:pointer;
 }
+
+/* Build 15 — Journal editorial refinements. Scoped to the native news screen. */
+.gnz-native-journal-intro{padding:5px 2px 20px}
+.gnz-native-journal-intro>span{display:block;color:var(--gnz-brown);font-size:10px;letter-spacing:.22em;font-weight:700}
+.gnz-native-journal-intro h2{font-family:Georgia,serif;font-size:clamp(29px,8vw,39px);line-height:1.1;font-weight:400;margin:9px 0}
+.gnz-native-journal-intro p{color:#65584c;font-size:13px;line-height:1.5;margin:0}
+.gnz-native-news-feature{display:block;width:100%;padding:0;border:0}
+.gnz-native-news-feature small{display:block;line-height:1.4;color:#f8eee3}
+.gnz-native-article-list button{display:flex;align-items:stretch;gap:13px;width:100%;padding:10px;background:#fff9f1;border:1px solid #e7d9c8;border-radius:15px;color:var(--gnz-ink);box-shadow:0 3px 12px #46321e10}
+.gnz-native-article-thumb{width:112px;min-height:118px;max-height:155px;flex:none;object-fit:cover;border-radius:10px;background:#e4d4c2}
+.gnz-native-article-summary{min-width:0;flex:1;align-self:center;padding:3px 1px}
+.gnz-native-article-summary span{display:block;line-height:1.5}
+.gnz-native-article-summary h3{font-size:19px;line-height:1.15;font-weight:400;margin:7px 0}
+.gnz-native-article-summary p{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;font-size:12px;line-height:1.45}
+@media(max-width:360px){.gnz-native-article-thumb{width:90px}.gnz-native-article-summary h3{font-size:17px}}
