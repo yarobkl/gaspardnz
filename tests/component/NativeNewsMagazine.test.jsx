@@ -1,0 +1,71 @@
+import { useState } from "react";
+import { describe, expect, it, vi } from "vitest";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { LangCtx } from "../../src/context.jsx";
+import { NativeNews } from "../../src/components/NativeEditorial.jsx";
+
+const published = [
+  { id: "live-1", title: "Défilé de GaspardNZ", body: "Une actualité publiée depuis l'administration.", cover_url: "https://example.test/photos/existante-1.jpg", gallery: [], metadata: { tag: "Événement", date_label: "Octobre 2026" }, published: true },
+  { id: "live-2", title: "Nouvelle tenue GaspardNZ", body: "Des détails élégants.", cover_url: "https://example.test/photos/existante-2.jpg", gallery: [], metadata: { tag: "Collection", date_label: "Novembre 2026" }, published: true },
+  { id: "live-3", title: "Coulisses du showroom", body: "Un moment partagé.", cover_url: "https://example.test/photos/existante-3.jpg", gallery: [], metadata: { tag: "Showroom" }, published: true },
+  { id: "live-4", title: "Actualité sans photo", body: "Publication texte.", cover_url: "", gallery: [], metadata: { tag: "Maison" }, published: true },
+  { id: "live-5", title: "Rencontre et inspiration", body: "Une histoire de style.", cover_url: "https://example.test/photos/existante-5.jpg", gallery: [], metadata: { tag: "Rencontre" }, published: true },
+];
+
+vi.mock("../../src/hooks/usePublicCollection.js", () => ({
+  usePublicCollection: () => ({ rows: published, source: "supabase", loading: false }),
+}));
+vi.mock("../../src/utils/nativeHaptics.js", () => ({ nativeFeedback: vi.fn() }));
+
+function Harness({ initialId }) {
+  const [lang, setLang] = useState("FR");
+  return <LangCtx.Provider value={{ lang, setLang }}><NativeNews initialId={initialId} /></LangCtx.Provider>;
+}
+const recent = () => screen.getByRole("region", { name: "Articles récents" });
+const carousel = () => screen.getByRole("region", { name: "Actualités à la une" });
+
+describe("Actualités iOS — maquette magazine avec les données existantes", () => {
+  it("ne duplique pas Le Journal et garde la vraie image de la publication en couverture", () => {
+    render(<Harness />);
+    expect(screen.queryByText("Le style se raconte.")).not.toBeInTheDocument();
+    expect(within(carousel()).getByRole("button", { name: "Défilé de GaspardNZ" }))
+      .toHaveClass("gnz-native-news-feature");
+    const image = within(carousel()).getByRole("img", { hidden: true });
+    expect(image).toHaveAttribute("src", "https://example.test/photos/existante-1.jpg");
+    expect(screen.getByRole("region", { name: "Articles récents" })).toBeInTheDocument();
+  });
+
+  it("affiche une grille de deux colonnes et permet Voir tout / Réduire", () => {
+    render(<Harness />);
+    const grid = recent().querySelector(".gnz-native-news-card-grid");
+    expect(grid).toBeInTheDocument();
+    expect(grid.querySelectorAll("button.gnz-native-news-card")).toHaveLength(4);
+    fireEvent.click(within(recent()).getByRole("button", { name: /Voir tout/ }));
+    expect(within(recent()).getByRole("button", { name: /Réduire/ })).toHaveAttribute("aria-expanded", "true");
+    expect(grid.querySelectorAll("button.gnz-native-news-card").length).toBeGreaterThan(4);
+    fireEvent.click(within(recent()).getByRole("button", { name: /Réduire/ }));
+    expect(grid.querySelectorAll("button.gnz-native-news-card")).toHaveLength(4);
+  });
+
+  it("change de publication avec les points puis au balayage sans toucher aux photos", async () => {
+    render(<Harness />);
+    const region = carousel();
+    fireEvent.click(within(region).getByRole("button", { name: "Nouvelle tenue GaspardNZ" }));
+    expect(within(region).getByRole("button", { name: "Nouvelle tenue GaspardNZ" })).toHaveClass("gnz-native-news-feature");
+    expect(within(region).getByRole("img", { hidden: true, name: "" })).toHaveAttribute("src", "https://example.test/photos/existante-2.jpg");
+
+    fireEvent.touchStart(region, { touches: [{clientX: 260, clientY: 200}] });
+    fireEvent.touchEnd(region, { changedTouches: [{clientX: 100, clientY: 205}] });
+    await waitFor(() => expect(within(region).getByRole("button", { name: "Coulisses du showroom" })).toHaveClass("gnz-native-news-feature"));
+  });
+
+  it("ouvre les articles de la grille, puis les ferme sans modifier les données", () => {
+    render(<Harness />);
+    fireEvent.click(within(recent()).getByRole("button", { name: "Actualité sans photo" }));
+    const reader = screen.getByRole("dialog", { name: "Actualité sans photo" });
+    expect(within(reader).getByText("Publication texte.")).toBeInTheDocument();
+    expect(within(reader).queryByRole("img")).not.toBeInTheDocument();
+    fireEvent.click(within(reader).getByRole("button", { name: "Fermer" }));
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  });
+});
