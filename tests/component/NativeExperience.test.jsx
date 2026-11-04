@@ -72,7 +72,8 @@ describe("GaspardNZ native iOS experience", () => {
     fireEvent.click(await screen.findByRole("button", { name: /Réserver/ }));
     expect(await screen.findByText("Créneaux disponibles")).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Préparation de mariage" }));
-    fireEvent.click(screen.getByRole("button", { name: "Envoyer ma demande →" }));
+    expect(await screen.findByText("Aucun créneau publié pour le moment")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Demander un rendez-vous →" }));
     expect(await screen.findByRole("dialog", { name: "Contact CRM" })).toHaveAttribute("data-project", "wedding");
   });
 
@@ -83,7 +84,7 @@ describe("GaspardNZ native iOS experience", () => {
     const tabs = within(navigation()).getAllByRole("button");
     expect(tabs.map((tab) => tab.textContent)).toEqual(["Home", "Services", "Gallery", "News", "More"]);
     fireEvent.click(await screen.findByRole("button", { name: "Book" }));
-    expect(await screen.findByRole("button", { name: "Send my request →" })).toBeInTheDocument();
+    expect(await screen.findByRole("button", { name: "Request an appointment →" })).toBeInTheDocument();
   });
 
   it("exposes privacy, legal terms and support from the native More tab", async () => {
