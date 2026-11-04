@@ -3,7 +3,7 @@ import { LangCtx } from "../context.jsx";
 import { getActualites } from "../data/actualitesData.js";
 import { usePublicCollection } from "../hooks/usePublicCollection.js";
 
-const readingMinutes = text => Math.max(1, Math.ceil(String(text || "").trim().split(/\\s+/).filter(Boolean).length / 200));
+const readingMinutes = text => Math.max(1, Math.ceil(String(text || "").trim().split(/\s+/).filter(Boolean).length / 200));
 const readingLabel = (text, lang) => `${readingMinutes(text)} ${lang === "FR" ? "min de lecture" : lang === "EN" ? "min read" : lang === "ES" ? "min de lectura" : "分钟阅读"}`;
 const mediaUrl = value => /^(https?:|data:|blob:)/i.test(value || "") ? value : `${import.meta.env.BASE_URL}${String(value || "").replace(/^\/+/, "")}`;
 
@@ -36,6 +36,16 @@ export function NativeNews({ initialId = null }) {
       if (found) { setArticle(found); setPhotoIndex(0); }
     }
   }, [initialId, items]);
+  useEffect(() => {
+    if (!article) return undefined;
+    const onKeyDown = event => {
+      if (event.key === "Escape") setArticle(null);
+      if (event.key === "ArrowRight") setPhotoIndex(i => (i + 1) % Math.max(1, article.photos?.length || 1));
+      if (event.key === "ArrowLeft") setPhotoIndex(i => (i - 1 + Math.max(1, article.photos?.length || 1)) % Math.max(1, article.photos?.length || 1));
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [article]);
   const openArticle = (item) => { setArticle(item); setPhotoIndex(0); };
   return <div className="gnz-native-news">
     {!items.length && <p className="gnz-native-muted">{lang === "FR" ? "Les actualités seront bientôt disponibles." : lang === "EN" ? "News will be available soon." : lang === "ES" ? "Las noticias estarán disponibles pronto." : "资讯即将上线。"}</p>}
@@ -52,10 +62,10 @@ export function NativeNews({ initialId = null }) {
         {item.photos?.[0] && <img className="gnz-native-article-thumb" src={mediaUrl(item.photos[0])} alt="" loading="lazy" />}<div className="gnz-native-article-summary"><span>{[item.tag, item.date, readingLabel(item.text, lang)].filter(Boolean).join(" · ")}</span><h3>{item.title}</h3><p>{String(item.text || "").split("\n\n")[0]}</p></div>
       </button>)}</div></>}
     {article && <div className="gnz-native-news-reader" role="dialog" aria-modal="true" aria-label={article.title}>
-      <div className="gnz-native-news-reader-card">
+      <div className="gnz-native-news-reader-card" data-no-tab-swipe>
         <button type="button" className="gnz-native-news-reader-close" onClick={() => setArticle(null)} aria-label="Fermer">×</button>
         {article.photos?.length > 0 && <div className="gnz-native-news-reader-media"><img src={mediaUrl(article.photos[photoIndex])} alt={article.title} />{article.photos.length > 1 && <><button type="button" onClick={() => setPhotoIndex((photoIndex - 1 + article.photos.length) % article.photos.length)} aria-label="Photo précédente">‹</button><button type="button" onClick={() => setPhotoIndex((photoIndex + 1) % article.photos.length)} aria-label="Photo suivante">›</button><div className="gnz-native-news-reader-dots">{article.photos.map((_, i) => <span key={i} className={i === photoIndex ? "active" : ""} />)}</div></>}</div>}
-        <div className="gnz-native-news-reader-copy"><span>{[article.tag, article.date, readingLabel(article.text, lang)].filter(Boolean).join(" · ")}</span><h2>{article.title}</h2><p>{article.text}</p></div>
+        <div className="gnz-native-news-reader-copy"><span>{[article.tag, article.date, readingLabel(article.text, lang)].filter(Boolean).join(" · ")}</span><h2>{article.title}</h2>{String(article.text || "").split(/\n\s*\n/).filter(Boolean).map((paragraph, i) => <p key={i}>{paragraph}</p>)}</div>
       </div>
     </div>}
   </div>;
