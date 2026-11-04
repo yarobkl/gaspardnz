@@ -265,3 +265,15 @@
 .gnz-native-notification-actions{display:flex;gap:13px}
 .gnz-native-notification-actions button{background:transparent;border:0;color:var(--gnz-brown);font-size:12px;padding:7px 0;min-height:34px}
 .gnz-native-notification-count{position:absolute;right:0;top:1px;background:var(--gnz-brown);color:#fff;font-size:10px;font-weight:700;min-width:17px;height:17px;border-radius:9px;display:grid;place-items:center;padding:0 3px}
+
+/* iOS build 16 — conversion et parcours de réservation, sans changement de charte. */
+.gnz-native-service-assistance{margin-top:7px;padding:19px 17px;background:#f6eee4;border:1px solid #e3d2bf;border-radius:17px;text-align:center}
+.gnz-native-service-assistance p{margin:0 0 12px;color:#4f4034;font-family:Georgia,serif;font-size:18px;line-height:1.35}
+.gnz-native-service-assistance button{display:flex;align-items:center;justify-content:center;gap:18px;width:100%;min-height:48px;border:0;border-radius:999px;background:var(--gnz-brown);color:#fffaf4;font-size:14px;font-weight:700}
+.gnz-native-service-assistance button span{font-size:19px;font-weight:400}
+.gnz-native-service-assistance button:focus-visible,.gnz-native-booking-contact:focus-visible{outline:2px solid #3d291d;outline-offset:3px}
+.gnz-native-no-slots{padding:15px 17px;border:1px solid #e0cdb7;border-radius:14px;background:#f7efe5;color:var(--gnz-ink)}
+.gnz-native-no-slots strong{display:block;font-family:Georgia,serif;font-size:18px;font-weight:400;margin-bottom:7px}
+.gnz-native-no-slots p{margin:0;padding:0;background:transparent;color:#665549;font-size:13px;line-height:1.6}
+.gnz-native-booking-page .gnz-native-booking-contact{min-height:50px;background:var(--gnz-brown);border-color:var(--gnz-brown);color:#fffaf4}
+@media(prefers-reduced-motion:no-preference){.gnz-native-service-assistance button,.gnz-native-booking-contact{transition:transform .15s ease,opacity .15s ease}.gnz-native-service-assistance button:active,.gnz-native-booking-contact:active{transform:scale(.98)}}
