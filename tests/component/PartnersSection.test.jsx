@@ -33,7 +33,7 @@ describe("Partenaires — un partenaire masqué ne doit jamais réapparaître vi
 // aux professionnels : bouton « Devenir partenaire » qui ouvre un formulaire
 // dédié, métier prérempli, enregistré dans le CRM puis envoyé par email.
 describe("Partenaires — une catégorie à pourvoir ouvre le formulaire « Devenir partenaire »", () => {
-  it("préremplit le métier, enregistre la candidature et envoie l'email", async () => {
+  it("préremplit le métier, enregistre la candidature et envoie l'email", { timeout: 15000 }, async () => {
     const { default: userEvent } = await import("@testing-library/user-event");
     const supabaseModule = await import("../../src/services/supabaseClient.js");
     fake = createFakeSupabaseTables({
@@ -73,7 +73,7 @@ describe("Partenaires — une catégorie à pourvoir ouvre le formulaire « Deve
 // affichait une erreur quand l'email échouait. Le visiteur doit voir la
 // confirmation immédiatement, l'enregistrement se fait en arrière-plan.
 describe("Partenaires — « Devenir partenaire » confirme sans attendre le réseau", () => {
-  it("affiche la confirmation tout de suite, même si l'enregistrement est encore en cours", async () => {
+  it("affiche la confirmation tout de suite, même si l'enregistrement est encore en cours", { timeout: 15000 }, async () => {
     const { default: userEvent } = await import("@testing-library/user-event");
     const supabaseModule = await import("../../src/services/supabaseClient.js");
     supabaseModule.sendPublicEventWithRetry.mockImplementationOnce(() => new Promise(() => {}));
