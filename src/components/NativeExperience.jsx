@@ -1,7 +1,7 @@
 import { lazy, Suspense, useContext, useEffect, useRef, useState } from "react";
 import { LangCtx } from "../context.jsx";
 import { StatusBar, Style } from "@capacitor/status-bar";
-import { Capacitor } from "@capacitor/core";
+import { Capacitor, CapacitorHttp } from "@capacitor/core";
 import { PushNotifications } from "@capacitor/push-notifications";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useSettings } from "../hooks/useSettings.js";
@@ -122,9 +122,14 @@ export default function NativeExperience(){
          }catch(e){finish(e);}
        })();
      });
-     const response=await fetch("https://gaspardnz.style/api/push-test-device",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({code:pairCode.trim(),deviceToken:token})});
-     const result=await response.json().catch(()=>({}));
-     if(!response.ok)throw new Error(result.error||"Association impossible");
+     const response=await CapacitorHttp.post({
+       url:"https://gaspardnz.style/api/push-test-device",
+       headers:{"Content-Type":"application/json"},
+       data:{code:pairCode.trim(),deviceToken:token},
+       connectTimeout:12000,readTimeout:20000
+     });
+     const result=typeof response.data==="string"?JSON.parse(response.data||"{}"):(response.data||{});
+     if(response.status<200||response.status>=300)throw new Error(result.error||"Association impossible");
      setPairCode("");setPairStatus("iPhone associé. Vous pouvez envoyer un test depuis l’administration.");
    }catch(e){setPairStatus(e.message||"Association impossible");}finally{setPairBusy(false);}
  }
