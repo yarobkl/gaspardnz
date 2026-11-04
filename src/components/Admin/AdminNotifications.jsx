@@ -3,7 +3,7 @@ import { supabase } from "../../services/supabaseClient.js";
 const initial = { category:"arrivage",title:"",body:"",image_url:"",target_url:"",status:"draft",scheduled_at:"" };
 const labels={arrivage:"Nouvel arrivage",promotion:"Promotion",evenement:"Événement",showroom:"Showroom",service:"Nouveau service",actualite:"Actualité",rappel:"Rappel",personnalise:"Message personnalisé"};
 export default function AdminNotifications() {
- const [form,setForm]=useState(initial),[rows,setRows]=useState([]),[error,setError]=useState(""),[loading,setLoading]=useState(false),[testToken,setTestToken]=useState(()=>{try{return window.localStorage.getItem("gnz-apns-test-device-token")||"";}catch{return "";}}),[testBusy,setTestBusy]=useState(false),[testResult,setTestResult]=useState("");
+ const [form,setForm]=useState(initial),[rows,setRows]=useState([]),[error,setError]=useState(""),[loading,setLoading]=useState(false),[testToken,setTestToken]=useState(""),[testBusy,setTestBusy]=useState(false),[testResult,setTestResult]=useState("");
  async function request(method,body) {
    const {data}=await supabase.auth.getSession();
    if(!data?.session?.access_token) throw new Error("Session expirée");
@@ -23,7 +23,6 @@ export default function AdminNotifications() {
      });
      const result=await response.json().catch(()=>({}));
      if(!response.ok||!result.success) throw new Error(result.reason||result.error||"Apple a refusé la notification.");
-     try{window.localStorage.setItem("gnz-apns-test-device-token",testToken.trim());}catch{}
      setTestResult("Apple a accepté le push (APNs 200). Vérifiez sa réception sur l’iPhone.");
    }catch(e){setTestResult("Échec du test : "+e.message);}
    finally{setTestBusy(false);}
@@ -32,7 +31,7 @@ export default function AdminNotifications() {
  useEffect(()=>{load();},[]);
  async function save(e){e.preventDefault();setLoading(true);setError("");try{await request("POST",form);setForm(initial);await load();}catch(e){setError(e.message);}finally{setLoading(false);}}
  return <div><div className="gnz-page-heading"><div><h1>Notifications clients</h1><p>Préparez les campagnes pour les clients ayant accepté les notifications.</p></div></div>
- <section className="gnz-card" style={{padding:16,marginBottom:16}}><h2>Test push Apple — iPhone</h2><p>Envoi immédiat vers un seul appareil autorisé. Le token APNs est nécessaire tant que l’enregistrement automatique des appareils n’est pas activé. Aucun envoi collectif ici.</p><label className="gnz-field">Token APNs de l’iPhone de test (mémorisé sur cet appareil après réussite)<input className="gnz-input" autoComplete="off" spellCheck={false} value={testToken} onChange={e=>setTestToken(e.target.value)} placeholder="Token APNs (64 caractères hexadécimaux minimum)"/></label><button type="button" className="gnz-primary-button" disabled={testBusy||!/^[a-f0-9]{64,}$/i.test(testToken.trim())} onClick={sendTest}>{testBusy?"Envoi vers Apple…":"Envoyer un push de test"}</button>{testResult&&<p role="status">{testResult}</p>}</section>
+ <section className="gnz-card" style={{padding:16,marginBottom:16}}><h2>Test push Apple — iPhone</h2><p>Envoi immédiat vers un seul appareil autorisé. Le token APNs est nécessaire tant que l’enregistrement automatique des appareils n’est pas activé. Aucun envoi collectif ici.</p><label className="gnz-field">Token APNs de l’iPhone de test<input className="gnz-input" autoComplete="off" spellCheck={false} value={testToken} onChange={e=>setTestToken(e.target.value)} placeholder="Token APNs (64 caractères hexadécimaux minimum)"/></label><button type="button" className="gnz-primary-button" disabled={testBusy||!/^[a-f0-9]{64,}$/i.test(testToken.trim())} onClick={sendTest}>{testBusy?"Envoi vers Apple…":"Envoyer un push de test"}</button>{testResult&&<p role="status">{testResult}</p>}</section>
  <div className="gnz-alert">Mode préparation : les campagnes sont enregistrées mais aucun push n'est envoyé tant que le fournisseur Apple/OneSignal et le traitement des envois ne sont pas configurés.</div>
  {error&&<div className="gnz-alert gnz-alert-error" role="alert">{error}</div>}
  <div className="gnz-split"><article className="gnz-card"><header className="gnz-card-header"><div className="gnz-card-title"><strong>Campagnes enregistrées</strong><span>{rows.length} campagne(s)</span></div></header><div className="gnz-table-wrap"><table className="gnz-table"><thead><tr><th>Campagne</th><th>Type</th><th>Statut</th></tr></thead><tbody>{rows.map(r=><tr key={r.id}><td><strong>{r.title}</strong><span className="gnz-table-sub">{r.body}</span></td><td>{labels[r.category]||r.category}</td><td>{r.status==="scheduled"?"Programmation en attente d'activation":"Brouillon"}</td></tr>)}{!rows.length&&<tr><td colSpan="3">Aucune campagne enregistrée.</td></tr>}</tbody></table></div></article>
