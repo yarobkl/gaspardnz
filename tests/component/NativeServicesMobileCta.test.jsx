@@ -14,13 +14,15 @@ describe("Services — conversion mobile GaspardNZ", () => {
     render(<NativeServices lang="FR" onContact={onContact} />);
     expect(screen.getByText("Un projet ou une occasion particulière ?")).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Parler de mon projet" }));
-    expect(onContact).toHaveBeenCalledExactlyOnceWith("other");
+    expect(onContact).toHaveBeenCalledTimes(1);
+    expect(onContact).toHaveBeenCalledWith("other");
   });
 
   it("traduit le bouton et conserve le même formulaire CRM en anglais", () => {
     const onContact = vi.fn();
     render(<NativeServices lang="EN" onContact={onContact} />);
     fireEvent.click(screen.getByRole("button", { name: "Discuss my project" }));
-    expect(onContact).toHaveBeenCalledExactlyOnceWith("other");
+    expect(onContact).toHaveBeenCalledTimes(1);
+    expect(onContact).toHaveBeenCalledWith("other");
   });
 });
