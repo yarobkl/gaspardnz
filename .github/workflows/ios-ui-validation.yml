@@ -4,6 +4,7 @@ on:
     branches:
       - feature/build15-journal-editorial
       - feature/build16-native-polish-20261104
+      - feature/build17-fluid-gallery-nav
   pull_request:
     paths:
       - "src/**"
