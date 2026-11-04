@@ -7,6 +7,7 @@ on:
       - codex/ios-app-store
       - feature/ios-premium-interface
       - feature/native-ios-editorial
+      - feature/build15-journal-editorial
     paths:
       - ".github/workflows/ios-testflight.yml"
       - "ios/**"
@@ -98,56 +99,7 @@ jobs:
         if: ${{ github.event_name != 'workflow_dispatch' || !inputs.uploadToTestFlight }}
         run: |
           set -o pipefail
-          xcodebuild build \
-            -project ios/App/App.xcodeproj \
-            -scheme App \
-            -configuration Release \
-            -sdk iphonesimulator \
-            -destination 'generic/platform=iOS Simulator' \
-            -derivedDataPath "$RUNNER_TEMP/DerivedData" \
-            CODE_SIGNING_ALLOWED=NO \
-            | xcpretty
-
-      - name: Capturer l’écran d’accueil sur un simulateur iPhone
-        id: capture
-        if: ${{ github.event_name != 'workflow_dispatch' || !inputs.uploadToTestFlight }}
-        timeout-minutes: 5
-        continue-on-error: true
-        run: |
-          DEVICE_UDID="$(xcrun simctl list devices available -j | python3 -c '
-          import json,sys
-          data=json.load(sys.stdin)["devices"]
-          preferred=[]
-          fallback=[]
-          for runtime, devices in data.items():
-              for device in devices:
-                  if not device.get("isAvailable"): continue
-                  row=(runtime, device["name"], device["udid"])
-                  fallback.append(row)
-                  if "iPhone 16 Pro Max" in device["name"]: preferred.append(row)
-                  elif "iPhone" in device["name"] and "Pro Max" in device["name"]: preferred.append(row)
-          rows=preferred or [r for r in fallback if "iPhone" in r[1]]
-          print(sorted(rows, reverse=True)[0][2] if rows else "")')"
-          test -n "$DEVICE_UDID"
-          xcrun simctl boot "$DEVICE_UDID" 2>/dev/null || true
-          xcrun simctl bootstatus "$DEVICE_UDID" -b
-          APP_PATH="$RUNNER_TEMP/DerivedData/Build/Products/Release-iphonesimulator/App.app"
-          test -d "$APP_PATH"
-          xcrun simctl install "$DEVICE_UDID" "$APP_PATH"
-          xcrun simctl launch "$DEVICE_UDID" "$APP_BUNDLE_ID"
-          sleep 8
-          mkdir -p app-store-assets/screenshots
-          xcrun simctl io "$DEVICE_UDID" screenshot app-store-assets/screenshots/iphone-home.png
-          sips -g pixelWidth -g pixelHeight app-store-assets/screenshots/iphone-home.png
-
-      - name: Conserver la capture App Store
-        if: ${{ steps.capture.outcome == 'success' }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: GaspardNZ-App-Store-Screenshot
-          path: app-store-assets/screenshots/iphone-home.png
-          if-no-files-found: error
-          retention-days: 14
+          xcodebuild build -project ios/App/App.xcodeproj -scheme App -configuration Release -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' -derivedDataPath "$RUNNER_TEMP/DerivedData" CODE_SIGNING_ALLOWED=NO | xcpretty
 
       - name: Vérifier les secrets Apple
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.uploadToTestFlight }}
@@ -158,10 +110,7 @@ jobs:
         run: |
           missing=0
           for name in APPLE_TEAM_ID ASC_KEY_ID ASC_ISSUER_ID ASC_PRIVATE_KEY CERTIFICATE_P12 CERTIFICATE_PASSWORD PROFILE_BASE64; do
-            if [ -z "${!name}" ]; then
-              echo "::error::Secret manquant : $name"
-              missing=1
-            fi
+            if [ -z "${!name}" ]; then echo "::error::Secret manquant : $name"; missing=1; fi
           done
           exit "$missing"
 
@@ -191,11 +140,7 @@ jobs:
         run: |
           mkdir -p "$RUNNER_TEMP/appstoreconnect/private_keys" "$HOME/.appstoreconnect/private_keys"
           KEY_PATH="$RUNNER_TEMP/appstoreconnect/private_keys/AuthKey_${ASC_KEY_ID}.p8"
-          if printf '%s' "$ASC_PRIVATE_KEY" | grep -q '^-----BEGIN PRIVATE KEY-----'; then
-            printf '%s' "$ASC_PRIVATE_KEY" > "$KEY_PATH"
-          else
-            printf '%s' "$ASC_PRIVATE_KEY" | tr -d '[:space:]' | openssl base64 -d -A > "$KEY_PATH"
-          fi
+          if printf '%s' "$ASC_PRIVATE_KEY" | grep -q '^-----BEGIN PRIVATE KEY-----'; then printf '%s' "$ASC_PRIVATE_KEY" > "$KEY_PATH"; else printf '%s' "$ASC_PRIVATE_KEY" | tr -d '[:space:]' | openssl base64 -d -A > "$KEY_PATH"; fi
           grep -q '^-----BEGIN PRIVATE KEY-----' "$KEY_PATH"
           cp "$KEY_PATH" "$HOME/.appstoreconnect/private_keys/AuthKey_${ASC_KEY_ID}.p8"
           chmod 600 "$KEY_PATH" "$HOME/.appstoreconnect/private_keys/AuthKey_${ASC_KEY_ID}.p8"
@@ -204,17 +149,7 @@ jobs:
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.uploadToTestFlight }}
         run: |
           set -o pipefail
-          xcodebuild archive \
-            -project ios/App/App.xcodeproj \
-            -scheme App \
-            -configuration Release \
-            -destination 'generic/platform=iOS' \
-            -archivePath "$RUNNER_TEMP/GaspardNZ.xcarchive" \
-            DEVELOPMENT_TEAM="$APPLE_TEAM_ID" \
-            CODE_SIGN_STYLE=Manual \
-            CODE_SIGN_IDENTITY='Apple Distribution' \
-            PROVISIONING_PROFILE_SPECIFIER='GaspardNZ App Store Distribution' \
-            | xcpretty
+          xcodebuild archive -project ios/App/App.xcodeproj -scheme App -configuration Release -destination 'generic/platform=iOS' -archivePath "$RUNNER_TEMP/GaspardNZ.xcarchive" DEVELOPMENT_TEAM="$APPLE_TEAM_ID" CODE_SIGN_STYLE=Manual CODE_SIGN_IDENTITY='Apple Distribution' PROVISIONING_PROFILE_SPECIFIER='GaspardNZ App Store Distribution' | xcpretty
 
       - name: Exporter l’IPA App Store
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.uploadToTestFlight }}
@@ -224,10 +159,7 @@ jobs:
           /usr/libexec/PlistBuddy -c 'Add :signingCertificate string Apple Distribution' ios/ExportOptions.plist
           /usr/libexec/PlistBuddy -c 'Add :provisioningProfiles dict' ios/ExportOptions.plist
           /usr/libexec/PlistBuddy -c 'Add :provisioningProfiles:com.gaspardnz.app string GaspardNZ App Store Distribution' ios/ExportOptions.plist
-          xcodebuild -exportArchive \
-            -archivePath "$RUNNER_TEMP/GaspardNZ.xcarchive" \
-            -exportPath "$RUNNER_TEMP/export" \
-            -exportOptionsPlist ios/ExportOptions.plist
+          xcodebuild -exportArchive -archivePath "$RUNNER_TEMP/GaspardNZ.xcarchive" -exportPath "$RUNNER_TEMP/export" -exportOptionsPlist ios/ExportOptions.plist
 
       - name: Vérifier l’IPA
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.uploadToTestFlight }}
