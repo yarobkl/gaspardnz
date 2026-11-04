@@ -8,6 +8,7 @@ on:
       - feature/ios-premium-interface
       - feature/native-ios-editorial
       - feature/build15-journal-editorial
+      - feature/build16-native-polish-20261104
     paths:
       - ".github/workflows/ios-testflight.yml"
       - "ios/**"
@@ -50,9 +51,9 @@ jobs:
       ASC_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
       ASC_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
       ASC_PRIVATE_KEY: ${{ secrets.APP_STORE_CONNECT_API_PRIVATE_KEY }}
-      GNZ_RELEASE_UPLOAD: ${{ (github.event_name == 'workflow_dispatch' && inputs.uploadToTestFlight) || (github.event_name == 'push' && github.ref == 'refs/heads/feature/build15-journal-editorial' && contains(github.event.head_commit.message, '[ship-gaspardnz-15]')) }}
-      GNZ_RELEASE_VERSION: ${{ github.event_name == 'push' && contains(github.event.head_commit.message, '[ship-gaspardnz-15]') && '1.0.4' || inputs.version || '1.0.0' }}
-      GNZ_RELEASE_BUILD: ${{ github.event_name == 'push' && contains(github.event.head_commit.message, '[ship-gaspardnz-15]') && '15' || inputs.buildNumber || '1' }}
+      GNZ_RELEASE_UPLOAD: ${{ (github.event_name == 'workflow_dispatch' && inputs.uploadToTestFlight) || (github.event_name == 'push' && github.ref == 'refs/heads/feature/build15-journal-editorial' && contains(github.event.head_commit.message, '[ship-gaspardnz-15]')) || (github.event_name == 'push' && github.ref == 'refs/heads/feature/build16-native-polish-20261104' && contains(github.event.head_commit.message, '[ship-gaspardnz-16]')) }}
+      GNZ_RELEASE_VERSION: ${{ (github.event_name == 'push' && github.ref == 'refs/heads/feature/build16-native-polish-20261104' && contains(github.event.head_commit.message, '[ship-gaspardnz-16]') && '1.0.5') || (github.event_name == 'push' && contains(github.event.head_commit.message, '[ship-gaspardnz-15]') && '1.0.4') || inputs.version || '1.0.0' }}
+      GNZ_RELEASE_BUILD: ${{ (github.event_name == 'push' && github.ref == 'refs/heads/feature/build16-native-polish-20261104' && contains(github.event.head_commit.message, '[ship-gaspardnz-16]') && '16') || (github.event_name == 'push' && contains(github.event.head_commit.message, '[ship-gaspardnz-15]') && '15') || inputs.buildNumber || '1' }}
 
     steps:
       - name: Récupérer le dépôt
