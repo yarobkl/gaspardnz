@@ -90,7 +90,7 @@ describe("GaspardNZ native iOS experience", () => {
     render(<Harness />);
     openTab("Plus");
 
-    const legal = within(screen.getByRole("region", { name: "Informations légales et assistance" }));
+    const legal = within(await screen.findByRole("region", { name: "Informations légales et assistance" }));
     const links = [
       ["Politique de confidentialité", "https://gaspardnz.style/confidentialite.html"],
       ["Mentions légales", "https://gaspardnz.style/mentions-legales.html"],
@@ -113,7 +113,7 @@ describe("GaspardNZ native iOS experience", () => {
     const onOpen = vi.fn();
     window.addEventListener("gnz:open-cookie-settings", onOpen);
     try {
-      const legal = within(screen.getByRole("region", { name: "Informations légales et assistance" }));
+      const legal = within(await screen.findByRole("region", { name: "Informations légales et assistance" }));
       fireEvent.click(legal.getByRole("button", { name: "Gérer mes cookies" }));
       expect(onOpen).toHaveBeenCalledTimes(1);
     } finally {
@@ -124,8 +124,8 @@ describe("GaspardNZ native iOS experience", () => {
   it("localizes native legal links when the visitor changes language", async () => {
     render(<Harness />);
     openTab("Plus");
-    fireEvent.change(screen.getByLabelText("Langue"), { target: { value: "EN" } });
-    const legal = within(screen.getByRole("region", { name: "Legal information and support" }));
+    fireEvent.change(await screen.findByLabelText("Langue"), { target: { value: "EN" } });
+    const legal = within(await screen.findByRole("region", { name: "Legal information and support" }));
     expect(legal.getByRole("link", { name: "Privacy policy" })).toHaveAttribute(
       "href", "https://gaspardnz.style/confidentialite.html"
     );
