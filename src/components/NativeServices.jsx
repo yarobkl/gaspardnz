@@ -25,10 +25,10 @@ const CATEGORIES = {
 };
 
 const LABELS = {
-  FR: { formulas: "Formules", formulasDetail: "Nos offres publiées", ask: "Contacter GaspardNZ pour cette formule", unavailable: "Les formules seront bientôt disponibles.", back: "Tous les services", details: "Détails de la formule", request: "Cette formule vous intéresse ?" },
-  EN: { formulas: "Packages", formulasDetail: "Our published offers", ask: "Discuss this project", unavailable: "Packages will be available soon.", back: "All services", details: "Package details", request: "Interested in this package?" },
-  ES: { formulas: "Fórmulas", formulasDetail: "Nuestras ofertas publicadas", ask: "Hablar de este proyecto", unavailable: "Las ofertas estarán disponibles pronto.", back: "Todos los servicios", details: "Detalles de la fórmula", request: "¿Le interesa esta fórmula?" },
-  ZH: { formulas: "服务方案", formulasDetail: "已发布的方案", ask: "咨询此项目", unavailable: "服务方案即将上线。", back: "所有服务", details: "方案详情", request: "对这个方案感兴趣？" },
+  FR: { formulas: "Formules", formulasDetail: "Nos offres publiées", ask: "Contacter GaspardNZ pour cette formule", unavailable: "Les formules seront bientôt disponibles.", back: "Tous les services", details: "Détails de la formule", request: "Cette formule vous intéresse ?", assistance: "Un projet ou une occasion particulière ?", discuss: "Parler de mon projet" },
+  EN: { formulas: "Packages", formulasDetail: "Our published offers", ask: "Discuss this project", unavailable: "Packages will be available soon.", back: "All services", details: "Package details", request: "Interested in this package?", assistance: "A project or a special occasion?", discuss: "Discuss my project" },
+  ES: { formulas: "Fórmulas", formulasDetail: "Nuestras ofertas publicadas", ask: "Hablar de este proyecto", unavailable: "Las ofertas estarán disponibles pronto.", back: "Todos los servicios", details: "Detalles de la fórmula", request: "¿Le interesa esta fórmula?", assistance: "¿Un proyecto o una ocasión especial?", discuss: "Hablar de mi proyecto" },
+  ZH: { formulas: "服务方案", formulasDetail: "已发布的方案", ask: "咨询此项目", unavailable: "服务方案即将上线。", back: "所有服务", details: "方案详情", request: "对这个方案感兴趣？", assistance: "有特别的活动或穿搭计划吗？", discuss: "咨询我的项目" },
 };
 
 export default function NativeServices({ lang, onContact }) {
@@ -64,6 +64,10 @@ export default function NativeServices({ lang, onContact }) {
         <img src="/images/veste-navy-soiree.jpg" alt="" loading="lazy" />
         <span><strong>{labels.formulas}</strong><small>{labels.formulasDetail}</small></span><span aria-hidden="true">›</span>
       </button>
+      <div className="gnz-native-service-assistance">
+        <p>{labels.assistance}</p>
+        <button type="button" onClick={() => onContact("other")}>{labels.discuss}<span aria-hidden="true">→</span></button>
+      </div>
     </> : selectedFormula ? <>
       <button className="gnz-native-inline-back" type="button" onClick={() => setSelectedFormula(null)}>‹ {labels.formulas}</button>
       <article className="gnz-native-formula-detail">
