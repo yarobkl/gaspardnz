@@ -5,7 +5,7 @@
 - Nom : `GaspardNZ`
 - Bundle ID : `com.gaspardnz.app`
 - SKU : `gaspardnz-ios-001`
-- Version initiale : `1.0.0`
+- Version TestFlight disponible : `1.0.4 (15)` (la version soumise à l’App Store reste à confirmer)
 - Catégorie principale : `Style de vie`
 - Catégorie secondaire : `Shopping`
 - Classement d’âge visé : `4+`
@@ -66,3 +66,38 @@ Déclarations à vérifier dans App Store Connect :
 - Copyright : `© 2026 GaspardNZ`
 - Coordonnées de validation : à renseigner avec la personne habilitée du compte Apple Developer.
 - Publication : manuelle après approbation Apple, afin de contrôler la date de mise en ligne.
+
+## Conformité App Store — contrôle préparatoire du 4 novembre 2026
+
+**Statut : préparation, pas approbation de la distribution publique.** Le build TestFlight `1.0.4 (15)` reste inchangé. Les améliorations décrites ci-dessous existent uniquement dans la branche `feature/build15-journal-editorial` jusqu'à un nouveau build iOS signé et testé.
+
+### Éléments intégrés dans le code
+
+- [x] Politique de confidentialité rédigée dans `public/confidentialite.html`.
+- [x] Mentions légales et conditions générales de vente présentes dans `public/mentions-legales.html` et `public/cgv.html`.
+- [x] Liens dédiés dans la rubrique native « Plus » vers ces trois pages et vers l'assistance, en quatre langues.
+- [x] Accès natif permanent au réglage des préférences de consentement via le mécanisme existant.
+- [x] Tests automatisés ajoutés pour les liens natifs, les préférences et la langue.
+- [ ] Tester les liens en conditions réelles sur iPhone ; confirmer leur ouverture dans le navigateur et le retour à l'application.
+- [ ] Vérifier avec le responsable de GaspardNZ l'exactitude et la mise à jour des données juridiques (identité, activité, SIRET, conservation, bases légales et destinataires).
+
+### Vérifications obligatoires dans App Store Connect (non confirmées)
+
+- [ ] URL de politique de confidentialité renseignée dans App Privacy et publiquement accessible.
+- [ ] URL d'assistance utilisable, présentant une méthode de contact fonctionnelle.
+- [ ] Déclarations App Privacy reflétant **toutes** les données réellement collectées : formulaires (prénom, téléphone, e-mail éventuel et message), rendez-vous, préférences de notification, identifiant/token de notification Push lorsqu'il est enregistré, informations analytiques et outils tiers (y compris les WebViews).
+- [ ] Finalités, lien aux utilisateurs, éventuel suivi et partage avec les prestataires déclarés conformément aux flux réellement observés ; aucune case cochée sans vérification.
+- [ ] Questionnaire de classification d'âge réellement complété : `4+` est une hypothèse, pas une classification validée.
+- [ ] Captures d'écran, description, mots-clés et coordonnées pour App Review complétés.
+- [ ] Notes App Review : fonctions publiques sans compte client, fonction admin réservée ; vérifier si un accès de démonstration est requis pour une fonction examinable.
+- [ ] Vérifier le modèle de paiement réellement proposé ; les services réalisés hors application ne sont pas automatiquement des achats numériques intégrés.
+
+### Contrôles avant soumission publique
+
+- [ ] Tester la navigation complète, la galerie, les actualités, le journal, les services, le showroom, les réservations et les retours haptiques sur iPhone.
+- [ ] Associer un iPhone aux notifications et confirmer **une réception APNs réelle**, pas seulement une signature `aps-environment=production`.
+- [ ] Reprendre les **11 tests en échec** signalés dans le précédent bilan, en distinguant les anciens échecs des régressions.
+- [ ] Vérifier le consentement analytics et son retrait effectif sur iOS ainsi que les informations de la politique de confidentialité.
+- [ ] Si la création de comptes utilisateurs est proposée plus tard, prévoir la suppression du compte depuis l'application selon la règle Apple 5.1.1(v).
+
+Références Apple : App Review Guidelines 2.1 et 5.1.1 ; App Store Connect « App Privacy ». La présence de fichiers et liens dans GitHub ne prouve pas leur disponibilité publique ni leur saisie dans App Store Connect.
