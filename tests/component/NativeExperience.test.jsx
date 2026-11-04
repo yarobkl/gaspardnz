@@ -51,6 +51,26 @@ describe("GaspardNZ native iOS experience", () => {
     expect(tabs.every((tab) => tab.querySelector("svg"))).toBe(true);
   });
 
+  it("moves a single animated pill to the active tab without altering the five-tab layout", async () => {
+    render(<Harness />);
+    const nav = navigation();
+    const activePills = () => [...within(nav).getAllByRole("button")]
+      .filter(button => button.querySelector(".gnz-native-tab-pill"));
+    expect(activePills()).toHaveLength(1);
+    expect(activePills()[0]).toHaveAttribute("aria-current", "page");
+    expect(activePills()[0]).toHaveTextContent("Accueil");
+
+    openTab("Galerie");
+    expect(activePills()).toHaveLength(1);
+    expect(activePills()[0]).toHaveTextContent("Galerie");
+    expect(within(nav).getAllByRole("button")).toHaveLength(5);
+
+    openTab("Plus");
+    fireEvent.click(await screen.findByRole("button", { name: /Réserver/ }));
+    expect(activePills()).toHaveLength(1);
+    expect(activePills()[0]).toHaveTextContent("Plus");
+  });
+
   it("opens and closes the notifications panel", async () => {
     render(<Harness />);
     fireEvent.click(screen.getByRole("button", { name: "Notifications" }));

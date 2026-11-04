@@ -1,5 +1,5 @@
 import { useContext, useEffect, useMemo, useRef, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { createPortal } from "react-dom";
 import { GOLD, CREAM, SITE_URL } from "../constants.js";
 import { LangCtx, useTr } from "../context.jsx";
@@ -35,6 +35,7 @@ const FAVORITES_KEY = "gaspardnz.favorite-gallery-looks";
 
 export default function GalleryMobile({ refEl, native = false }) {
   const t = useTr();
+  const reduceMotion = useReducedMotion();
   const { lang } = useContext(LangCtx);
   const settings = useSettings();
   const isCompactMobile = useCompactMobile();
@@ -71,6 +72,8 @@ export default function GalleryMobile({ refEl, native = false }) {
   const copy = COPY[lang] || COPY.FR;
   const [cur, setCur] = useState(0);
   const [viewerOpen, setViewerOpen] = useState(false);
+  const [slideDirection, setSlideDirection] = useState(1);
+  const warmedImages = useRef(new Set());
   const [favorites, setFavorites] = useState(() => {
     try { return new Set(JSON.parse(window.localStorage.getItem(FAVORITES_KEY) || "[]")); } catch { return new Set(); }
   });
@@ -94,8 +97,8 @@ export default function GalleryMobile({ refEl, native = false }) {
     viewerCloseRef.current?.focus();
     const onKeyDown = (event) => {
       if (event.key === "Escape") setViewerOpen(false);
-      if (event.key === "ArrowRight" && n > 1) setCur((value) => (value + 1) % n);
-      if (event.key === "ArrowLeft" && n > 1) setCur((value) => (value - 1 + n) % n);
+      if (event.key === "ArrowRight" && n > 1) { setSlideDirection(1); setCur((value) => (value + 1) % n); }
+      if (event.key === "ArrowLeft" && n > 1) { setSlideDirection(-1); setCur((value) => (value - 1 + n) % n); }
       if (event.key === "Tab") {
         const buttons = [...document.querySelectorAll(".gnz-native-photo-viewer button")];
         const first = buttons[0];
@@ -112,10 +115,23 @@ export default function GalleryMobile({ refEl, native = false }) {
     };
   }, [viewerOpen, n]);
 
+  // Précharge uniquement les deux images voisines pour des balayages immédiats.
+  useEffect(() => {
+    if (!native || !viewerOpen || n < 2 || typeof window.Image !== "function") return;
+    for (const nextIndex of [(cur + 1) % n, (cur - 1 + n) % n]) {
+      const src = visibleItems[nextIndex]?.src;
+      if (!src || warmedImages.current.has(src)) continue;
+      warmedImages.current.add(src);
+      const image = new window.Image();
+      image.decoding = "async";
+      image.src = src;
+    }
+  }, [native, viewerOpen, cur, n, visibleItems]);
+
   if (!n) return native ? <p className="gnz-native-muted">{lang === "FR" ? "La galerie sera bientôt disponible." : lang === "EN" ? "The gallery will be available soon." : lang === "ES" ? "La galería estará disponible pronto." : "图库即将上线。"}</p> : null;
   const current = visibleItems[cur];
   const selected = activeSpot !== null ? current?.hotspots?.[activeSpot] : null;
-  const go = (direction) => { if (native) nativeFeedback("selection"); setActiveSpot(null); setCur((value) => (value + direction + n) % n); };
+  const go = (direction) => { if (native) nativeFeedback("selection"); setSlideDirection(direction); setActiveSpot(null); setCur((value) => (value + direction + n) % n); };
   const isFavorite = (item = current) => favorites.has(item?.src);
   const toggleFavorite = (item = current) => {
     if (!item?.src) return;
@@ -150,7 +166,7 @@ export default function GalleryMobile({ refEl, native = false }) {
     <section ref={refEl} className="gnz-native-gallery" aria-label={t("nav_galerie")}>
       <div className="gnz-native-gallery-grid">
         {items.map((item, index) => (
-          <button type="button" key={`${item.src}-${index}`} onClick={(event) => { viewerTriggerRef.current = event.currentTarget; nativeFeedback("tap"); setCur(index); setViewerOpen(true); }} aria-label={item.label}>
+          <button type="button" key={`${item.src}-${index}`} onClick={(event) => { viewerTriggerRef.current = event.currentTarget; nativeFeedback("tap"); setSlideDirection(1); setCur(index); setViewerOpen(true); }} aria-label={item.label}>
             <img src={item.src} alt="" loading={index < 4 ? "eager" : "lazy"} decoding="async" />
           </button>
         ))}
@@ -177,7 +193,20 @@ export default function GalleryMobile({ refEl, native = false }) {
             if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy) * 1.2) go(dx < 0 ? 1 : -1);
           }}>
           {n > 1 && <button type="button" className="gnz-native-photo-viewer-prev" onClick={() => go(-1)} aria-label={t("previous_photo")}>‹</button>}
-          <img key={current.src} src={current.src} alt={current.label} decoding="async" />
+          <AnimatePresence initial={false} custom={slideDirection} mode="sync">
+            <motion.img
+              key={`${cur}-${current.src}`}
+              src={current.src}
+              alt={current.label}
+              decoding="async"
+              draggable={false}
+              custom={slideDirection}
+              initial={reduceMotion ? false : { opacity: 0.55, x: slideDirection * 64, scale: 0.985 }}
+              animate={{ opacity: 1, x: 0, scale: 1 }}
+              exit={(direction) => reduceMotion ? { opacity: 0 } : { opacity: 0, x: -direction * 64, scale: 0.985 }}
+              transition={reduceMotion ? { duration: 0 } : { duration: 0.28, ease: [0.2, 0.75, 0.25, 1] }}
+            />
+          </AnimatePresence>
           {n > 1 && <button type="button" className="gnz-native-photo-viewer-next" onClick={() => go(1)} aria-label={t("next_photo")}>›</button>}
         </div>
         <p className="gnz-native-photo-viewer-caption">{current.label}</p>
