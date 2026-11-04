@@ -211,11 +211,23 @@ jobs:
             -configuration Release \
             -destination 'generic/platform=iOS' \
             -archivePath "$RUNNER_TEMP/GaspardNZ.xcarchive" \
+            -resultBundlePath "$RUNNER_TEMP/GaspardNZ-archive.xcresult" \
             DEVELOPMENT_TEAM="$APPLE_TEAM_ID" \
             CODE_SIGN_STYLE=Manual \
             CODE_SIGN_IDENTITY='Apple Distribution' \
             PROVISIONING_PROFILE_SPECIFIER='GaspardNZ App Store Distribution' \
-            | xcpretty
+            2>&1 | tee "$RUNNER_TEMP/GaspardNZ-archive.log"
+
+      - name: Conserver le diagnostic Xcode
+        if: ${{ failure() && github.event_name == 'workflow_dispatch' && inputs.uploadToTestFlight }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: GaspardNZ-Xcode-diagnostic-${{ inputs.buildNumber }}
+          path: |
+            ${{ runner.temp }}/GaspardNZ-archive.log
+            ${{ runner.temp }}/GaspardNZ-archive.xcresult
+          if-no-files-found: warn
+          retention-days: 7
 
       - name: Exporter l’IPA App Store
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.uploadToTestFlight }}
