@@ -343,3 +343,139 @@
 @media(prefers-reduced-motion:reduce){
   .gnz-native-tabs-draggable>.gnz-native-tab-pill{will-change:auto}
 }
+
+
+/* Build 20 — Actualités : hiérarchie magazine inspirée de la maquette fournie.
+   Sources et images identiques à celles déjà publiées depuis l'administration. */
+.gnz-native-news-page{padding-top:16px}
+.gnz-native-news-page .gnz-native-heading{padding:0 0 24px}
+.gnz-native-news-page .gnz-native-heading h1{
+  font-family:Georgia,"Times New Roman",serif;
+  font-size:clamp(38px,10vw,48px);
+  font-weight:600;line-height:1.07;letter-spacing:-.045em;margin:0 0 13px;
+}
+.gnz-native-news-page .gnz-native-heading p{
+  max-width:34ch;margin:0;color:#4f4338;font-size:15px;line-height:1.5;
+}
+.gnz-native-news-magazine{min-width:0}
+.gnz-native-news-carousel{touch-action:pan-y;-webkit-user-select:none;user-select:none}
+.gnz-native-news-carousel-stage{
+  position:relative;aspect-ratio:1.07;overflow:hidden;
+  border-radius:20px;background:#d5c0a8;isolation:isolate;
+  box-shadow:0 10px 26px rgba(55,35,18,.09);
+}
+.gnz-native-news-magazine .gnz-native-news-feature{
+  position:absolute;inset:0;display:block;width:100%;height:100%;aspect-ratio:auto;
+  margin:0;padding:0;border:0;border-radius:0;overflow:hidden;
+  color:#fff;cursor:pointer;text-align:left;background:#39281d;
+}
+.gnz-native-news-magazine .gnz-native-news-feature img{
+  display:block;width:100%;height:100%;object-fit:cover;object-position:center;
+}
+.gnz-native-news-magazine .gnz-native-news-feature-copy{
+  position:absolute;inset:auto 0 0;padding:80px 19px 20px;
+  background:linear-gradient(to bottom,transparent 0%,rgba(18,13,10,.56) 40%,rgba(17,12,10,.91) 100%);
+  text-shadow:0 2px 8px rgba(0,0,0,.16);
+}
+.gnz-native-news-magazine .gnz-native-news-feature-tag{
+  display:inline-flex;align-items:center;min-height:29px;padding:5px 12px;
+  border-radius:99px;background:#fbf5e9;color:#3f2d20;
+  font-size:12px;font-weight:650;line-height:1.2;text-shadow:none;
+}
+.gnz-native-news-magazine .gnz-native-news-feature h2{
+  font-family:Georgia,"Times New Roman",serif;
+  font-size:clamp(25px,7.8vw,36px);line-height:1.09;font-weight:600;
+  margin:13px 0 9px;letter-spacing:-.025em;
+  display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden;
+}
+.gnz-native-news-magazine .gnz-native-news-feature small{
+  display:block;color:#f3e8dc;font-size:12px;line-height:1.45;
+}
+.gnz-native-news-pagination{
+  display:flex;justify-content:center;align-items:center;gap:5px;
+  padding:10px 0 18px;
+}
+.gnz-native-news-pagination button{
+  display:grid;place-items:center;width:30px;height:32px;border:0;
+  background:transparent;padding:0;cursor:pointer;
+}
+.gnz-native-news-pagination button span{
+  width:9px;height:9px;border-radius:50%;background:#c5b8aa;
+  transition:background-color .2s ease,transform .2s ease;
+}
+.gnz-native-news-pagination button.active span{
+  background:var(--gnz-brown);transform:scale(1.17);
+}
+.gnz-native-news-recent{
+  border-top:1px solid #e7d8c8;padding-top:19px;margin-top:3px;
+}
+.gnz-native-news-recent-heading{
+  display:flex;justify-content:space-between;align-items:baseline;
+  gap:10px;margin-bottom:15px;
+}
+.gnz-native-news-recent-heading h2{
+  min-width:0;font-family:Georgia,"Times New Roman",serif;
+  font-size:clamp(23px,6.5vw,28px);font-weight:600;line-height:1.18;
+  letter-spacing:-.035em;margin:0;color:var(--gnz-ink);
+}
+.gnz-native-news-see-all{
+  flex:none;display:inline-flex;align-items:center;justify-content:flex-end;gap:8px;
+  min-height:40px;padding:4px 0 4px 9px;background:transparent;border:0;
+  color:var(--gnz-ink);font-size:12px;font-weight:700;white-space:nowrap;
+}
+.gnz-native-news-see-all span{font-size:22px;font-weight:400}
+.gnz-native-news-magazine .gnz-native-news-card-grid{
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px;
+}
+.gnz-native-news-magazine .gnz-native-news-card-grid button.gnz-native-news-card{
+  display:block;width:100%;min-width:0;overflow:hidden;align-self:start;
+  padding:0;background:#fffaf3;border:1px solid #e7dacc;border-radius:16px;
+  box-shadow:0 3px 13px rgba(51,34,18,.055);text-align:left;
+  color:var(--gnz-ink);
+}
+.gnz-native-news-card-media{
+  width:100%;aspect-ratio:1.18;overflow:hidden;background:#e7d9c9;
+}
+.gnz-native-news-card-media img{
+  display:block;width:100%;height:100%;object-fit:cover;
+  transition:transform .3s ease;
+}
+.gnz-native-news-card-without-photo{
+  display:grid;place-items:center;
+  background:linear-gradient(145deg,#e5d2bc,#f3e7d8);
+  padding:15px;
+}
+.gnz-native-news-card-without-photo span{
+  font-family:Georgia,serif;font-size:18px;font-weight:400;
+  color:#795439;text-align:center;line-height:1.25;overflow-wrap:anywhere;
+}
+.gnz-native-news-card-body{padding:12px 12px 14px}
+.gnz-native-news-magazine .gnz-native-news-card-tag{
+  display:block;color:var(--gnz-brown);font-size:10px;
+  font-weight:700;letter-spacing:.055em;text-transform:uppercase;line-height:1.35;
+}
+.gnz-native-news-magazine .gnz-native-news-card h3{
+  font-family:Georgia,"Times New Roman",serif;
+  margin:7px 0 9px;font-size:17px;font-weight:500;line-height:1.18;
+  letter-spacing:-.02em;display:-webkit-box;-webkit-box-orient:vertical;
+  -webkit-line-clamp:3;overflow:hidden;
+}
+.gnz-native-news-card-body small{
+  color:#78695e;font-size:10.5px;line-height:1.4;
+  display:block;overflow-wrap:anywhere;
+}
+.gnz-native-news-magazine :where(.gnz-native-news-feature,.gnz-native-news-card,.gnz-native-news-see-all,.gnz-native-news-pagination button):focus-visible{
+  outline:2px solid var(--gnz-brown);outline-offset:3px;
+}
+@media(hover:hover) and (prefers-reduced-motion:no-preference){
+  .gnz-native-news-card:hover img{transform:scale(1.035)}
+}
+@media(max-width:360px){
+  .gnz-native-news-magazine .gnz-native-news-card-grid{gap:9px}
+  .gnz-native-news-card-body{padding:10px}
+  .gnz-native-news-magazine .gnz-native-news-card h3{font-size:15px}
+  .gnz-native-news-magazine .gnz-native-news-feature-copy{padding-inline:15px}
+}
+@media(prefers-reduced-motion:reduce){
+  .gnz-native-news-pagination button span,.gnz-native-news-card-media img{transition:none}
+}
