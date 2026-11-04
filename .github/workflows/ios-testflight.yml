@@ -50,6 +50,9 @@ jobs:
       ASC_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
       ASC_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
       ASC_PRIVATE_KEY: ${{ secrets.APP_STORE_CONNECT_API_PRIVATE_KEY }}
+      GNZ_RELEASE_UPLOAD: ${{ (github.event_name == 'workflow_dispatch' && inputs.uploadToTestFlight) || (github.event_name == 'push' && github.ref == 'refs/heads/feature/build15-journal-editorial' && contains(github.event.head_commit.message, '[ship-gaspardnz-15]')) }}
+      GNZ_RELEASE_VERSION: ${{ github.event_name == 'push' && contains(github.event.head_commit.message, '[ship-gaspardnz-15]') && '1.0.4' || inputs.version || '1.0.0' }}
+      GNZ_RELEASE_BUILD: ${{ github.event_name == 'push' && contains(github.event.head_commit.message, '[ship-gaspardnz-15]') && '15' || inputs.buildNumber || '1' }}
 
     steps:
       - name: Récupérer le dépôt
@@ -86,8 +89,8 @@ jobs:
 
       - name: Appliquer la version iOS
         env:
-          MARKETING_VERSION: ${{ inputs.version || '1.0.0' }}
-          BUILD_NUMBER: ${{ inputs.buildNumber || '1' }}
+          MARKETING_VERSION: ${{ env.GNZ_RELEASE_VERSION }}
+          BUILD_NUMBER: ${{ env.GNZ_RELEASE_BUILD }}
         run: |
           sed -i '' "s/MARKETING_VERSION = [^;]*;/MARKETING_VERSION = $MARKETING_VERSION;/g" ios/App/App.xcodeproj/project.pbxproj
           sed -i '' "s/CURRENT_PROJECT_VERSION = [^;]*;/CURRENT_PROJECT_VERSION = $BUILD_NUMBER;/g" ios/App/App.xcodeproj/project.pbxproj
@@ -96,7 +99,7 @@ jobs:
         run: xcodebuild -resolvePackageDependencies -project ios/App/App.xcodeproj -scheme App
 
       - name: Compiler pour le simulateur
-        if: ${{ github.event_name != 'workflow_dispatch' || !inputs.uploadToTestFlight }}
+        if: ${{ env.GNZ_RELEASE_UPLOAD != 'true' }}
         run: |
           set -o pipefail
           xcodebuild build \
@@ -111,7 +114,7 @@ jobs:
 
       - name: Capturer l’écran d’accueil sur un simulateur iPhone
         id: capture
-        if: ${{ github.event_name != 'workflow_dispatch' || !inputs.uploadToTestFlight }}
+        if: ${{ env.GNZ_RELEASE_UPLOAD != 'true' }}
         timeout-minutes: 5
         continue-on-error: true
         run: |
@@ -151,14 +154,13 @@ jobs:
           retention-days: 14
 
       - name: Vérifier les secrets Apple
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.uploadToTestFlight }}
+        if: ${{ env.GNZ_RELEASE_UPLOAD == 'true' }}
         env:
           CERTIFICATE_P12: ${{ secrets.APPLE_DISTRIBUTION_CERTIFICATE_P12_BASE64 }}
           CERTIFICATE_PASSWORD: ${{ secrets.APPLE_DISTRIBUTION_CERTIFICATE_PASSWORD }}
-          PROFILE_BASE64: ${{ secrets.APPLE_APP_STORE_PROFILE_BASE64 }}
         run: |
           missing=0
-          for name in APPLE_TEAM_ID ASC_KEY_ID ASC_ISSUER_ID ASC_PRIVATE_KEY CERTIFICATE_P12 CERTIFICATE_PASSWORD PROFILE_BASE64; do
+          for name in APPLE_TEAM_ID ASC_KEY_ID ASC_ISSUER_ID ASC_PRIVATE_KEY CERTIFICATE_P12 CERTIFICATE_PASSWORD; do
             if [ -z "${!name}" ]; then
               echo "::error::Secret manquant : $name"
               missing=1
@@ -167,28 +169,14 @@ jobs:
           exit "$missing"
 
       - name: Installer le certificat Apple Distribution
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.uploadToTestFlight }}
+        if: ${{ env.GNZ_RELEASE_UPLOAD == 'true' }}
         uses: apple-actions/import-codesign-certs@v3
         with:
           p12-file-base64: ${{ secrets.APPLE_DISTRIBUTION_CERTIFICATE_P12_BASE64 }}
           p12-password: ${{ secrets.APPLE_DISTRIBUTION_CERTIFICATE_PASSWORD }}
 
-      - name: Installer le profil App Store Connect
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.uploadToTestFlight }}
-        env:
-          PROFILE_BASE64: ${{ secrets.APPLE_APP_STORE_PROFILE_BASE64 }}
-        run: |
-          PROFILE_PATH="$RUNNER_TEMP/GaspardNZ.mobileprovision"
-          printf '%s' "$PROFILE_BASE64" | base64 -D > "$PROFILE_PATH"
-          security cms -D -i "$PROFILE_PATH" > "$RUNNER_TEMP/profile.plist"
-          PROFILE_UUID="$(/usr/libexec/PlistBuddy -c 'Print :UUID' "$RUNNER_TEMP/profile.plist")"
-          PROFILE_NAME="$(/usr/libexec/PlistBuddy -c 'Print :Name' "$RUNNER_TEMP/profile.plist")"
-          test "$PROFILE_NAME" = 'GaspardNZ App Store Distribution'
-          mkdir -p "$HOME/Library/MobileDevice/Provisioning Profiles"
-          cp "$PROFILE_PATH" "$HOME/Library/MobileDevice/Provisioning Profiles/$PROFILE_UUID.mobileprovision"
-
       - name: Installer la clé App Store Connect
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.uploadToTestFlight }}
+        if: ${{ env.GNZ_RELEASE_UPLOAD == 'true' }}
         run: |
           mkdir -p "$RUNNER_TEMP/appstoreconnect/private_keys" "$HOME/.appstoreconnect/private_keys"
           KEY_PATH="$RUNNER_TEMP/appstoreconnect/private_keys/AuthKey_${ASC_KEY_ID}.p8"
@@ -202,7 +190,7 @@ jobs:
           chmod 600 "$KEY_PATH" "$HOME/.appstoreconnect/private_keys/AuthKey_${ASC_KEY_ID}.p8"
 
       - name: Télécharger le profil App Store renouvelé
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.uploadToTestFlight }}
+        if: ${{ env.GNZ_RELEASE_UPLOAD == 'true' }}
         run: |
           set -euo pipefail
           python3 -m pip install --quiet --disable-pip-version-check "PyJWT[crypto]>=2.9,<3"
@@ -256,7 +244,7 @@ jobs:
                   "::error::Un profil App Store actif GaspardNZ unique est requis "
                   f"(trouvés : {len(matching)})."
               )
-          content = base64.b64decode(matching[0]["attributes"]["profileContent"], validate=True)
+          content = base64.b64decode("".join(matching[0]["attributes"]["profileContent"].split()), validate=True)
           with open(sys.argv[1], "wb") as f:
               f.write(content)
           print("Profil App Store actif téléchargé depuis Apple Developer (contenu masqué).")
@@ -266,15 +254,39 @@ jobs:
           PROFILE_UUID="$(/usr/libexec/PlistBuddy -c 'Print :UUID' "$RUNNER_TEMP/renewed-profile.plist")"
           APS="$(/usr/libexec/PlistBuddy -c 'Print :Entitlements:aps-environment' "$RUNNER_TEMP/renewed-profile.plist")"
           APP_ID="$(/usr/libexec/PlistBuddy -c 'Print :Entitlements:application-identifier' "$RUNNER_TEMP/renewed-profile.plist")"
+          PROFILE_TEAM="$(/usr/libexec/PlistBuddy -c 'Print :TeamIdentifier:0' "$RUNNER_TEMP/renewed-profile.plist")"
           test "$PROFILE_NAME" = 'GaspardNZ App Store Distribution'
           test "$APS" = 'production' || { echo "::error::Le profil renouvelé ne permet pas les Push de production."; exit 1; }
-          test "$APP_ID" = "$APPLE_TEAM_ID.com.gaspardnz.app" || { echo "::error::Profil App Store associé à un autre App ID."; exit 1; }
+          test "$PROFILE_TEAM" = "$APPLE_TEAM_ID" || { echo "::error::Profil App Store d'une autre équipe Apple."; exit 1; }
+          case "$APP_ID" in
+            *.com.gaspardnz.app) ;;
+            *) echo "::error::Profil App Store associé à un autre App ID."; exit 1 ;;
+          esac
+          python3 - "$RUNNER_TEMP/renewed-profile.plist" <<'PY'
+          import hashlib
+          import plistlib
+          import subprocess
+          import sys
+          with open(sys.argv[1], "rb") as f:
+              profile = plistlib.load(f)
+          certificates = {
+              hashlib.sha1(cert).hexdigest().upper()
+              for cert in profile.get("DeveloperCertificates", [])
+          }
+          identities = subprocess.run(
+              ["security", "find-identity", "-v", "-p", "codesigning"],
+              capture_output=True, text=True, check=True
+          ).stdout.upper()
+          if not certificates or not any(cert in identities for cert in certificates):
+              raise SystemExit("::error::Certificat Apple Distribution importé incompatible avec le profil.")
+          print("Profil et certificat Apple Distribution compatibles.")
+          PY
           mkdir -p "$HOME/Library/MobileDevice/Provisioning Profiles"
           cp "$RUNNER_TEMP/GaspardNZ-AppStore.mobileprovision" "$HOME/Library/MobileDevice/Provisioning Profiles/$PROFILE_UUID.mobileprovision"
           echo "Profil App Store renouvelé installé, capacités Push production confirmées."
 
       - name: Archiver l’application signée
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.uploadToTestFlight }}
+        if: ${{ env.GNZ_RELEASE_UPLOAD == 'true' }}
         run: |
           set -o pipefail
           xcodebuild archive \
@@ -284,19 +296,17 @@ jobs:
             -destination 'generic/platform=iOS' \
             -archivePath "$RUNNER_TEMP/GaspardNZ.xcarchive" \
             -resultBundlePath "$RUNNER_TEMP/GaspardNZ-archive.xcresult" \
-            -allowProvisioningUpdates \
-            -authenticationKeyPath "$RUNNER_TEMP/appstoreconnect/private_keys/AuthKey_${ASC_KEY_ID}.p8" \
-            -authenticationKeyID "$ASC_KEY_ID" \
-            -authenticationKeyIssuerID "$ASC_ISSUER_ID" \
             DEVELOPMENT_TEAM="$APPLE_TEAM_ID" \
-            CODE_SIGN_STYLE=Automatic \
+            CODE_SIGN_STYLE=Manual \
+            CODE_SIGN_IDENTITY='Apple Distribution' \
+            PROVISIONING_PROFILE_SPECIFIER='GaspardNZ App Store Distribution' \
             2>&1 | tee "$RUNNER_TEMP/GaspardNZ-archive.log"
 
       - name: Conserver le diagnostic Xcode
-        if: ${{ failure() && github.event_name == 'workflow_dispatch' && inputs.uploadToTestFlight }}
+        if: ${{ failure() && env.GNZ_RELEASE_UPLOAD == 'true' }}
         uses: actions/upload-artifact@v4
         with:
-          name: GaspardNZ-Xcode-diagnostic-${{ inputs.buildNumber }}
+          name: GaspardNZ-Xcode-diagnostic-${{ env.GNZ_RELEASE_BUILD }}
           path: |
             ${{ runner.temp }}/GaspardNZ-archive.log
             ${{ runner.temp }}/GaspardNZ-archive.xcresult
@@ -304,7 +314,7 @@ jobs:
           retention-days: 7
 
       - name: Exporter l’IPA App Store
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.uploadToTestFlight }}
+        if: ${{ env.GNZ_RELEASE_UPLOAD == 'true' }}
         run: |
           set -o pipefail
           /usr/libexec/PlistBuddy -c "Add :teamID string $APPLE_TEAM_ID" ios/ExportOptions.plist
@@ -319,19 +329,19 @@ jobs:
             2>&1 | tee "$RUNNER_TEMP/GaspardNZ-export.log"
 
       - name: Conserver les erreurs d'export IPA
-        if: ${{ failure() && github.event_name == 'workflow_dispatch' && inputs.uploadToTestFlight }}
+        if: ${{ failure() && env.GNZ_RELEASE_UPLOAD == 'true' }}
         uses: actions/upload-artifact@v4
         with:
-          name: GaspardNZ-IPA-export-diagnostic-${{ inputs.buildNumber }}
+          name: GaspardNZ-IPA-export-diagnostic-${{ env.GNZ_RELEASE_BUILD }}
           path: ${{ runner.temp }}/GaspardNZ-export.log
           if-no-files-found: warn
           retention-days: 7
 
       - name: Vérifier la signature Push de l'IPA de distribution
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.uploadToTestFlight }}
+        if: ${{ env.GNZ_RELEASE_UPLOAD == 'true' }}
         env:
-          EXPECTED_VERSION: ${{ inputs.version }}
-          EXPECTED_BUILD: ${{ inputs.buildNumber }}
+          EXPECTED_VERSION: ${{ env.GNZ_RELEASE_VERSION }}
+          EXPECTED_BUILD: ${{ env.GNZ_RELEASE_BUILD }}
         run: |
           set -euo pipefail
           IPA_PATH="$(find "$RUNNER_TEMP/export" -maxdepth 1 -name '*.ipa' -print -quit)"
@@ -361,23 +371,23 @@ jobs:
           echo "IPA validée: version $ACTUAL_VERSION, build $ACTUAL_BUILD, Push production actif."
 
       - name: Vérifier l’IPA
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.uploadToTestFlight }}
+        if: ${{ env.GNZ_RELEASE_UPLOAD == 'true' }}
         run: |
           IPA_PATH="$(find "$RUNNER_TEMP/export" -maxdepth 1 -name '*.ipa' -print -quit)"
           test -f "$IPA_PATH"
           xcrun altool --validate-app --type ios --file "$IPA_PATH" --apiKey "$ASC_KEY_ID" --apiIssuer "$ASC_ISSUER_ID"
 
       - name: Envoyer vers TestFlight
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.uploadToTestFlight }}
+        if: ${{ env.GNZ_RELEASE_UPLOAD == 'true' }}
         run: |
           IPA_PATH="$(find "$RUNNER_TEMP/export" -maxdepth 1 -name '*.ipa' -print -quit)"
           xcrun altool --upload-app --type ios --file "$IPA_PATH" --apiKey "$ASC_KEY_ID" --apiIssuer "$ASC_ISSUER_ID"
 
       - name: Conserver l’IPA
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.uploadToTestFlight }}
+        if: ${{ env.GNZ_RELEASE_UPLOAD == 'true' }}
         uses: actions/upload-artifact@v4
         with:
-          name: GaspardNZ-iOS-${{ inputs.version }}-${{ inputs.buildNumber }}
+          name: GaspardNZ-iOS-${{ env.GNZ_RELEASE_VERSION }}-${{ env.GNZ_RELEASE_BUILD }}
           path: ${{ runner.temp }}/export/*.ipa
           if-no-files-found: error
           retention-days: 14
