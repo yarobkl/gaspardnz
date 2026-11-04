@@ -3,9 +3,9 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import NativeServices from "../../src/components/NativeServices.jsx";
 
 vi.mock("../../src/services/packagePricing.js", () => ({
-  listPackagesWithBreakdown: vi.fn().mockResolvedValue([]),
-  subscribePackagePricing: vi.fn(() => () => {}),
-  sumPackageTotal: vi.fn(() => 0),
+  listPackagesWithBreakdown: () => Promise.resolve([]),
+  subscribePackagePricing: () => () => {},
+  sumPackageTotal: () => 0,
 }));
 
 describe("Services — conversion mobile GaspardNZ", () => {
