@@ -220,26 +220,6 @@ jobs:
             CODE_SIGN_STYLE=Automatic \
             2>&1 | tee "$RUNNER_TEMP/GaspardNZ-archive.log"
 
-      - name: Vérifier la capacité Push de l'archive signée
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.uploadToTestFlight }}
-        run: |
-          APP_PATH="$RUNNER_TEMP/GaspardNZ.xcarchive/Products/Applications/App.app"
-          PROFILE_PATH="$APP_PATH/embedded.mobileprovision"
-          test -f "$PROFILE_PATH"
-          security cms -D -i "$PROFILE_PATH" > "$RUNNER_TEMP/archive-profile.plist"
-          PROFILE_APS="$(/usr/libexec/PlistBuddy -c 'Print :Entitlements:aps-environment' "$RUNNER_TEMP/archive-profile.plist")"
-          if [ "$PROFILE_APS" != "production" ]; then
-            echo "::error::Le profil de distribution ne contient pas aps-environment=production"
-            exit 1
-          fi
-          codesign -d --entitlements - "$APP_PATH" > "$RUNNER_TEMP/archive-entitlements.plist" 2>/dev/null
-          SIGNATURE_APS="$(/usr/libexec/PlistBuddy -c 'Print :aps-environment' "$RUNNER_TEMP/archive-entitlements.plist")"
-          if [ "$SIGNATURE_APS" != "production" ]; then
-            echo "::error::La signature de l'application ne contient pas aps-environment=production"
-            exit 1
-          fi
-          echo "Profil et signature Push production validés."
-
       - name: Conserver le diagnostic Xcode
         if: ${{ failure() && github.event_name == 'workflow_dispatch' && inputs.uploadToTestFlight }}
         uses: actions/upload-artifact@v4
@@ -264,6 +244,39 @@ jobs:
             -authenticationKeyPath "$RUNNER_TEMP/appstoreconnect/private_keys/AuthKey_${ASC_KEY_ID}.p8" \
             -authenticationKeyID "$ASC_KEY_ID" \
             -authenticationKeyIssuerID "$ASC_ISSUER_ID"
+
+      - name: Vérifier la signature Push de l'IPA de distribution
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.uploadToTestFlight }}
+        env:
+          EXPECTED_VERSION: ${{ inputs.version }}
+          EXPECTED_BUILD: ${{ inputs.buildNumber }}
+        run: |
+          set -euo pipefail
+          IPA_PATH="$(find "$RUNNER_TEMP/export" -maxdepth 1 -name '*.ipa' -print -quit)"
+          test -f "$IPA_PATH"
+          mkdir -p "$RUNNER_TEMP/ipa-inspection"
+          unzip -q "$IPA_PATH" -d "$RUNNER_TEMP/ipa-inspection"
+          APP_PATH="$(find "$RUNNER_TEMP/ipa-inspection/Payload" -maxdepth 1 -name '*.app' -print -quit)"
+          test -d "$APP_PATH"
+          PROFILE_PATH="$APP_PATH/embedded.mobileprovision"
+          test -f "$PROFILE_PATH"
+          security cms -D -i "$PROFILE_PATH" > "$RUNNER_TEMP/distribution-profile.plist"
+          PROFILE_APS="$(/usr/libexec/PlistBuddy -c 'Print :Entitlements:aps-environment' "$RUNNER_TEMP/distribution-profile.plist")"
+          if [ "$PROFILE_APS" != "production" ]; then
+            echo "::error::Le profil de distribution IPA ne contient pas aps-environment=production"
+            exit 1
+          fi
+          codesign -d --entitlements - "$APP_PATH" > "$RUNNER_TEMP/distribution-entitlements.plist" 2>/dev/null
+          SIGNATURE_APS="$(/usr/libexec/PlistBuddy -c 'Print :aps-environment' "$RUNNER_TEMP/distribution-entitlements.plist")"
+          if [ "$SIGNATURE_APS" != "production" ]; then
+            echo "::error::La signature IPA ne contient pas aps-environment=production"
+            exit 1
+          fi
+          ACTUAL_VERSION="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$APP_PATH/Info.plist")"
+          ACTUAL_BUILD="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "$APP_PATH/Info.plist")"
+          test "$ACTUAL_VERSION" = "$EXPECTED_VERSION" || { echo "::error::Version IPA incorrecte"; exit 1; }
+          test "$ACTUAL_BUILD" = "$EXPECTED_BUILD" || { echo "::error::Numéro de build IPA incorrect"; exit 1; }
+          echo "IPA validée: version $ACTUAL_VERSION, build $ACTUAL_BUILD, Push production actif."
 
       - name: Vérifier l’IPA
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.uploadToTestFlight }}
