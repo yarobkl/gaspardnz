@@ -277,3 +277,5 @@
 .gnz-native-no-slots p{margin:0;padding:0;background:transparent;color:#665549;font-size:13px;line-height:1.6}
 .gnz-native-booking-page .gnz-native-booking-contact{min-height:50px;background:var(--gnz-brown);border-color:var(--gnz-brown);color:#fffaf4}
 @media(prefers-reduced-motion:no-preference){.gnz-native-service-assistance button,.gnz-native-booking-contact{transition:transform .15s ease,opacity .15s ease}.gnz-native-service-assistance button:active,.gnz-native-booking-contact:active{transform:scale(.98)}}
+
+/* iOS build 16 — TestFlight 1.0.5 : parcours services et rendez-vous améliorés. */
