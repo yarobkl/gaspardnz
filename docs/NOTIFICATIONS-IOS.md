@@ -1,31 +1,30 @@
 # Notifications GaspardNZ — installation et sécurité
 
 ## État
-- Centre de rédaction des campagnes et API admin : code en branche feature/notifications-client.
-- Fournisseur APNs direct sans abonnement : module serveur prêt pour tests, **non activé**.
-- Aucun envoi réel, aucun cron, aucun abonnement client encore actif.
-- Ne pas fusionner ni déployer tant que les tests et contrôles ci-dessous ne sont pas terminés.
+- Centre de rédaction des campagnes et API admin intégré à la branche premium iOS.
+- Module APNs serveur aligné sur les secrets configurés ce matin.
+- L’envoi réel nécessite encore l’enregistrement d’un token APNs par appareil et le consentement de l’utilisateur.
+- Aucun abonnement client n’est créé automatiquement par cette fondation.
 
-## Coûts
-APNs ne facture pas les notifications. L'adhésion Apple Developer Program (requise pour signer et distribuer l'app) et les éventuels dépassements des quotas Supabase/Vercel ne sont pas gratuits. Aucune dépense supplémentaire ne doit être engagée sans validation.
+## Configuration Apple réalisée
+- Bundle ID : `com.gaspardnz.app`
+- Team ID : `UK4UQCQ57G`
+- Clé APNs : `AuthKey_CS9M7GKXTH.p8`
+- Secrets utilisés : `APNS_PRIVATE_KEY`, `APNS_KEY_ID`, `APNS_ISSUER_ID`, `APNS_BUNDLE_ID`, `APNS_ENVIRONMENT`
+- Pour TestFlight, l’environnement doit être `production`.
 
-## Préparation Apple
-1. Apple Developer > Identifiers : activer Push Notifications sur com.gaspardnz.app.
-2. Keys : créer une clé APNs (.p8), relever Key ID et Team ID.
-3. Mettre à jour le provisioning profile et ajouter l'entitlement aps-environment pour la signature iOS.
-4. Vercel variables serveur uniquement : APNS_KEY_ID, APPLE_TEAM_ID, APNS_PRIVATE_KEY (clé privée, jamais en VITE_), APNS_TOPIC=com.gaspardnz.app, APNS_ENV=production pour TestFlight.
-5. Ne jamais committer la clé .p8 ni un token utilisateur.
+## Sécurité
+- Ne jamais committer la clé `.p8` ni un token utilisateur.
+- Les secrets restent côté serveur (Supabase/Vercel), jamais dans une variable `VITE_`.
+- Les endpoints admin vérifient la session Supabase et le rôle administrateur.
 
-## À terminer avant mise en production
-- Ajouter l'intégration Capacitor Push Notifications côté application iOS et les callbacks AppDelegate APNs.
-- Demander explicitement l'autorisation, expliquer le consentement marketing, et permettre son retrait.
-- Concevoir un endpoint d'enregistrement des tokens sécurisé pour clients anonymes : éviter de permettre à n'importe qui d'inscrire le token d'un tiers.
-- Configurer une désinscription et gérer les réponses APNs 410 / BadDeviceToken.
-- Construire le worker d'envoi idempotent, batché, avec limitation de débit, historique et reprise.
-- Protéger les rappels de rendez-vous contre les envois à l'ensemble des clients.
-- Déployer et vérifier la migration SQL après sauvegarde et audit des politiques RLS.
-- Tests : build CI, TestFlight iPhone réel, opt-in/opt-out, notification au premier plan/arrière-plan, clic profond, suppression des tokens, refus permission, contrôle des coûts.
+## À terminer avant la mise en production du push
+- Ajouter l’enregistrement sécurisé des tokens APNs depuis l’application iOS.
+- Demander et gérer l’autorisation utilisateur, le retrait et la révocation.
+- Ajouter le traitement des réponses APNs `410` / `BadDeviceToken`.
+- Construire l’envoi batché, idempotent, historisé et limité en débit.
+- Tester premier plan, arrière-plan, clic profond et opt-in/opt-out sur un iPhone TestFlight réel.
 
 ## Test serveur
-POST /api/admin-notification-test (auth Bearer Supabase owner/admin) : {deviceToken,title,body}.
-L'endpoint est un outil de test, pas une fonction d'envoi aux clients. Il ne fonctionne qu'après configuration Apple et obtention d'un token de test valide.
+`POST /api/admin-notification-test` avec une session admin et un token APNs valide.
+Cet endpoint sert uniquement au test ciblé ; il ne diffuse pas encore une campagne à tous les clients.
