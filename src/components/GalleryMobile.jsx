@@ -8,6 +8,7 @@ import useCompactMobile from "../hooks/useCompactMobile.js";
 import { usePublicCollection } from "../hooks/usePublicCollection.js";
 import { useSettings } from "../hooks/useSettings.js";
 import { getWhatsappUrl } from "../utils/whatsappUtil.js";
+import { nativeFeedback } from "../utils/nativeHaptics.js";
 import { HotspotSheet, PhotoHotspots } from "./ui/PhotoHotspots.jsx";
 
 const fallbackFiles = [
@@ -114,13 +115,14 @@ export default function GalleryMobile({ refEl, native = false }) {
   if (!n) return native ? <p className="gnz-native-muted">{lang === "FR" ? "La galerie sera bientôt disponible." : lang === "EN" ? "The gallery will be available soon." : lang === "ES" ? "La galería estará disponible pronto." : "图库即将上线。"}</p> : null;
   const current = visibleItems[cur];
   const selected = activeSpot !== null ? current?.hotspots?.[activeSpot] : null;
-  const go = (direction) => { setActiveSpot(null); setCur((value) => (value + direction + n) % n); };
+  const go = (direction) => { if (native) nativeFeedback("selection"); setActiveSpot(null); setCur((value) => (value + direction + n) % n); };
   const isFavorite = (item = current) => favorites.has(item?.src);
   const toggleFavorite = (item = current) => {
     if (!item?.src) return;
     setFavorites((previous) => {
       const next = new Set(previous);
       if (next.has(item.src)) next.delete(item.src); else next.add(item.src);
+      if (native) nativeFeedback("tap");
       try { window.localStorage.setItem(FAVORITES_KEY, JSON.stringify([...next])); } catch {}
       return next;
     });
@@ -148,7 +150,7 @@ export default function GalleryMobile({ refEl, native = false }) {
     <section ref={refEl} className="gnz-native-gallery" aria-label={t("nav_galerie")}>
       <div className="gnz-native-gallery-grid">
         {items.map((item, index) => (
-          <button type="button" key={`${item.src}-${index}`} onClick={(event) => { viewerTriggerRef.current = event.currentTarget; setCur(index); setViewerOpen(true); }} aria-label={item.label}>
+          <button type="button" key={`${item.src}-${index}`} onClick={(event) => { viewerTriggerRef.current = event.currentTarget; nativeFeedback("tap"); setCur(index); setViewerOpen(true); }} aria-label={item.label}>
             <img src={item.src} alt="" loading={index < 4 ? "eager" : "lazy"} decoding="async" />
           </button>
         ))}
@@ -161,7 +163,7 @@ export default function GalleryMobile({ refEl, native = false }) {
     {viewerOpen && createPortal(
       <div className="gnz-native-photo-viewer" role="dialog" aria-modal="true" aria-label={t("nav_galerie")}>
         <div className="gnz-native-photo-viewer-top">
-          <button ref={viewerCloseRef} type="button" onClick={() => setViewerOpen(false)} aria-label={lang === "FR" ? "Fermer la photo" : lang === "EN" ? "Close photo" : lang === "ES" ? "Cerrar foto" : "关闭照片"}>×</button>
+          <button ref={viewerCloseRef} type="button" onClick={() => { nativeFeedback("tap"); setViewerOpen(false); }} aria-label={lang === "FR" ? "Fermer la photo" : lang === "EN" ? "Close photo" : lang === "ES" ? "Cerrar foto" : "关闭照片"}>×</button>
           <span>{String(cur + 1).padStart(2, "0")} / {String(n).padStart(2, "0")}</span>
           <div className="gnz-native-photo-viewer-actions"><button type="button" onClick={() => toggleFavorite()} aria-label={isFavorite() ? "Retirer des inspirations" : "Ajouter aux inspirations"} aria-pressed={isFavorite()}>{isFavorite() ? "♥" : "♡"}</button><button type="button" onClick={share} aria-label={lang === "FR" ? "Partager ce look" : lang === "EN" ? "Share this look" : lang === "ES" ? "Compartir este look" : "分享此造型"}>↗</button></div>
         </div>
