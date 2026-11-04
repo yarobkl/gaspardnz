@@ -230,3 +230,16 @@
 .gnz-native-article-summary h3{font-size:19px;line-height:1.15;font-weight:400;margin:7px 0}
 .gnz-native-article-summary p{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;font-size:12px;line-height:1.45}
 @media(max-width:360px){.gnz-native-article-thumb{width:90px}.gnz-native-article-summary h3{font-size:17px}}
+
+/* Full-height native magazine reader, with calm editorial typography. */
+.gnz-native-news-reader{padding:0;align-items:stretch;background:var(--gnz-ivory);backdrop-filter:none;-webkit-backdrop-filter:none}
+.gnz-native-news-reader-card{width:min(600px,100%);max-height:none;height:100dvh;border-radius:0;background:var(--gnz-ivory);color:var(--gnz-ink);box-shadow:none;padding-bottom:env(safe-area-inset-bottom);overscroll-behavior:contain}
+.gnz-native-news-reader-close{position:sticky;top:calc(env(safe-area-inset-top) + 8px);float:right;margin:calc(env(safe-area-inset-top) + 8px) 12px -54px 0;background:rgba(32,24,16,.78);z-index:3}
+.gnz-native-news-reader-media{aspect-ratio:4/5;background:#e4d4c2}
+.gnz-native-news-reader-media img{object-fit:contain}
+.gnz-native-news-reader-copy{padding:26px 24px 48px}
+.gnz-native-news-reader-copy>span{display:block;color:var(--gnz-brown);font-size:11px;line-height:1.6}
+.gnz-native-news-reader-copy h2{font-family:Georgia,serif;color:var(--gnz-ink);font-size:clamp(34px,9vw,46px);font-weight:400;line-height:1.1;letter-spacing:-.025em;margin:12px 0 24px}
+.gnz-native-news-reader-copy p{white-space:pre-line;color:#493d33;font-size:16px;line-height:1.85;margin:0 0 19px;overflow-wrap:anywhere}
+.gnz-native-news-reader-copy p:first-of-type::first-letter{font-family:Georgia,serif;font-size:1.5em}
+@media(prefers-reduced-motion:reduce){.gnz-native-news-reader *{scroll-behavior:auto}}
