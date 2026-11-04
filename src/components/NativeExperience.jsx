@@ -105,12 +105,22 @@ export default function NativeExperience(){
    try{
      const permission=await PushNotifications.requestPermissions();
      if(permission.receive!=="granted")throw new Error("Autorisation de notifications refusée sur cet iPhone.");
-     const token=await new Promise(async(resolve,reject)=>{
-       if(pushToken.current)return resolve(pushToken.current);
-       const listener=await PushNotifications.addListener("registration",async t=>{await listener.remove();resolve(t.value);});
-       const failure=await PushNotifications.addListener("registrationError",async e=>{await listener.remove();reject(new Error(e?.error||"Apple a refusé l’inscription"));});
-       try{await PushNotifications.register();}catch(e){await listener.remove();reject(e);}finally{setTimeout(()=>failure.remove(),20000);}
-       setTimeout(()=>{listener.remove();reject(new Error("Délai Apple dépassé"));},20000);
+     const token=await new Promise((resolve,reject)=>{
+       let settled=false,timeoutId;const handles=[];
+       const finish=(error,value)=>{
+         if(settled)return;
+         settled=true;clearTimeout(timeoutId);
+         handles.forEach(h=>h.remove().catch(()=>{}));
+         if(error)reject(error);else resolve(value);
+       };
+       (async()=>{
+         try{
+           handles.push(await PushNotifications.addListener("registration",t=>finish(null,t.value)));
+           handles.push(await PushNotifications.addListener("registrationError",e=>finish(new Error(e?.error||"Apple a refusé l’inscription"))));
+           timeoutId=setTimeout(()=>finish(new Error("Délai Apple dépassé")),20000);
+           await PushNotifications.register();
+         }catch(e){finish(e);}
+       })();
      });
      const response=await fetch("https://gaspardnz.style/api/push-test-device",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({code:pairCode.trim(),deviceToken:token})});
      const result=await response.json().catch(()=>({}));
