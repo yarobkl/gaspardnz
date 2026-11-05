@@ -10,6 +10,7 @@ on:
       - feature/build20-native-news-magazine
       - feature/build21-news-photo-crop-equal-cards
       - feature/build22-gallery-editorial-filters
+      - feature/build23-gallery-vip-weddings
   pull_request:
     paths:
       - "src/**"

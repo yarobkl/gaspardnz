@@ -72,18 +72,50 @@ export default function GalleryMobile({ refEl, native = false }) {
     orderBy: "sort_order",
   });
 
+  // Réutilise uniquement les clients VIP déjà PUBLIÉS dans l'administration.
+  // Aucun duplicata d'image ni copie vers un nouvel album : le masquage d'un
+  // client se répercute automatiquement sur la galerie grâce à la requête RLS
+  // publiée et au canal realtime de usePublicCollection.
+  const { rows: vipClients } = usePublicCollection("vip_clients", {
+    fallback: [], orderBy: "sort_order", enabled: native,
+  });
+
   const items = useMemo(() => {
     const album = rows?.[0];
-    if (!album || !Array.isArray(album.items) || !album.items.length) return fallback;
-    return album.items.map((item, index) => ({
-      ...item,
-      src: absoluteMedia(item.src || item.url || item.public_url),
-      width: Number(item.width || 1200),
-      height: Number(item.height || 1500),
-      label: item.label || fallback[index]?.label || `Look ${index + 1}`,
-      hotspots: Array.isArray(item.hotspots) && item.hotspots.length ? item.hotspots : (spots[index] || []),
-    })).filter((item) => item.src);
-  }, [rows, fallback, spots]);
+    const galleryPhotos = !album || !Array.isArray(album.items) || !album.items.length
+      ? fallback
+      : album.items.map((item, index) => ({
+          ...item,
+          src: absoluteMedia(item.src || item.url || item.public_url),
+          width: Number(item.width || 1200),
+          height: Number(item.height || 1500),
+          label: item.label || fallback[index]?.label || `Look ${index + 1}`,
+          hotspots: Array.isArray(item.hotspots) && item.hotspots.length
+            ? item.hotspots : (spots[index] || []),
+        })).filter((item) => item.src);
+
+    if (!native) return galleryPhotos;
+
+    const used = new Set(galleryPhotos.map(item => item.src));
+    const weddingClients = vipClients
+      .filter(client => client?.published !== false &&
+        galleryCategory({ category: client.event_label || "" }) === "wedding");
+    const customerPhotos = weddingClients.flatMap(client => {
+      const sources = [client.photo_url, ...(Array.isArray(client.album) ? client.album : [])];
+      return sources.flatMap((value, index) => {
+        const src = absoluteMedia(typeof value === "string" ? value : value?.src || value?.url);
+        if (!src || used.has(src)) return [];
+        used.add(src);
+        return [{
+          src, label: [client.name, client.event_label].filter(Boolean).join(" · ") ||
+            `Mariage GaspardNZ ${index + 1}`,
+          width: 1200, height: 1500, category: "Mariage",
+          hotspots: [], source: "vip_clients",
+        }];
+      });
+    });
+    return [...galleryPhotos, ...customerPhotos];
+  }, [rows, fallback, spots, native, vipClients]);
 
   const [expanded, setExpanded] = useState(false);
   const [category, setCategory] = useState("all");

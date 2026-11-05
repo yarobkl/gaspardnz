@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { createFakeSupabaseTables } from "../support/fakeSupabaseTables.js";
 
 const fake = createFakeSupabaseTables({ content_albums: [] });
@@ -13,7 +13,7 @@ vi.mock("../../src/services/supabaseClient.js", () => ({
 
 const GalleryMobile = (await import("../../src/components/GalleryMobile.jsx")).default;
 
-afterEach(() => { document.body.style.overflow = ""; fake.state.content_albums = []; });
+afterEach(() => { document.body.style.overflow = ""; fake.state.content_albums = []; fake.state.vip_clients = []; });
 
 describe("galerie native", () => {
   it("ouvre la photo choisie en entier, navigue et restaure l'écran après fermeture", () => {
@@ -90,6 +90,69 @@ describe("galerie native", () => {
     expect(screen.queryByRole("button", { name: "Look quotidien" })).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Tout" }));
     expect(screen.getByRole("button", { name: "Look quotidien" })).toBeInTheDocument();
+  });
+
+  it("réutilise les photos des clients VIP Mariage déjà publiées sans doublons, sans inventer de photos", async () => {
+    fake.state.content_albums = [{
+      id: "gallery-live", section_key: "gallery", published: true,
+      items: [{src: "/images/look-original.jpg", label: "Look original", category: "Looks"}],
+    }];
+    fake.state.vip_clients = [
+      {
+        name: "Client Mariage Test", event_label: "Mariage", published: true,
+        photo_url: "/images/client-mariage.jpg",
+        album: ["/images/client-mariage.jpg", "/images/mariage-album-1.jpg", "/images/mariage-album-2.jpg"],
+        sort_order: 1,
+      },
+      {
+        name: "Client masqué", event_label: "Mariage", published: false,
+        photo_url: "/images/client-masque.jpg", album: ["/images/prive.jpg"],
+        sort_order: 2,
+      },
+      {
+        name: "Client Gala", event_label: "Soirée VIP", published: true,
+        photo_url: "/images/client-gala.jpg", album: [],
+        sort_order: 3,
+      },
+    ];
+    render(<GalleryMobile native />);
+    fireEvent.click(screen.getByRole("button", { name: "Mariage" }));
+    await waitFor(() => expect(screen.getAllByRole("button", { name: "Client Mariage Test · Mariage" })).toHaveLength(3));
+    const tiles = screen.getAllByRole("button", { name: "Client Mariage Test · Mariage" });
+    const sources = tiles.map(button => button.querySelector("img")?.getAttribute("src"));
+    expect(sources).toEqual([
+      "/images/client-mariage.jpg", "/images/mariage-album-1.jpg", "/images/mariage-album-2.jpg",
+    ]);
+    expect(screen.queryByRole("button", { name: "Client masqué · Mariage" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Client Gala · Soirée VIP" })).not.toBeInTheDocument();
+
+    fireEvent.click(tiles[1]);
+    const dialog = screen.getByRole("dialog");
+    expect(within(dialog).getByText("02 / 03")).toBeInTheDocument();
+    expect(within(dialog).getByRole("img")).toHaveAttribute("src", "/images/mariage-album-1.jpg");
+    fireEvent.click(within(dialog).getByRole("button", {name: /fermer/i}));
+    fireEvent.click(screen.getByRole("button", {name: "Tout"}));
+    expect(screen.getByRole("button", {name: "Look original"})).toBeInTheDocument();
+  });
+
+  it("respecte le masquage d'un client dans l'administration au prochain chargement", async () => {
+    fake.state.content_albums = [{
+      id: "gallery-live", section_key: "gallery", published: true,
+      items: [{src: "/images/look-original.jpg", label: "Look original", category: "Looks"}],
+    }];
+    fake.state.vip_clients = [{
+      name: "Mariés publiés", event_label: "Mariage", published: true,
+      photo_url: "/images/maries.jpg", album: [], sort_order: 1,
+    }];
+    const view = render(<GalleryMobile native />);
+    fireEvent.click(screen.getByRole("button", {name: "Mariage"}));
+    expect(await screen.findByRole("button", {name: "Mariés publiés · Mariage"})).toBeInTheDocument();
+    view.unmount();
+    fake.state.vip_clients[0].published = false;
+    render(<GalleryMobile native />);
+    fireEvent.click(screen.getByRole("button", {name: "Mariage"}));
+    await waitFor(() => expect(screen.getByRole("status")).toHaveTextContent("Aucune photo dans cette catégorie"));
+    expect(screen.queryByRole("button", {name: "Mariés publiés · Mariage"})).not.toBeInTheDocument();
   });
 
   it("change de photo au balayage horizontal, sans réagir au défilement vertical", () => {
