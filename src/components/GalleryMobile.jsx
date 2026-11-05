@@ -33,6 +33,24 @@ const absoluteMedia = (src) => {
 };
 const FAVORITES_KEY = "gaspardnz.favorite-gallery-looks";
 
+// Catégories de présentation uniquement : les images et les albums existants
+// restent inchangés. Les éventuelles catégories présentes dans l'admin sont
+// privilégiées ; faute de métadonnées, une tenue rejoint simplement « Looks ».
+const GALLERY_FILTERS = {
+  FR: [["all", "Tout"], ["wedding", "Mariage"], ["events", "Événements"], ["looks", "Looks"]],
+  EN: [["all", "All"], ["wedding", "Weddings"], ["events", "Events"], ["looks", "Looks"]],
+  ES: [["all", "Todo"], ["wedding", "Bodas"], ["events", "Eventos"], ["looks", "Looks"]],
+  ZH: [["all", "全部"], ["wedding", "婚礼"], ["events", "活动"], ["looks", "造型"]],
+};
+
+export function galleryCategory(item) {
+  const source = [item.category, item.tag, item.type, item.collection, item.label]
+    .filter(Boolean).join(" ").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+  if (/mariage|wedding|bridal|marie|noces/.test(source)) return "wedding";
+  if (/evenement|event|gala|soiree|defile|ceremonie|festival|concert/.test(source)) return "events";
+  return "looks";
+}
+
 export default function GalleryMobile({ refEl, native = false }) {
   const t = useTr();
   const reduceMotion = useReducedMotion();
@@ -68,7 +86,19 @@ export default function GalleryMobile({ refEl, native = false }) {
   }, [rows, fallback, spots]);
 
   const [expanded, setExpanded] = useState(false);
-  const visibleItems = native ? items : isCompactMobile && !expanded ? items.slice(0, 4) : items;
+  const [category, setCategory] = useState("all");
+  const visibleItems = native
+    ? category === "all" ? items : items.filter((item) => galleryCategory(item) === category)
+    : isCompactMobile && !expanded ? items.slice(0, 4) : items;
+  const filters = GALLERY_FILTERS[lang] || GALLERY_FILTERS.FR;
+  const selectCategory = (nextCategory) => {
+    if (nextCategory === category) return;
+    if (native) nativeFeedback("selection");
+    setCategory(nextCategory);
+    setCur(0);
+    setSlideDirection(1);
+    setActiveSpot(null);
+  };
   const copy = COPY[lang] || COPY.FR;
   const [cur, setCur] = useState(0);
   const [viewerOpen, setViewerOpen] = useState(false);
@@ -84,7 +114,7 @@ export default function GalleryMobile({ refEl, native = false }) {
   const viewerTriggerRef = useRef(null);
   const n = visibleItems.length;
 
-  useEffect(() => { if (cur >= n) setCur(0); }, [n, cur]);
+  useEffect(() => { if (n > 0 && cur >= n) setCur(0); }, [n, cur]);
   useEffect(() => {
     if (native || n < 2 || activeSpot !== null) return undefined;
     timerRef.current = window.setInterval(() => setCur((value) => (value + 1) % n), 5000);
@@ -128,7 +158,7 @@ export default function GalleryMobile({ refEl, native = false }) {
     }
   }, [native, viewerOpen, cur, n, visibleItems]);
 
-  if (!n) return native ? <p className="gnz-native-muted">{lang === "FR" ? "La galerie sera bientôt disponible." : lang === "EN" ? "The gallery will be available soon." : lang === "ES" ? "La galería estará disponible pronto." : "图库即将上线。"}</p> : null;
+  if (!items.length) return native ? <p className="gnz-native-muted">{lang === "FR" ? "La galerie sera bientôt disponible." : lang === "EN" ? "The gallery will be available soon." : lang === "ES" ? "La galería estará disponible pronto." : "图库即将上线。"}</p> : null;
   const current = visibleItems[cur];
   const selected = activeSpot !== null ? current?.hotspots?.[activeSpot] : null;
   const go = (direction) => { if (native) nativeFeedback("selection"); setSlideDirection(direction); setActiveSpot(null); setCur((value) => (value + direction + n) % n); };
@@ -163,14 +193,36 @@ export default function GalleryMobile({ refEl, native = false }) {
 
   if (native) return (
     <>
-    <section ref={refEl} className="gnz-native-gallery" aria-label={t("nav_galerie")}>
-      <div className="gnz-native-gallery-grid">
-        {items.map((item, index) => (
-          <button type="button" key={`${item.src}-${index}`} onClick={(event) => { viewerTriggerRef.current = event.currentTarget; nativeFeedback("tap"); setSlideDirection(1); setCur(index); setViewerOpen(true); }} aria-label={item.label}>
-            <img src={item.src} alt="" loading={index < 4 ? "eager" : "lazy"} decoding="async" />
-          </button>
+    <section ref={refEl} className="gnz-native-gallery gnz-native-gallery-editorial" aria-label={t("nav_galerie")}>
+      <div className="gnz-native-gallery-filters" role="group" aria-label={lang === "FR" ? "Filtrer la galerie" : lang === "EN" ? "Filter gallery" : lang === "ES" ? "Filtrar la galería" : "筛选图库"}>
+        {filters.map(([key, label]) => (
+          <button
+            key={key}
+            type="button"
+            aria-pressed={category === key}
+            className={category === key ? "active" : ""}
+            onClick={() => selectCategory(key)}
+          >{label}</button>
         ))}
       </div>
+      {visibleItems.length > 0
+        ? <div className="gnz-native-gallery-grid">
+            {visibleItems.map((item, index) => (
+              <motion.button
+                type="button"
+                layout={!reduceMotion}
+                initial={reduceMotion ? false : { opacity: 0, scale: 0.97 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={reduceMotion ? { duration: 0 } : { duration: 0.19, ease: [0.2, 0.75, 0.2, 1] }}
+                key={item.src}
+                onClick={(event) => { viewerTriggerRef.current = event.currentTarget; nativeFeedback("tap"); setSlideDirection(1); setCur(index); setViewerOpen(true); }}
+                aria-label={item.label}
+              >
+                <img src={item.src} alt="" loading={index < 4 ? "eager" : "lazy"} decoding="async" />
+              </motion.button>
+            ))}
+          </div>
+        : <p className="gnz-native-gallery-empty" role="status">{lang === "FR" ? "Aucune photo dans cette catégorie pour le moment." : lang === "EN" ? "No photos in this category yet." : lang === "ES" ? "Todavía no hay fotos en esta categoría." : "此分类暂时没有照片。"}</p>}
       {favorites.size > 0 && <div className="gnz-native-favorites" aria-label={lang === "FR" ? "Mes inspirations" : "My inspirations"}>
         <strong>{lang === "FR" ? "Mes inspirations" : lang === "EN" ? "My inspirations" : lang === "ES" ? "Mis inspiraciones" : "我的灵感"}</strong>
         <span>{favorites.size} {lang === "FR" ? "look(s) enregistré(s)" : lang === "EN" ? "saved look(s)" : ""}</span>
