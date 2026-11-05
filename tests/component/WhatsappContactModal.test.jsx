@@ -56,6 +56,26 @@ describe("WhatsApp contact modal", () => {
     }));
   });
 
+  it("conserve le projet et le créneau souhaité pour une demande native enregistrée au CRM", async () => {
+    send.mockResolvedValue({ok:true,id:"booking-lead-1"});
+    const slot="Créneau souhaité : mar. 16 juin · 15:30–16:30 (sous réserve de confirmation)";
+    render(<Modal isOpen native onClose={()=>{}} whatsappNumber="33664826920"
+      initialProjectType="wedding" initialProjectDetails={slot}/>);
+    expect(screen.getByLabelText("Votre projet")).toHaveValue("wedding");
+    expect(screen.getByLabelText("Précisez votre projet")).toHaveValue(slot);
+    const user=userEvent.setup();
+    await user.type(screen.getByLabelText("Votre prénom"),"Amina");
+    await user.type(screen.getByLabelText("Votre adresse e-mail"),"amina@example.test");
+    await user.type(screen.getByLabelText("Votre téléphone"),"06 12 34 56 78");
+    await user.click(screen.getByRole("button",{name:"Envoyer ma demande"}));
+    await waitFor(()=>expect(send).toHaveBeenCalledTimes(1));
+    expect(send.mock.calls[0][1]).toMatchObject({
+      metadata:{project_type:"wedding",project_details:slot,appointment_requested:true},
+    });
+    expect(send.mock.calls[0][1].message).toContain(slot);
+    expect(screen.getByRole("status")).toHaveTextContent("Merci pour votre message");
+  });
+
   it("requires a project selection and clears an obsolete Other description from the submitted request", async () => {
     send.mockResolvedValue({ ok: true, id: "gala-project-lead" });
     render(<Modal isOpen onClose={() => {}} whatsappNumber="33664826920" />);
