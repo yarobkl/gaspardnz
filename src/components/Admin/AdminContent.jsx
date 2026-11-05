@@ -220,9 +220,9 @@ function NewsFields({ form, setForm }) {
         </select>
       </label>
       {form.metadata?.cover_mode==="cover"&&<label className="gnz-field">
-        Centrer la photo verticalement — {parseInt(form.metadata?.cover_focus?.match(/\\d+/)?.[0]||"25",10)} %
+        Centrer la photo verticalement — {parseInt(form.metadata?.cover_focus?.match(/\d+/)?.[0]||"25",10)} %
         <input aria-label="Position verticale de la couverture" type="range" min="0" max="100" step="1"
-          value={parseInt(form.metadata?.cover_focus?.match(/\\d+/)?.[0]||"25",10)}
+          value={parseInt(form.metadata?.cover_focus?.match(/\d+/)?.[0]||"25",10)}
           onChange={(e)=>setForm({...form,metadata:{...form.metadata,cover_focus:`center ${e.target.value}%`}})} />
       </label>}
       {form.cover_url&&<div className="gnz-admin-cover-preview" aria-label="Aperçu couverture Actualités">
