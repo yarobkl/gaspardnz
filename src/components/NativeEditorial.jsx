@@ -33,6 +33,9 @@ export function NativeNews({ initialId = null }) {
       id: row.id, title: row.title, date: row.metadata?.date_label || "",
       tag: row.metadata?.tag || "Actualité", text: row.body || row.excerpt || "",
       photos: Array.isArray(row.gallery) && row.gallery.length ? row.gallery : row.cover_url ? [row.cover_url] : [],
+      coverMode: row.metadata?.cover_mode === "cover" ? "cover" : "contain",
+      coverFocus: /^center\s+(?:[0-9]{1,2}|100)%$/.test(String(row.metadata?.cover_focus || ""))
+        ? row.metadata.cover_focus : "center 25%",
     })) : [];
     return [...remoteItems, ...fallback.filter((item) => !remoteItems.some((remote) => String(remote.id) === String(item.id)))];
   }, [source, rows, fallback]);
@@ -105,7 +108,7 @@ export function NativeNews({ initialId = null }) {
     >
       <div className="gnz-native-news-carousel-stage">
         <AnimatePresence mode="sync" initial={false} custom={direction}>
-          <motion.button type="button" className="gnz-native-news-feature"
+          <motion.button type="button" className={`gnz-native-news-feature${active.coverMode === "cover" ? " gnz-native-news-feature-full-bleed" : ""}`}
             key={String(active.id) + "-" + index}
             custom={direction}
             initial={reduceMotion ? false : { opacity: 0, x: direction * 28, scale: 1.014 }}
@@ -118,8 +121,8 @@ export function NativeNews({ initialId = null }) {
             }}
             aria-label={active.title}
           >
-            <img className="gnz-native-news-feature-backdrop" src={mediaUrl(active.photos[0])} alt="" aria-hidden="true" loading="eager" decoding="async" />
-            <img className="gnz-native-news-feature-image" src={mediaUrl(active.photos[0])} alt="" loading="eager" decoding="async" />
+            {active.coverMode !== "cover" && <img className="gnz-native-news-feature-backdrop" src={mediaUrl(active.photos[0])} alt="" aria-hidden="true" loading="eager" decoding="async" />}
+            <img className="gnz-native-news-feature-image" style={active.coverMode === "cover" ? { objectFit: "cover", objectPosition: active.coverFocus } : undefined} src={mediaUrl(active.photos[0])} alt="" loading="eager" decoding="async" />
             <div className="gnz-native-news-feature-copy">
               <span className="gnz-native-news-feature-tag">{active.tag || (lang === "FR" ? "Actualité" : "News")}</span>
               <h2>{active.title}</h2>
@@ -151,7 +154,7 @@ export function NativeNews({ initialId = null }) {
           className="gnz-native-news-card" onClick={() => openArticle(item)}
           aria-label={item.title}>
           {item.photos?.[0] ?
-            <div className="gnz-native-news-card-media"><img className="gnz-native-news-card-backdrop" src={mediaUrl(item.photos[0])} loading="lazy" decoding="async" alt="" aria-hidden="true" /><img className="gnz-native-news-card-image" src={mediaUrl(item.photos[0])} loading="lazy" decoding="async" alt="" /></div> :
+            <div className="gnz-native-news-card-media">{item.coverMode !== "cover" && <img className="gnz-native-news-card-backdrop" src={mediaUrl(item.photos[0])} loading="lazy" decoding="async" alt="" aria-hidden="true" />}<img className="gnz-native-news-card-image" src={mediaUrl(item.photos[0])} style={item.coverMode === "cover" ? { objectFit: "cover", objectPosition: item.coverFocus } : undefined} loading="lazy" decoding="async" alt="" /></div> :
             <div className="gnz-native-news-card-media gnz-native-news-card-without-photo" aria-hidden="true"><span>{item.tag || "GASPARDNZ"}</span></div>}
           <div className="gnz-native-news-card-body">
             <span className="gnz-native-news-card-tag">{item.tag}</span>

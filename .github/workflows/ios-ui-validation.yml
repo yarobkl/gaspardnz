@@ -11,6 +11,7 @@ on:
       - feature/build21-news-photo-crop-equal-cards
       - feature/build22-gallery-editorial-filters
       - feature/build23-gallery-vip-weddings
+      - feature/build24-editorial-navy-cover
   pull_request:
     paths:
       - "src/**"
