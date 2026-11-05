@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { createFakeSupabaseTables } from "../support/fakeSupabaseTables.js";
 
@@ -36,6 +36,23 @@ beforeEach(() => {
 });
 
 describe("Actualités — galerie de plusieurs photos", () => {
+  it("enregistre le mode plein cadre et la focale de l'actualité sans remplacer ses métadonnées", async () => {
+    const user=userEvent.setup();
+    render(<AdminContent user={{role:"owner"}}/>);
+    await user.click(screen.getByRole("button",{name:"Actualités"}));
+    await user.click(await screen.findByRole("button",{name:"Ajouter"}));
+    await user.type(screen.getByRole("textbox",{name:"Titre"}),"Style éditorial premium");
+    await user.selectOptions(screen.getByLabelText("Présentation de la couverture"),"cover");
+    const slider=screen.getByLabelText("Position verticale de la couverture");
+    fireEvent.change(slider,{target:{value:"18"}});
+    expect(slider).toHaveValue("18");
+    await user.click(screen.getByRole("button",{name:"Enregistrer"}));
+    await waitFor(()=>expect(fake.state.news_posts).toHaveLength(1));
+    expect(fake.state.news_posts[0].metadata).toMatchObject({
+      cover_mode:"cover",cover_focus:"center 18%",
+    });
+  });
+
   it("ajoute plusieurs photos à la galerie puis permet d'en retirer une", async () => {
     const user = userEvent.setup();
     render(<AdminContent user={{ role: "owner" }} />);
