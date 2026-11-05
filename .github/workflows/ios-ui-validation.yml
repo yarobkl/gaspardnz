@@ -9,6 +9,7 @@ on:
       - feature/build19-haptic-bubble
       - feature/build20-native-news-magazine
       - feature/build21-news-photo-crop-equal-cards
+      - feature/build22-gallery-editorial-filters
   pull_request:
     paths:
       - "src/**"
