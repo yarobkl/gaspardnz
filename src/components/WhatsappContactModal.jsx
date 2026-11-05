@@ -1,4 +1,4 @@
-import { useContext, useMemo, useRef, useState } from "react";
+import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { GOLD, CREAM } from "../constants.js";
 import { LangCtx } from "../context.jsx";
 import { useFocusTrap } from "../hooks/useFocusTrap.js";
@@ -66,7 +66,7 @@ const inputStyle = { width: "100%", boxSizing: "border-box", background: "none",
 const labelStyle = { display: "grid", gap: 8, fontSize: 12, letterSpacing: ".08em" };
 const primaryStyle = { display: "block", boxSizing: "border-box", width: "100%", border: `1px solid ${GOLD}`, padding: "1rem", minHeight: 50, background: GOLD, color: "#1c1208", textAlign: "center", textDecoration: "none", fontFamily: "'Montserrat',sans-serif", fontSize: 12, fontWeight: 700, cursor: "pointer" };
 
-export default function WhatsappContactModal({ isOpen, onClose, whatsappNumber, initialProjectType = "", native = false }) {
+export default function WhatsappContactModal({ isOpen, onClose, whatsappNumber, initialProjectType = "", initialProjectDetails = "", native = false }) {
   const { lang } = useContext(LangCtx);
   const copy = COPY[lang] || COPY.FR;
   const [firstName, setFirstName] = useState("");
@@ -74,7 +74,14 @@ export default function WhatsappContactModal({ isOpen, onClose, whatsappNumber, 
   const [phone, setPhone] = useState("");
   const [country, setCountry] = useState("FR");
   const [projectType, setProjectType] = useState(initialProjectType);
-  const [projectDetails, setProjectDetails] = useState("");
+  const [projectDetails, setProjectDetails] = useState(initialProjectDetails);
+  useEffect(() => {
+    if (!isOpen) return;
+    setProjectType(initialProjectType || "");
+    setProjectDetails(initialProjectDetails || "");
+    setSubmitted(false);
+    setError("");
+  }, [isOpen, initialProjectType, initialProjectDetails]);
   const [fallbackUrl, setFallbackUrl] = useState("");
   const countries = useMemo(() => contactCountries(lang), [lang]);
   const [saving, setSaving] = useState(false);
@@ -148,13 +155,13 @@ export default function WhatsappContactModal({ isOpen, onClose, whatsappNumber, 
               </div>
               <p id="whatsapp-phone-hint" style={{ fontSize: 11, lineHeight: 1.6, margin: "-.6rem 0 0", color: "rgba(245,240,232,.75)" }}>{copy.phoneHint}</p>
               <label style={labelStyle} htmlFor="whatsapp-project">{copy.project}
-                <select id="whatsapp-project" name="project" required value={projectType} onChange={e => setProjectType(e.target.value)} disabled={saving} style={{ ...inputStyle, background: "#0a0602" }}>
+                <select id="whatsapp-project" name="project" required value={projectType} onChange={e => {setProjectType(e.target.value);setProjectDetails("");}} disabled={saving} style={{ ...inputStyle, background: "#0a0602" }}>
                   <option value="" disabled>{copy.chooseProject}</option>
                   {CONTACT_PROJECTS.map(project => <option key={project.id} value={project.id}>{project[lang] || project.FR}</option>)}
                 </select>
               </label>
-              {projectType === "other" && <label style={labelStyle} htmlFor="whatsapp-project-details">{copy.details}
-                <textarea id="whatsapp-project-details" name="project-details" required maxLength={300} rows={3} value={projectDetails} onChange={e => setProjectDetails(e.target.value)} disabled={saving} style={{ ...inputStyle, resize: "vertical" }} />
+              {(projectType === "other" || projectDetails.trim()) && <label style={labelStyle} htmlFor="whatsapp-project-details">{copy.details}
+                <textarea id="whatsapp-project-details" name="project-details" required={projectType === "other"} maxLength={300} rows={3} value={projectDetails} onChange={e => setProjectDetails(e.target.value)} disabled={saving} style={{ ...inputStyle, resize: "vertical" }} />
               </label>}
               <p style={{ fontSize: 11, lineHeight: 1.7, margin: 0, color: "rgba(245,240,232,.75)" }}>{copy.notice} <a href="/confidentialite.html" target="_blank" rel="noopener noreferrer" style={{ color: GOLD }}>{copy.privacy}</a></p>
               {error && <p role="alert" style={{ margin: 0, color: "#ffb7ab", fontSize: 13, lineHeight: 1.6 }}>{error}</p>}

@@ -4,9 +4,11 @@ import { fireEvent, render, screen, waitFor, within } from "@testing-library/rea
 import { LangCtx } from "../../src/context.jsx";
 import NativeExperience from "../../src/components/NativeExperience.jsx";
 
+const mockSettings = vi.hoisted(() => ({ availability: undefined }));
+
 // Test navigation without making live CRM calls or opening external apps.
 vi.mock("../../src/hooks/useSettings.js", () => ({
-  useSettings: () => ({ whatsappNumber: "+33600000000", lookbookHidden: true }),
+  useSettings: () => ({ whatsappNumber: "+33600000000", lookbookHidden: true, bookingAvailability: mockSettings.availability }),
 }));
 vi.mock("../../src/hooks/usePublicCollection.js", () => ({
   usePublicCollection: () => ({ rows: [], loading: false, error: null }),
@@ -18,8 +20,8 @@ vi.mock("../../src/components/GalleryMobile.jsx", () => ({
   default: () => <div data-testid="gallery">Galerie chargée</div>,
 }));
 vi.mock("../../src/components/WhatsappContactModal.jsx", () => ({
-  default: ({ isOpen, onClose, initialProjectType }) => isOpen
-    ? <div role="dialog" aria-label="Contact CRM" data-project={initialProjectType}><button onClick={onClose}>Fermer le contact</button></div>
+  default: ({ isOpen, onClose, initialProjectType, initialProjectDetails }) => isOpen
+    ? <div role="dialog" aria-label="Contact CRM" data-project={initialProjectType} data-details={initialProjectDetails}><button onClick={onClose}>Fermer le contact</button></div>
     : null,
 }));
 
@@ -35,6 +37,7 @@ const navigation = () => screen.getByRole("navigation");
 const openTab = (label) => fireEvent.click(within(navigation()).getByRole("button", { name: label }));
 
 beforeEach(() => {
+  mockSettings.availability = undefined;
   vi.stubGlobal("scrollTo", vi.fn());
 });
 
@@ -97,6 +100,34 @@ describe("GaspardNZ native iOS experience", () => {
     expect(await screen.findByText("Aucun créneau publié pour le moment")).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Demander un rendez-vous →" }));
     expect(await screen.findByRole("dialog", { name: "Contact CRM" })).toHaveAttribute("data-project", "wedding");
+  });
+
+  it("transmet la prestation ET le créneau souhaité au CRM sans annoncer une confirmation", async () => {
+    mockSettings.availability = {timezone:"Europe/Paris",slots:[
+      {id:"vip-2030",date:"2030-06-16",start:"15:30",end:"16:30",active:true},
+      {id:"past",date:"2021-05-10",start:"13:00",end:"14:00",active:true},
+    ]};
+    render(<Harness />);
+    openTab("Plus");
+    fireEvent.click(await screen.findByRole("button", { name: /Réserver/ }));
+    fireEvent.click(await screen.findByRole("button", {name:"Préparation de mariage"}));
+    const slot = screen.getByRole("button", {name:/16 juin.*15:30/i});
+    fireEvent.click(slot);
+    expect(slot).toHaveAttribute("aria-pressed","true");
+    expect(screen.queryByRole("button",{name:/mai 2021/})).not.toBeInTheDocument();
+    expect(screen.getByText("Ce créneau est souhaité, pas encore confirmé.")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button",{name:"Demander ce créneau →"}));
+    const modal = await screen.findByRole("dialog",{name:"Contact CRM"});
+    expect(modal).toHaveAttribute("data-project","wedding");
+    expect(modal.getAttribute("data-details")).toContain("15:30–16:30");
+  });
+
+  it("n'expose pas les outils Push internes dans une version publique", async () => {
+    render(<Harness />);
+    openTab("Plus");
+    expect(await screen.findByText("L'univers GaspardNZ")).toBeInTheDocument();
+    expect(screen.queryByText("Outils de diagnostic TestFlight")).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("Code d’appairage Apple")).not.toBeInTheDocument();
   });
 
   it("translates all five tabs when switching to English", async () => {

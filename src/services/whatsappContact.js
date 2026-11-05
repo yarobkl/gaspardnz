@@ -50,9 +50,9 @@ export async function submitWhatsappContact({ firstName, email = "", phone, coun
   const details = normalizeContactName(projectDetails);
   const normalizedEmail = email ? normalizeContactEmail(email) : "";
   if (email && !normalizedEmail) throw new Error("invalid_email");
-  if (!getContactProject(projectType) || (projectType === "other" && (!details || details.length > 300))) throw new Error("invalid_project");
+  if (!getContactProject(projectType) || details.length > 300 || (projectType === "other" && !details)) throw new Error("invalid_project");
   const projectLabel = contactProjectLabel(projectType);
-  const relevantDetails = projectType === "other" ? details : "";
+  const relevantDetails = details;
   const whatsappMessage = buildContactMessage({ firstName: name, projectType, projectDetails: relevantDetails, lang, source: Capacitor.getPlatform() === "ios" ? "app" : "site" });
   const key = JSON.stringify([name.toLocaleLowerCase(), normalizedEmail, normalizedPhone, country, projectType, relevantDetails]);
   if (submissions.has(key)) return submissions.get(key);
@@ -67,7 +67,7 @@ export async function submitWhatsappContact({ firstName, email = "", phone, coun
       request_type: "whatsapp_contact",
       source: isIosApp ? "Application GaspardNZ iOS" : "Site GaspardNZ",
       channel: normalizedEmail ? "contact_form" : "whatsapp",
-      message: whatsappMessage,
+      message: relevantDetails && projectType !== "other" ? `${whatsappMessage}\nDétails du projet / créneau souhaité : ${relevantDetails}` : whatsappMessage,
       metadata: {
         entry_point: isIosApp ? "parler_a_gaspard_ios" : "parler_a_gaspard",
         country_code: country,
@@ -75,6 +75,7 @@ export async function submitWhatsappContact({ firstName, email = "", phone, coun
         project_type: projectType,
         project_label: projectLabel,
         project_details: relevantDetails || null,
+        appointment_requested: relevantDetails.startsWith("Créneau souhaité :"),
         acquisition_source: context.source || null,
         page_path: window.location.pathname,
         contact_notice_version: CONTACT_NOTICE_VERSION,

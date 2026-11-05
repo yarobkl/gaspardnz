@@ -9,7 +9,7 @@ const readingMinutes = text => Math.max(1, Math.ceil(String(text || "").trim().s
 const readingLabel = (text, lang) => `${readingMinutes(text)} ${lang === "FR" ? "min de lecture" : lang === "EN" ? "min read" : lang === "ES" ? "min de lectura" : "分钟阅读"}`;
 const mediaUrl = value => /^(https?:|data:|blob:)/i.test(value || "") ? value : `${import.meta.env.BASE_URL}${String(value || "").replace(/^\/+/, "")}`;
 
-export function NativeNews({ initialId = null }) {
+export function NativeNews({ initialId = null, onContact }) {
   const { lang } = useContext(LangCtx);
   const [index, setIndex] = useState(0);
   const [direction, setDirection] = useState(1);
@@ -83,6 +83,12 @@ export function NativeNews({ initialId = null }) {
     return () => document.removeEventListener("keydown", onKeyDown);
   }, [article]);
   const openArticle = (item) => { setArticle(item); setPhotoIndex(0); };
+  const requestArticle = (item) => {
+    if (!item || !onContact) return;
+    setArticle(null);
+    const wedding = /mariage|wedding|boda|婚礼/i.test(item.tag || "");
+    onContact(wedding ? "wedding" : "image_consulting", item.title || "");
+  };
   return <div className="gnz-native-news gnz-native-news-magazine">
     {!items.length && <p className="gnz-native-muted">{lang === "FR" ? "Les actualités seront bientôt disponibles." : lang === "EN" ? "News will be available soon." : lang === "ES" ? "Las noticias estarán disponibles pronto." : "资讯即将上线。"}</p>}
     {active && <section className="gnz-native-news-carousel" data-no-tab-swipe aria-label={lang === "FR" ? "Actualités à la une" : "Featured stories"}
@@ -154,7 +160,7 @@ export function NativeNews({ initialId = null }) {
           className="gnz-native-news-card" onClick={() => openArticle(item)}
           aria-label={item.title}>
           {item.photos?.[0] ?
-            <div className="gnz-native-news-card-media">{item.coverMode !== "cover" && <img className="gnz-native-news-card-backdrop" src={mediaUrl(item.photos[0])} loading="lazy" decoding="async" alt="" aria-hidden="true" />}<img className="gnz-native-news-card-image" src={mediaUrl(item.photos[0])} style={item.coverMode === "cover" ? { objectFit: "cover", objectPosition: item.coverFocus } : undefined} loading="lazy" decoding="async" alt="" /></div> :
+            <div className="gnz-native-news-card-media">{item.coverMode !== "cover" && <img className="gnz-native-news-card-backdrop" src={mediaUrl(item.photos[0])} loading="lazy" decoding="async" alt="" aria-hidden="true" />}<img className="gnz-native-news-card-image" src={mediaUrl(item.photos[0])} style={item.coverMode === "cover" ? { objectFit: "cover", objectPosition: item.coverFocus } : undefined} loading="lazy" decoding="async" fetchPriority="low" alt="" /></div> :
             <div className="gnz-native-news-card-media gnz-native-news-card-without-photo" aria-hidden="true"><span>{item.tag || "GASPARDNZ"}</span></div>}
           <div className="gnz-native-news-card-body">
             <span className="gnz-native-news-card-tag">{item.tag}</span>
@@ -164,11 +170,21 @@ export function NativeNews({ initialId = null }) {
         </button>)}
       </div>
     </section>}
+    {onContact && items.length > 0 && <div className="gnz-native-news-contact">
+      <p>{lang === "FR" ? "Un style vous inspire ?" : lang === "EN" ? "Inspired by a style?" : lang === "ES" ? "¿Te inspira este estilo?" : "找到灵感了吗？"}</p>
+      <button type="button" onClick={() => requestArticle(active || items[0])}>
+        {lang === "FR" ? "Parler à Gaspard" : lang === "EN" ? "Talk to Gaspard" : lang === "ES" ? "Hablar con Gaspard" : "联系 Gaspard"} <span aria-hidden="true">→</span>
+      </button>
+    </div>}
     {article && <div className="gnz-native-news-reader" role="dialog" aria-modal="true" aria-label={article.title}>
       <div className="gnz-native-news-reader-card" data-no-tab-swipe>
         <button type="button" className="gnz-native-news-reader-close" onClick={() => setArticle(null)} aria-label="Fermer">×</button>
         {article.photos?.length > 0 && <div className="gnz-native-news-reader-media"><img src={mediaUrl(article.photos[photoIndex])} alt={article.title} />{article.photos.length > 1 && <><button type="button" onClick={() => setPhotoIndex((photoIndex - 1 + article.photos.length) % article.photos.length)} aria-label="Photo précédente">‹</button><button type="button" onClick={() => setPhotoIndex((photoIndex + 1) % article.photos.length)} aria-label="Photo suivante">›</button><div className="gnz-native-news-reader-dots">{article.photos.map((_, i) => <span key={i} className={i === photoIndex ? "active" : ""} />)}</div></>}</div>}
-        <div className="gnz-native-news-reader-copy"><span>{[article.tag, article.date, readingLabel(article.text, lang)].filter(Boolean).join(" · ")}</span><h2>{article.title}</h2>{String(article.text || "").split(/\n\s*\n/).filter(Boolean).map((paragraph, i) => <p key={i}>{paragraph}</p>)}</div>
+        <div className="gnz-native-news-reader-copy"><span>{[article.tag, article.date, readingLabel(article.text, lang)].filter(Boolean).join(" · ")}</span><h2>{article.title}</h2>{String(article.text || "").split(/\n\s*\n/).filter(Boolean).map((paragraph, i) => <p key={i}>{paragraph}</p>)}
+          {onContact && <button type="button" className="gnz-native-news-reader-contact" onClick={() => requestArticle(article)}>
+            {lang === "FR" ? "Échanger sur ce style" : lang === "EN" ? "Discuss this style" : lang === "ES" ? "Hablar de este estilo" : "咨询此造型"} <span aria-hidden="true">→</span>
+          </button>}
+        </div>
       </div>
     </div>}
   </div>;

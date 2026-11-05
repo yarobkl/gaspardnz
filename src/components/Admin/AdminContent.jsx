@@ -211,6 +211,26 @@ function NewsFields({ form, setForm }) {
     <label className="gnz-field">Résumé<textarea className="gnz-textarea" value={form.excerpt || ""} onChange={(e) => setForm({...form,excerpt:e.target.value})}/></label>
     <label className="gnz-field">Article<textarea className="gnz-textarea" style={{minHeight:180}} value={form.body || ""} onChange={(e) => setForm({...form,body:e.target.value})}/></label>
     <MediaUploadField label="Image de couverture" value={form.cover_url} onChange={(url) => setForm({...form,cover_url:url})} uploadSection="actualites" />
+    <div className="gnz-editor-grid gnz-admin-crop-editor" aria-label="Cadrage de l'actualité dans l'application">
+      <label className="gnz-field">Présentation de la couverture
+        <select className="gnz-select" value={form.metadata?.cover_mode==="cover"?"cover":"contain"}
+          onChange={(e)=>setForm({...form,metadata:{...form.metadata,cover_mode:e.target.value}})}>
+          <option value="contain">Photo entière, sans recadrage</option>
+          <option value="cover">Carte remplie, cadrage réglable</option>
+        </select>
+      </label>
+      {form.metadata?.cover_mode==="cover"&&<label className="gnz-field">
+        Centrer la photo verticalement — {parseInt(form.metadata?.cover_focus?.match(/\d+/)?.[0]||"25",10)} %
+        <input aria-label="Position verticale de la couverture" type="range" min="0" max="100" step="1"
+          value={parseInt(form.metadata?.cover_focus?.match(/\d+/)?.[0]||"25",10)}
+          onChange={(e)=>setForm({...form,metadata:{...form.metadata,cover_focus:`center ${e.target.value}%`}})} />
+      </label>}
+      {form.cover_url&&<div className="gnz-admin-cover-preview" aria-label="Aperçu couverture Actualités">
+        <img src={form.cover_url} alt={form.title||"Aperçu de la couverture"} loading="lazy" decoding="async"
+          style={{width:"100%",height:"100%",objectFit:form.metadata?.cover_mode==="cover"?"cover":"contain",
+            objectPosition:form.metadata?.cover_focus||"center 25%"}} />
+      </div>}
+    </div>
     <div className="gnz-field">
       <span>Galerie photos (plusieurs)</span>
       {error && <div className="gnz-alert gnz-alert-error">{error}</div>}
