@@ -155,6 +155,22 @@ describe("galerie native", () => {
     expect(screen.queryByRole("button", {name: "Mariés publiés · Mariage"})).not.toBeInTheDocument();
   });
 
+  it("ouvre le formulaire CRM avec le contexte exact de la photo depuis le plein écran", async () => {
+    const onContact = vi.fn();
+    fake.state.content_albums = [{
+      id:"gallery-crm",section_key:"gallery",published:true,
+      items:[{src:"/images/mariage-client.jpg",label:"Tenue mariage personnalisée",category:"Mariage",focusY:17}],
+    }];
+    render(<GalleryMobile native onContact={onContact}/>);
+    const tile=await screen.findByRole("button",{name:"Tenue mariage personnalisée"});
+    expect(tile.querySelector("img")).toHaveStyle({objectPosition:"center 17%"});
+    fireEvent.click(tile);
+    const dialog=screen.getByRole("dialog");
+    fireEvent.click(within(dialog).getByRole("button",{name:/Être accompagné pour ce look/}));
+    expect(onContact).toHaveBeenCalledWith("wedding","Tenue mariage personnalisée");
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  });
+
   it("change de photo au balayage horizontal, sans réagir au défilement vertical", () => {
     render(<GalleryMobile native />);
     fireEvent.click(screen.getAllByRole("button").find((button) => button.querySelector("img")));
