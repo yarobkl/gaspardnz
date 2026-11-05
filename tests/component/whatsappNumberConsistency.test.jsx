@@ -87,7 +87,7 @@ describe("Numéro WhatsApp — une seule source de vérité (settings.whatsappNu
     await user.type(screen.getByLabelText("Votre prénom"), "Marc");
     await user.type(screen.getByLabelText("Votre téléphone"), "06 12 34 56 78");
     await user.selectOptions(screen.getByLabelText("Votre projet"), "wedding");
-    await user.click(screen.getByRole("button", { name: "Enregistrer et ouvrir WhatsApp" }));
+    await user.click(screen.getByRole("button", { name: "Envoyer ma demande" }));
     await expect.poll(() => directOpen.mock.calls[0]?.[0]).toContain("33611223344");
     expect(directOpen.mock.calls[0][0]).not.toContain("33664826920");
     const message = new URL(directOpen.mock.calls[0][0]).searchParams.get("text");
