@@ -45,7 +45,7 @@ describe("WhatsApp contact modal", () => {
     await user.selectOptions(screen.getByLabelText("Votre projet"), "other");
     expect(screen.getByLabelText("Précisez votre projet")).toBeRequired();
     await user.type(screen.getByLabelText("Précisez votre projet"), "Remise de prix & présentation");
-    await user.click(screen.getByRole("button", { name: "Enregistrer et ouvrir WhatsApp" }));
+    await user.click(screen.getByRole("button", { name: "Envoyer ma demande" }));
     await waitFor(() => expect(open).toHaveBeenCalledTimes(1));
     const text = new URL(open.mock.calls[0][0]).searchParams.get("text");
     expect(open.mock.calls[0][1]).toBe("_self");
@@ -87,7 +87,7 @@ describe("WhatsApp contact modal", () => {
     await user.type(screen.getByLabelText("Précisez votre projet"), "Ancien besoin");
     await user.selectOptions(screen.getByLabelText("Votre projet"), "gala");
     expect(screen.queryByLabelText("Précisez votre projet")).not.toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: "Enregistrer et ouvrir WhatsApp" }));
+    await user.click(screen.getByRole("button", { name: "Envoyer ma demande" }));
     await waitFor(() => expect(open).toHaveBeenCalledTimes(1));
     expect(new URL(open.mock.calls[0][0]).searchParams.get("text")).toContain("pour un gala de prestige");
     expect(send.mock.calls[0][1].metadata.project_details).toBe(null);
@@ -100,9 +100,9 @@ describe("WhatsApp contact modal", () => {
     render(<Modal isOpen onClose={() => {}} whatsappNumber="33664826920" />);
     const user = await fill();
     expect(open).not.toHaveBeenCalled();
-    await user.dblClick(screen.getByRole("button", { name: "Enregistrer et ouvrir WhatsApp" }));
+    await user.dblClick(screen.getByRole("button", { name: "Envoyer ma demande" }));
     expect(send).toHaveBeenCalledTimes(1);
-    expect(screen.getByRole("button", { name: "Enregistrement…" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Envoi…" })).toBeDisabled();
     expect(open).not.toHaveBeenCalled();
     resolve({ ok: true, id: "ui-lead-1" });
     await waitFor(() => expect(open).toHaveBeenCalledTimes(1));
@@ -110,7 +110,7 @@ describe("WhatsApp contact modal", () => {
     expect(new URL(open.mock.calls[0][0]).searchParams.get("text")).toContain("je m’appelle Élodie");
     expect(new URL(open.mock.calls[0][0]).searchParams.get("text")).toContain("pour mon mariage");
     expect(screen.queryByText(/Étape 2/)).not.toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: "Enregistrer et ouvrir WhatsApp" }));
+    await user.click(screen.getByRole("button", { name: "Envoyer ma demande" }));
     await waitFor(() => expect(open).toHaveBeenCalledTimes(2));
     expect(send).toHaveBeenCalledTimes(1);
   });
@@ -119,12 +119,12 @@ describe("WhatsApp contact modal", () => {
     send.mockResolvedValueOnce({ ok: false, status: 503 }).mockResolvedValueOnce({ ok: true, id: "ui-lead-2" });
     render(<Modal isOpen onClose={() => {}} whatsappNumber="33664826920" />);
     const user = await fill("Sophie");
-    await user.click(screen.getByRole("button", { name: "Enregistrer et ouvrir WhatsApp" }));
+    await user.click(screen.getByRole("button", { name: "Envoyer ma demande" }));
     expect(await screen.findByRole("alert")).toHaveTextContent("Réessayez");
     expect(screen.getByLabelText("Votre prénom")).toHaveValue("Sophie");
     expect(screen.getByLabelText("Votre téléphone")).toHaveValue("06 12 34 56 78");
     expect(open).not.toHaveBeenCalled();
-    await user.click(screen.getByRole("button", { name: "Enregistrer et ouvrir WhatsApp" }));
+    await user.click(screen.getByRole("button", { name: "Envoyer ma demande" }));
     await waitFor(() => expect(open).toHaveBeenCalledTimes(1));
   });
 
@@ -133,7 +133,7 @@ describe("WhatsApp contact modal", () => {
     open.mockReturnValue(null);
     render(<Modal isOpen onClose={() => {}} whatsappNumber="33664826920" />);
     const user = await fill("Lina");
-    await user.click(screen.getByRole("button", { name: "Enregistrer et ouvrir WhatsApp" }));
+    await user.click(screen.getByRole("button", { name: "Envoyer ma demande" }));
     const link = await screen.findByRole("link", { name: "Ouvrir WhatsApp" });
     expect(link.href).toContain("33664826920");
     expect(new URL(link.href).searchParams.get("text")).toContain("je m’appelle Lina");
@@ -145,7 +145,7 @@ describe("WhatsApp contact modal", () => {
     const close = vi.fn();
     render(<Modal isOpen onClose={close} whatsappNumber="33664826920" />);
     const user = await fill("Marc", "123");
-    await user.click(screen.getByRole("button", { name: "Enregistrer et ouvrir WhatsApp" }));
+    await user.click(screen.getByRole("button", { name: "Envoyer ma demande" }));
     expect(screen.getByRole("alert")).toHaveTextContent("numéro valide");
     expect(send).not.toHaveBeenCalled();
     await user.keyboard("{Escape}");
@@ -162,7 +162,7 @@ describe("WhatsApp contact modal", () => {
 
   it("supports the selected language", async () => {
     render(<LangCtx.Provider value={{ lang: "EN" }}><Modal isOpen onClose={() => {}} whatsappNumber="33664826920" /></LangCtx.Provider>);
-    expect(screen.getByRole("dialog")).toHaveAccessibleName("Talk to Gaspard");
+    expect(screen.getByRole("dialog")).toHaveAccessibleName("Send a request");
     expect(screen.getByLabelText("First name")).toBeRequired();
     await waitFor(() => expect(screen.getByLabelText("Phone number")).toHaveAttribute("type", "tel"));
   });
