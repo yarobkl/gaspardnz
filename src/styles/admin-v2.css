@@ -425,3 +425,16 @@ a.gnz-primary-button, a.gnz-secondary-button, a.gnz-danger-button, a.gnz-text-bu
   .gnz-assistant-form input { min-width: 0 !important; font-size: 16px !important; }
   .gnz-assistant-form button { min-width: 86px; }
 }
+
+
+/* Build 25 — aperçu fidèle du cadrage photo avant publication. */
+.gnz-admin-photo-focus-preview,.gnz-admin-cover-preview{
+  width:min(100%,340px);aspect-ratio:4/3;overflow:hidden;
+  border:1px solid rgba(150,112,74,.28);border-radius:14px;
+  background:#e4d5c4;box-shadow:0 4px 12px rgba(32,21,12,.08);
+}
+.gnz-admin-photo-focus-preview img,.gnz-admin-cover-preview img{
+  display:block;width:100%;height:100%;
+}
+.gnz-admin-crop-editor{margin:12px 0;padding:16px;border:1px solid rgba(150,112,74,.20);border-radius:14px}
+.gnz-admin-crop-editor input[type="range"],.gnz-editor input[type="range"]{width:100%;accent-color:#88603c}
