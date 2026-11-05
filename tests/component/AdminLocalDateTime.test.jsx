@@ -50,14 +50,14 @@ describe("champs date/heure en heure locale (Europe/Paris)", () => {
     const user = userEvent.setup();
     render(<AdminBookings user={{ role: "owner" }} />);
     await user.click(await screen.findByText("Aïcha Benali"));
-    const start = screen.getByLabelText("Début");
+    const start = within(document.querySelector(".gnz-split aside")).getByLabelText("Début");
     expect(start).toHaveValue("2026-09-27T20:45");
 
     await user.clear(start);
     await user.type(start, "2026-10-15T14:30");
     await user.tab();
     await waitFor(() => expect(fake.state.bookings[0].starts_at).toBe("2026-10-15T12:30:00.000Z"));
-    expect(screen.getByLabelText("Début")).toHaveValue("2026-10-15T14:30");
+    expect(within(document.querySelector(".gnz-split aside")).getByLabelText("Début")).toHaveValue("2026-10-15T14:30");
   });
 
   it("Promotions : ouvrir puis enregistrer sans rien changer ne décale pas les dates", async () => {

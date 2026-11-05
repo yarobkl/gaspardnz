@@ -63,7 +63,7 @@ describe("fiches en lecture seule selon le rôle", () => {
     render(<AdminBookings user={{ role: "editor" }} />);
     await user.click(await screen.findByText("Nadia Traoré"));
     expect(screen.getByLabelText("Statut")).toBeDisabled();
-    expect(screen.getByLabelText("Début")).toBeDisabled();
+    expect(document.querySelector(".gnz-split aside").querySelector("input[type=datetime-local]")).toBeDisabled();
   });
 
   it("Contenu › Général : lecture seule pour un éditeur, modifiable pour un administrateur", async () => {
