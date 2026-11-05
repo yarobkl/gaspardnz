@@ -110,7 +110,7 @@ describe("GaspardNZ native iOS experience", () => {
     render(<Harness />);
     openTab("Plus");
     fireEvent.click(await screen.findByRole("button", { name: /Réserver/ }));
-    fireEvent.click(screen.getByRole("button", {name:"Préparation de mariage"}));
+    fireEvent.click(await screen.findByRole("button", {name:"Préparation de mariage"}));
     const slot = screen.getByRole("button", {name:/16 juin.*15:30/i});
     fireEvent.click(slot);
     expect(slot).toHaveAttribute("aria-pressed","true");
