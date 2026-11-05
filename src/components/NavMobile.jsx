@@ -4,7 +4,6 @@ import { GOLD, CREAM, SOCIAL_LINKS, TEXT } from "../constants.js";
 import { LangCtx, useTr } from "../context.jsx";
 import { SvgFacebook, SvgInstagram, SvgTiktok, SvgYoutube, SvgBag } from "../icons.jsx";
 import { useSettings } from "../hooks/useSettings.js";
-import { downloadFile } from "../utils/downloadFile.js";
 import useCompactMobile from "../hooks/useCompactMobile.js";
 
 const NavMobile = ({ onShowroom, onGalerie, onCatalogue, onFormules, highContrast, onToggleContrast, onBiographie, onReserver, lightMode, onToggleDark, onStyleDuMois, onPartenaires, onStyleJournal, onVideo, onWedding, onActualites, onVIP, onCommunaute }) => {
@@ -65,15 +64,6 @@ const NavMobile = ({ onShowroom, onGalerie, onCatalogue, onFormules, highContras
   const navLight = !scrolled && !open;
   const navTextColor = navLight ? CREAM : TEXT;
 
-  // Le nom de fichier téléchargé est toujours celui-ci, jamais
-  // settings.lookbookFilename (le nom du fichier tel que déposé
-  // par Gaspard depuis son ordinateur — souvent un nom généré
-  // illisible type export scanner/PDF, utile pour lui dans
-  // l'admin, pas pour un visiteur qui télécharge).
-  const lookbookFn = (settings.lookbookPdfUrl?.trim() && !settings.lookbookHidden)
-    ? () => downloadFile(settings.lookbookPdfUrl, "lookbook-gaspardnz.pdf").catch(() => window.alert(t("lookbook_download_error")))
-    : null;
-
   const fullMenuItems = [
     [t("nav_reveler"), onReserver],
     [t("nav_bio"), onBiographie],
@@ -88,7 +78,6 @@ const NavMobile = ({ onShowroom, onGalerie, onCatalogue, onFormules, highContras
     [t("nav_showroom"), onShowroom],
     [t("style_month"), onStyleDuMois],
     [t("nav_communaute"), onCommunaute],
-    [t("lookbook"), lookbookFn],
   ];
 
   // Sur mobile (<=767px), l'écran d'accueil "Explorer l'univers"
@@ -96,13 +85,12 @@ const NavMobile = ({ onShowroom, onGalerie, onCatalogue, onFormules, highContras
   // ces destinations (Formules, Style Journal, Galerie, Vidéos, Mariage,
   // Partenaires, Actualités, Style du Mois, Communauté, Galerie clients) :
   // les répéter ici en plus n'apporte rien et allonge le menu pour rien
-  // (signalé par l'utilisateur). Seuls Rendez-vous, Showroom et le
-  // lookbook n'ont pas de tuile équivalente. Le bureau (pas de grille de
+  // (signalé par l'utilisateur). Rendez-vous et Showroom restent ici ; le
+  // menu reste volontairement réduit. Le bureau (pas de grille de
   // tuiles) garde le menu complet, seule navigation possible.
   const mobileMenuItems = [
     [t("nav_reveler"), onReserver],
     [t("nav_showroom"), onShowroom],
-    [t("lookbook"), lookbookFn],
   ];
 
   const menuItems = isCompactMobile ? mobileMenuItems : fullMenuItems;
@@ -252,20 +240,9 @@ const NavMobile = ({ onShowroom, onGalerie, onCatalogue, onFormules, highContras
                 initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: i * 0.06, duration: 0.4 }}
                 onClick={() => close(fn)}
-                disabled={label === t("lookbook") && !fn}
-                aria-disabled={label === t("lookbook") && !fn ? "true" : undefined}
-                // GOLD (#b8973e) sur ce fond crème tombe autour de 2.4:1 —
-                // sous le 3:1 requis même pour un texte de cette taille
-                // (WCAG AA, grand texte). TEXT (#1c1208), déjà la convention
-                // pour un texte lisible sur fond clair ailleurs sur le site,
-                // le remplace ici quand l'entrée est active.
-                style={{ display: "block", width: "100%", background: "none", border: "none", textAlign: "left", cursor: label === t("lookbook") && !fn ? "default" : "pointer", padding: "1.1rem 0", fontFamily: "'Cormorant Garamond', serif", fontSize: "1.8rem", letterSpacing: "0.08em", color: label === t("lookbook") ? (fn ? TEXT : "rgba(28,18,8,0.35)") : TEXT, borderBottom: "1px solid rgba(28,18,8,0.07)" }}
+                style={{ display: "block", width: "100%", background: "none", border: "none", textAlign: "left", cursor: "pointer", padding: "1.1rem 0", fontFamily: "'Cormorant Garamond', serif", fontSize: "1.8rem", letterSpacing: "0.08em", color: TEXT, borderBottom: "1px solid rgba(28,18,8,0.07)" }}
               >
-                {/* Sans PDF déposé, l'entrée reste visible mais non cliquable :
-                    « À venir » à la place du prix. Réapparaît seule dès qu'un
-                    fichier est déposé dans l'admin (Contenu du site →
-                    Général → Fichier du lookbook). */}
-                {label}{label === t("lookbook") && <span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "9px", letterSpacing: "0.3em", marginLeft: "10px", opacity: fn ? 0.85 : 0.7 }}>{fn ? t("lookbook_download") : (settings.lookbookHiddenMessage?.trim() || t("lookbook_soon"))}</span>}
+                {label}
               </motion.button>
             ))}
 
