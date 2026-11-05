@@ -51,7 +51,7 @@ export function galleryCategory(item) {
   return "looks";
 }
 
-export default function GalleryMobile({ refEl, native = false }) {
+export default function GalleryMobile({ refEl, native = false, onContact }) {
   const t = useTr();
   const reduceMotion = useReducedMotion();
   const { lang } = useContext(LangCtx);
@@ -90,7 +90,8 @@ export default function GalleryMobile({ refEl, native = false }) {
           width: Number(item.width || 1200),
           height: Number(item.height || 1500),
           label: item.label || fallback[index]?.label || `Look ${index + 1}`,
-          hotspots: Array.isArray(item.hotspots) && item.hotspots.length
+          focusY: Math.min(100, Math.max(0, Number(item.focusY ?? 36) || 0)),
+      hotspots: Array.isArray(item.hotspots) && item.hotspots.length
             ? item.hotspots : (spots[index] || []),
         })).filter((item) => item.src);
 
@@ -217,6 +218,14 @@ export default function GalleryMobile({ refEl, native = false }) {
     window.open(getWhatsappUrl(settings.whatsappNumber, messages[lang] || messages.FR), "_blank", "noopener,noreferrer");
   };
 
+  const requestLook = (item = current) => {
+    if (!item || !onContact) return;
+    // Le CRM reçoit le libellé de la tenue pour personnaliser la demande.
+    const project = galleryCategory(item) === "wedding" ? "wedding" : "image_consulting";
+    if (viewerOpen) setViewerOpen(false);
+    onContact(project, item.label || "");
+  };
+
   const share = async () => {
     const payload = { title: current?.label || "GaspardNZ", text: current?.label || "GaspardNZ", url: SITE_URL };
     if (navigator.share) { try { await navigator.share(payload); return; } catch {} }
@@ -242,19 +251,24 @@ export default function GalleryMobile({ refEl, native = false }) {
             {visibleItems.map((item, index) => (
               <motion.button
                 type="button"
-                layout={!reduceMotion}
-                initial={reduceMotion ? false : { opacity: 0, scale: 0.97 }}
+                initial={reduceMotion || index > 11 ? false : { opacity: 0, scale: 0.97 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={reduceMotion ? { duration: 0 } : { duration: 0.19, ease: [0.2, 0.75, 0.2, 1] }}
                 key={item.src}
                 onClick={(event) => { viewerTriggerRef.current = event.currentTarget; nativeFeedback("tap"); setSlideDirection(1); setCur(index); setViewerOpen(true); }}
                 aria-label={item.label}
               >
-                <img src={item.src} alt="" loading={index < 4 ? "eager" : "lazy"} decoding="async" />
+                <img src={item.src} alt="" loading={index < 4 ? "eager" : "lazy"} decoding="async" fetchPriority={index < 2 ? "high" : "low"} style={{objectPosition:`center ${Math.min(100,Math.max(0,Number(item.focusY??36)||0))}%`}} />
               </motion.button>
             ))}
           </div>
         : <p className="gnz-native-gallery-empty" role="status">{lang === "FR" ? "Aucune photo dans cette catégorie pour le moment." : lang === "EN" ? "No photos in this category yet." : lang === "ES" ? "Todavía no hay fotos en esta categoría." : "此分类暂时没有照片。"}</p>}
+      {onContact && visibleItems.length > 0 && <div className="gnz-native-gallery-conversion">
+        <p>{lang === "FR" ? "Une tenue vous inspire ?" : lang === "EN" ? "Inspired by a look?" : lang === "ES" ? "¿Te inspira un estilo?" : "找到心仪的造型了吗？"}</p>
+        <button type="button" onClick={() => requestLook(visibleItems[0])}>
+          {lang === "FR" ? "Parler de mon projet à Gaspard" : lang === "EN" ? "Discuss my project with Gaspard" : lang === "ES" ? "Hablar de mi proyecto con Gaspard" : "咨询 Gaspard"} <span aria-hidden="true">→</span>
+        </button>
+      </div>}
       {favorites.size > 0 && <div className="gnz-native-favorites" aria-label={lang === "FR" ? "Mes inspirations" : "My inspirations"}>
         <strong>{lang === "FR" ? "Mes inspirations" : lang === "EN" ? "My inspirations" : lang === "ES" ? "Mis inspiraciones" : "我的灵感"}</strong>
         <span>{favorites.size} {lang === "FR" ? "look(s) enregistré(s)" : lang === "EN" ? "saved look(s)" : ""}</span>
@@ -294,6 +308,9 @@ export default function GalleryMobile({ refEl, native = false }) {
           {n > 1 && <button type="button" className="gnz-native-photo-viewer-next" onClick={() => go(1)} aria-label={t("next_photo")}>›</button>}
         </div>
         <p className="gnz-native-photo-viewer-caption">{current.label}</p>
+        {onContact && <button type="button" className="gnz-native-photo-viewer-contact" onClick={() => requestLook()}>
+          {lang === "FR" ? "Être accompagné pour ce look" : lang === "EN" ? "Get styling help for this look" : lang === "ES" ? "Recibir asesoría para este estilo" : "咨询此造型"} <span aria-hidden="true">→</span>
+        </button>}
       </div>, document.body)
     }
     </>
