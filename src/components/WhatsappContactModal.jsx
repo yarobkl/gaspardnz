@@ -1,4 +1,4 @@
-import { useContext, useMemo, useRef, useState } from "react";
+import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { GOLD, CREAM } from "../constants.js";
 import { LangCtx } from "../context.jsx";
 import { useFocusTrap } from "../hooks/useFocusTrap.js";
@@ -66,7 +66,7 @@ const inputStyle = { width: "100%", boxSizing: "border-box", background: "none",
 const labelStyle = { display: "grid", gap: 8, fontSize: 12, letterSpacing: ".08em" };
 const primaryStyle = { display: "block", boxSizing: "border-box", width: "100%", border: `1px solid ${GOLD}`, padding: "1rem", minHeight: 50, background: GOLD, color: "#1c1208", textAlign: "center", textDecoration: "none", fontFamily: "'Montserrat',sans-serif", fontSize: 12, fontWeight: 700, cursor: "pointer" };
 
-export default function WhatsappContactModal({ isOpen, onClose, whatsappNumber, initialProjectType = "", native = false }) {
+export default function WhatsappContactModal({ isOpen, onClose, whatsappNumber, initialProjectType = "", initialProjectDetails = "", native = false }) {
   const { lang } = useContext(LangCtx);
   const copy = COPY[lang] || COPY.FR;
   const [firstName, setFirstName] = useState("");
@@ -74,7 +74,14 @@ export default function WhatsappContactModal({ isOpen, onClose, whatsappNumber, 
   const [phone, setPhone] = useState("");
   const [country, setCountry] = useState("FR");
   const [projectType, setProjectType] = useState(initialProjectType);
-  const [projectDetails, setProjectDetails] = useState("");
+  const [projectDetails, setProjectDetails] = useState(initialProjectDetails);
+  useEffect(() => {
+    if (!isOpen) return;
+    setProjectType(initialProjectType || "");
+    setProjectDetails(initialProjectDetails || "");
+    setSubmitted(false);
+    setError("");
+  }, [isOpen, initialProjectType, initialProjectDetails]);
   const [fallbackUrl, setFallbackUrl] = useState("");
   const countries = useMemo(() => contactCountries(lang), [lang]);
   const [saving, setSaving] = useState(false);
