@@ -82,7 +82,7 @@ describe("Numéro WhatsApp — une seule source de vérité (settings.whatsappNu
     const user = userEvent.setup();
     render(<MobileHomeCompact activeSection={null} onSelect={() => {}} />);
     await user.click(await screen.findByRole("button", { name: "Parler à Gaspard" }));
-    await screen.findByRole("dialog", { name: "Parler à Gaspard" });
+    await screen.findByRole("dialog", { name: "Envoyer une demande" });
     expect(directOpen).not.toHaveBeenCalled();
     await user.type(screen.getByLabelText("Votre prénom"), "Marc");
     await user.type(screen.getByLabelText("Votre téléphone"), "06 12 34 56 78");
