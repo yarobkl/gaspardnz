@@ -1,0 +1,29 @@
+name: App Store — Audit final du build 25 (sans déploiement)
+on:
+  push:
+    branches:
+      - audit/app-store-preflight-build25
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Dépendances verrouillées
+        run: npm ci --no-audit --no-fund
+      - name: Batterie intégrale de tests
+        run: npm test
+      - name: Compilation du bundle iOS
+        run: npm run build:app
+      - name: Vérifier les ressources App Store du build 25
+        run: |
+          node scripts/app-store-preflight.mjs
+          test -s 'dist/index.html'
+          test -s 'dist/images/Photo application .JPG'
