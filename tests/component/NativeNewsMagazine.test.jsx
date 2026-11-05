@@ -46,6 +46,31 @@ describe("Actualités iOS — maquette magazine avec les données existantes", (
     expect(grid.querySelectorAll("button.gnz-native-news-card")).toHaveLength(4);
   });
 
+  it("préserve entièrement les portraits en utilisant la photo d'origine sur un fond flouté", () => {
+    render(<Harness />);
+    const hero = carousel().querySelector(".gnz-native-news-feature");
+    const original = hero.querySelector(".gnz-native-news-feature-image");
+    const backdrop = hero.querySelector(".gnz-native-news-feature-backdrop");
+    expect(original).toHaveAttribute("src", "https://example.test/photos/existante-1.jpg");
+    expect(backdrop).toHaveAttribute("src", original.getAttribute("src"));
+    const firstRecent = recent().querySelector(".gnz-native-news-card");
+    expect(firstRecent.querySelector(".gnz-native-news-card-image")).toHaveAttribute("src", original.getAttribute("src"));
+    expect(firstRecent.querySelector(".gnz-native-news-card-backdrop")).toHaveAttribute("src", original.getAttribute("src"));
+  });
+
+  it("aligne toutes les cartes récentes avec la même structure, avec ou sans photo", () => {
+    render(<Harness />);
+    const grid = recent().querySelector(".gnz-native-news-card-grid");
+    const cards = [...grid.querySelectorAll(".gnz-native-news-card")];
+    expect(cards).toHaveLength(4);
+    for (const card of cards) {
+      expect(card.querySelector(".gnz-native-news-card-media")).not.toBeNull();
+      expect(card.querySelector(".gnz-native-news-card-body")).not.toBeNull();
+      expect(card.querySelector(".gnz-native-news-card-body small")).not.toBeNull();
+    }
+    expect(cards[3].querySelector(".gnz-native-news-card-without-photo")).not.toBeNull();
+  });
+
   it("change de publication avec les points puis au balayage sans toucher aux photos", async () => {
     render(<Harness />);
     const region = carousel();
