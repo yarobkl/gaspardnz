@@ -118,7 +118,8 @@ export function NativeNews({ initialId = null }) {
             }}
             aria-label={active.title}
           >
-            <img src={mediaUrl(active.photos[0])} alt="" loading="eager" decoding="async" />
+            <img className="gnz-native-news-feature-backdrop" src={mediaUrl(active.photos[0])} alt="" aria-hidden="true" loading="eager" decoding="async" />
+            <img className="gnz-native-news-feature-image" src={mediaUrl(active.photos[0])} alt="" loading="eager" decoding="async" />
             <div className="gnz-native-news-feature-copy">
               <span className="gnz-native-news-feature-tag">{active.tag || (lang === "FR" ? "Actualité" : "News")}</span>
               <h2>{active.title}</h2>
@@ -150,7 +151,7 @@ export function NativeNews({ initialId = null }) {
           className="gnz-native-news-card" onClick={() => openArticle(item)}
           aria-label={item.title}>
           {item.photos?.[0] ?
-            <div className="gnz-native-news-card-media"><img src={mediaUrl(item.photos[0])} loading="lazy" decoding="async" alt="" /></div> :
+            <div className="gnz-native-news-card-media"><img className="gnz-native-news-card-backdrop" src={mediaUrl(item.photos[0])} loading="lazy" decoding="async" alt="" aria-hidden="true" /><img className="gnz-native-news-card-image" src={mediaUrl(item.photos[0])} loading="lazy" decoding="async" alt="" /></div> :
             <div className="gnz-native-news-card-media gnz-native-news-card-without-photo" aria-hidden="true"><span>{item.tag || "GASPARDNZ"}</span></div>}
           <div className="gnz-native-news-card-body">
             <span className="gnz-native-news-card-tag">{item.tag}</span>
