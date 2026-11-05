@@ -8,6 +8,7 @@ on:
       - feature/build18-draggable-native-tab-pill
       - feature/build19-haptic-bubble
       - feature/build20-native-news-magazine
+      - feature/build21-news-photo-crop-equal-cards
   pull_request:
     paths:
       - "src/**"
