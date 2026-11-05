@@ -17,9 +17,9 @@ vi.mock("../../src/hooks/usePublicCollection.js", () => ({
 }));
 vi.mock("../../src/utils/nativeHaptics.js", () => ({ nativeFeedback: vi.fn() }));
 
-function Harness({ initialId }) {
+function Harness({ initialId, onContact }) {
   const [lang, setLang] = useState("FR");
-  return <LangCtx.Provider value={{ lang, setLang }}><NativeNews initialId={initialId} /></LangCtx.Provider>;
+  return <LangCtx.Provider value={{ lang, setLang }}><NativeNews initialId={initialId} onContact={onContact} /></LangCtx.Provider>;
 }
 const recent = () => screen.getByRole("region", { name: "Articles récents" });
 const carousel = () => screen.getByRole("region", { name: "Actualités à la une" });
@@ -120,6 +120,17 @@ describe("Actualités iOS — maquette magazine avec les données existantes", (
     fireEvent.touchStart(region, { touches: [{clientX: 260, clientY: 200}] });
     fireEvent.touchEnd(region, { changedTouches: [{clientX: 100, clientY: 205}] });
     await waitFor(() => expect(region.querySelector(".gnz-native-news-feature[aria-label='Coulisses du showroom']")).not.toBeNull());
+  });
+
+  it("ouvre le CRM à partir de l'article consulté et transmet son sujet", () => {
+    const contact=vi.fn();
+    render(<Harness onContact={contact}/>);
+    fireEvent.click(within(recent()).getByRole("button",{name:"Nouvelle tenue GaspardNZ"}));
+    const reader=screen.getByRole("dialog",{name:"Nouvelle tenue GaspardNZ"});
+    fireEvent.click(within(reader).getByRole("button",{name:/Échanger sur ce style/}));
+    expect(contact).toHaveBeenCalledWith("image_consulting","Nouvelle tenue GaspardNZ");
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(screen.getByRole("button",{name:/Parler à Gaspard/})).toBeInTheDocument();
   });
 
   it("ouvre les articles de la grille, puis les ferme sans modifier les données", () => {
