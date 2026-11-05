@@ -34,6 +34,45 @@ describe("Actualités iOS — maquette magazine avec les données existantes", (
     expect(screen.getByRole("region", { name: "Articles récents" })).toBeInTheDocument();
   });
 
+  it("couvre toute la carte avec la photo navy en gardant la focale sur le visage", () => {
+    const photo = {
+      id: "navy-soiree",
+      title: "Une silhouette de soirée au sommet de l’élégance",
+      excerpt: "Une silhouette affirmée.",
+      body: "La veste navy à fines rayures.",
+      cover_url: "/images/veste-navy-soiree.jpg",
+      gallery: [],
+      metadata: {
+        tag: "Style & Élégance",
+        date_label: "Novembre 2026",
+        cover_mode: "cover",
+        cover_focus: "center 25%",
+      },
+      published: true,
+    };
+    published.unshift(photo);
+    try {
+      render(<Harness />);
+      const cover = carousel().querySelector(".gnz-native-news-feature");
+      expect(cover).toHaveClass("gnz-native-news-feature-full-bleed");
+      expect(cover.querySelector(".gnz-native-news-feature-backdrop")).toBeNull();
+      expect(cover.querySelector(".gnz-native-news-feature-image")).toHaveStyle({
+        objectFit: "cover", objectPosition: "center 25%",
+      });
+      expect(within(cover).getByText("Style & Élégance")).toBeInTheDocument();
+      const recentCover = recent().querySelector(".gnz-native-news-card");
+      expect(recentCover.querySelector(".gnz-native-news-card-backdrop")).toBeNull();
+      expect(recentCover.querySelector(".gnz-native-news-card-image")).toHaveStyle({
+        objectFit: "cover", objectPosition: "center 25%",
+      });
+      fireEvent.click(recentCover);
+      const reader = screen.getByRole("dialog", { name: photo.title });
+      expect(within(reader).getByText("La veste navy à fines rayures.")).toBeInTheDocument();
+    } finally {
+      published.shift();
+    }
+  });
+
   it("affiche une grille de deux colonnes et permet Voir tout / Réduire", () => {
     render(<Harness />);
     const grid = recent().querySelector(".gnz-native-news-card-grid");
