@@ -12,6 +12,7 @@ on:
       - feature/build22-gallery-editorial-filters
       - feature/build23-gallery-vip-weddings
       - feature/build24-editorial-navy-cover
+      - feature/build25-ux-commercial-quality
   pull_request:
     paths:
       - "src/**"
@@ -20,6 +21,10 @@ on:
       - "tests/component/GalleryNativeViewer.test.jsx"
       - "tests/component/NativeTabBarDrag.test.jsx"
       - "tests/component/NativeNewsMagazine.test.jsx"
+      - "tests/component/WhatsappContactModal.test.jsx"
+      - "tests/component/AdminNewsGallery.test.jsx"
+      - "tests/unit/bookingAvailabilityFuture.test.js"
+      - "tests/unit/whatsappContact.test.js"
       - "tests/unit/nativeTabHaptics.test.js"
       - "tests/api/whatsappNotification.test.js"
       - "tests/unit/nativePublicEvent.test.js"
@@ -45,7 +50,7 @@ jobs:
       - name: Install dependencies
         run: npm ci
       - name: Test native tabs, translations and CRM lead routing
-        run: npm run test:unit -- tests/component/NativeExperience.test.jsx tests/component/NativeServicesMobileCta.test.jsx tests/component/GalleryNativeViewer.test.jsx tests/component/NativeTabBarDrag.test.jsx tests/component/NativeNewsMagazine.test.jsx tests/unit/nativeTabHaptics.test.js
+        run: npm run test:unit -- tests/component/NativeExperience.test.jsx tests/component/NativeServicesMobileCta.test.jsx tests/component/GalleryNativeViewer.test.jsx tests/component/NativeTabBarDrag.test.jsx tests/component/NativeNewsMagazine.test.jsx tests/component/WhatsappContactModal.test.jsx tests/component/AdminNewsGallery.test.jsx tests/unit/bookingAvailabilityFuture.test.js tests/unit/whatsappContact.test.js tests/unit/nativeTabHaptics.test.js
       - name: Test native Supabase CRM network transport
         run: npm run test:unit -- tests/unit/nativePublicEvent.test.js
       - name: Test native CRM notification CORS and source tracking
