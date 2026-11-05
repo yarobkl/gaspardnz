@@ -155,13 +155,13 @@ export default function WhatsappContactModal({ isOpen, onClose, whatsappNumber, 
               </div>
               <p id="whatsapp-phone-hint" style={{ fontSize: 11, lineHeight: 1.6, margin: "-.6rem 0 0", color: "rgba(245,240,232,.75)" }}>{copy.phoneHint}</p>
               <label style={labelStyle} htmlFor="whatsapp-project">{copy.project}
-                <select id="whatsapp-project" name="project" required value={projectType} onChange={e => setProjectType(e.target.value)} disabled={saving} style={{ ...inputStyle, background: "#0a0602" }}>
+                <select id="whatsapp-project" name="project" required value={projectType} onChange={e => {setProjectType(e.target.value);setProjectDetails("");}} disabled={saving} style={{ ...inputStyle, background: "#0a0602" }}>
                   <option value="" disabled>{copy.chooseProject}</option>
                   {CONTACT_PROJECTS.map(project => <option key={project.id} value={project.id}>{project[lang] || project.FR}</option>)}
                 </select>
               </label>
-              {projectType === "other" && <label style={labelStyle} htmlFor="whatsapp-project-details">{copy.details}
-                <textarea id="whatsapp-project-details" name="project-details" required maxLength={300} rows={3} value={projectDetails} onChange={e => setProjectDetails(e.target.value)} disabled={saving} style={{ ...inputStyle, resize: "vertical" }} />
+              {(projectType === "other" || projectDetails.trim()) && <label style={labelStyle} htmlFor="whatsapp-project-details">{copy.details}
+                <textarea id="whatsapp-project-details" name="project-details" required={projectType === "other"} maxLength={300} rows={3} value={projectDetails} onChange={e => setProjectDetails(e.target.value)} disabled={saving} style={{ ...inputStyle, resize: "vertical" }} />
               </label>}
               <p style={{ fontSize: 11, lineHeight: 1.7, margin: 0, color: "rgba(245,240,232,.75)" }}>{copy.notice} <a href="/confidentialite.html" target="_blank" rel="noopener noreferrer" style={{ color: GOLD }}>{copy.privacy}</a></p>
               {error && <p role="alert" style={{ margin: 0, color: "#ffb7ab", fontSize: 13, lineHeight: 1.6 }}>{error}</p>}
