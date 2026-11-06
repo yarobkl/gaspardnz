@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { listEmails } from "../../services/adminData.js";
 import { getEmailSummary } from "../../services/adminReporting.js";
+import { supabase } from "../../services/supabaseClient.js";
+import { EMAIL_NOTIFICATIONS_ENABLED } from "../../constants.js";
 import "../../styles/admin-v2.css";
 
 const fmtDate = (value) => value ? new Date(value).toLocaleString("fr-FR", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" }) : "—";
@@ -11,6 +13,36 @@ export default function AdminEmails() {
   const [summary, setSummary] = useState(null);
   const [filter, setFilter] = useState("all");
   const [loading, setLoading] = useState(true);
+  const [smtpCheck, setSmtpCheck] = useState(null);
+  const [checkingSmtp, setCheckingSmtp] = useState(false);
+  const smtpMessages = {
+    ready: "Connexion SMTP vérifiée. Aucun email de test envoyé. Une validation de réception reste nécessaire.",
+    authentication_rejected: "Le serveur SMTP refuse les identifiants configurés dans Vercel.",
+    missing_configuration: "Paramètres Vercel manquants : " + (smtpCheck?.missing || []).join(", "),
+    invalid_port: "Port SMTP Vercel invalide.",
+    network_error: "Impossible pour Vercel de joindre le serveur SMTP.",
+    tls_error: "Erreur TLS côté serveur SMTP.",
+    smtp_error: "La vérification SMTP a échoué.",
+    check_error: smtpCheck?.message || "Diagnostic indisponible.",
+  };
+  const verifySmtp = async () => {
+    setCheckingSmtp(true);
+    setSmtpCheck(null);
+    try {
+      const { data } = await supabase.auth.getSession();
+      const token = data?.session?.access_token;
+      if (!token) throw new Error("Session administrateur expirée.");
+      const response = await fetch("/api/admin-email-health", {
+        method:"GET",headers:{Authorization:`Bearer ${token}`},cache:"no-store",
+      });
+      const body = await response.json().catch(()=>({}));
+      if (!response.ok) throw new Error(body.error || "Diagnostic SMTP indisponible.");
+      setSmtpCheck(body);
+    } catch(error) {
+      setSmtpCheck({smtpStatus:"check_error",message:error?.message || "Diagnostic indisponible."});
+    } finally { setCheckingSmtp(false); }
+  };
+
   const [error, setError] = useState("");
 
   const load = async () => {
@@ -23,7 +55,9 @@ export default function AdminEmails() {
   const visible = useMemo(() => filter === "all" ? rows : rows.filter((r) => r.status === filter), [rows, filter]);
 
   return <div>
-    <div className="gnz-page-heading"><div><h1>Emails</h1><p>Suivi des messages émis par GaspardNZ. Aucune ouverture ou délivrabilité n'est inventée.</p></div><div className="gnz-page-actions"><button className="gnz-secondary-button" onClick={load}>Actualiser</button></div></div>
+    <div className="gnz-page-heading"><div><h1>Emails</h1><p>Suivi des messages émis par GaspardNZ. Aucune ouverture ou délivrabilité n'est inventée.</p></div><div className="gnz-page-actions"><button className="gnz-secondary-button" onClick={load}>Actualiser</button><button className="gnz-secondary-button" onClick={verifySmtp} disabled={checkingSmtp}>{checkingSmtp ? "Vérification…" : "Tester SMTP"}</button></div></div>
+    {!EMAIL_NOTIFICATIONS_ENABLED && <div role="status" className="gnz-alert gnz-alert-error">Notifications automatiques des formulaires partenaires actuellement désactivées. Réactiver uniquement après validation du SMTP et test d'envoi.</div>}
+    {smtpCheck && <div role="status" className={`gnz-alert ${smtpCheck.smtpStatus === "ready" ? "gnz-alert-success" : "gnz-alert-error"}`}>{smtpMessages[smtpCheck.smtpStatus] || "État SMTP inconnu."}</div>}
     {error && <div className="gnz-alert gnz-alert-error">{error}</div>}
     <section className="gnz-kpi-grid" style={{ marginBottom: 12 }}>
       <article className="gnz-kpi-card"><span className="gnz-kpi-label">Envoyés</span><div className="gnz-kpi-value">{summary?.sent || 0}</div><div className="gnz-kpi-sub">Messages acceptés par le système d'envoi</div></article>
