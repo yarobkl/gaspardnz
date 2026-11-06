@@ -1,0 +1,41 @@
+name: iOS UI — Validation (sans déploiement)
+on:
+  pull_request:
+    paths:
+      - "src/**"
+      - "tests/component/NativeExperience.test.jsx"
+      - "tests/api/whatsappNotification.test.js"
+      - "tests/unit/nativePublicEvent.test.js"
+      - "api/notify-whatsapp-contact.js"
+      - "scripts/validate-admin-auth.mjs"
+      - "public/**"
+      - "package.json"
+      - "package-lock.json"
+      - "vite.config.js"
+      - ".github/workflows/ios-ui-validation.yml"
+  workflow_dispatch:
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Test native tabs, translations and CRM lead routing
+        run: npm run test:unit -- tests/component/NativeExperience.test.jsx
+      - name: Test native Supabase CRM network transport
+        run: npm run test:unit -- tests/unit/nativePublicEvent.test.js
+      - name: Test native CRM notification CORS and source tracking
+        run: npm run test:unit -- tests/api/whatsappNotification.test.js
+      - name: Build native Capacitor web assets
+        run: npm run build:app
+      - name: Verify HTML and original uploaded portrait
+        run: |
+          test -s dist/index.html
+          test -s "dist/images/Photo application .JPG"

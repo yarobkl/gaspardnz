@@ -40,7 +40,7 @@ vi.mock("@supabase/supabase-js", () => ({ createClient: () => ({
 
 import handler, { formatContactNotification } from "../../api/notify-whatsapp-contact.js";
 const id = "8c0992df-d0a1-4a5e-a77c-fe9aedf8a757";
-const res = () => ({ statusCode: null, body: null, setHeader() {}, status(c) { this.statusCode = c; return this; }, json(v) { this.body = v; return this; } });
+const res = () => ({ statusCode: null, body: null, headers: {}, setHeader(k,v) { this.headers[k] = v; }, status(c) { this.statusCode = c; return this; }, json(v) { this.body = v; return this; }, end() { return this; } });
 const req = (body = { leadId: id }) => ({ method: "POST", headers: { origin: "https://gaspardnz.style" }, socket: {}, body });
 beforeEach(() => {
   state.mails.length = 0;
@@ -65,6 +65,26 @@ describe("automatic WhatsApp contact notifications", () => {
     expect(state.mails[0].text).toContain("Mariage");
     expect(state.mails[0].html).toContain('href="https://wa.me/33612345678"');
     expect([...state.emails.values()].every(r => r.status === "sent")).toBe(true);
+  });
+
+  it("accepts only the exact iOS WebView origin for CORS preflight", async () => {
+    const preflight = res();
+    await handler({ method: "OPTIONS", headers: { origin: "capacitor://localhost" } }, preflight);
+    expect(preflight.statusCode).toBe(204);
+    expect(preflight.headers["Access-Control-Allow-Origin"]).toBe("capacitor://localhost");
+    expect(preflight.headers["Access-Control-Allow-Methods"]).toContain("POST");
+    const foreign = res();
+    await handler({ method: "OPTIONS", headers: { origin: "https://attacker.test" } }, foreign);
+    expect(foreign.statusCode).toBe(403);
+  });
+
+  it("notifies an iPhone-origin CRM lead with accurate source attribution", async () => {
+    state.leads.get(id).metadata.entry_point = "parler_a_gaspard_ios";
+    const response = res();
+    await handler({ ...req(), headers: { origin: "capacitor://localhost" } }, response);
+    expect(response.statusCode).toBe(200);
+    expect(response.headers["Access-Control-Allow-Origin"]).toBe("capacitor://localhost");
+    expect(state.mails[0].text).toContain("Source : application iPhone GaspardNZ");
   });
 
   it("does not resend successful notifications when the same request is retried", async () => {

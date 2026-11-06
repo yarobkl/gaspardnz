@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import { Capacitor, CapacitorHttp } from "@capacitor/core";
 
 const DEFAULT_SUPABASE_URL = "https://imvjudhhtcdmtyhfhksm.supabase.co";
 const DEFAULT_PUBLISHABLE_KEY = "sb_publishable_h-yM5GnpgOHp5TlS0nzZhA_YgughX33";
@@ -21,6 +22,28 @@ export const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
 export const publicEventEndpoint = `${SUPABASE_URL}/functions/v1/public-event`;
 
 export async function sendPublicEvent(type, payload) {
+  // The published public-event Edge Function restricts browser origins to
+  // the website. Capacitor iOS uses capacitor://localhost; native HTTP avoids
+  // that WebView CORS block without changing the production function or
+  // distributing any privileged Supabase credentials.
+  if (Capacitor.getPlatform() === "ios") {
+    try {
+      const response = await CapacitorHttp.post({
+        url: publicEventEndpoint,
+        headers: {
+          "Content-Type": "application/json",
+          apikey: SUPABASE_PUBLISHABLE_KEY,
+        },
+        data: { type, payload },
+        connectTimeout: 12000,
+        readTimeout: 20000,
+      });
+      if (response.status < 200 || response.status >= 300) return { ok: false, status: response.status };
+      return typeof response.data === "string" ? JSON.parse(response.data) : response.data;
+    } catch {
+      return { ok: false, status: 0 };
+    }
+  }
   try {
     const response = await fetch(publicEventEndpoint, {
       method: "POST",

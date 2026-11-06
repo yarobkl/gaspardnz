@@ -53,7 +53,7 @@ const AvatarImg = ({ size, ring = true }) => (
   </div>
 );
 
-const ChatBot = ({ onReserver, onGalerie, onShowroom, onFormules }) => {
+const ChatBot = ({ onReserver, onGalerie, onShowroom, onFormules, native = false }) => {
   const t = useTr();
   const { lang } = useContext(LangCtx);
   const settings = useSettings();
@@ -74,8 +74,8 @@ const ChatBot = ({ onReserver, onGalerie, onShowroom, onFormules }) => {
   // de l'écran puis se balance une fois sur le côté — le but n'est pas
   // décoratif, c'est ce mouvement latéral qui montre concrètement qu'on peut
   // le faire glisser. Ça ne se rejoue plus ensuite (gnz-chatbot-fab-intro-seen).
-  const introSeenRef = useRef(readFabIntroSeen());
-  const savedPosRef = useRef(readFabPos());
+  const introSeenRef = useRef(native || readFabIntroSeen());
+  const savedPosRef = useRef(native ? { x: 0, y: 0 } : readFabPos());
   const fabX = useMotionValue(savedPosRef.current.x);
   const fabY = useMotionValue(introSeenRef.current ? savedPosRef.current.y : -(window.innerHeight + 120));
 
@@ -206,7 +206,7 @@ const ChatBot = ({ onReserver, onGalerie, onShowroom, onFormules }) => {
     <Portal>
     <>
       <motion.button
-        drag
+        drag={!native}
         dragMomentum={false}
         dragElastic={0}
         dragConstraints={{ top: -700, bottom: 0, left: -350, right: 0 }}
@@ -215,7 +215,7 @@ const ChatBot = ({ onReserver, onGalerie, onShowroom, onFormules }) => {
         onClick={() => { if (fabDragging.current) return; setOpen(o => !o); setShowBubble(false); }}
         aria-label={open ? t("chatbot_close_label") : t("chatbot_open_label")}
         whileTap={{ scale: 0.93 }}
-        style={{ x: fabX, y: fabY, position: "fixed", bottom: "1.5rem", right: "1.2rem", zIndex: 600, width: "56px", height: "56px", borderRadius: "50%", background: open ? GOLD : "transparent", border: open ? "none" : `2px solid ${GOLD}`, padding: 0, cursor: "grab", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 24px rgba(184,151,62,0.45)", overflow: "hidden", touchAction: "none" }}>
+        style={{ x: fabX, y: fabY, position: "fixed", bottom: native ? "calc(6rem + env(safe-area-inset-bottom))" : "1.5rem", right: "1.2rem", zIndex: 600, width: "56px", height: "56px", borderRadius: "50%", background: open ? GOLD : "transparent", border: open ? "none" : `2px solid ${GOLD}`, padding: 0, cursor: "grab", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 24px rgba(184,151,62,0.45)", overflow: "hidden", touchAction: "none" }}>
         <AnimatePresence mode="wait">
           {open
             ? <motion.span key="x" initial={{ rotate: -90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: 90, opacity: 0 }} style={{ color: "#1c1208", fontSize: "22px", fontWeight: 300, lineHeight: 1 }}>×</motion.span>
@@ -233,7 +233,7 @@ const ChatBot = ({ onReserver, onGalerie, onShowroom, onFormules }) => {
             exit={{ opacity: 0, y: 8, scale: 0.92 }}
             transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
             onClick={() => { setShowBubble(false); setOpen(true); }}
-            style={{ position: "fixed", bottom: "5rem", right: "1.2rem", maxWidth: "168px", cursor: "pointer", zIndex: 598, background: "rgba(28,18,8,0.94)", border: `1px solid rgba(184,151,62,0.35)`, borderRadius: "12px", padding: "0.6rem 1.9rem 0.6rem 0.8rem", boxShadow: "0 8px 28px rgba(0,0,0,0.32)", WebkitBackdropFilter: "blur(10px)", backdropFilter: "blur(10px)" }}
+            style={{ position: "fixed", bottom: native ? "calc(10rem + env(safe-area-inset-bottom))" : "5rem", right: "1.2rem", maxWidth: "168px", cursor: "pointer", zIndex: 598, background: "rgba(28,18,8,0.94)", border: `1px solid rgba(184,151,62,0.35)`, borderRadius: "12px", padding: "0.6rem 1.9rem 0.6rem 0.8rem", boxShadow: "0 8px 28px rgba(0,0,0,0.32)", WebkitBackdropFilter: "blur(10px)", backdropFilter: "blur(10px)" }}
           >
             <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "8px", letterSpacing: "0.16em", color: GOLD, textTransform: "uppercase", margin: "0 0 3px" }}>{t("chatbot_bubble_label")}</p>
             <p style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: "italic", fontSize: "0.85rem", color: CREAM, lineHeight: 1.3, margin: 0 }}>{t("chatbot_bubble")}</p>
@@ -247,8 +247,8 @@ const ChatBot = ({ onReserver, onGalerie, onShowroom, onFormules }) => {
           <motion.div
             initial={{ opacity: 0, y: 20, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-            drag dragMomentum={false} dragElastic={0.05} dragConstraints={{ top: -500, bottom: 50, left: -300, right: 50 }}
-            style={{ position: "fixed", bottom: "5.5rem", right: "1.2rem", left: "1.2rem", maxWidth: "380px", cursor: "grab", marginLeft: "auto", zIndex: 599, background: "#faf7f2", borderRadius: "16px", overflow: "hidden", boxShadow: "0 8px 40px rgba(0,0,0,0.18)", display: "flex", flexDirection: "column", height: "70vh", maxHeight: "520px" }}>
+            drag={!native} dragMomentum={false} dragElastic={0.05} dragConstraints={{ top: -500, bottom: 50, left: -300, right: 50 }}
+            style={{ position: "fixed", bottom: native ? "calc(10rem + env(safe-area-inset-bottom))" : "5.5rem", right: "1.2rem", left: "1.2rem", maxWidth: "380px", cursor: "grab", marginLeft: "auto", zIndex: 599, background: "#faf7f2", borderRadius: "16px", overflow: "hidden", boxShadow: "0 8px 40px rgba(0,0,0,0.18)", display: "flex", flexDirection: "column", height: native ? "min(62dvh, 480px)" : "70vh", maxHeight: "520px" }}>
 
             <div style={{ background: "#1c1208", padding: "0.85rem 1.2rem", display: "flex", alignItems: "center", gap: "0.85rem", flexShrink: 0 }}>
               <div style={{ position: "relative", flexShrink: 0 }}>

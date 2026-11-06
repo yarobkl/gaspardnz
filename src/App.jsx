@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect, useRef, lazy, Suspense } from "react";
+import { Capacitor } from "@capacitor/core";
 import { motion, AnimatePresence, MotionConfig } from "framer-motion";
 import { GOLD, CREAM } from "./constants.js";
 import { LangCtx } from "./context.jsx";
@@ -26,6 +27,8 @@ import { useSettings } from "./hooks/useSettings.js";
 import { getWhatsappUrl } from "./utils/whatsappUtil.js";
 
 import SectionDivider from "./components/ui/SectionDivider.jsx";
+
+const NativeExperience = lazy(() => import("./components/NativeExperience.jsx"));
 
 const AboutSection = lazy(() => import("./components/sections/AboutSection.jsx"));
 const HeritageMobile = lazy(() => import("./components/HeritageMobile.jsx"));
@@ -273,6 +276,8 @@ export default function App() {
             onSectionChange={onAdminSectionChange}
             onLoginSuccess={onLoginSuccess}
           />
+        ) : Capacitor.getPlatform() === "ios" ? (
+          <Suspense fallback={<div style={{minHeight:"100dvh",background:"#FAF8F4"}} />}><NativeExperience /></Suspense>
         ) : (
           <>
             {/* Hors de #gnz-app-root : ce conteneur porte le filter des modes

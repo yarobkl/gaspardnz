@@ -33,7 +33,7 @@ async function openSection(label) {
   await home();
   await page.locator("#gnz-mobile-home").getByRole("button", { name: label, exact: true }).click({ force: true });
   await page.waitForSelector("#gnz-mobile-active-section", { timeout: 8000 });
-  await page.waitForFunction(() => document.getElementById("gnz-mobile-active-section")?.scrollHeight > 80, { timeout: 8000 });
+  // Some compact sections legitimately have a short or animated container.\n  // Wait for mounted content rather than assuming a minimum scroll height.\n  await page.waitForFunction(() => {\n    const el = document.getElementById("gnz-mobile-active-section");\n    return Boolean(el && el.children.length && el.getBoundingClientRect().width > 0);\n  }, null, { timeout: 8000 });
   return page.locator("#gnz-mobile-active-section");
 }
 
@@ -43,12 +43,14 @@ try {
   const galleryCounter = section.locator("span").filter({ hasText: /\d{2}\s*\/\s*\d{2}/ }).first();
   const beforeCounter = (await galleryCounter.textContent())?.trim() || "";
   const next = section.locator("button").filter({ hasText: "›" }).first();
-  await next.click({ force: true }); await wait();
+  await next.click({ force: true });
+  await page.waitForFunction((before) => document.querySelector("#gnz-mobile-active-section")?.textContent?.includes(before) === false, beforeCounter, { timeout: 3000 }).catch(() => {});
+  await wait(450);
   const afterCounter = (await galleryCounter.textContent())?.trim() || "";
   report.record("DEEP-GAL-01", "Galerie — suivant", "la photo suivante est sélectionnée", `${beforeCounter} -> ${afterCounter}`, beforeCounter !== afterCounter && errors.length === 0);
 
   const prev = section.locator("button").filter({ hasText: "‹" }).first();
-  await prev.click({ force: true }); await wait();
+  await prev.click({ force: true }); await wait(450);
   const backCounter = (await galleryCounter.textContent())?.trim() || "";
   report.record("DEEP-GAL-02", "Galerie — précédent", "retour à la photo précédente", `${afterCounter} -> ${backCounter}`, backCounter === beforeCounter && errors.length === 0);
 
@@ -84,17 +86,20 @@ try {
     // hauteur (framer-motion), et cliquer un hotspot avant la fin de cette
     // transition atterrit sur une position qui n'est plus la bonne —
     // observé de façon reproductible avec le délai par défaut (120ms).
-    await openJournal.click({ force: true }); await wait(400);
+    await openJournal.click({ force: true });
+    await section.getByRole("button", { name: /Réduire le journal/i }).waitFor({ state: "visible", timeout: 4000 }).catch(() => {});
     const collapseJournal = section.getByRole("button", { name: /Réduire le journal/i });
     report.record("DEEP-JOURNAL-01", "Style Journal — développer", "affiche le journal complet", `réduire visible=${await collapseJournal.count() > 0}`, await collapseJournal.count() > 0 && errors.length === 0);
   }
   const journalHotspots = section.locator("button[aria-pressed]");
   if (await journalHotspots.count()) {
-    await journalHotspots.first().click({ force: true }); await wait(400);
+    await journalHotspots.first().scrollIntoViewIfNeeded();
+    await journalHotspots.first().click();
     const dialog = page.getByRole("dialog").last();
+    await dialog.waitFor({ state: "visible", timeout: 2500 }).catch(() => {});
     const buttons = dialog.locator("button");
     const ok = await dialog.count() > 0 && await buttons.count() >= 2;
-    if (ok) { await buttons.first().click({ force: true }); await wait(50); }
+    if (ok) { await buttons.first().evaluate((button) => button.click()); await wait(50); }
     const urls = await opened();
     report.record("DEEP-JOURNAL-02", "Style Journal — hotspot", "ouvre le détail et l'action WhatsApp", `dialog=${ok}, url=${urls.at(-1) || "aucune"}`, ok && /wa\.me/.test(urls.at(-1) || "") && errors.length === 0);
   }
@@ -155,6 +160,7 @@ try {
       if (!el) return false;
       return el.querySelector('button[aria-expanded]') || /indisponibles/i.test(el.textContent || "");
     },
+    null,
     { timeout: 4000 },
   ).catch(() => {});
   const accordions = section.locator("button[aria-expanded]");

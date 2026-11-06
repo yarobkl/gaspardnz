@@ -12,20 +12,20 @@
   },
   "ios": {
     "scheme": "Gaspardnz",
-    "backgroundColor": "#1c1208"
+    "backgroundColor": "#FAF8F4"
   },
   "plugins": {
     "SplashScreen": {
       "launchShowDuration": 2000,
       "launchAutoHide": true,
-      "backgroundColor": "#1c1208",
+      "backgroundColor": "#FAF8F4",
       "iosSpinnerStyle": "small",
-      "spinnerColor": "#b8973e",
+      "spinnerColor": "#8A5A2B",
       "showSpinner": false
     },
     "StatusBar": {
       "style": "LIGHT",
-      "backgroundColor": "#1c1208"
+      "backgroundColor": "#FAF8F4"
     }
   }
 }

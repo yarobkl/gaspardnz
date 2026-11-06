@@ -5,6 +5,8 @@ import { adminDb, consumePersistentRateLimit, createTransporter, escapeHtml, isA
 // CRM ID, never email addresses or a fabricated client/message to forward.
 const RECIPIENTS = ["gaspardnz.contact@gmail.com", "eliebakala@gmail.com"];
 const TEMPLATE = "whatsapp_contact_internal_v1";
+// Capacitor iOS serves bundled assets from this exact origin.
+const IOS_ORIGIN = "capacitor://localhost";
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 export function notificationId(leadId, recipient) {
@@ -19,7 +21,8 @@ export function formatContactNotification(lead) {
   const details = sanitizeText(lead.metadata?.project_details || "", 300);
   const date = new Date(lead.created_at).toLocaleString("fr-FR", { timeZone: "Europe/Paris" });
   const whatsapp = `https://wa.me/${phone.replace(/\D/g, "")}`;
-  const text = `NOUVELLE DEMANDE CLIENT — GASPARDNZ\n\nPrénom : ${name}\nTéléphone : ${phone}\nPays : ${sanitizeText(lead.metadata?.country_code, 10)} (${sanitizeText(lead.metadata?.calling_code, 10)})\nProjet : ${project}${details ? `\nPrécisions : ${details}` : ""}\nReçue le : ${date} (heure de Paris)\nSource : site GaspardNZ — Parler à Gaspard\n\nMessage préparé par le client :\n${sanitizeText(lead.message, 2000)}\n\nContacter le prospect sur WhatsApp : ${whatsapp}\nRetrouver la demande dans le CRM : https://gaspardnz.style/admin\n\nLes coordonnées ont été validées sur le site. L’envoi du message WhatsApp par le client n’est pas confirmé.`;
+  const entrySource = lead.metadata?.entry_point === "parler_a_gaspard_ios" ? "application iPhone GaspardNZ" : "site GaspardNZ";
+  const text = `NOUVELLE DEMANDE CLIENT — GASPARDNZ\n\nPrénom : ${name}\nTéléphone : ${phone}\nPays : ${sanitizeText(lead.metadata?.country_code, 10)} (${sanitizeText(lead.metadata?.calling_code, 10)})\nProjet : ${project}${details ? `\nPrécisions : ${details}` : ""}\nReçue le : ${date} (heure de Paris)\nSource : ${entrySource} — Parler à Gaspard\n\nMessage préparé par le client :\n${sanitizeText(lead.message, 2000)}\n\nContacter le prospect sur WhatsApp : ${whatsapp}\nRetrouver la demande dans le CRM : https://gaspardnz.style/admin\n\nLes coordonnées ont été validées sur le site. L’envoi du message WhatsApp par le client n’est pas confirmé.`;
   return {
     subject: sanitizeText(`Nouvelle demande — ${name} — ${project}`, 180),
     text,
@@ -48,8 +51,20 @@ async function claimNotification(db, lead, recipient, subject) {
 }
 
 export default async function handler(req, res) {
+  const origin = req.headers.origin;
+  const isIosOrigin = origin === IOS_ORIGIN;
+  // Do not expand the shared email API's origin policy: native CORS is
+  // allowed only for this endpoint, which verifies opaque CRM IDs, rate-limits
+  // requests, and deduplicates emails by lead + recipient.
+  if (isIosOrigin) {
+    res.setHeader("Access-Control-Allow-Origin", IOS_ORIGIN);
+    res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+    res.setHeader("Vary", "Origin");
+  }
+  if (req.method === "OPTIONS") return isIosOrigin ? res.status(204).end() : res.status(403).end();
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
-  if (!isAllowedOrigin(req.headers.origin)) return res.status(403).json({ error: "Origin not allowed" });
+  if (!isIosOrigin && !isAllowedOrigin(origin)) return res.status(403).json({ error: "Origin not allowed" });
   const body = req.body;
   if (!body || typeof body !== "object" || Array.isArray(body) || Object.keys(body).some(key => key !== "leadId") || !uuid.test(body.leadId || "")) return res.status(400).json({ error: "Invalid contact request" });
   if (!validateEnv()) return res.status(503).json({ success: false, error: "Email service not configured" });

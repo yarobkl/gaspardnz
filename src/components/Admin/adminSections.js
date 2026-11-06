@@ -25,6 +25,7 @@ export const NAV_GROUPS = [
     { id: "texts", label: "Textes du site", icon: "Aa", min: "editor", component: lazy(() => import("./AdminTexts.jsx")) },
     { id: "media", label: "Médias & photos", icon: "▧", min: "editor", component: lazy(() => import("./AdminMedia.jsx")) },
     { id: "albums", label: "Galerie & Showroom", icon: "▦", min: "editor", component: lazy(() => import("./AdminAlbums.jsx")) },
+    { id: "notifications", label: "Notifications clients", icon: "✦", min: "editor", component: lazy(() => import("./AdminNotifications.jsx")) },
     { id: "promotions", label: "Promotions", icon: "◇", min: "editor", component: lazy(() => import("./AdminPromotions.jsx")) },
     { id: "style", label: "Style du mois", icon: "◈", min: "editor", component: lazy(() => import("./AdminStyleMonth.jsx")) },
     { id: "vip", label: "Clients VIP", icon: "☆", min: "editor", component: lazy(() => import("./AdminVIPClients.jsx")) },

@@ -1,4 +1,5 @@
 import { useRef, useEffect, useState } from "react";
+import { Capacitor } from "@capacitor/core";
 import { motion, useReducedMotion, useScroll, useTransform, useInView } from "framer-motion";
 import { GOLD, CREAM } from "../constants.js";
 import { useTr } from "../context.jsx";
@@ -7,10 +8,20 @@ import { isTikTokInAppBrowser } from "../utils/tiktokInAppBrowser.js";
 import useViewportHeightPx from "../hooks/useViewportHeightPx.js";
 
 const _HERO_SRC = (typeof import.meta !== "undefined" ? (import.meta.env.BASE_URL || "/") : "/") + "hero.mp4";
+const _APP_HERO_PHOTO = (import.meta.env.BASE_URL || "/") + "images/veste-orange.jpg";
 const _HERO_POSTER = (typeof import.meta !== "undefined" ? (import.meta.env.BASE_URL || "/") : "/") + "images/hero-poster.jpg";
 const _VIDEO_STYLE = { position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 20%", filter: "brightness(0.82) contrast(1.05) saturate(1.0)" };
 
 const HeroVideoLoop = ({ skipVideo }) => {
+  // App native only: real GaspardNZ gallery photograph, no autoplay video.
+  // Website remains unchanged, including the existing video and TikTok fallback.
+  if (Capacitor.isNativePlatform()) {
+    return <img src={_APP_HERO_PHOTO} alt="" aria-hidden="true" style={{ ..._VIDEO_STYLE, objectPosition: "center top", filter: "brightness(0.78)" }} />;
+  }
+  return <WebHeroVideoLoop skipVideo={skipVideo} />;
+};
+
+const WebHeroVideoLoop = ({ skipVideo }) => {
   const t = useTr();
   const ref = useRef(null);
   const readyRef = useRef(false);

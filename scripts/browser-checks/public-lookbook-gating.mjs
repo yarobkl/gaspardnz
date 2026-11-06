@@ -27,6 +27,7 @@ async function open({ stripeUrl, hidden = false, hiddenMessage = "" }) {
     status: 200,
     headers: { 'content-type': 'application/json', 'access-control-allow-origin': '*' },
     body: JSON.stringify([
+      { key: 'lookbook', value: { pdf_url: stripeUrl ? 'https://example.com/lookbook.pdf' : '' } },
       { key: 'payment', value: stripeUrl
         ? { stripe_payment_url: stripeUrl, payment_label: 'Acheter le lookbook', lookbook_hidden: hidden, lookbook_hidden_message: hiddenMessage }
         : {} },
@@ -60,7 +61,8 @@ async function readFormulesState(page) {
     const txt = block.innerText || '';
     return {
       soon: /à venir/i.test(txt),
-      buyLabel: /acheter le lookbook/i.test(txt),
+      buyLabel: /télécharger gratuitement/i.test(txt),
+      disabled: block.querySelector('button[data-track="lookbook_download"]')?.disabled ?? null,
       texte: txt.replace(/\s+/g, ' ').trim(),
     };
   });
@@ -86,7 +88,7 @@ async function readNavState(page) {
   record('FORMULES-vide', "section Formules sans lien Stripe",
     '« À venir » affiché, pas de bouton d\'achat',
     JSON.stringify(formules),
-    Boolean(formules?.soon) && !formules?.buyLabel);
+    Boolean(formules?.soon) && formules?.disabled === true);
 
   const nav = await readNavState(page);
   record('NAV-vide', "entrée Lookbook du menu sans lien Stripe",
@@ -101,15 +103,15 @@ async function readNavState(page) {
   const { ctx, page } = await open({ stripeUrl: 'https://buy.stripe.com/test_exemple' });
   const formules = await readFormulesState(page);
   record('FORMULES-actif', "section Formules avec lien Stripe",
-    'bouton d\'achat affiché, pas de « À venir »',
+    'bouton de téléchargement affiché, pas de « À venir »',
     JSON.stringify(formules),
-    Boolean(formules?.buyLabel) && !formules?.soon);
+    Boolean(formules?.buyLabel) && formules?.disabled === false && !formules?.soon);
 
   const nav = await readNavState(page);
   record('NAV-actif', "entrée Lookbook du menu avec lien Stripe",
-    'badge prix « € · Stripe », bouton actif',
+    'entrée Lookbook active lorsque le PDF est disponible',
     JSON.stringify(nav),
-    Boolean(nav && /€ · Stripe/i.test(nav.texte) && !nav.desactive));
+    Boolean(nav && !nav.desactive));
   await ctx.close();
 }
 
@@ -120,7 +122,7 @@ async function readNavState(page) {
   record('FORMULES-masque-manuel', "section Formules avec lien Stripe mais case « Masquer » cochée",
     'message personnalisé « Bientôt disponible » affiché, pas de bouton d\'achat',
     JSON.stringify(formules),
-    !formules?.buyLabel && /bientôt disponible/i.test(formules?.texte || ''));
+    formules?.disabled === true && /bientôt disponible/i.test(formules?.texte || ''));
 
   const nav = await readNavState(page);
   record('NAV-masque-manuel', "entrée Lookbook du menu, masquée manuellement",
