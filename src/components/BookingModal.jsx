@@ -248,7 +248,10 @@ const BookingModal = ({ isOpen, onClose, boutiqueMode = false, onSwitchToBooking
                       <label style={{ ...labelStyle }}>Votre email<input required type="email" value={email} onChange={(e) => setEmail(e.target.value)} style={inputStyle} placeholder="vous@exemple.fr" /></label>
                       <label style={{ ...labelStyle }}>Téléphone<input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} style={inputStyle} placeholder="06…" /></label>
                       {requestState.error && <p role="alert" style={{ color: "#e7a0a0", fontFamily: "'Montserrat', sans-serif", fontSize: "11px" }}>{requestState.error}</p>}
-                      {requestState.success && <p role="status" style={{ color: GOLD_LIGHT, fontFamily: "'Montserrat', sans-serif", fontSize: "11px", lineHeight: 1.5 }}>{requestState.success}</p>}
+                      {requestState.success && <div role="status" style={{ border: `1px solid rgba(184,151,62,0.45)`, padding: "1.15rem 1rem", textAlign: "center", color: GOLD_LIGHT, fontFamily: "'Montserrat', sans-serif", lineHeight: 1.55 }}>
+                        <strong style={{ display: "block", fontSize: "13px", letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: "0.55rem" }}>Demande envoyée avec succès</strong>
+                        <span style={{ display: "block", fontSize: "11px" }}>Merci pour votre demande. GaspardNZ vous recontactera personnellement pour confirmer votre rendez-vous.</span>
+                      </div>}
                       {!requestState.success && <motion.button type="submit" disabled={requestState.loading} whileTap={{ scale: 0.97 }} style={{ marginTop: "0.4rem", width: "100%", border: "none", background: GOLD, color: "#1c1208", padding: "1rem", fontFamily: "'Montserrat', sans-serif", fontSize: "11px", letterSpacing: "0.25em", textTransform: "uppercase", cursor: requestState.loading ? "wait" : "pointer" }}>{requestState.loading ? "Envoi…" : "Envoyer ma demande"}</motion.button>}
                     </form> : <p style={{ color: "rgba(245,240,232,0.6)", fontFamily: "'Montserrat', sans-serif", fontSize: "11px", textAlign: "center" }}>Les disponibilités seront bientôt mises à jour.</p>}
 
