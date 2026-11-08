@@ -13,7 +13,7 @@ export default function AdminAvailability() {
 
   const load = async () => {
     const { data } = await supabase.auth.getSession();
-    const response = await fetch(`/api/availability?from=${today()}`, { headers: { Authorization: `Bearer ${data?.session?.access_token || ""}` } });
+    const response = await fetch(`/api/booking?route=availability&from=${today()}`, { headers: { Authorization: `Bearer ${data?.session?.access_token || ""}` } });
     const payload = await response.json().catch(() => ({}));
     if (!response.ok) throw new Error(payload.error || "Impossible de charger les disponibilités");
     setRows(payload.availability || []);
@@ -24,7 +24,7 @@ export default function AdminAvailability() {
     event.preventDefault(); setError("");
     try {
       const { data } = await supabase.auth.getSession();
-      const response = await fetch("/api/availability", { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${data?.session?.access_token || ""}` }, body: JSON.stringify({ ...form, max_clients: Number(form.max_clients), slots: form.slots.split(",").map((slot) => slot.trim()).filter(Boolean) }) });
+      const response = await fetch("/api/booking?route=availability", { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${data?.session?.access_token || ""}` }, body: JSON.stringify({ ...form, max_clients: Number(form.max_clients), slots: form.slots.split(",").map((slot) => slot.trim()).filter(Boolean) }) });
       const payload = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(payload.error || "Enregistrement impossible");
       setToast("Disponibilité enregistrée."); setTimeout(() => setToast(""), 2200); await load();
