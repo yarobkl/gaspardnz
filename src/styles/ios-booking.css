@@ -1,0 +1,15 @@
+.gnz-ios-booking {
+  border-radius: 28px;
+  border: 1px solid rgba(184,151,62,.22);
+  box-shadow: 0 24px 80px rgba(0,0,0,.5);
+  overflow: hidden;
+}
+.gnz-ios-booking .gnz-ios-booking-card,
+.gnz-ios-booking select,
+.gnz-ios-booking input,
+.gnz-ios-booking textarea { border-radius: 14px !important; }
+.gnz-ios-booking select,
+.gnz-ios-booking input,
+.gnz-ios-booking textarea { background: rgba(245,240,232,.06) !important; border-color: rgba(184,151,62,.32) !important; }
+.gnz-ios-booking button[type="submit"] { border-radius: 14px !important; min-height: 52px; }
+.gnz-ios-booking label { letter-spacing: .16em !important; }
