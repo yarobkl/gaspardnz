@@ -43,7 +43,7 @@ export default function AdminBookings({ user }) {
       let updated;
       if (values.status === "confirmed") {
         const { data } = await supabase.auth.getSession();
-        const response = await fetch("/api/booking-confirmation", { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${data?.session?.access_token || ""}` }, body: JSON.stringify({ booking_id: id }) });
+        const response = await fetch("/api/booking?route=confirm", { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${data?.session?.access_token || ""}` }, body: JSON.stringify({ booking_id: id }) });
         const payload = await response.json().catch(() => ({}));
         if (!response.ok) throw new Error(payload.error || "Confirmation impossible.");
         updated = payload.booking;
