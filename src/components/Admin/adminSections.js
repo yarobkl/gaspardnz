@@ -18,6 +18,7 @@ export const NAV_GROUPS = [
   { label: "Commercial", items: [
     { id: "crm", label: "CRM", icon: "◎", min: "viewer", component: lazy(() => import("./AdminCRM.jsx")) },
     { id: "bookings", label: "Réservations", icon: "□", min: "viewer", component: lazy(() => import("./AdminBookings.jsx")) },
+    { id: "availability", label: "Disponibilités", icon: "◷", min: "editor", component: lazy(() => import("./AdminAvailability.jsx")) },
     { id: "emails", label: "Emails", icon: "✉", min: "viewer", component: lazy(() => import("./AdminEmails.jsx")) },
   ]},
   { label: "Site", items: [

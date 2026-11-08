@@ -40,7 +40,17 @@ export default function AdminBookings({ user }) {
 
   const patch = async (id, values) => {
     try {
-      const updated = await updateBooking(id, values);
+      let updated;
+      if (values.status === "confirmed") {
+        const { data } = await supabase.auth.getSession();
+        const response = await fetch("/api/booking-confirmation", { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${data?.session?.access_token || ""}` }, body: JSON.stringify({ booking_id: id }) });
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(payload.error || "Confirmation impossible.");
+        updated = payload.booking;
+        if (payload.warning || payload.email_sent === false) setToast(payload.warning || "Rendez-vous confirmé, mais l’email client n’a pas été envoyé.");
+      } else {
+        updated = await updateBooking(id, values);
+      }
       setRows((list) => list.map((item) => item.id === id ? { ...item, ...updated } : item));
       if (selected?.id === id) setSelected((s) => ({ ...s, ...updated }));
       setToast("Réservation mise à jour."); setTimeout(() => setToast(""), 2000);

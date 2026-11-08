@@ -1,13 +1,12 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { GOLD, CREAM, CALENDLY_URL } from "../constants.js";
+import { GOLD, GOLD_LIGHT, CREAM } from "../constants.js";
 import { useTr } from "../context.jsx";
 import { useFocusTrap } from "../hooks/useFocusTrap.js";
 import { useEscapeKey } from "../hooks/useEscapeKey.js";
-import { SvgCalendar, SvgWA, SvgArrow } from "../icons.jsx";
-import { useSettings } from "../hooks/useSettings.js";
-import { getWhatsappUrl } from "../utils/whatsappUtil.js";
+import { SvgWA, SvgArrow } from "../icons.jsx";
 import Portal from "./ui/Portal.jsx";
+import { listBookingAvailability, requestBooking } from "../services/bookingAvailability.js";
 
 const BoutiqueModal = ({ onClose, onReserver }) => {
   const t = useTr();
@@ -63,18 +62,45 @@ const BoutiqueModal = ({ onClose, onReserver }) => {
 
 const BookingModal = ({ isOpen, onClose, boutiqueMode = false, onSwitchToBooking }) => {
   const t = useTr();
-  const settings = useSettings();
   const focusTrapRef = useFocusTrap(isOpen);
   const [step, setStep] = useState(1);
   const [form, setForm] = useState({ nom: "", projet: "", besoin: "" });
+  const [availability, setAvailability] = useState([]);
+  const [selectedDate, setSelectedDate] = useState("");
+  const [selectedSlot, setSelectedSlot] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [requestState, setRequestState] = useState({ loading: false, error: "", success: "" });
 
   const ok = form.nom.trim() && form.projet.trim() && form.besoin.trim();
 
   const nom = form.nom.trim();
   const projet = form.projet.trim();
   const besoin = form.besoin.trim();
-  const waMsg = t("bk_wa", nom, projet, besoin);
-  const waUrl = getWhatsappUrl(settings.whatsappNumber, waMsg);
+
+  useEffect(() => {
+    if (!isOpen || !availability.length) {
+      if (!isOpen) return;
+      listBookingAvailability().then((items) => {
+        setAvailability(items);
+        if (!selectedDate && items[0]) setSelectedDate(items[0].service_date);
+      }).catch((error) => setRequestState((state) => ({ ...state, error: error.message })));
+    }
+  }, [isOpen]);
+
+  const selectedAvailability = availability.find((item) => item.service_date === selectedDate);
+  const submitRequest = async (event) => {
+    event.preventDefault();
+    setRequestState({ loading: true, error: "", success: "" });
+    try {
+      const result = await requestBooking({ full_name: nom, email, phone, project: projet, need: besoin, service_date: selectedDate, slot: selectedSlot });
+      setRequestState({ loading: false, error: "", success: result.message });
+    } catch (error) {
+      setRequestState({ loading: false, error: error.message, success: "" });
+      const fresh = await listBookingAvailability().catch(() => []);
+      if (fresh.length) setAvailability(fresh);
+    }
+  };
 
   // Fermer (fond cliqué, "×" ou Échap) ne doit PAS effacer une saisie en
   // cours : un clic accidentel sur le fond perdait les trois champs déjà
@@ -88,6 +114,12 @@ const BookingModal = ({ isOpen, onClose, boutiqueMode = false, onSwitchToBooking
     padding: "0.85rem 1rem", fontFamily: "'Montserrat', sans-serif",
     fontSize: "16px", color: CREAM, borderRadius: 0,
     transition: "border-color 0.3s", outline: "3px solid transparent", outlineOffset: "2px",
+  };
+  const labelStyle = {
+    display: "flex", flexDirection: "column", gap: "0.45rem",
+    fontFamily: "'Montserrat', sans-serif", fontSize: "10px",
+    letterSpacing: "0.2em", color: "rgba(245,240,232,0.72)",
+    textTransform: "uppercase",
   };
 
   return (
@@ -207,41 +239,18 @@ const BookingModal = ({ isOpen, onClose, boutiqueMode = false, onSwitchToBooking
                   <motion.div key="step2"
                     initial={{ x: 60, opacity: 0 }} animate={{ x: 0, opacity: 1 }}
                     transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}>
-                    <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1rem", color: "rgba(245,240,232,0.78)", fontStyle: "italic", textAlign: "center", marginBottom: "1.6rem", lineHeight: 1.65 }}>
-                      {t("bk_q", form.nom)}
+                    <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1rem", color: "rgba(245,240,232,0.78)", fontStyle: "italic", textAlign: "center", marginBottom: "1.2rem", lineHeight: 1.65 }}>
+                      Choisissez un créneau disponible. Votre demande sera confirmée personnellement par Gaspard.
                     </p>
-
-                    <div style={{ display: "flex", flexDirection: "column", gap: "0.9rem" }}>
-                      <a href={settings.calendlyUrl || CALENDLY_URL} target="_blank" rel="noopener noreferrer"
-                        style={{ display: "flex", alignItems: "center", gap: "1.1rem", border: "1px solid rgba(184,151,62,0.22)", padding: "1.3rem 1.4rem", textDecoration: "none", transition: "border-color 0.3s, background 0.3s" }}
-                        onTouchStart={e => { e.currentTarget.style.borderColor = GOLD; e.currentTarget.style.background = "rgba(184,151,62,0.04)"; }}
-                        onTouchEnd={e => { e.currentTarget.style.borderColor = "rgba(184,151,62,0.22)"; e.currentTarget.style.background = "none"; }}>
-                        <div style={{ width: "38px", height: "38px", border: `1px solid rgba(184,151,62,0.35)`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                          <SvgCalendar />
-                        </div>
-                        <div>
-                          <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.15rem", letterSpacing: "0.07em", color: CREAM, marginBottom: "0.15rem" }}>{t("bk_cal_title")}</p>
-                          <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.2em", color: "rgba(245,240,232,0.68)", textTransform: "uppercase" }}>{t("bk_cal_sub")}</p>
-                        </div>
-                      </a>
-
-                      <a href={waUrl} target="_blank" rel="noopener noreferrer"
-                        style={{ display: "flex", alignItems: "center", gap: "1.1rem", border: `1px solid ${GOLD}`, background: "rgba(184,151,62,0.04)", padding: "1.3rem 1.4rem", textDecoration: "none", transition: "background 0.3s" }}
-                        onTouchStart={e => e.currentTarget.style.background = "rgba(184,151,62,0.12)"}
-                        onTouchEnd={e => e.currentTarget.style.background = "rgba(184,151,62,0.04)"}>
-                        <div style={{ width: "38px", height: "38px", border: `1px solid ${GOLD}`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                          <SvgWA />
-                        </div>
-                        <div>
-                          <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.15rem", letterSpacing: "0.07em", color: CREAM, marginBottom: "0.15rem" }}>{t("bk_wa_title")}</p>
-                          <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.2em", color: "rgba(245,240,232,0.68)", textTransform: "uppercase" }}>{t("bk_wa_sub")}</p>
-                        </div>
-                      </a>
-                    </div>
-
-                    <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.28em", color: "rgba(245,240,232,0.6)", textTransform: "uppercase", textAlign: "center", marginTop: "1.5rem" }}>
-                      {t("bk_guarantee")}
-                    </p>
+                    {availability.length ? <form onSubmit={submitRequest} style={{ display: "flex", flexDirection: "column", gap: "0.9rem" }}>
+                      <label style={{ ...labelStyle }}>Date du rendez-vous<select required value={selectedDate} onChange={(e) => { setSelectedDate(e.target.value); setSelectedSlot(""); }} style={inputStyle}><option value="">Choisir une date</option>{availability.map((item) => <option key={item.service_date} value={item.service_date}>{new Date(`${item.service_date}T12:00:00`).toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" })} · {item.max_clients} place{item.max_clients > 1 ? "s" : ""}</option>)}</select></label>
+                      <label style={{ ...labelStyle }}>Horaire<select required value={selectedSlot} onChange={(e) => setSelectedSlot(e.target.value)} style={inputStyle}><option value="">Choisir un horaire</option>{(selectedAvailability?.slots || []).map((slot) => <option key={slot} value={slot}>{slot}</option>)}</select></label>
+                      <label style={{ ...labelStyle }}>Votre email<input required type="email" value={email} onChange={(e) => setEmail(e.target.value)} style={inputStyle} placeholder="vous@exemple.fr" /></label>
+                      <label style={{ ...labelStyle }}>Téléphone<input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} style={inputStyle} placeholder="06…" /></label>
+                      {requestState.error && <p role="alert" style={{ color: "#e7a0a0", fontFamily: "'Montserrat', sans-serif", fontSize: "11px" }}>{requestState.error}</p>}
+                      {requestState.success && <p role="status" style={{ color: GOLD_LIGHT, fontFamily: "'Montserrat', sans-serif", fontSize: "11px", lineHeight: 1.5 }}>{requestState.success}</p>}
+                      {!requestState.success && <motion.button type="submit" disabled={requestState.loading} whileTap={{ scale: 0.97 }} style={{ marginTop: "0.4rem", width: "100%", border: "none", background: GOLD, color: "#1c1208", padding: "1rem", fontFamily: "'Montserrat', sans-serif", fontSize: "11px", letterSpacing: "0.25em", textTransform: "uppercase", cursor: requestState.loading ? "wait" : "pointer" }}>{requestState.loading ? "Envoi…" : "Envoyer ma demande"}</motion.button>}
+                    </form> : <p style={{ color: "rgba(245,240,232,0.6)", fontFamily: "'Montserrat', sans-serif", fontSize: "11px", textAlign: "center" }}>Les disponibilités seront bientôt mises à jour.</p>}
 
                     <button onClick={() => setStep(1)}
                       style={{ display: "block", background: "none", border: "none", margin: "1.1rem auto 0", cursor: "pointer", fontFamily: "'Montserrat', sans-serif", fontSize: "10px", letterSpacing: "0.22em", color: "rgba(245,240,232,0.58)", textTransform: "uppercase" }}>
