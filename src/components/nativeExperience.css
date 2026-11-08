@@ -276,6 +276,7 @@
 .gnz-native-no-slots strong{display:block;font-family:Georgia,serif;font-size:18px;font-weight:400;margin-bottom:7px}
 .gnz-native-no-slots p{margin:0;padding:0;background:transparent;color:#665549;font-size:13px;line-height:1.6}
 .gnz-native-booking-page .gnz-native-booking-contact{min-height:50px;background:var(--gnz-brown);border-color:var(--gnz-brown);color:#fffaf4}
+.gnz-native-booking-form{display:grid;gap:15px;margin:20px 0}.gnz-native-booking-form label{display:grid;gap:7px;color:var(--gnz-ink);font-size:14px;font-weight:600}.gnz-native-booking-form input,.gnz-native-booking-form textarea{width:100%;box-sizing:border-box;padding:13px 14px;border:1px solid #d8c8b5;border-radius:12px;background:#fffdf9;color:var(--gnz-ink);font:inherit;font-size:16px}.gnz-native-booking-form :is(input,textarea):focus-visible{outline:2px solid var(--gnz-brown);outline-offset:2px}.gnz-native-booking-page .gnz-native-booking-contact:disabled{opacity:.5}.gnz-native-booking-error{color:#a82d2d}.gnz-native-booking-success{padding:18px;border-radius:14px;background:#efe2d2;color:var(--gnz-ink);line-height:1.6}
 @media(prefers-reduced-motion:no-preference){.gnz-native-service-assistance button,.gnz-native-booking-contact{transition:transform .15s ease,opacity .15s ease}.gnz-native-service-assistance button:active,.gnz-native-booking-contact:active{transform:scale(.98)}}
 
 /* iOS build 16 — TestFlight 1.0.5 : parcours services et rendez-vous améliorés. */

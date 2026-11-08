@@ -9,7 +9,7 @@ import { usePublicCollection } from "../hooks/usePublicCollection.js";
 import { downloadFile } from "../utils/downloadFile.js";
 import { nativeFeedback } from "../utils/nativeHaptics.js";
 import { openCookieSettings } from "../services/consent.js";
-import { formatAvailabilitySlot, normalizeBookingAvailability, isFutureBookingSlot } from "../utils/bookingAvailability.js";
+import { listBookingAvailability, requestBooking } from "../services/bookingAvailability.js";
 import NativeTabBar from "./NativeTabBar.jsx";
 import "./nativeExperience.css";
 
@@ -100,6 +100,15 @@ export default function NativeExperience(){
  const legal=legalCopy[lang]||legalCopy.FR;
  useEffect(()=>{StatusBar.setStyle({style:Style.Light}).catch(()=>{});},[]);
  const [page,setPage]=useState("home"),[contactOpen,setContactOpen]=useState(false),[contactProject,setContactProject]=useState(""),[contactDetails,setContactDetails]=useState(""),[bookingProject,setBookingProject]=useState(""),[bookingSlotId,setBookingSlotId]=useState(""),[downloadError,setDownloadError]=useState(""),[notificationsOpen,setNotificationsOpen]=useState(false),[newsFocusId,setNewsFocusId]=useState(null);
+ const [bookingDates,setBookingDates]=useState([]),[bookingLoading,setBookingLoading]=useState(false),[bookingError,setBookingError]=useState(""),[bookingSuccess,setBookingSuccess]=useState(""),[bookingSending,setBookingSending]=useState(false);
+ const [bookingForm,setBookingForm]=useState({full_name:"",email:"",phone:"",need:""});
+ useEffect(()=>{
+   if(page!=="booking")return;
+   let active=true;
+   setBookingLoading(true);setBookingError("");
+   listBookingAvailability().then(items=>{if(active)setBookingDates(items);}).catch(error=>{if(active)setBookingError(error.message);}).finally(()=>{if(active)setBookingLoading(false);});
+   return()=>{active=false;};
+ },[page]);
  const [pairCode,setPairCode]=useState(""),[pairStatus,setPairStatus]=useState(""),[pairBusy,setPairBusy]=useState(false);
  const pushToken=useRef("");
  useEffect(()=>{
@@ -203,13 +212,20 @@ export default function NativeExperience(){
  ] : lang==="EN" ? [["image_consulting","Image consulting"],["wedding","Wedding styling"],["master_of_ceremonies","Master of ceremonies / hosting"],["other","Other request"]]
    : lang==="ES" ? [["image_consulting","Asesoría de imagen"],["wedding","Preparación de boda"],["master_of_ceremonies","Maestro de ceremonias / animación"],["other","Otra solicitud"]]
    : [["image_consulting","形象咨询"],["wedding","婚礼造型"],["master_of_ceremonies","司仪与活动主持"],["other","其他需求"]];
- const availability = normalizeBookingAvailability(settings.bookingAvailability);
- const futureSlots = availability.slots.filter(slot => isFutureBookingSlot(slot));
- const chosenSlot = futureSlots.find(slot => slot.id === bookingSlotId);
- const bookingDetails = chosenSlot
-   ? `Créneau souhaité : ${formatAvailabilitySlot(chosenSlot,lang==="FR"?"fr-FR":undefined)} (sous réserve de confirmation)`
-   : "";
- const requestAppointment = () => openContact(bookingProject || "other", bookingDetails);
+ const bookingSlots=bookingDates.flatMap(date=>(date.slots||[]).map(slot=>({id:`${date.service_date}-${slot}`,date:date.service_date,slot,remaining:date.remaining_clients})));
+ const chosenSlot=bookingSlots.find(item=>item.id===bookingSlotId);
+ const bookingLabel=item=>`${new Date(`${item.date}T12:00:00`).toLocaleDateString(lang==="FR"?"fr-FR":undefined,{weekday:"long",day:"numeric",month:"long"})} · ${item.slot}`;
+ const submitAppointment=async event=>{
+   event.preventDefault();
+   if(!chosenSlot||bookingSending)return;
+   setBookingSending(true);setBookingError("");
+   try{
+     await requestBooking({...bookingForm,project:bookingChoices.find(([key])=>key===bookingProject)?.[1]||"Autre demande",service_date:chosenSlot.date,slot:chosenSlot.slot});
+     setBookingSuccess(`Merci pour votre demande. Le ${bookingLabel(chosenSlot)} a bien été demandé. GaspardNZ vous confirmera personnellement ce rendez-vous.`);
+     setBookingDates(await listBookingAvailability().catch(()=>bookingDates));
+   }catch(error){setBookingError(error.message);setBookingDates(await listBookingAvailability().catch(()=>bookingDates));}
+   finally{setBookingSending(false);}
+ };
  const showInternalPushTools = import.meta.env.VITE_GNZ_INTERNAL_BUILD === "true";
  const content=()=>{
   switch(page){
@@ -225,22 +241,26 @@ export default function NativeExperience(){
       </div>
       <div className="gnz-native-availability">
         <strong>{lang==="FR"?"Créneaux disponibles":lang==="EN"?"Available appointments":lang==="ES"?"Citas disponibles":"可预约时间"}</strong>
-        {futureSlots.length ? futureSlots.map(slot=><button key={slot.id} type="button" data-haptic="selection"
+        {bookingLoading?<p role="status">Chargement des créneaux…</p>:bookingSlots.length ? bookingSlots.map(slot=><button key={slot.id} type="button" data-haptic="selection"
           className={bookingSlotId===slot.id?"selected":""} aria-pressed={bookingSlotId===slot.id}
-          onClick={()=>setBookingSlotId(prev=>prev===slot.id?"":slot.id)}>
-          {formatAvailabilitySlot(slot,lang==="FR"?"fr-FR":undefined)}<span aria-hidden="true">✓</span>
+          onClick={()=>{setBookingSlotId(prev=>prev===slot.id?"":slot.id);setBookingSuccess("");}}>
+          {bookingLabel(slot)} · {slot.remaining} place{slot.remaining>1?"s":""}<span aria-hidden="true">✓</span>
         </button>) : <div className="gnz-native-no-slots" role="status">
           <strong>{lang==="FR"?"Aucun créneau publié pour le moment":lang==="EN"?"No appointments published yet":lang==="ES"?"Aún no hay horarios disponibles":"暂时没有可预约的时间"}</strong>
-          <p>{lang==="FR"?"Vous pouvez envoyer une demande : GaspardNZ vous recontactera pour convenir d’un rendez-vous.":lang==="EN"?"Send a request and GaspardNZ will contact you to arrange a time.":lang==="ES"?"Envíe una solicitud y GaspardNZ le contactará para concertar una cita.":"您可以提交预约申请，GaspardNZ 会联系您确认时间。"}</p>
+          <p>Les prochaines disponibilités seront publiées ici.</p>
         </div>}
         {chosenSlot&&<p className="gnz-native-booking-confirmation-note">
           {lang==="FR"?"Ce créneau est souhaité, pas encore confirmé.":lang==="EN"?"This is a requested time, not a confirmed booking.":lang==="ES"?"Este horario aún no está confirmado.":"预约时段尚未确认。"}
         </p>}
       </div>
-      <button className="gnz-native-booking-contact" type="button" onClick={requestAppointment}>
-        {chosenSlot ? lang==="FR"?"Demander ce créneau":lang==="EN"?"Request this time":lang==="ES"?"Solicitar este horario":"申请此时间"
-          : lang==="FR"?"Demander un rendez-vous":lang==="EN"?"Request an appointment":lang==="ES"?"Solicitar una cita":"申请预约"} →
-      </button>
+      {bookingError&&<p role="alert" className="gnz-native-booking-error">{bookingError}</p>}
+      {bookingSuccess?<p role="status" className="gnz-native-booking-success">{bookingSuccess}</p>:<form className="gnz-native-booking-form" onSubmit={submitAppointment}>
+        <label>Votre nom<input required maxLength={160} autoComplete="name" value={bookingForm.full_name} onChange={e=>setBookingForm({...bookingForm,full_name:e.target.value})}/></label>
+        <label>Votre email<input required type="email" autoComplete="email" value={bookingForm.email} onChange={e=>setBookingForm({...bookingForm,email:e.target.value})}/></label>
+        <label>Téléphone<input type="tel" autoComplete="tel" value={bookingForm.phone} onChange={e=>setBookingForm({...bookingForm,phone:e.target.value})}/></label>
+        <label>Votre projet<textarea rows={3} maxLength={1800} value={bookingForm.need} onChange={e=>setBookingForm({...bookingForm,need:e.target.value})}/></label>
+        <button className="gnz-native-booking-contact" type="submit" disabled={!chosenSlot||!bookingProject||bookingSending}>{bookingSending?"Envoi en cours…":"Demander ce créneau →"}</button>
+      </form>}
     </section>;
    case "more":return <section className="gnz-native-section">{heading(c.more)}<div className="gnz-native-list">{extra.map(([key,label])=><button key={key} onClick={()=>select(key)}><span className="gnz-native-more-icon"><NativeIcon name={key}/></span><span className="gnz-native-more-label">{ui.sections[key]||label}</span><span aria-hidden="true">›</span></button>)}{settings.lookbookPdfUrl && !settings.lookbookHidden && <button onClick={()=>{setDownloadError("");downloadFile(settings.lookbookPdfUrl,"lookbook-gaspardnz.pdf").catch(()=>setDownloadError(ui.loadError));}}><span className="gnz-native-more-icon"><NativeIcon name="lookbook"/></span><span className="gnz-native-more-label">{ui.lookbook}</span><span aria-hidden="true">↓</span></button>}{downloadError&&<p className="gnz-native-error" role="alert">{downloadError}</p>}<label className="gnz-native-language">{ui.language} <select value={lang} onChange={e=>setLang(e.target.value)}><option value="FR">Français</option><option value="EN">English</option><option value="ES">Español</option><option value="ZH">中文</option></select></label><section className="gnz-native-legal" aria-label={legal.title}><h2>{legal.title}</h2><div className="gnz-native-legal-links">{legalLinks.map(([key,href])=><a key={key} href={href} target={href.startsWith("https://")?"_blank":undefined} rel={href.startsWith("https://")?"noopener noreferrer":undefined}><span>{legal[key]}</span><span aria-hidden="true">↗</span></a>)}<button type="button" onClick={openCookieSettings}><span>{legal.consent}</span><span aria-hidden="true">›</span></button></div></section>{showInternalPushTools&&Capacitor.getPlatform()==="ios"&&<details className="gnz-native-internal-tools"><summary>Outils de diagnostic TestFlight</summary><div style={{padding:"12px 4px",display:"grid",gap:10}}><strong>Notifications Apple — appareil de test</strong><p>Entrez le code temporaire créé depuis l’administration pour associer cet iPhone.</p><input aria-label="Code d’appairage Apple" value={pairCode} onChange={e=>setPairCode(e.target.value.trim())} placeholder="Code temporaire" autoCapitalize="none" autoCorrect="off" style={{width:"100%",padding:12,borderRadius:8,border:"1px solid #b9aa97"}}/><button type="button" disabled={pairBusy} onClick={pairIphone}>{pairBusy?"Connexion Apple…":"Activer les notifications sur cet iPhone"}</button>{pairStatus&&<p role="status">{pairStatus}</p>}</div></details>}</div></section>;
    case "contact":return <section className="gnz-native-section"><button className="gnz-native-section-back" type="button" onClick={backToHome}>‹ {c.back}</button>{heading(ui.sections.contact)}<div className="gnz-native-contact-list"><button type="button" onClick={()=>openContact()}><ContactBrandIcon type="whatsapp"/><span><strong>WhatsApp</strong><small>{c.talk}</small></span><span aria-hidden="true">›</span></button>{settings.contactEmail&&<a href={`mailto:${settings.contactEmail}`}><ContactBrandIcon type="email"/><span><strong>E-mail</strong><small>{settings.contactEmail}</small></span><span aria-hidden="true">›</span></a>}<button type="button" onClick={()=>openContact()}><ContactBrandIcon type="request"/><span><strong>{ui.request}</strong><small>{ui.bookingHint}</small></span><span aria-hidden="true">›</span></button></div></section>;
