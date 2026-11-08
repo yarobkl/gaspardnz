@@ -7,6 +7,7 @@ import { useEscapeKey } from "../hooks/useEscapeKey.js";
 import { SvgWA, SvgArrow } from "../icons.jsx";
 import Portal from "./ui/Portal.jsx";
 import { listBookingAvailability, requestBooking } from "../services/bookingAvailability.js";
+import "../styles/ios-booking.css";
 
 const BoutiqueModal = ({ onClose, onReserver }) => {
   const t = useTr();
@@ -62,6 +63,7 @@ const BoutiqueModal = ({ onClose, onReserver }) => {
 
 const BookingModal = ({ isOpen, onClose, boutiqueMode = false, onSwitchToBooking }) => {
   const t = useTr();
+  const isNative = typeof window !== "undefined" && Boolean(window.Capacitor?.isNativePlatform?.());
   const focusTrapRef = useFocusTrap(isOpen);
   const [step, setStep] = useState(1);
   const [form, setForm] = useState({ nom: "", projet: "", besoin: "" });
@@ -140,6 +142,7 @@ const BookingModal = ({ isOpen, onClose, boutiqueMode = false, onSwitchToBooking
             <BoutiqueModal onClose={close} onReserver={onSwitchToBooking} />
           ) : (
           <motion.div
+            className={isNative ? "gnz-ios-booking" : ""}
             ref={focusTrapRef}
             role="dialog"
             aria-modal="true"
@@ -163,7 +166,7 @@ const BookingModal = ({ isOpen, onClose, boutiqueMode = false, onSwitchToBooking
                   {step === 1 ? t("bk_step1") : t("bk_step2")}
                 </p>
                 <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.6rem", letterSpacing: "0.08em", color: CREAM, lineHeight: 1 }}>
-                  {step === 1 ? t("bk_title1") : t("bk_title2")}
+                  {isNative ? "Rendez-vous showroom" : (step === 1 ? t("bk_title1") : t("bk_title2"))}
                 </p>
               </div>
               <button onClick={close} aria-label={t("close")} style={{ background: "none", border: "none", cursor: "pointer", padding: "4px 8px", color: "rgba(245,240,232,0.62)", fontSize: "22px", lineHeight: 1, marginTop: "-4px" }}>×</button>
