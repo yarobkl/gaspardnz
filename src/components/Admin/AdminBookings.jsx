@@ -1,10 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
-import { listBookings, listLeads, updateBooking, getIntegrationSettings, getSiteSettings, saveSiteSetting } from "../../services/adminData.js";
+import { listBookings, updateBooking, getIntegrationSettings } from "../../services/adminData.js";
 import { supabase } from "../../services/supabaseClient.js";
 import { hasPermission } from "../../services/adminAuth.js";
 import { fromDateTimeLocal, toDateTimeLocal } from "./dateTimeLocal.js";
 import "../../styles/admin-v2.css";
-import { normalizeBookingAvailability, formatAvailabilitySlot, isFutureBookingSlot } from "../../utils/bookingAvailability.js";
 
 const STATUSES = [
   ["requested","Demandé"], ["confirmed","Confirmé"], ["completed","Terminé"], ["cancelled","Annulé"], ["no_show","Absent"],
@@ -16,7 +15,6 @@ export default function AdminBookings({ user }) {
   // un compte en dessous voyait une fiche modifiable puis une erreur technique.
   const canEdit = hasPermission("admin", user?.role || user?.permission);
   const [rows, setRows] = useState([]);
-  const [appointmentLeads, setAppointmentLeads] = useState([]);
   const [selected, setSelected] = useState(null);
   const [filter, setFilter] = useState("all");
   const [loading, setLoading] = useState(true);
@@ -24,17 +22,13 @@ export default function AdminBookings({ user }) {
   const [integration, setIntegration] = useState(null);
   const [error, setError] = useState("");
   const [toast, setToast] = useState("");
-  const [availability, setAvailability] = useState({ timezone: "Europe/Paris", slots: [] });
-  const [newSlot, setNewSlot] = useState({ date: "", start: "10:00", end: "11:00" });
 
   const load = async () => {
     setLoading(true);
     try {
-      const [bookings, integrations, settings, leads] = await Promise.all([listBookings(250), getIntegrationSettings(), getSiteSettings(), canEdit ? listLeads({limit:250}) : Promise.resolve([])]);
+      const [bookings, integrations] = await Promise.all([listBookings(250), getIntegrationSettings()]);
       setRows(bookings);
-      setAppointmentLeads(leads.filter(lead => lead.metadata?.appointment_requested === true));
       setIntegration(integrations.find((item) => item.provider === "calendly") || null);
-      setAvailability(normalizeBookingAvailability(settings.booking_availability?.value));
       setError("");
     } catch (e) { setError(e?.message || "Impossible de charger les réservations."); }
     finally { setLoading(false); }
@@ -46,7 +40,17 @@ export default function AdminBookings({ user }) {
 
   const patch = async (id, values) => {
     try {
-      const updated = await updateBooking(id, values);
+      let updated;
+      if (values.status === "confirmed") {
+        const { data } = await supabase.auth.getSession();
+        const response = await fetch("/api/booking-confirmation", { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${data?.session?.access_token || ""}` }, body: JSON.stringify({ booking_id: id }) });
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(payload.error || "Confirmation impossible.");
+        updated = payload.booking;
+        if (payload.warning || payload.email_sent === false) setToast(payload.warning || "Rendez-vous confirmé, mais l’email client n’a pas été envoyé.");
+      } else {
+        updated = await updateBooking(id, values);
+      }
       setRows((list) => list.map((item) => item.id === id ? { ...item, ...updated } : item));
       if (selected?.id === id) setSelected((s) => ({ ...s, ...updated }));
       setToast("Réservation mise à jour."); setTimeout(() => setToast(""), 2000);
@@ -72,55 +76,10 @@ export default function AdminBookings({ user }) {
     finally { setSyncing(false); }
   };
 
-  const addAvailability = async (event) => {
-    event.preventDefault();
-    if (!newSlot.date || !newSlot.start || !newSlot.end || newSlot.end <= newSlot.start) {
-      setError("Renseignez un créneau valide, avec une heure de fin après le début.");
-      return;
-    }
-    if (!isFutureBookingSlot(newSlot)) {
-      setError("Impossible de publier un créneau déjà passé.");
-      return;
-    }
-    if (availability.slots.some(slot => slot.date === newSlot.date &&
-        newSlot.start < slot.end && newSlot.end > slot.start)) {
-      setError("Un créneau publié chevauche déjà cet horaire.");
-      return;
-    }
-    const slot = { id: crypto.randomUUID(), ...newSlot, active: true };
-    const next = { ...availability, slots: [...availability.slots, slot] };
-    try {
-      await saveSiteSetting("booking_availability", next, "Disponibilités publiques de rendez-vous gérées depuis l'administration");
-      setAvailability(normalizeBookingAvailability(next));
-      setNewSlot({ date: "", start: "10:00", end: "11:00" });
-      setToast("Disponibilité publiée sur le site et l'application."); setTimeout(() => setToast(""), 2500);
-    } catch (e) { setError(e?.message || "Impossible de publier cette disponibilité."); }
-  };
-
-  const removeAvailability = async (id) => {
-    const next = { ...availability, slots: availability.slots.filter((slot) => slot.id !== id) };
-    try {
-      await saveSiteSetting("booking_availability", next, "Disponibilités publiques de rendez-vous gérées depuis l'administration");
-      setAvailability(normalizeBookingAvailability(next));
-    } catch (e) { setError(e?.message || "Impossible de retirer cette disponibilité."); }
-  };
-
   return <div>
-    <div className="gnz-page-heading"><div><h1>Réservations</h1><p>Gaspard publie ses créneaux ici : ils deviennent immédiatement disponibles sur le site et l'application.</p></div><div className="gnz-page-actions"><button className="gnz-secondary-button" onClick={load}>Actualiser</button></div></div>
+    <div className="gnz-page-heading"><div><h1>Réservations</h1><p>Demandes de rendez-vous et rendez-vous confirmés, reliés au CRM et à Calendly.</p></div><div className="gnz-page-actions"><button className="gnz-secondary-button" onClick={load}>Actualiser</button><button className="gnz-primary-button" onClick={syncCalendly} disabled={syncing}>{syncing ? "Synchronisation…" : "Synchroniser Calendly"}</button></div></div>
     {error && <div className="gnz-alert gnz-alert-error">{error}</div>}
-    <section className="gnz-card" style={{ marginBottom: 12 }}><header className="gnz-card-header"><div className="gnz-card-title"><strong>Disponibilités publiques</strong><span>Une seule source de vérité pour le site et l'application</span></div></header><div className="gnz-card-body"><form className="gnz-editor-grid" onSubmit={addAvailability}><div className="gnz-section-grid" style={{ margin: 0 }}><label className="gnz-field gnz-col-4">Date<input className="gnz-input" type="date" value={newSlot.date} onChange={(e) => setNewSlot({ ...newSlot, date: e.target.value })} required /></label><label className="gnz-field gnz-col-4">Début<input className="gnz-input" type="time" value={newSlot.start} onChange={(e) => setNewSlot({ ...newSlot, start: e.target.value })} required /></label><label className="gnz-field gnz-col-4">Fin<input className="gnz-input" type="time" value={newSlot.end} onChange={(e) => setNewSlot({ ...newSlot, end: e.target.value })} required /></label></div><button className="gnz-primary-button">Publier ce créneau</button></form>{availability.slots.length ? <div className="gnz-page-actions" style={{ marginTop: 12, flexWrap: "wrap" }}>{availability.slots.map((slot) => <span key={slot.id} className="gnz-status success" style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>{formatAvailabilitySlot(slot)}<button type="button" aria-label={`Retirer ${formatAvailabilitySlot(slot)}`} onClick={() => removeAvailability(slot.id)} style={{ border: 0, background: "transparent", cursor: "pointer" }}>×</button></span>)}</div> : <p className="gnz-muted" style={{ margin: "12px 0 0" }}>Aucun créneau publié pour le moment.</p>}</div></section>
-    {canEdit&&<section className="gnz-card" style={{marginBottom:12}} aria-label="Demandes de rendez-vous provenant de l'application">
-      <header className="gnz-card-header"><div className="gnz-card-title"><strong>Demandes de rendez-vous depuis le CRM</strong>
-        <span>{appointmentLeads.length} demande(s) à examiner · Aucun créneau n'est confirmé automatiquement</span></div></header>
-      <div className="gnz-table-wrap"><table className="gnz-table"><thead><tr>
-        <th>Client</th><th>Créneau souhaité</th><th>Projet</th><th>Contact</th>
-      </tr></thead><tbody>{appointmentLeads.length ? appointmentLeads.map(lead=><tr key={lead.id}>
-        <td><strong>{lead.full_name}</strong><span className="gnz-table-sub">{lead.status||"Nouveau"}</span></td>
-        <td>{lead.metadata?.project_details||"À convenir"}</td>
-        <td>{lead.metadata?.project_label||lead.metadata?.project_type||"Projet"}</td>
-        <td>{lead.email||lead.phone||"—"}</td>
-      </tr>) : <tr><td colSpan="4"><div className="gnz-empty-state">Aucune demande de créneau pour le moment.</div></td></tr>}</tbody></table></div>
-    </section>}
+    <div className={`gnz-alert ${integration?.status === "connected" ? "gnz-alert-success" : ""}`} style={{ marginBottom:12 }}><strong>Calendly : {integration?.status === "connected" ? "connecté" : integration?.status === "error" ? "erreur" : "autorisation requise"}</strong>{integration?.last_sync_at ? ` · Dernière synchro ${new Date(integration.last_sync_at).toLocaleString("fr-FR")}` : ""}{integration?.last_error ? <><br/>{integration.last_error}</> : null}</div>
     <section className="gnz-kpi-grid" style={{ marginBottom: 12 }}>
       <article className="gnz-kpi-card"><span className="gnz-kpi-label">Demandes</span><div className="gnz-kpi-value">{counts.requested || 0}</div><div className="gnz-kpi-sub">À confirmer</div></article>
       <article className="gnz-kpi-card"><span className="gnz-kpi-label">Confirmées</span><div className="gnz-kpi-value">{counts.confirmed || 0}</div><div className="gnz-kpi-sub">Rendez-vous actifs</div></article>
