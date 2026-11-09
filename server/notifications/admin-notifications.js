@@ -21,6 +21,13 @@ function safeUrl(value) {
   try { const u = new URL(value, "https://gaspardnz.style"); return u.protocol === "https:" && (u.hostname === "gaspardnz.style" || u.hostname.endsWith(".gaspardnz.style")) ? u.href : null; }
   catch { return null; }
 }
+function safeTargetUrl(value) {
+  if (!value) return null;
+  try {
+    const u = new URL(String(value).trim());
+    return u.protocol === "https:" && u.hostname && !u.username && !u.password && u.href.length <= 2048 ? u.href : null;
+  } catch { return null; }
+}
 export default async function handler(req,res) {
   if (!["GET","POST"].includes(req.method)) return res.status(405).json({error:"Méthode non autorisée"});
   let db;
