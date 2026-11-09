@@ -12,10 +12,10 @@ export default async function handler(req,res) {
  const {data:access}=await db.from("admin_access").select("role,active").eq("email",email).maybeSingle();
  if(!access?.active || !["owner","admin"].includes(access.role)) return res.status(403).json({error:"Accès refusé"});
  const {title,body}=req.body||{};
- const {data:device,error:deviceError}=await db.from("notification_test_devices").select("device_token").eq("id","owner-iphone").maybeSingle();
+ const {data:device,error:deviceError}=await db.from("push_subscriptions").select("provider_subscription_id").eq("provider","apns").eq("platform","ios").eq("marketing_opt_in",true).is("revoked_at",null).order("updated_at",{ascending:false}).limit(1).maybeSingle();
  if(deviceError)return res.status(503).json({error:"Registre des appareils indisponible"});
- const deviceToken=device?.device_token;
- if(!deviceToken)return res.status(409).json({error:"Aucun iPhone de test associé. Appairez-le depuis l’application."});
+ const deviceToken=device?.provider_subscription_id;
+ if(!deviceToken)return res.status(409).json({error:"Aucun iPhone n’a accepté les notifications pour le moment."});
  if(typeof deviceToken!=="string" || !/^[a-f0-9]{64,}$/i.test(deviceToken) || typeof title!=="string" || !title.trim() || title.length>120 || typeof body!=="string" || !body.trim() || body.length>500)
    return res.status(400).json({error:"Paramètres de test invalides"});
  try {
