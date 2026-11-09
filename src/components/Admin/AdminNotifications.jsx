@@ -27,11 +27,11 @@ export default function AdminNotifications() {
      if(!data?.session?.access_token) throw new Error("Session expirée");
      const response=await fetch("/api/notifications/admin-notification-test",{
        method:"POST",headers:{"Content-Type":"application/json",Authorization:"Bearer "+data.session.access_token},
-       body:JSON.stringify({title:form.title.trim()||"GaspardNZ — Test",body:form.body.trim()||"Votre notification de test fonctionne."})
+       body:JSON.stringify({title:form.title.trim()||"GaspardNZ — Test",body:form.body.trim()||"Votre notification de test fonctionne.",target_url:form.target_url.trim()||""})
      });
      const result=await response.json().catch(()=>({}));
      if(!response.ok||!result.success) throw new Error(result.reason||result.error||"Apple a refusé la notification.");
-     setTestResult("Apple a accepté le push (APNs 200). Vérifiez sa réception sur l’iPhone.");
+     setTestResult("Apple a accepté le push (APNs 200). Ouvrez la notification pour vérifier le lien sur l’iPhone.");
    }catch(e){setTestResult("Échec du test : "+e.message);}
    finally{setTestBusy(false);}
  }
