@@ -19,10 +19,10 @@ const NEWS = {
     {
       id: 4,
       location: "Paris",
-      date: "Très bientôt",
-      tag: "Application",
-      title: "L'application GaspardNZ arrive sur Google Play",
-      text: "L'univers GaspardNZ se prépare à passer une nouvelle étape.\n\nL'application mobile arrive très bientôt sur Google Play Store pour rendre l'expérience plus directe, plus fluide et plus proche des clients.\n\nLookbook, inspirations, demandes, services et nouveautés seront réunis dans un espace pensé pour accompagner chaque client avec élégance.",
+      date: "Novembre 2026",
+      tag: "Communauté",
+      title: "500 000 abonnés : l’élégance GaspardNZ rassemble",
+      text: "Une communauté de 500 000 abonnés suit aujourd’hui l’univers de GaspardNZ. Derrière ce chiffre, des personnes qui partagent le goût d’une élégance personnelle, des belles pièces et des grands moments.\n\nDe Paris aux cérémonies qui nous réunissent, chaque échange et chaque silhouette nourrissent cette aventure. Merci à toutes celles et ceux qui la font grandir.\n\nL’application GaspardNZ est disponible sur l’App Store pour retrouver les inspirations, les actualités et demander un rendez-vous. Une version Android est prévue prochainement ; sa date de sortie sera annoncée lorsqu’elle sera confirmée.",
     },
     {
       id: 3,
