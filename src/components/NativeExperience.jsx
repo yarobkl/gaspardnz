@@ -121,7 +121,12 @@ export default function NativeExperience(){
      listeners.push(await PushNotifications.addListener("registrationError",error=>{if(active)setPairStatus("Apple : "+(error?.error||"enregistrement impossible"));}));
      listeners.push(await PushNotifications.addListener("pushNotificationActionPerformed",event=>{
        const url=event.notification?.data?.url;
-       if(typeof url==="string"&&url.startsWith("https://gaspardnz.style/"))window.location.assign(url);
+       if(typeof url==="string"&&url.startsWith("https://gaspardnz.style/")){
+         const target=new URL(url);
+         if(/\/rendez-vous\/?$|\/reservation\/?$/.test(target.pathname)){setNotificationsOpen(false);setPage("booking");window.scrollTo(0,0);}
+         else if(/\/actualites\/?$/.test(target.pathname)){setNotificationsOpen(false);setPage("news");window.scrollTo(0,0);}
+         else window.location.assign(url);
+       }
      }));
    })().catch(()=>{});
    return()=>{active=false;listeners.forEach(listener=>listener.remove());};
@@ -249,11 +254,7 @@ export default function NativeExperience(){
       </label>
       <div className="gnz-native-availability">
         <strong>{lang==="FR"?"Créneaux disponibles":lang==="EN"?"Available appointments":lang==="ES"?"Citas disponibles":"可预约时间"}</strong>
-        {bookingLoading?<p role="status">Chargement des créneaux…</p>:bookingSlots.length ? bookingSlots.map(slot=><button key={slot.id} type="button" data-haptic="selection"
-          className={bookingSlotId===slot.id?"selected":""} aria-pressed={bookingSlotId===slot.id}
-          onClick={()=>{setBookingSlotId(prev=>prev===slot.id?"":slot.id);setBookingSuccess("");}}>
-          {bookingLabel(slot)} · {slot.remaining} place{slot.remaining>1?"s":""}<span aria-hidden="true">✓</span>
-        </button>) : <div className="gnz-native-no-slots" role="status">
+        {bookingLoading?<p role="status">Chargement des créneaux…</p>:bookingSlots.length ? <select className="gnz-native-slot-select" aria-label="Date et horaire du rendez-vous" value={bookingSlotId} onChange={e=>{setBookingSlotId(e.target.value);setBookingSuccess("");}}><option value="">Choisissez une date et un horaire</option>{bookingSlots.map(slot=><option key={slot.id} value={slot.id}>{bookingLabel(slot)} · {slot.remaining} place{slot.remaining>1?"s":""}</option>)}</select> : <div className="gnz-native-no-slots" role="status">
           <strong>{lang==="FR"?"Aucun créneau publié pour le moment":lang==="EN"?"No appointments published yet":lang==="ES"?"Aún no hay horarios disponibles":"暂时没有可预约的时间"}</strong>
           <p>Les prochaines disponibilités seront publiées ici.</p>
         </div>}
