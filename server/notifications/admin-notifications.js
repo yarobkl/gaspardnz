@@ -21,6 +21,13 @@ function safeUrl(value) {
   try { const u = new URL(value, "https://gaspardnz.style"); return u.protocol === "https:" && (u.hostname === "gaspardnz.style" || u.hostname.endsWith(".gaspardnz.style")) ? u.href : null; }
   catch { return null; }
 }
+function safeTargetUrl(value) {
+  if (!value) return null;
+  try {
+    const u = new URL(String(value).trim());
+    return u.protocol === "https:" && u.hostname && !u.username && !u.password && u.href.length <= 2048 ? u.href : null;
+  } catch { return null; }
+}
 export default async function handler(req,res) {
   if (!["GET","POST"].includes(req.method)) return res.status(405).json({error:"Méthode non autorisée"});
   let db;
@@ -36,8 +43,8 @@ export default async function handler(req,res) {
   const title=String(b.title||"").trim(), body=String(b.body||"").trim();
   if (!categories.has(category) || !title || title.length>120 || !body || body.length>500) return res.status(400).json({error:"Catégorie, titre ou message invalide"});
   if (b.audience && b.audience!=="opted_in") return res.status(400).json({error:"Envois individuels non disponibles dans ce module"});
-  const target_url=safeUrl(b.target_url);
-  if (b.target_url && !target_url) return res.status(400).json({error:"Lien hors du site GaspardNZ interdit"});
+  const target_url=safeTargetUrl(b.target_url);
+  if (b.target_url && !target_url) return res.status(400).json({error:"Le lien doit être une adresse HTTPS valide"});
   const image_url=safeUrl(b.image_url);
   if (b.image_url && !image_url) return res.status(400).json({error:"Image hors du site GaspardNZ interdite"});
   const status=String(b.status||"draft");
