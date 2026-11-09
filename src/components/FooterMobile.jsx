@@ -46,6 +46,7 @@ const FooterMobile = ({ onFormules, onGalerie, onShowroom }) => {
           >Conseil en image</a>
         </nav>
 
+        <a href="https://apps.apple.com/us/app/gaspardnz/id6829908641" target="_blank" rel="noopener noreferrer" style={{display:"block",maxWidth:320,margin:"0 auto 2rem",padding:"14px 18px",border:`1px solid ${GOLD}`,borderRadius:9,textAlign:"center",color:"#faf7f2",textDecoration:"none",fontFamily:"'Montserrat', sans-serif",fontSize:13}}>Télécharger GaspardNZ sur l’App Store ↗</a>
         {/* Social icons */}
         <div style={{ display: "flex", justifyContent: "center", gap: "1.4rem", marginBottom: "2rem" }}>
           {[
@@ -94,7 +95,14 @@ const FooterMobile = ({ onFormules, onGalerie, onShowroom }) => {
 
         <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "10px", color: "rgba(245,240,232,0.78)", textAlign: "center", letterSpacing: "0.1em", marginTop: "0.5rem" }}>
           {t("developed_by")}{" "}
-          Bakala Mouengue Rodrin ELIEZER
+          <a
+            href="https://www.yaroconsulting.fr"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ color: "rgba(245,240,232,0.68)", textDecoration: "none", borderBottom: "1px solid rgba(184,151,62,0.5)", display: "inline-flex", alignItems: "center", minHeight: "44px" }}
+          >
+            Yaroconsulting
+          </a>
         </p>
       </footer>
     </>
