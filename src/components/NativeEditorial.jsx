@@ -37,7 +37,7 @@ export function NativeNews({ initialId = null, onContact }) {
       coverFocus: /^center\s+(?:[0-9]{1,2}|100)%$/.test(String(row.metadata?.cover_focus || ""))
         ? row.metadata.cover_focus : "center 25%",
     })) : [];
-    return [...remoteItems, ...fallback.filter((item) => !remoteItems.some((remote) => String(remote.id) === String(item.id)))];
+    return [...remoteItems, ...fallback.filter((item) => !rows.some((row) => String(row.id) === String(item.id) || String(row.metadata?.legacy_id) === String(item.id)))];
   }, [source, rows, fallback]);
   const featured = items.filter(item => item.photos?.length);
   const active = featured.length ? featured[((index % featured.length) + featured.length) % featured.length] : null;
