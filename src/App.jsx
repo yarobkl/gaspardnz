@@ -112,6 +112,7 @@ export default function App() {
   const isCompactMobile = useCompactMobile();
   const settings = useSettings();
   const [mobileSection, setMobileSection] = useState(null);
+  const [servicesOverviewRevision, setServicesOverviewRevision] = useState(0);
   const finishSplash = useCallback(() => setSplashDone(true), []);
   const [lang, setLang] = useState(() => {
     try {
@@ -222,6 +223,12 @@ export default function App() {
     setMobileSection(key);
     window.requestAnimationFrame(() => scrollToStableTarget(key ? "gnz-mobile-active-section" : "gnz-mobile-home"));
   };
+  const openServicesOverview = () => {
+    // Un appui sur l’onglet Services revient toujours à la liste principale,
+    // même si une formule était déjà ouverte dans cette rubrique.
+    setServicesOverviewRevision((revision) => revision + 1);
+    openMobileSection("formules", formulesRef);
+  };
   const openMobileSection = (key, ref) => {
     if (!isCompactMobile) {
       scrollTo(ref);
@@ -283,7 +290,7 @@ export default function App() {
               onShowroom={() => scrollTo(showroomRef)}
               onGalerie={() => openMobileSection("gallery", galleryRef)}
               onCatalogue={() => openBooking(true)}
-              onFormules={() => openMobileSection("formules", formulesRef)}
+              onFormules={openServicesOverview}
               onBiographie={() => openMobileSection("heritage", heritageRef)}
               onReserver={() => openBooking(false)}
               onStyleDuMois={() => openMobileSection("styleMonth", styleDuMoisRef)}
@@ -330,7 +337,7 @@ export default function App() {
                       {mobileSection === "gallery" && <GalleryMobile refEl={galleryRef} />}
                       {mobileSection === "video" && <div ref={videoRef}><VideoSection /></div>}
                       {mobileSection === "wedding" && <WeddingInspirationSection refEl={weddingRef} />}
-                      {mobileSection === "formules" && <FormulesSection refEl={formulesRef} onContact={() => window.open(getWhatsappUrl(settings.whatsappNumber, (APP_COPY[lang] || APP_COPY.FR).waFormula), "_blank")} />}
+                      {mobileSection === "formules" && <FormulesSection key={servicesOverviewRevision} refEl={formulesRef} onContact={() => window.open(getWhatsappUrl(settings.whatsappNumber, (APP_COPY[lang] || APP_COPY.FR).waFormula), "_blank")} />}
                       {mobileSection === "partners" && <PartnersSection refEl={partenairesRef} />}
                       {mobileSection === "news" && <div ref={actualitesRef}><ActualitesSection /></div>}
                       {mobileSection === "vip" && <div ref={vipRef}><VIPClientsSection /></div>}
