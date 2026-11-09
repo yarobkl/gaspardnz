@@ -52,7 +52,12 @@ export default function AdminContent({ user }) {
       const row = { ...form };
       if (!row.slug && (row.name || row.title)) row.slug = slugify(row.name || row.title);
       if (tab === "partners") { row.sort_order = Number(row.sort_order || 0); row.commission_percent = row.commission_percent === "" ? null : Number(row.commission_percent); row.client_discount_percent = row.client_discount_percent === "" ? null : Number(row.client_discount_percent); }
-      if (tab === "news" && row.published && !row.published_at) row.published_at = new Date().toISOString();
+      if (tab === "news") {
+        const scheduled = row.metadata?.scheduled_at ? new Date(row.metadata.scheduled_at) : null;
+        if (scheduled && Number.isFinite(scheduled.getTime()) && scheduled.getTime() > Date.now()) {
+          row.published = false; row.published_at = null;
+        } else if (row.published && !row.published_at) row.published_at = new Date().toISOString();
+      }
       await upsertRow(tableForTab, row, "slug"); await load(); setForm(null); flash("Modification publiée dans la base.");
     } catch (e) { setError(e?.message || "Enregistrement impossible."); } finally { setSaving(false); }
   };
@@ -90,7 +95,7 @@ export default function AdminContent({ user }) {
     {tab === "packages" && <AdminFormulesPricing />}
 
     {tab !== "general" && tab !== "packages" && <div className="gnz-split">
-      <article className="gnz-card"><header className="gnz-card-header"><div className="gnz-card-title"><strong>{tab === "partners" ? "Partenaires" : "Actualités"}</strong><span>{rows.length} élément{rows.length > 1 ? "s" : ""}</span></div><button className="gnz-primary-button" onClick={() => openForm(tab === "partners" ? emptyPartner : emptyNews)}>Ajouter</button></header><div className="gnz-table-wrap"><table className="gnz-table"><thead><tr><th>Nom</th><th>État</th><th>Détail</th><th>Action</th></tr></thead><tbody>{rows.length ? rows.map((row) => <tr key={row.id || row.slug}><td><strong>{row.name || row.title}</strong><span className="gnz-table-sub">{row.slug}</span></td><td><span className={`gnz-status ${row.published ? "success" : "warning"}`}>{row.published ? "Publié" : "Masqué"}</span></td><td>{tab === "partners" ? row.category || "—" : row.published_at ? new Date(row.published_at).toLocaleDateString("fr-FR") : "Brouillon"}</td><td><div className="gnz-page-actions"><button className="gnz-secondary-button" onClick={() => openForm({ ...row, published_at: row.published_at ? new Date(row.published_at).toISOString().slice(0,16) : "" })}>Modifier</button><button className={`gnz-secondary-button gnz-toggle-button${row.published ? "" : " is-hidden"}`} onClick={() => toggle(row)}>{row.published ? "Masquer" : "Afficher"}</button></div></td></tr>) : <tr><td colSpan="4"><div className="gnz-empty-state">Aucun contenu dans cette rubrique.</div></td></tr>}</tbody></table></div></article>
+      <article className="gnz-card"><header className="gnz-card-header"><div className="gnz-card-title"><strong>{tab === "partners" ? "Partenaires" : "Actualités"}</strong><span>{rows.length} élément{rows.length > 1 ? "s" : ""}</span></div><button className="gnz-primary-button" onClick={() => openForm(tab === "partners" ? emptyPartner : emptyNews)}>Ajouter</button></header><div className="gnz-table-wrap"><table className="gnz-table"><thead><tr><th>Nom</th><th>État</th><th>Détail</th><th>Action</th></tr></thead><tbody>{rows.length ? rows.map((row) => <tr key={row.id || row.slug}><td><strong>{row.name || row.title}</strong><span className="gnz-table-sub">{row.slug}</span></td><td><span className={`gnz-status ${row.published ? "success" : "warning"}`}>{row.published ? "Publié" : tab === "news" && row.metadata?.scheduled_at ? "Programmé" : "Masqué"}</span></td><td>{tab === "partners" ? row.category || "—" : row.published_at ? new Date(row.published_at).toLocaleDateString("fr-FR") : "Brouillon"}</td><td><div className="gnz-page-actions"><button className="gnz-secondary-button" onClick={() => openForm({ ...row, published_at: row.published_at ? new Date(row.published_at).toISOString().slice(0,16) : "" })}>Modifier</button><button className={`gnz-secondary-button gnz-toggle-button${row.published ? "" : " is-hidden"}`} onClick={() => toggle(row)}>{row.published ? "Masquer" : "Afficher"}</button></div></td></tr>) : <tr><td colSpan="4"><div className="gnz-empty-state">Aucun contenu dans cette rubrique.</div></td></tr>}</tbody></table></div></article>
       <aside className="gnz-card gnz-editor" id="gnz-admin-editor"><header className="gnz-card-header"><div className="gnz-card-title"><strong>{form ? (form.id ? "Modifier" : "Ajouter") : "Éditeur"}</strong><span>Formulaire simplifié pour l'administrateur</span></div></header><div className="gnz-card-body">{form ? <form className="gnz-editor-grid" onSubmit={saveEntity}>{tab === "partners" ? <PartnerFields key={form.id || "new"} form={form} setForm={setForm} categories={partnerCategories}/> : <NewsFields form={form} setForm={setForm}/>}<div className="gnz-editor-actions"><button type="button" className="gnz-secondary-button" onClick={() => setForm(null)}>Annuler</button><button className="gnz-primary-button" disabled={saving}>{saving ? "Enregistrement…" : "Enregistrer"}</button></div></form> : <div className="gnz-empty-state">Cliquez sur « Ajouter » ou « Modifier ».</div>}</div></aside>
     </div>}
     {toast && <div className="gnz-toast">{toast}</div>}
@@ -228,6 +233,13 @@ function NewsFields({ form, setForm }) {
       </label>
     </div>
     <label className="gnz-field">Langue<select className="gnz-select" value={form.locale || "FR"} onChange={(e) => setForm({...form,locale:e.target.value})}><option>FR</option><option>EN</option><option>ES</option><option>ZH</option></select></label>
-    <label className="gnz-checkbox"><input type="checkbox" checked={Boolean(form.published)} onChange={(e) => setForm({...form,published:e.target.checked})}/>Publier l'actualité</label>
+    <label className="gnz-field">Programmer la publication (facultatif)
+      <input className="gnz-input" type="datetime-local"
+        value={form.metadata?.scheduled_at ? (() => { const d = new Date(form.metadata.scheduled_at); const p = (n) => String(n).padStart(2, "0"); return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`; })() : ""}
+        onChange={(e) => setForm({ ...form, published: false, metadata: { ...(form.metadata || {}), scheduled_at: e.target.value ? new Date(e.target.value).toISOString() : null } })} />
+      <small>Si une date future est saisie, l’article restera masqué jusqu’à sa publication automatique.</small>
+    </label>
+    <label className="gnz-checkbox"><input type="checkbox" checked={Boolean(form.metadata?.auto_notify)} onChange={(e) => setForm({ ...form, metadata: { ...(form.metadata || {}), auto_notify: e.target.checked } })}/>Notifier automatiquement les iPhone lors de la publication programmée</label>
+    <label className="gnz-checkbox"><input type="checkbox" checked={Boolean(form.published)} onChange={(e) => setForm({...form,published:e.target.checked})}/>Publier l'actualité maintenant</label>
   </>;
 }

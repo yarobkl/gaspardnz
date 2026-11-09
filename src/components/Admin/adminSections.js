@@ -23,6 +23,7 @@ export const NAV_GROUPS = [
   ]},
   { label: "Site", items: [
     { id: "content", label: "Contenu du site", icon: "✎", min: "editor", component: lazy(() => import("./AdminContent.jsx")) },
+    { id: "editorial", label: "Calendrier éditorial", icon: "◷", min: "editor", component: lazy(() => import("./AdminEditorialCalendar.jsx")) },
     { id: "texts", label: "Textes du site", icon: "Aa", min: "editor", component: lazy(() => import("./AdminTexts.jsx")) },
     { id: "media", label: "Médias & photos", icon: "▧", min: "editor", component: lazy(() => import("./AdminMedia.jsx")) },
     { id: "albums", label: "Galerie & Showroom", icon: "▦", min: "editor", component: lazy(() => import("./AdminAlbums.jsx")) },
