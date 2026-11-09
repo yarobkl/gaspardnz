@@ -33,7 +33,7 @@ async function openSection(label) {
   await home();
   await page.locator("#gnz-mobile-home").getByRole("button", { name: label, exact: true }).click({ force: true });
   await page.waitForSelector("#gnz-mobile-active-section", { timeout: 8000 });
-  await page.waitForFunction(() => document.getElementById("gnz-mobile-active-section")?.scrollHeight > 80, { timeout: 8000 });
+  await page.waitForFunction(() => document.getElementById("gnz-mobile-active-section")?.scrollHeight > 80, null, { timeout: 8000 });
   return page.locator("#gnz-mobile-active-section");
 }
 
@@ -155,7 +155,7 @@ try {
       if (!el) return false;
       return el.querySelector('button[aria-expanded]') || /indisponibles/i.test(el.textContent || "");
     },
-    { timeout: 4000 },
+    null, { timeout: 4000 },
   ).catch(() => {});
   const accordions = section.locator("button[aria-expanded]");
   const accordionCount = await accordions.count();
