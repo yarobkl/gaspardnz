@@ -90,6 +90,7 @@ const legalLinks = [
  ["terms","https://gaspardnz.style/cgv.html"],
  ["support","mailto:gaspardnz.contact@gmail.com"],
 ];
+const phoneCountries = [["FR","France","+33"],["BE","Belgique","+32"],["CH","Suisse","+41"],["GB","Royaume-Uni","+44"],["US","États-Unis / Canada","+1"],["CG","Congo-Brazzaville","+242"],["CD","RD Congo","+243"],["CI","Côte d’Ivoire","+225"],["SN","Sénégal","+221"],["CM","Cameroun","+237"],["MA","Maroc","+212"],["DZ","Algérie","+213"],["TN","Tunisie","+216"]];
 
 export default function NativeExperience(){
  const {lang,setLang}=useContext(LangCtx);
@@ -102,6 +103,7 @@ export default function NativeExperience(){
  const [page,setPage]=useState("home"),[contactOpen,setContactOpen]=useState(false),[contactProject,setContactProject]=useState(""),[contactDetails,setContactDetails]=useState(""),[bookingProject,setBookingProject]=useState(""),[bookingSlotId,setBookingSlotId]=useState(""),[downloadError,setDownloadError]=useState(""),[notificationsOpen,setNotificationsOpen]=useState(false),[newsFocusId,setNewsFocusId]=useState(null);
  const [bookingDates,setBookingDates]=useState([]),[bookingLoading,setBookingLoading]=useState(false),[bookingError,setBookingError]=useState(""),[bookingSuccess,setBookingSuccess]=useState(""),[bookingSending,setBookingSending]=useState(false);
  const [bookingForm,setBookingForm]=useState({full_name:"",email:"",phone:"",need:""});
+ const [phoneCountry,setPhoneCountry]=useState("FR");
  useEffect(()=>{
    if(page!=="booking")return;
    let active=true;
@@ -220,8 +222,11 @@ export default function NativeExperience(){
    if(!chosenSlot||bookingSending)return;
    setBookingSending(true);setBookingError("");
    try{
-     await requestBooking({...bookingForm,project:bookingChoices.find(([key])=>key===bookingProject)?.[1]||"Autre demande",service_date:chosenSlot.date,slot:chosenSlot.slot});
-     setBookingSuccess(`Merci pour votre demande. Le ${bookingLabel(chosenSlot)} a bien été demandé. GaspardNZ vous confirmera personnellement ce rendez-vous.`);
+     const dialingCode=phoneCountries.find(([code])=>code===phoneCountry)?.[2]||"+33";
+     const localNumber=bookingForm.phone.replace(/\D/g,"").replace(/^0+/,"");
+     await requestBooking({...bookingForm,phone:localNumber?`${dialingCode}${localNumber}`:"",project:bookingChoices.find(([key])=>key===bookingProject)?.[1]||"Autre demande",service_date:chosenSlot.date,slot:chosenSlot.slot});
+     nativeFeedback("success");
+     setBookingSuccess(`Merci, votre demande pour le ${bookingLabel(chosenSlot)} a bien été envoyée. GaspardNZ vous rappellera pour confirmer le rendez-vous.`);
      setBookingDates(await listBookingAvailability().catch(()=>bookingDates));
    }catch(error){setBookingError(error.message);setBookingDates(await listBookingAvailability().catch(()=>bookingDates));}
    finally{setBookingSending(false);}
@@ -236,9 +241,12 @@ export default function NativeExperience(){
       <button className="gnz-native-section-back" type="button" onClick={backToHome}>‹ {c.back}</button>
       <div className="gnz-native-booking-icon" aria-hidden="true"><NativeIcon name="booking"/></div>
       {heading(c.booking,ui.bookingHint)}
-      <div className="gnz-native-booking-options">
-        {bookingChoices.map(([project,label])=><button key={project} type="button" data-haptic="selection" className={bookingProject===project?"selected":""} onClick={()=>setBookingProject(project)} aria-pressed={bookingProject===project}><NativeIcon name="booking"/><span>{label}</span><span aria-hidden="true">›</span></button>)}
-      </div>
+      <label className="gnz-native-booking-project">Votre projet
+        <select value={bookingProject} onChange={e=>setBookingProject(e.target.value)} required>
+          <option value="" disabled>Choisissez votre prestation</option>
+          {bookingChoices.map(([project,label])=><option key={project} value={project}>{label}</option>)}
+        </select>
+      </label>
       <div className="gnz-native-availability">
         <strong>{lang==="FR"?"Créneaux disponibles":lang==="EN"?"Available appointments":lang==="ES"?"Citas disponibles":"可预约时间"}</strong>
         {bookingLoading?<p role="status">Chargement des créneaux…</p>:bookingSlots.length ? bookingSlots.map(slot=><button key={slot.id} type="button" data-haptic="selection"
@@ -257,7 +265,7 @@ export default function NativeExperience(){
       {bookingSuccess?<p role="status" className="gnz-native-booking-success">{bookingSuccess}</p>:<form className="gnz-native-booking-form" onSubmit={submitAppointment}>
         <label>Votre nom<input required maxLength={160} autoComplete="name" value={bookingForm.full_name} onChange={e=>setBookingForm({...bookingForm,full_name:e.target.value})}/></label>
         <label>Votre email<input required type="email" autoComplete="email" value={bookingForm.email} onChange={e=>setBookingForm({...bookingForm,email:e.target.value})}/></label>
-        <label>Téléphone<input type="tel" autoComplete="tel" value={bookingForm.phone} onChange={e=>setBookingForm({...bookingForm,phone:e.target.value})}/></label>
+        <label>Téléphone<span className="gnz-native-phone-row"><select aria-label="Pays et indicatif téléphonique" value={phoneCountry} onChange={e=>setPhoneCountry(e.target.value)}>{phoneCountries.map(([code,name,dial])=><option key={code} value={code}>{name} {dial}</option>)}</select><input aria-label="Numéro de téléphone" type="tel" inputMode="tel" autoComplete="tel-national" placeholder="6 12 34 56 78" value={bookingForm.phone} onChange={e=>setBookingForm({...bookingForm,phone:e.target.value})}/></span></label>
         <label>Votre projet<textarea rows={3} maxLength={1800} value={bookingForm.need} onChange={e=>setBookingForm({...bookingForm,need:e.target.value})}/></label>
         <button className="gnz-native-booking-contact" type="submit" disabled={!chosenSlot||!bookingProject||bookingSending}>{bookingSending?"Envoi en cours…":"Demander ce créneau →"}</button>
       </form>}
