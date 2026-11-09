@@ -32,6 +32,7 @@ const AdminCRM = ({ user }) => {
   const [leads, setLeads] = useState([]);
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("all");
+  const [channelFilter, setChannelFilter] = useState("all");
   const [selected, setSelected] = useState(null);
   const [note, setNote] = useState("");
   const [noteSaving, setNoteSaving] = useState(false);
@@ -49,7 +50,12 @@ const AdminCRM = ({ user }) => {
   };
   useEffect(() => { const t = setTimeout(load, 180); return () => clearTimeout(t); }, [status, search]);
 
-  const stats = useMemo(() => ({ ...Object.fromEntries(STATUS.map(([key]) => [key, leads.filter((l) => l.status === key).length])), marketing: leads.filter((l) => l.marketing_consent).length }), [leads]);
+  const channelFor = (lead) => {
+    const value = `${lead.channel || ""} ${lead.source || ""}`.toLowerCase();
+    return /(^|[^a-z])(ios|iphone|application|app_mobile|mobile_app|app-ios)([^a-z]|$)/.test(value) ? "app" : /web|site|website|formulaire/.test(value) ? "web" : "unknown";
+  };
+  const visibleLeads = useMemo(() => channelFilter === "all" ? leads : leads.filter((lead) => channelFor(lead) === channelFilter), [leads, channelFilter]);
+  const stats = useMemo(() => ({ ...Object.fromEntries(STATUS.map(([key]) => [key, visibleLeads.filter((l) => l.status === key).length])), marketing: visibleLeads.filter((l) => l.marketing_consent).length }), [visibleLeads]);
 
   const patch = async (id, values) => {
     try {
@@ -89,23 +95,23 @@ const AdminCRM = ({ user }) => {
 
   return (
     <div>
-      <div className="gnz-page-heading"><div><h1>CRM</h1><p>Chaque demande réelle du site devient un prospect exploitable ici.</p></div><div className="gnz-page-actions"><button className="gnz-secondary-button" onClick={exportCsv}>Exporter CSV</button><button className="gnz-secondary-button" onClick={load}>Actualiser</button></div></div>
+      <div className="gnz-page-heading"><div><h1>CRM</h1><p>Toutes les demandes clients, avec leur canal d’origine et les actions à traiter.</p></div><div className="gnz-page-actions"><button className="gnz-secondary-button" onClick={exportCsv}>Exporter CSV</button><button className="gnz-secondary-button" onClick={load}>Actualiser</button></div></div>
       {error && <div className="gnz-alert gnz-alert-error">{error}</div>}
 
       <div className="gnz-kpi-grid" style={{ marginBottom: 12 }}>
-        <article className="gnz-kpi-card"><span className="gnz-kpi-label">Prospects affichés</span><div className="gnz-kpi-value">{leads.length}</div><div className="gnz-kpi-sub">Données réelles selon le filtre</div></article>
+        <article className="gnz-kpi-card"><span className="gnz-kpi-label">Prospects affichés</span><div className="gnz-kpi-value">{visibleLeads.length}</div><div className="gnz-kpi-sub">Données réelles selon le filtre</div></article>
         <article className="gnz-kpi-card"><span className="gnz-kpi-label">Nouveaux</span><div className="gnz-kpi-value">{stats.new || 0}</div><div className="gnz-kpi-sub">À traiter</div></article>
         <article className="gnz-kpi-card"><span className="gnz-kpi-label">RDV</span><div className="gnz-kpi-value">{stats.appointment || 0}</div><div className="gnz-kpi-sub">Prospects au stade rendez-vous</div></article>
         <article className="gnz-kpi-card"><span className="gnz-kpi-label">Clients</span><div className="gnz-kpi-value">{stats.client || 0}</div><div className="gnz-kpi-sub">Prospects transformés</div></article>
         <article className="gnz-kpi-card"><span className="gnz-kpi-label">Emailing autorisé</span><div className="gnz-kpi-value">{stats.marketing || 0}</div><div className="gnz-kpi-sub">Contacts opt-in dans la vue</div></article>
       </div>
 
-      <div className="gnz-toolbar"><input className="gnz-input" placeholder="Rechercher nom, email, téléphone…" value={search} onChange={(e) => setSearch(e.target.value)} /><select className="gnz-select" value={status} onChange={(e) => setStatus(e.target.value)}><option value="all">Tous les statuts</option>{STATUS.map(([key,label]) => <option key={key} value={key}>{label}</option>)}</select></div>
+      <div className="gnz-toolbar" aria-label="Filtrer les demandes par canal"><select className="gnz-select" aria-label="Canal des demandes" value={channelFilter} onChange={(e) => { setChannelFilter(e.target.value); setSelected(null); }}><option value="all">Tous les canaux</option><option value="app">Application iOS</option><option value="web">Site web</option><option value="unknown">Source à identifier</option></select><input className="gnz-input" placeholder="Rechercher nom, email, téléphone…" value={search} onChange={(e) => setSearch(e.target.value)} /><select className="gnz-select" value={status} onChange={(e) => setStatus(e.target.value)}><option value="all">Tous les statuts</option>{STATUS.map(([key,label]) => <option key={key} value={key}>{label}</option>)}</select></div>
 
       <div className="gnz-split">
         <article className="gnz-card">
           <div className="gnz-table-wrap gnz-table-wrap--capped"><table className="gnz-table"><thead><tr><th>Prospect</th><th>Besoin</th><th>Source</th><th>Statut</th><th>Valeur</th><th>Créé</th></tr></thead><tbody>
-            {loading ? <tr><td colSpan="6"><div className="gnz-empty-state">Chargement…</div></td></tr> : leads.length ? leads.map((lead) => <tr key={lead.id} onClick={() => selectLead(lead)} style={{ cursor: "pointer" }}><td><strong>{lead.full_name || "Identité à compléter"}</strong><span className="gnz-table-sub">{lead.email || lead.phone || "Coordonnée manquante"}</span></td><td>{requestTypeLabel(lead.request_type)}</td><td>{lead.source || lead.channel || "Site"}</td><td><span className={`gnz-status ${lead.status}`}>{statusLabel(lead.status)}</span></td><td>{lead.estimated_value ? `${Number(lead.estimated_value).toLocaleString("fr-FR")} €` : "—"}</td><td>{fmtDate(lead.created_at)}</td></tr>) : <tr><td colSpan="6"><div className="gnz-empty-state">Aucun prospect ne correspond à ce filtre.</div></td></tr>}
+            {loading ? <tr><td colSpan="6"><div className="gnz-empty-state">Chargement…</div></td></tr> : visibleLeads.length ? visibleLeads.map((lead) => <tr key={lead.id} onClick={() => selectLead(lead)} style={{ cursor: "pointer" }}><td><strong>{lead.full_name || "Identité à compléter"}</strong><span className="gnz-table-sub">{lead.email || lead.phone || "Coordonnée manquante"}</span></td><td>{requestTypeLabel(lead.request_type)}</td><td>{channelFor(lead) === "app" ? "Application iOS" : channelFor(lead) === "web" ? "Site web" : "À identifier"}</td><td><span className={`gnz-status ${lead.status}`}>{statusLabel(lead.status)}</span></td><td>{lead.estimated_value ? `${Number(lead.estimated_value).toLocaleString("fr-FR")} €` : "—"}</td><td>{fmtDate(lead.created_at)}</td></tr>) : <tr><td colSpan="6"><div className="gnz-empty-state">Aucun prospect ne correspond à ce filtre.</div></td></tr>}
           </tbody></table></div>
         </article>
 
