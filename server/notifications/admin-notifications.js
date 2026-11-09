@@ -36,8 +36,8 @@ export default async function handler(req,res) {
   const title=String(b.title||"").trim(), body=String(b.body||"").trim();
   if (!categories.has(category) || !title || title.length>120 || !body || body.length>500) return res.status(400).json({error:"Catégorie, titre ou message invalide"});
   if (b.audience && b.audience!=="opted_in") return res.status(400).json({error:"Envois individuels non disponibles dans ce module"});
-  const target_url=safeUrl(b.target_url);
-  if (b.target_url && !target_url) return res.status(400).json({error:"Lien hors du site GaspardNZ interdit"});
+  let target_url=null;
+  if(b.target_url){try{const u=new URL(String(b.target_url));if(u.protocol!=="https:"||u.username||u.password)throw new Error("invalid");target_url=u.href;}catch{return res.status(400).json({error:"Le lien doit être une adresse HTTPS valide"});}}
   const image_url=safeUrl(b.image_url);
   if (b.image_url && !image_url) return res.status(400).json({error:"Image hors du site GaspardNZ interdite"});
   const status=String(b.status||"draft");
