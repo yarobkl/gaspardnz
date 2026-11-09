@@ -69,7 +69,7 @@ export async function sendApns({ deviceToken, title, body, url, apnsId }) {
     request.end(payload);
   });
   const result = await sendToHost(primaryHost);
-  if (!result.ok && /BadEnvironmentKeyInToken/.test(result.reason || "")) return sendToHost(fallbackHost);
+  // APNs can return BadDeviceToken when a token belongs to the alternate environment (for example after reinstalling a TestFlight/debug build).\n  // Retry once against the alternate endpoint before declaring the token invalid.\n  if (!result.ok && /BadEnvironmentKeyInToken|BadDeviceToken/.test(result.reason || "")) return sendToHost(fallbackHost);
   return result;
 }
 
