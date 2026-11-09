@@ -18,7 +18,6 @@ export default function handler(req, res) {
   const action = req.query?.action;
   const route = typeof action === "string" ? handlers.get(action) : undefined;
   res.setHeader("Cache-Control", "no-store");
-  res.setHeader("X-GaspardNZ-Notifications", "apns-opt-in-v1");
   if (!route) return res.status(404).json({ error: "Route inconnue" });
   return route(req, res);
 }
