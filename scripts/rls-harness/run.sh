@@ -31,7 +31,7 @@ for m in "$ROOT"/supabase/migrations/202609*.sql; do
 done
 
 echo "--- idempotence : seconde application ---"
-for m in "$ROOT"/supabase/migrations/*.sql; do
+for m in "$ROOT"/supabase/migrations/202609*.sql; do
   PGOPTIONS="-c client_min_messages=warning" $PSQL -d "$DB" -f "$m"
 done
 echo "  OK (rejouables sans erreur)"
