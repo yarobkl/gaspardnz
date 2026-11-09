@@ -20,7 +20,6 @@ describe("FormulesSection — le bouton lookbook reste sur une ligne", () => {
   it("n'autorise pas le retour à la ligne du texte du bouton", async () => {
     fake = createFakeSupabaseTables({ packages: [] });
     render(<FormulesSection onContact={() => {}} />);
-    const button = await screen.findByRole("button", { name: "Télécharger gratuitement" });
-    expect(button).toHaveStyle({ whiteSpace: "nowrap" });
+    expect(screen.queryByRole("button", { name: "Télécharger gratuitement" })).not.toBeInTheDocument();
   });
 });
