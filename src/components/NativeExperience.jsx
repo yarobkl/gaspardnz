@@ -3,6 +3,7 @@ import { LangCtx } from "../context.jsx";
 import { StatusBar, Style } from "@capacitor/status-bar";
 import { Capacitor, CapacitorHttp } from "@capacitor/core";
 import { PushNotifications } from "@capacitor/push-notifications";
+import { Browser } from "@capacitor/browser";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useSettings } from "../hooks/useSettings.js";
 import { usePublicCollection } from "../hooks/usePublicCollection.js";
@@ -100,7 +101,7 @@ export default function NativeExperience(){
  const ui=localUI[lang]||localUI.FR;
  const legal=legalCopy[lang]||legalCopy.FR;
  useEffect(()=>{StatusBar.setStyle({style:Style.Light}).catch(()=>{});},[]);
- const [page,setPage]=useState("home"),[contactOpen,setContactOpen]=useState(false),[contactProject,setContactProject]=useState(""),[contactDetails,setContactDetails]=useState(""),[bookingProject,setBookingProject]=useState(""),[bookingSlotId,setBookingSlotId]=useState(""),[downloadError,setDownloadError]=useState(""),[notificationsOpen,setNotificationsOpen]=useState(false),[newsFocusId,setNewsFocusId]=useState(null);
+ const [page,setPage]=useState("home"),[servicesRevision,setServicesRevision]=useState(0),[contactOpen,setContactOpen]=useState(false),[contactProject,setContactProject]=useState(""),[contactDetails,setContactDetails]=useState(""),[bookingProject,setBookingProject]=useState(""),[bookingSlotId,setBookingSlotId]=useState(""),[downloadError,setDownloadError]=useState(""),[notificationsOpen,setNotificationsOpen]=useState(false),[newsFocusId,setNewsFocusId]=useState(null);
  const [bookingDates,setBookingDates]=useState([]),[bookingLoading,setBookingLoading]=useState(false),[bookingError,setBookingError]=useState(""),[bookingSuccess,setBookingSuccess]=useState(""),[bookingSending,setBookingSending]=useState(false);
  const [bookingForm,setBookingForm]=useState({full_name:"",email:"",phone:"",need:""});
  const [phoneCountry,setPhoneCountry]=useState("FR");
@@ -126,13 +127,21 @@ export default function NativeExperience(){
      }));
      listeners.push(await PushNotifications.addListener("registrationError",error=>{if(active)setPairStatus("Apple : "+(error?.error||"enregistrement impossible"));}));
      listeners.push(await PushNotifications.addListener("pushNotificationActionPerformed",event=>{
-       const url=event.notification?.data?.url;
-       if(typeof url==="string"&&url.startsWith("https://gaspardnz.style/")){
-         const target=new URL(url);
-         if(/\/rendez-vous\/?$|\/reservation\/?$/.test(target.pathname)){setNotificationsOpen(false);setPage("booking");window.scrollTo(0,0);}
-         else if(/\/actualites\/?$/.test(target.pathname)){setNotificationsOpen(false);setPage("news");window.scrollTo(0,0);}
-         else window.location.assign(url);
+       const rawUrl=event.notification?.data?.url;
+       if(typeof rawUrl!=="string")return;
+       let target;
+       try{target=new URL(rawUrl);}catch{return;}
+       if(target.protocol!=="https:")return;
+       const isGaspardNZ=target.hostname==="gaspardnz.style"||target.hostname.endsWith(".gaspardnz.style");
+       setNotificationsOpen(false);
+       if(isGaspardNZ&&/\/rendez-vous\/?$|\/reservation\/?$/.test(target.pathname)){
+         setPage("booking");window.scrollTo(0,0);return;
        }
+       if(isGaspardNZ&&/\/actualites\/?$/.test(target.pathname)){
+         const articleRef=target.searchParams.get("article")||target.searchParams.get("slug")||target.searchParams.get("id");
+         setNewsFocusId(articleRef||null);setPage("news");window.scrollTo(0,0);return;
+       }
+       Browser.open({url:target.href}).catch(()=>window.open(target.href,"_blank","noopener,noreferrer"));
      }));
      if(window.localStorage.getItem("gnz-push-consent")==="yes"){
        const permission=await PushNotifications.checkPermissions();
@@ -218,7 +227,7 @@ export default function NativeExperience(){
      : notificationFilter==="unread" ? !state.read && !state.archived : !state.archived;
  });
  const unreadCount=notificationItems.filter(item=>!notificationState[String(item.id)]?.read && !notificationState[String(item.id)]?.archived).length;
- const select=(key)=>{setNotificationsOpen(false);if(key===page)return;window.scrollTo(0,0);setPage(key);setDownloadError("");};
+ const select=(key)=>{setNotificationsOpen(false);if(key==="services")setServicesRevision(revision=>revision+1);if(key===page)return;window.scrollTo(0,0);setPage(key);setDownloadError("");};
  const backToHome = () => select("home");
  const topTabForPage = (value) => tabs.some(([key]) => key === value) ? value : "more";
  const handleSwipeStart = (event) => {
@@ -272,7 +281,7 @@ export default function NativeExperience(){
  const content=()=>{
   switch(page){
    case "home":return <div className="gnz-native-hero"><img src="/images/Photo%20application%20.JPG" alt={ui.photo} loading="eager" /><div className="gnz-native-hero-shade"/><div className="gnz-native-hero-content"><h1>{c.tagline}</h1><p>{c.intro}</p><button onClick={()=>select("services")}>{c.discover} <span>→</span></button><button className="gnz-native-outline" onClick={()=>openContact()}>{c.talk}</button></div></div>;
-   case "services":return <section className="gnz-native-section">{heading(ui.sections.services,c.intro)}<Services lang={lang} onContact={openContact}/></section>;
+   case "services":return <section className="gnz-native-section">{heading(ui.sections.services,c.intro)}<Services key={servicesRevision} lang={lang} onContact={openContact}/></section>;
    case "gallery":return <section className="gnz-native-section gnz-native-gallery-page">{heading(ui.sections.gallery)}<Gallery native onContact={openContact}/></section>;
     case "booking":return <section className="gnz-native-section gnz-native-booking-page">
       <button className="gnz-native-section-back" type="button" onClick={backToHome}>‹ {c.back}</button>
@@ -305,7 +314,7 @@ export default function NativeExperience(){
     </section>;
    case "more":return <section className="gnz-native-section">{heading(c.more)}<div className="gnz-native-list">{extra.map(([key,label])=><button key={key} onClick={()=>select(key)}><span className="gnz-native-more-icon"><NativeIcon name={key}/></span><span className="gnz-native-more-label">{ui.sections[key]||label}</span><span aria-hidden="true">›</span></button>)}{settings.lookbookPdfUrl && !settings.lookbookHidden && <button onClick={()=>{setDownloadError("");downloadFile(settings.lookbookPdfUrl,"lookbook-gaspardnz.pdf").catch(()=>setDownloadError(ui.loadError));}}><span className="gnz-native-more-icon"><NativeIcon name="lookbook"/></span><span className="gnz-native-more-label">{ui.lookbook}</span><span aria-hidden="true">↓</span></button>}{downloadError&&<p className="gnz-native-error" role="alert">{downloadError}</p>}<label className="gnz-native-language">{ui.language} <select value={lang} onChange={e=>setLang(e.target.value)}><option value="FR">Français</option><option value="EN">English</option><option value="ES">Español</option><option value="ZH">中文</option></select></label><section className="gnz-native-legal" aria-label={legal.title}><h2>{legal.title}</h2><div className="gnz-native-legal-links">{legalLinks.map(([key,href])=><a key={key} href={href} target={href.startsWith("https://")?"_blank":undefined} rel={href.startsWith("https://")?"noopener noreferrer":undefined}><span>{legal[key]}</span><span aria-hidden="true">↗</span></a>)}<button type="button" onClick={openCookieSettings}><span>{legal.consent}</span><span aria-hidden="true">›</span></button></div></section>{showInternalPushTools&&Capacitor.getPlatform()==="ios"&&<details className="gnz-native-internal-tools"><summary>Outils de diagnostic TestFlight</summary><div style={{padding:"12px 4px",display:"grid",gap:10}}><strong>Notifications Apple — appareil de test</strong><p>Entrez le code temporaire créé depuis l’administration pour associer cet iPhone.</p><input aria-label="Code d’appairage Apple" value={pairCode} onChange={e=>setPairCode(e.target.value.trim())} placeholder="Code temporaire" autoCapitalize="none" autoCorrect="off" style={{width:"100%",padding:12,borderRadius:8,border:"1px solid #b9aa97"}}/><button type="button" disabled={pairBusy} onClick={pairIphone}>{pairBusy?"Connexion Apple…":"Activer les notifications sur cet iPhone"}</button>{pairStatus&&<p role="status">{pairStatus}</p>}</div></details>}</div></section>;
    case "contact":return <section className="gnz-native-section"><button className="gnz-native-section-back" type="button" onClick={backToHome}>‹ {c.back}</button>{heading(ui.sections.contact)}<div className="gnz-native-contact-list"><button type="button" onClick={()=>openContact()}><ContactBrandIcon type="whatsapp"/><span><strong>WhatsApp</strong><small>{c.talk}</small></span><span aria-hidden="true">›</span></button>{settings.contactEmail&&<a href={`mailto:${settings.contactEmail}`}><ContactBrandIcon type="email"/><span><strong>E-mail</strong><small>{settings.contactEmail}</small></span><span aria-hidden="true">›</span></a>}<button type="button" onClick={()=>openContact()}><ContactBrandIcon type="request"/><span><strong>{ui.request}</strong><small>{ui.bookingHint}</small></span><span aria-hidden="true">›</span></button></div></section>;
-   case "news":return <section className="gnz-native-section gnz-native-news-page">{heading(ui.sections.news,lang==="FR"?"Les nouveautés, collections et événements de GaspardNZ.":lang==="EN"?"Discover GaspardNZ news, collections and events.":lang==="ES"?"Novedades, colecciones y eventos de GaspardNZ.":"GaspardNZ 最新资讯、系列与活动。")}<News initialId={newsFocusId} onContact={openContact}/></section>;
+   case "news":return <section className="gnz-native-section gnz-native-news-page">{heading(ui.sections.news,lang==="FR"?"Les nouveautés, collections et événements de GaspardNZ.":lang==="EN"?"Discover GaspardNZ news, collections and events.":lang==="ES"?"Novedades, colecciones y eventos de GaspardNZ.":"GaspardNZ 最新资讯、系列与活动。")}<News initialId={newsFocusId} onInitialArticleOpened={()=>setNewsFocusId(null)} onContact={openContact}/></section>;
    case "showroom":return <section className="gnz-native-section"><button className="gnz-native-section-back" type="button" onClick={backToHome}>‹ {c.back}</button>{heading(ui.sections.showroom,lang==="FR"?"Découvrez notre espace et nos réalisations.":undefined)}<Showroom onContact={()=>openContact()}/></section>;
    default:{
     const title=ui.sections[page]||extra.find(([key])=>key===page)?.[1]||page;

@@ -9,7 +9,7 @@ const readingMinutes = text => Math.max(1, Math.ceil(String(text || "").trim().s
 const readingLabel = (text, lang) => `${readingMinutes(text)} ${lang === "FR" ? "min de lecture" : lang === "EN" ? "min read" : lang === "ES" ? "min de lectura" : "分钟阅读"}`;
 const mediaUrl = value => /^(https?:|data:|blob:)/i.test(value || "") ? value : `${import.meta.env.BASE_URL}${String(value || "").replace(/^\/+/, "")}`;
 
-export function NativeNews({ initialId = null, onContact }) {
+export function NativeNews({ initialId = null, onInitialArticleOpened, onContact }) {
   const { lang } = useContext(LangCtx);
   const [index, setIndex] = useState(0);
   const [direction, setDirection] = useState(1);
@@ -30,7 +30,7 @@ export function NativeNews({ initialId = null, onContact }) {
   // remplacer brutalement le contenu éditorial déjà présent dans l'application.
   const items = useMemo(() => {
     const remoteItems = source === "supabase" ? rows.map(row => ({
-      id: row.id, title: row.title, date: row.metadata?.date_label || "",
+      id: row.id, slug: row.slug, title: row.title, date: row.metadata?.date_label || "",
       tag: row.metadata?.tag || "Actualité", text: row.body || row.excerpt || "",
       photos: Array.isArray(row.gallery) && row.gallery.length ? row.gallery : row.cover_url ? [row.cover_url] : [],
       coverMode: row.metadata?.cover_mode === "cover" ? "cover" : "contain",
@@ -68,10 +68,10 @@ export function NativeNews({ initialId = null, onContact }) {
   }, [index, items, lang]);
   useEffect(() => {
     if (initialId && items.length) {
-      const found = items.find(item => String(item.id) === String(initialId));
-      if (found) { setArticle(found); setPhotoIndex(0); }
+      const found = items.find(item => String(item.id) === String(initialId) || String(item.slug || "") === String(initialId));
+      if (found) { setArticle(found); setPhotoIndex(0); onInitialArticleOpened?.(); }
     }
-  }, [initialId, items]);
+  }, [initialId, items, onInitialArticleOpened]);
   useEffect(() => {
     if (!article) return undefined;
     const onKeyDown = event => {
