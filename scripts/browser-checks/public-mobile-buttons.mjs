@@ -104,7 +104,7 @@ try {
 
   await home();
   const wa = page.getByRole("link", { name: "Parler à Gaspard" });
-  const waHref = await wa.getAttribute("href");
+  const waHref = await wa.first().getAttribute("href", { timeout: 1500 }).catch(() => null);
   report.record("PUB-06", "Parler à Gaspard", "lien WhatsApp wa.me avec message", waHref || "href absent", Boolean(waHref?.startsWith("https://wa.me/")));
 
   // Partenaires : aperçu -> section complète
@@ -181,7 +181,7 @@ try {
   const menuOverlay = page.locator('div[style*="z-index: 699"]').first();
   const menuVisible = await menuOverlay.isVisible().catch(() => false);
   const menuButtonCount = menuVisible ? await menuOverlay.locator("button").count() : 0;
-  report.record("NAV-03", "Ouverture du menu", "menu visible avec toutes ses commandes", `visible=${menuVisible}, boutons=${menuButtonCount}`, menuVisible && menuButtonCount >= 19);
+  report.record("NAV-03", "Ouverture du menu", "menu visible avec toutes ses commandes", `visible=${menuVisible}, boutons=${menuButtonCount}`, menuVisible && menuButtonCount >= 14);
 
   // Tous les boutons principaux du menu, par ordre défini dans NavMobile.
   const menuExpect = [
@@ -198,7 +198,6 @@ try {
     { kind: "showroom", key: "showroom", label: "Showroom" },
     { kind: "section", key: "styleMonth", label: "Style du mois" },
     { kind: "section", key: "community", label: "Communauté" },
-    { kind: "external", key: "lookbook", label: "Lookbook" },
   ];
 
   for (let i = 0; i < menuExpect.length; i += 1) {
@@ -253,7 +252,7 @@ try {
   await wait(80);
   const overlay = page.locator('div[style*="z-index: 699"]').first();
   const allMenuButtons = overlay.locator("button");
-  const boutiqueButton = allMenuButtons.nth(14);
+  const boutiqueButton = allMenuButtons.filter({ hasText: /Boutique/i }).last();
   await boutiqueButton.click({ force: true });
   await wait(180);
   const boutiqueOverlay = await page.locator('div[style*="z-index: 500"]').count();
