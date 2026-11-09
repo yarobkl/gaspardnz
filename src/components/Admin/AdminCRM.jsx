@@ -51,8 +51,15 @@ const AdminCRM = ({ user }) => {
   useEffect(() => { const t = setTimeout(load, 180); return () => clearTimeout(t); }, [status, search]);
 
   const channelFor = (lead) => {
-    const value = `${lead.channel || ""} ${lead.source || ""}`.toLowerCase();
-    return /(^|[^a-z])(ios|iphone|application|app_mobile|mobile_app|app-ios)([^a-z]|$)/.test(value) ? "app" : /web|site|website|formulaire/.test(value) ? "web" : "unknown";
+    // `channel` décrit aussi le moyen de contact (WhatsApp, réservation…),
+    // tandis que `source` identifie la plateforme de provenance.
+    const source = String(lead.source || "").toLowerCase();
+    const channel = String(lead.channel || "").toLowerCase();
+    if (/ios|iphone|application|app_mobile|mobile_app|app-ios/.test(source)) return "app";
+    if (/web|site|website/.test(source)) return "web";
+    if (/ios|iphone|mobile_app|app-ios/.test(channel)) return "app";
+    if (/web|website/.test(channel)) return "web";
+    return "unknown";
   };
   const visibleLeads = useMemo(() => channelFilter === "all" ? leads : leads.filter((lead) => channelFor(lead) === channelFilter), [leads, channelFilter]);
   const stats = useMemo(() => ({ ...Object.fromEntries(STATUS.map(([key]) => [key, visibleLeads.filter((l) => l.status === key).length])), marketing: visibleLeads.filter((l) => l.marketing_consent).length }), [visibleLeads]);
