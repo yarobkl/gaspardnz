@@ -100,7 +100,7 @@ export default function NativeExperience(){
  const ui=localUI[lang]||localUI.FR;
  const legal=legalCopy[lang]||legalCopy.FR;
  useEffect(()=>{StatusBar.setStyle({style:Style.Light}).catch(()=>{});},[]);
- const [page,setPage]=useState("home"),[contactOpen,setContactOpen]=useState(false),[contactProject,setContactProject]=useState(""),[contactDetails,setContactDetails]=useState(""),[bookingProject,setBookingProject]=useState(""),[bookingSlotId,setBookingSlotId]=useState(""),[downloadError,setDownloadError]=useState(""),[notificationsOpen,setNotificationsOpen]=useState(false),[newsFocusId,setNewsFocusId]=useState(null);
+ const [page,setPage]=useState("home"),[servicesRevision,setServicesRevision]=useState(0),[contactOpen,setContactOpen]=useState(false),[contactProject,setContactProject]=useState(""),[contactDetails,setContactDetails]=useState(""),[bookingProject,setBookingProject]=useState(""),[bookingSlotId,setBookingSlotId]=useState(""),[downloadError,setDownloadError]=useState(""),[notificationsOpen,setNotificationsOpen]=useState(false),[newsFocusId,setNewsFocusId]=useState(null);
  const [bookingDates,setBookingDates]=useState([]),[bookingLoading,setBookingLoading]=useState(false),[bookingError,setBookingError]=useState(""),[bookingSuccess,setBookingSuccess]=useState(""),[bookingSending,setBookingSending]=useState(false);
  const [bookingForm,setBookingForm]=useState({full_name:"",email:"",phone:"",need:""});
  const [phoneCountry,setPhoneCountry]=useState("FR");
@@ -218,7 +218,7 @@ export default function NativeExperience(){
      : notificationFilter==="unread" ? !state.read && !state.archived : !state.archived;
  });
  const unreadCount=notificationItems.filter(item=>!notificationState[String(item.id)]?.read && !notificationState[String(item.id)]?.archived).length;
- const select=(key)=>{setNotificationsOpen(false);if(key===page)return;window.scrollTo(0,0);setPage(key);setDownloadError("");};
+ const select=(key)=>{setNotificationsOpen(false);if(key==="services")setServicesRevision(revision=>revision+1);if(key===page)return;window.scrollTo(0,0);setPage(key);setDownloadError("");};
  const backToHome = () => select("home");
  const topTabForPage = (value) => tabs.some(([key]) => key === value) ? value : "more";
  const handleSwipeStart = (event) => {
@@ -272,7 +272,7 @@ export default function NativeExperience(){
  const content=()=>{
   switch(page){
    case "home":return <div className="gnz-native-hero"><img src="/images/Photo%20application%20.JPG" alt={ui.photo} loading="eager" /><div className="gnz-native-hero-shade"/><div className="gnz-native-hero-content"><h1>{c.tagline}</h1><p>{c.intro}</p><button onClick={()=>select("services")}>{c.discover} <span>→</span></button><button className="gnz-native-outline" onClick={()=>openContact()}>{c.talk}</button></div></div>;
-   case "services":return <section className="gnz-native-section">{heading(ui.sections.services,c.intro)}<Services lang={lang} onContact={openContact}/></section>;
+   case "services":return <section className="gnz-native-section">{heading(ui.sections.services,c.intro)}<Services key={servicesRevision} lang={lang} onContact={openContact}/></section>;
    case "gallery":return <section className="gnz-native-section gnz-native-gallery-page">{heading(ui.sections.gallery)}<Gallery native onContact={openContact}/></section>;
     case "booking":return <section className="gnz-native-section gnz-native-booking-page">
       <button className="gnz-native-section-back" type="button" onClick={backToHome}>‹ {c.back}</button>
