@@ -43,7 +43,7 @@ describe("NavMobile â€” le menu s'adapte selon qu'une grille de tuiles existe dÃ
 
       expect(await screen.findByText("Rendez-vous")).toBeInTheDocument();
       expect(screen.getByText("Showroom")).toBeInTheDocument();
-      expect(screen.getByText("Lookbook")).toBeInTheDocument();
+      expect(screen.queryByText("Lookbook")).not.toBeInTheDocument();
 
       expect(screen.queryByText("Biographie")).not.toBeInTheDocument();
       expect(screen.queryByText("Formules")).not.toBeInTheDocument();
