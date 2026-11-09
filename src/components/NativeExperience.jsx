@@ -3,6 +3,7 @@ import { LangCtx } from "../context.jsx";
 import { StatusBar, Style } from "@capacitor/status-bar";
 import { Capacitor, CapacitorHttp } from "@capacitor/core";
 import { PushNotifications } from "@capacitor/push-notifications";
+import { Browser } from "@capacitor/browser";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useSettings } from "../hooks/useSettings.js";
 import { usePublicCollection } from "../hooks/usePublicCollection.js";
@@ -126,13 +127,20 @@ export default function NativeExperience(){
      }));
      listeners.push(await PushNotifications.addListener("registrationError",error=>{if(active)setPairStatus("Apple : "+(error?.error||"enregistrement impossible"));}));
      listeners.push(await PushNotifications.addListener("pushNotificationActionPerformed",event=>{
-       const url=event.notification?.data?.url;
-       if(typeof url==="string"&&url.startsWith("https://gaspardnz.style/")){
-         const target=new URL(url);
-         if(/\/rendez-vous\/?$|\/reservation\/?$/.test(target.pathname)){setNotificationsOpen(false);setPage("booking");window.scrollTo(0,0);}
-         else if(/\/actualites\/?$/.test(target.pathname)){setNotificationsOpen(false);setPage("news");window.scrollTo(0,0);}
-         else window.location.assign(url);
+       const rawUrl=event.notification?.data?.url;
+       if(typeof rawUrl!=="string")return;
+       let target;
+       try{target=new URL(rawUrl);}catch{return;}
+       if(target.protocol!=="https:")return;
+       const isGaspardNZ=target.hostname==="gaspardnz.style"||target.hostname.endsWith(".gaspardnz.style");
+       setNotificationsOpen(false);
+       if(isGaspardNZ&&/\/rendez-vous\/?$|\/reservation\/?$/.test(target.pathname)){
+         setPage("booking");window.scrollTo(0,0);return;
        }
+       if(isGaspardNZ&&/\/actualites\/?$/.test(target.pathname)){
+         setPage("news");window.scrollTo(0,0);return;
+       }
+       Browser.open({url:target.href}).catch(()=>window.open(target.href,"_blank","noopener,noreferrer"));
      }));
      if(window.localStorage.getItem("gnz-push-consent")==="yes"){
        const permission=await PushNotifications.checkPermissions();
