@@ -133,6 +133,16 @@ const AdminDashboard = ({ onNavigate }) => {
 
       {error && <div className="gnz-alert gnz-alert-error">{error}</div>}
 
+      <section className="gnz-card" aria-label="Actions prioritaires" style={{ marginBottom: 20 }}>
+        <header className="gnz-card-header"><div className="gnz-card-title"><strong>À traiter maintenant</strong><span>Accès directs aux opérations commerciales — sans chiffres estimés</span></div></header>
+        <div className="gnz-card-body" style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
+          <button type="button" className="gnz-secondary-button" onClick={() => onNavigate?.("crm")}>Répondre aux prospects</button>
+          <button type="button" className="gnz-secondary-button" onClick={() => onNavigate?.("bookings")}>Vérifier les rendez-vous</button>
+          <button type="button" className="gnz-secondary-button" onClick={() => onNavigate?.("emails")}>Suivre les emails</button>
+          <button type="button" className="gnz-secondary-button" onClick={() => onNavigate?.("notifications")}>Préparer une communication</button>
+        </div>
+      </section>
+
       <section className="gnz-kpi-grid" aria-label="Indicateurs principaux">
         <Kpi label="Visiteurs uniques" value={fmt.format(k.visitors || 0)} trend={changes.visitors} sub="Visiteurs identifiés sur la période" onClick={() => onNavigate?.("analytics")} />
         <Kpi label="Demandes reçues" value={fmt.format(k.leads || 0)} trend={changes.leads} sub="Prospects réellement créés dans le CRM" onClick={() => onNavigate?.("crm")} />
