@@ -46,6 +46,7 @@ const FooterMobile = ({ onFormules, onGalerie, onShowroom }) => {
           >Conseil en image</a>
         </nav>
 
+        <a href="https://apps.apple.com/us/app/gaspardnz/id6829908641" target="_blank" rel="noopener noreferrer" style={{display:"block",maxWidth:320,margin:"0 auto 2rem",padding:"14px 18px",border:`1px solid ${GOLD}`,borderRadius:9,textAlign:"center",color:"#faf7f2",textDecoration:"none",fontFamily:"'Montserrat', sans-serif",fontSize:13}}>Télécharger GaspardNZ sur l’App Store ↗</a>
         {/* Social icons */}
         <div style={{ display: "flex", justifyContent: "center", gap: "1.4rem", marginBottom: "2rem" }}>
           {[
