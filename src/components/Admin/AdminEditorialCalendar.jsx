@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { supabase } from "../../services/supabaseClient.js";
 import { editorialSlug, prepareEditorialWeek } from "../../data/editorialWeek.js";
 import "../../styles/admin-v2.css";
@@ -9,14 +9,23 @@ export default function AdminEditorialCalendar() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
+  const initialWeekLoaded = useRef(false);
 
   const load = async () => {
     const { data, error: problem } = await supabase.from("news_posts")
       .select("id,slug,title,published,published_at,metadata,created_at")
       .order("created_at", { ascending: false }).limit(150);
     if (problem) throw problem;
-    setProgrammed((data || []).filter((post) => post.metadata?.editorial_batch === "weekly")
-      .sort((a, b) => String(a.metadata?.scheduled_at || a.published_at || "").localeCompare(String(b.metadata?.scheduled_at || b.published_at || ""))));
+    const weekly = (data || []).filter((post) => post.metadata?.editorial_batch === "weekly")
+      .sort((a, b) => String(a.metadata?.scheduled_at || a.published_at || "").localeCompare(String(b.metadata?.scheduled_at || b.published_at || "")));
+    setProgrammed(weekly);
+    if (!initialWeekLoaded.current) {
+      initialWeekLoaded.current = true;
+      const last = weekly.filter((post) => post.metadata?.scheduled_at).at(-1);
+      if (last && new Date(last.metadata.scheduled_at).getTime() >= Date.now()) {
+        setDrafts(prepareEditorialWeek(new Date(last.metadata.scheduled_at)));
+      }
+    }
   };
   useEffect(() => { load().catch((e) => setError(e.message)); }, []);
   const edit = (index, change) => setDrafts((current) => current.map((item, i) => i === index ? { ...item, ...change } : item));
