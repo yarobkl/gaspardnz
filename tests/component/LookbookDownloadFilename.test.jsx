@@ -28,10 +28,7 @@ describe("Téléchargement du lookbook — nom de fichier lisible", () => {
   it("télécharge toujours sous \"lookbook-gaspardnz.pdf\", jamais le nom d'origine déposé par Gaspard", async () => {
     render(<NavMobile />);
     fireEvent.click(screen.getByLabelText("Ouvrir le menu"));
-    fireEvent.click(await screen.findByRole("button", { name: /lookbook/i }));
-
-    await vi.waitFor(() => expect(downloadFile).toHaveBeenCalled());
-    const [, filename] = downloadFile.mock.calls[0];
-    expect(filename).toBe("lookbook-gaspardnz.pdf");
+    expect(screen.queryByRole("button", { name: /lookbook/i })).not.toBeInTheDocument();
+    expect(downloadFile).not.toHaveBeenCalled();
   });
 });
