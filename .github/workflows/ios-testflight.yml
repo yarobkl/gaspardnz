@@ -384,15 +384,20 @@ jobs:
       - name: Vérifier l’IPA
         if: ${{ env.GNZ_RELEASE_UPLOAD == 'true' }}
         run: |
+          set -euo pipefail
           IPA_PATH="$(find "$RUNNER_TEMP/export" -maxdepth 1 -name '*.ipa' -print -quit)"
           test -f "$IPA_PATH"
-          xcrun altool --validate-app --type ios --file "$IPA_PATH" --apiKey "$ASC_KEY_ID" --apiIssuer "$ASC_ISSUER_ID"
+          xcrun altool --validate-app --type ios --file "$IPA_PATH" --apiKey "$ASC_KEY_ID" --apiIssuer "$ASC_ISSUER_ID" 2>&1 | tee "$RUNNER_TEMP/GaspardNZ-validate.log"
+          grep -Fq "VERIFY SUCCEEDED with no errors" "$RUNNER_TEMP/GaspardNZ-validate.log" || { echo "::error::Apple n’a pas confirmé la validation de l’IPA."; exit 1; }
 
       - name: Envoyer vers TestFlight
         if: ${{ env.GNZ_RELEASE_UPLOAD == 'true' }}
         run: |
+          set -euo pipefail
           IPA_PATH="$(find "$RUNNER_TEMP/export" -maxdepth 1 -name '*.ipa' -print -quit)"
-          xcrun altool --upload-app --type ios --file "$IPA_PATH" --apiKey "$ASC_KEY_ID" --apiIssuer "$ASC_ISSUER_ID"
+          test -f "$IPA_PATH"
+          xcrun altool --upload-app --type ios --file "$IPA_PATH" --apiKey "$ASC_KEY_ID" --apiIssuer "$ASC_ISSUER_ID" 2>&1 | tee "$RUNNER_TEMP/GaspardNZ-upload.log"
+          grep -Fq "UPLOAD SUCCEEDED with no errors" "$RUNNER_TEMP/GaspardNZ-upload.log" || { echo "::error::Apple n’a pas confirmé la réception du build."; exit 1; }
 
       - name: Conserver l’IPA
         if: ${{ env.GNZ_RELEASE_UPLOAD == 'true' }}
