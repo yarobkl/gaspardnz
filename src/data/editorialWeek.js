@@ -25,7 +25,7 @@ export const WEEKLY_EDITORIAL_TEMPLATES = [
     "tag": "Conseil style"
   },
   {
-    "title": "Vendredi élégant : trouver le juste équilibre",
+    "title": "L’élégance sans costume trois-pièces",
     "excerpt": "Une allure soignée peut rester naturelle, même sans costume trois-pièces.",
     "body": "Être élégant ne signifie pas forcément porter une cravate. Un pantalon bien coupé, une chemise impeccable et une veste souple peuvent composer une tenue très convaincante. L’essentiel est de choisir des pièces qui se répondent et de conserver des proportions harmonieuses.\n\nPour une allure plus décontractée, travaillez les textures : coton, laine légère ou maille fine apportent du relief sans surcharger l’ensemble. Gardez les couleurs sous contrôle et laissez une pièce guider le reste.\n\nLe conseil GaspardNZ : demandez-vous d’abord comment vous allez vivre votre journée. Une tenue réussie doit vous accompagner, pas vous contraindre.",
     "tag": "Conseil style"
