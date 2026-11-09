@@ -51,7 +51,8 @@ assert.match(layout, /import \{ hasPermission, logout \}/);
 assert.match(layout, /visibleGroups\.map\(\(group\)/);
 assert.doesNotMatch(layout, /<nav className="gnz-nav"[^>]*>\{NAV_GROUPS\.map/);
 assert.match(layout, /sectionRefused/);
-assert.match(layout, /let rendered = sectionRefused \? null : children;/);
+assert.match(layout, /const ActiveComponent = !sectionRefused \? current\?\.component : null;/);
+assert.match(layout, /\{sectionRefused \? \(/);
 
 // ---------------------------------------------------------------------------
 // 3. Migrations additives et rollbacks présents.
