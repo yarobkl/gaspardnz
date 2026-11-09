@@ -86,6 +86,7 @@ try {
     // observé de façon reproductible avec le délai par défaut (120ms).
     await openJournal.click({ force: true }); await wait(400);
     const collapseJournal = section.getByRole("button", { name: /Réduire le journal/i });
+    await collapseJournal.waitFor({ state: "attached", timeout: 2500 }).catch(() => {});
     report.record("DEEP-JOURNAL-01", "Style Journal — développer", "affiche le journal complet", `réduire visible=${await collapseJournal.count() > 0}`, await collapseJournal.count() > 0 && errors.length === 0);
   }
   const journalHotspots = section.locator("button[aria-pressed]");
@@ -181,8 +182,9 @@ try {
     }
     report.record("DEEP-FORM-01", "Formules — accordéons et CTA", "chaque formule s'ouvre/se ferme et son CTA ouvre WhatsApp", `accordéons=${accordionCount}`, accordionOk && errors.length === 0);
   } else {
+    await section.locator('[data-track="booking_click"]').first().waitFor({ state: "attached", timeout: 4500 }).catch(() => {});
     const fallbackVisible = await section.getByText(/indisponibles/i).count() > 0;
-    const contactVisible = await section.getByRole("button", { name: /Rendez-vous/i }).count() > 0;
+    const contactVisible = await section.locator('button[data-track="booking_click"]').count() > 0;
     report.record("DEEP-FORM-01", "Formules — repli hors ligne (Supabase isolé)", "affiche un message et un bouton de contact, jamais une section vide", `message=${fallbackVisible}, bouton=${contactVisible}`, fallbackVisible && contactVisible && errors.length === 0);
   }
 
@@ -199,7 +201,7 @@ try {
   section = await openSection("Partenaires");
   const partnerContact = section.getByRole("button", { name: /Prendre Contact/i }).first();
   if (await partnerContact.count()) {
-    await partnerContact.click({ force: true }); await wait();
+    await partnerContact.click({ force: true }); await wait(350);
     const dialog = page.getByRole("dialog").last();
     const close = dialog.getByRole("button", { name: /Close dialog/i });
     const modalOk = await dialog.count() > 0 && await close.count() > 0;
