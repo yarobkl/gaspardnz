@@ -104,6 +104,8 @@ export default function NativeExperience(){
  const [bookingDates,setBookingDates]=useState([]),[bookingLoading,setBookingLoading]=useState(false),[bookingError,setBookingError]=useState(""),[bookingSuccess,setBookingSuccess]=useState(""),[bookingSending,setBookingSending]=useState(false);
  const [bookingForm,setBookingForm]=useState({full_name:"",email:"",phone:"",need:""});
  const [phoneCountry,setPhoneCountry]=useState("FR");
+ const [pushEnabled,setPushEnabled]=useState(()=>window.localStorage.getItem("gnz-push-consent") === "yes");
+ const [pushBusy,setPushBusy]=useState(false),[pushMessage,setPushMessage]=useState("");
  useEffect(()=>{
    if(page!=="booking")return;
    let active=true;
@@ -117,7 +119,11 @@ export default function NativeExperience(){
    if(Capacitor.getPlatform()!=="ios")return;
    let active=true;const listeners=[];
    (async()=>{
-     listeners.push(await PushNotifications.addListener("registration",token=>{if(active)pushToken.current=token.value;}));
+     listeners.push(await PushNotifications.addListener("registration",token=>{
+       if(!active)return;
+       pushToken.current=token.value;
+       if(window.localStorage.getItem("gnz-push-consent")==="yes")CapacitorHttp.post({url:"https://gaspardnz.style/api/notifications/push-subscription",headers:{"Content-Type":"application/json"},data:{deviceToken:token.value,consent:true}}).catch(()=>{});
+     }));
      listeners.push(await PushNotifications.addListener("registrationError",error=>{if(active)setPairStatus("Apple : "+(error?.error||"enregistrement impossible"));}));
      listeners.push(await PushNotifications.addListener("pushNotificationActionPerformed",event=>{
        const url=event.notification?.data?.url;
@@ -128,9 +134,35 @@ export default function NativeExperience(){
          else window.location.assign(url);
        }
      }));
+     if(window.localStorage.getItem("gnz-push-consent")==="yes"){
+       const permission=await PushNotifications.checkPermissions();
+       if(permission.receive==="granted")await PushNotifications.register();
+     }
    })().catch(()=>{});
    return()=>{active=false;listeners.forEach(listener=>listener.remove());};
  },[]);
+ async function togglePublicPush(){
+   if(Capacitor.getPlatform()!=="ios")return;
+   setPushBusy(true);setPushMessage("");
+   try{
+     if(!pushEnabled){
+       const permission=await PushNotifications.requestPermissions();
+       if(permission.receive!=="granted")throw new Error("Autorisez les notifications dans les réglages de l’iPhone.");
+     }
+     const deviceToken=await new Promise((resolve,reject)=>{
+       let settled=false,timer;const handles=[];
+       const finish=(error,value)=>{if(settled)return;settled=true;clearTimeout(timer);handles.forEach(h=>h.remove().catch(()=>{}));error?reject(error):resolve(value);};
+       (async()=>{try{handles.push(await PushNotifications.addListener("registration",token=>finish(null,token.value)));handles.push(await PushNotifications.addListener("registrationError",error=>finish(new Error(error?.error||"Inscription Apple impossible"))));timer=setTimeout(()=>finish(new Error("Apple ne répond pas. Réessayez.")),20000);await PushNotifications.register();}catch(error){finish(error);}})();
+     });
+     const response=await CapacitorHttp.request({method:pushEnabled?"DELETE":"POST",url:"https://gaspardnz.style/api/notifications/push-subscription",headers:{"Content-Type":"application/json"},data:{deviceToken,...(!pushEnabled?{consent:true}:{})}});
+     const result=typeof response.data==="string"?JSON.parse(response.data||"{}"):response.data||{};
+     if(response.status<200||response.status>=300)throw new Error(result.error||"Service temporairement indisponible.");
+     const active=!pushEnabled;
+     window.localStorage.setItem("gnz-push-consent",active?"yes":"no");
+     setPushEnabled(active);
+     setPushMessage(active?"Notifications activées sur cet iPhone.":"Notifications GaspardNZ désactivées.");
+   }catch(error){setPushMessage(error.message||"Réessayez plus tard.");}finally{setPushBusy(false);}
+ }
  async function pairIphone(){
    if(!/^[a-f0-9]{48}$/.test(pairCode.trim())){setPairStatus("Code invalide.");return;}
    setPairBusy(true);setPairStatus("");
@@ -282,5 +314,5 @@ export default function NativeExperience(){
    }
   }
  };
- return <div className="gnz-native" onClickCapture={handleAction} onChangeCapture={e=>{if(e.target.matches("select"))nativeFeedback("selection");}}><div className="gnz-native-top"><strong>GASPARDNZ <small>PARIS</small></strong><button type="button" className="gnz-native-notification-trigger" onClick={()=>setNotificationsOpen(v=>!v)} aria-label={ui.notifications} aria-expanded={notificationsOpen} aria-controls="gnz-native-notifications"><NativeIcon name="bell"/>{unreadCount>0 && <span className="gnz-native-notification-count">{unreadCount>9?"9+":unreadCount}</span>}</button></div><AnimatePresence>{notificationsOpen&&<motion.section key="notifications" initial={reduceMotion?false:{opacity:0,y:-8}} animate={{opacity:1,y:0}} exit={reduceMotion?{opacity:0}:{opacity:0,y:-8}} transition={{duration:reduceMotion?0:.18}} id="gnz-native-notifications" className="gnz-native-notifications" aria-label={ui.notifications}><div className="gnz-native-notifications-head"><strong>{ui.notifications}</strong><button type="button" onClick={()=>setNotificationsOpen(false)} aria-label={ui.close}>×</button></div><div className="gnz-native-notification-filters" role="group" aria-label="Filtrer les notifications">{[["all",lang==="FR"?"Toutes":"All"],["unread",lang==="FR"?"Non lues":"Unread"],["archived",lang==="FR"?"Archivées":"Archived"]].map(([key,label])=><button key={key} type="button" aria-pressed={notificationFilter===key} onClick={()=>setNotificationFilter(key)}>{label}</button>)}</div>{visibleNotifications.length ? visibleNotifications.map(item=><div className="gnz-native-notification-row" key={item.id}><button type="button" className="gnz-native-notification-item" onClick={()=>{updateNotification(item.id,{read:true});setNewsFocusId(item.id);setNotificationsOpen(false);select("news");}}>{!notificationState[String(item.id)]?.read && <span className="gnz-native-notification-unread" aria-label="Non lue"/>}<strong>{item.title}</strong><p>{item.excerpt || item.body || item.text || ""}</p>{(item.published_at || item.date) && <small>{item.published_at ? new Date(item.published_at).toLocaleDateString(lang === "FR" ? "fr-FR" : undefined) : item.date}</small>}</button><div className="gnz-native-notification-actions">{notificationFilter==="archived" ? <button type="button" onClick={()=>updateNotification(item.id,{archived:false})}>{lang==="FR"?"Restaurer":"Restore"}</button> : <><button type="button" onClick={()=>updateNotification(item.id,{read:true})}>{lang==="FR"?"Marquer comme lue":"Mark read"}</button><button type="button" onClick={()=>updateNotification(item.id,{archived:true})}>{lang==="FR"?"Archiver":"Archive"}</button></>}</div></div>) : <p>{notificationFilter==="unread" ? (lang==="FR"?"Aucune notification non lue.":"No unread notifications.") : notificationFilter==="archived" ? (lang==="FR"?"Aucune notification archivée.":"No archived notifications.") : ui.noNotifications}</p>}</motion.section>}</AnimatePresence><main id="gnz-native-main" onTouchStart={handleSwipeStart} onTouchEnd={handleSwipeEnd}><AnimatePresence mode="wait" initial={false}><motion.div className="gnz-native-page" key={page} initial={reduceMotion?false:{opacity:0,y:10}} animate={{opacity:1,y:0}} exit={reduceMotion?{opacity:0}:{opacity:0,y:-6}} transition={{duration:reduceMotion?0:.18,ease:"easeOut"}}><Suspense fallback={<div className="gnz-native-loading" role="status">{ui.loading}</div>}>{content()}</Suspense></motion.div></AnimatePresence></main><NativeTabBar tabs={tabs} labels={ui} activeTab={topTabForPage(page)} onSelect={select} Icon={NativeIcon} /><Suspense fallback={null}>{contactOpen&&<Contact native isOpen onClose={()=>setContactOpen(false)} whatsappNumber={settings.whatsappNumber} initialProjectType={contactProject} initialProjectDetails={contactDetails}/>}</Suspense></div>;
+ return <div className="gnz-native" onClickCapture={handleAction} onChangeCapture={e=>{if(e.target.matches("select"))nativeFeedback("selection");}}><div className="gnz-native-top"><strong>GASPARDNZ <small>PARIS</small></strong><button type="button" className="gnz-native-notification-trigger" onClick={()=>setNotificationsOpen(v=>!v)} aria-label={ui.notifications} aria-expanded={notificationsOpen} aria-controls="gnz-native-notifications"><NativeIcon name="bell"/>{unreadCount>0 && <span className="gnz-native-notification-count">{unreadCount>9?"9+":unreadCount}</span>}</button></div><AnimatePresence>{notificationsOpen&&<motion.section key="notifications" initial={reduceMotion?false:{opacity:0,y:-8}} animate={{opacity:1,y:0}} exit={reduceMotion?{opacity:0}:{opacity:0,y:-8}} transition={{duration:reduceMotion?0:.18}} id="gnz-native-notifications" className="gnz-native-notifications" aria-label={ui.notifications}><div className="gnz-native-notifications-head"><strong>{ui.notifications}</strong><button type="button" onClick={()=>setNotificationsOpen(false)} aria-label={ui.close}>×</button></div>{Capacitor.getPlatform()==="ios"&&<div className="gnz-native-push-consent"><span>Alertes sur cet iPhone</span><button type="button" disabled={pushBusy} onClick={togglePublicPush} aria-pressed={pushEnabled}>{pushBusy?"Patientez…":pushEnabled?"Désactiver":"Activer"}</button>{pushMessage&&<small role="status">{pushMessage}</small>}</div>}<div className="gnz-native-notification-filters" role="group" aria-label="Filtrer les notifications">{[["all",lang==="FR"?"Toutes":"All"],["unread",lang==="FR"?"Non lues":"Unread"],["archived",lang==="FR"?"Archivées":"Archived"]].map(([key,label])=><button key={key} type="button" aria-pressed={notificationFilter===key} onClick={()=>setNotificationFilter(key)}>{label}</button>)}</div>{visibleNotifications.length ? visibleNotifications.map(item=><div className="gnz-native-notification-row" key={item.id}><button type="button" className="gnz-native-notification-item" onClick={()=>{updateNotification(item.id,{read:true});setNewsFocusId(item.id);setNotificationsOpen(false);select("news");}}>{!notificationState[String(item.id)]?.read && <span className="gnz-native-notification-unread" aria-label="Non lue"/>}<strong>{item.title}</strong><p>{item.excerpt || item.body || item.text || ""}</p>{(item.published_at || item.date) && <small>{item.published_at ? new Date(item.published_at).toLocaleDateString(lang === "FR" ? "fr-FR" : undefined) : item.date}</small>}</button><div className="gnz-native-notification-actions">{notificationFilter==="archived" ? <button type="button" onClick={()=>updateNotification(item.id,{archived:false})}>{lang==="FR"?"Restaurer":"Restore"}</button> : <><button type="button" onClick={()=>updateNotification(item.id,{read:true})}>{lang==="FR"?"Marquer comme lue":"Mark read"}</button><button type="button" onClick={()=>updateNotification(item.id,{archived:true})}>{lang==="FR"?"Archiver":"Archive"}</button></>}</div></div>) : <p>{notificationFilter==="unread" ? (lang==="FR"?"Aucune notification non lue.":"No unread notifications.") : notificationFilter==="archived" ? (lang==="FR"?"Aucune notification archivée.":"No archived notifications.") : ui.noNotifications}</p>}</motion.section>}</AnimatePresence><main id="gnz-native-main" onTouchStart={handleSwipeStart} onTouchEnd={handleSwipeEnd}><AnimatePresence mode="wait" initial={false}><motion.div className="gnz-native-page" key={page} initial={reduceMotion?false:{opacity:0,y:10}} animate={{opacity:1,y:0}} exit={reduceMotion?{opacity:0}:{opacity:0,y:-6}} transition={{duration:reduceMotion?0:.18,ease:"easeOut"}}><Suspense fallback={<div className="gnz-native-loading" role="status">{ui.loading}</div>}>{content()}</Suspense></motion.div></AnimatePresence></main><NativeTabBar tabs={tabs} labels={ui} activeTab={topTabForPage(page)} onSelect={select} Icon={NativeIcon} /><Suspense fallback={null}>{contactOpen&&<Contact native isOpen onClose={()=>setContactOpen(false)} whatsappNumber={settings.whatsappNumber} initialProjectType={contactProject} initialProjectDetails={contactDetails}/>}</Suspense></div>;
 }
