@@ -11,13 +11,13 @@ import { lazy } from "react";
 // d'un coup dès l'arrivée sur l'admin, quelle que soit la section ouverte).
 export const NAV_GROUPS = [
   { label: "Aujourd’hui & performance", items: [
-    { id: "dashboard", label: "Aujourd’hui", icon: "◫", min: "viewer", component: lazy(() => import("./AdminDashboard.jsx")) },
+    { id: "dashboard", label: "Tableau de bord", icon: "◫", min: "viewer", component: lazy(() => import("./AdminDashboard.jsx")) },
     { id: "analytics", label: "Analytics", icon: "⌁", min: "viewer", component: lazy(() => import("./AdminAnalytics.jsx")) },
     { id: "seo", label: "Acquisition & SEO", icon: "⌕", min: "editor", component: lazy(() => import("./AdminSEO.jsx")) },
   ]},
   { label: "Clients & rendez-vous", items: [
-    { id: "crm", label: "Demandes & clients", icon: "◎", min: "viewer", component: lazy(() => import("./AdminCRM.jsx")) },
-    { id: "bookings", label: "Rendez-vous", icon: "□", min: "viewer", component: lazy(() => import("./AdminBookings.jsx")) },
+    { id: "crm", label: "CRM", icon: "◎", min: "viewer", component: lazy(() => import("./AdminCRM.jsx")) },
+    { id: "bookings", label: "Réservations", icon: "□", min: "viewer", component: lazy(() => import("./AdminBookings.jsx")) },
     { id: "availability", label: "Disponibilités", icon: "◷", min: "editor", component: lazy(() => import("./AdminAvailability.jsx")) },
     { id: "emails", label: "Emails", icon: "✉", min: "viewer", component: lazy(() => import("./AdminEmails.jsx")) },
   ]},
