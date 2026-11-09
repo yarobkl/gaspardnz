@@ -28,7 +28,8 @@ export default async function handler(req,res) {
   if (!(await authorize(req,db))) return res.status(403).json({error:"Accès administrateur refusé"});
   if (req.method==="GET") {
     const {data,error}=await db.from("notification_campaigns").select("id,category,title,body,image_url,target_url,audience,status,scheduled_at,sent_at,created_at").order("created_at",{ascending:false}).limit(100);
-    return error ? res.status(503).json({error:"Table notifications indisponible"}) : res.json({campaigns:data});
+    const {count}=await db.from("push_subscriptions").select("id",{count:"exact",head:true}).eq("provider","apns").eq("marketing_opt_in",true).is("revoked_at",null);
+    return error ? res.status(503).json({error:"Table notifications indisponible"}) : res.json({campaigns:data,subscribers:count??0});
   }
   const b=req.body || {};
   const category=String(b.category||"");
