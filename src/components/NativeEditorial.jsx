@@ -32,7 +32,9 @@ export function NativeNews({ initialId = null, onInitialArticleOpened, onContact
     const remoteItems = source === "supabase" ? rows.map(row => ({
       id: row.id, slug: row.slug, title: row.title, date: row.metadata?.date_label || "",
       tag: row.metadata?.tag || "Actualité", text: row.body || row.excerpt || "",
-      photos: Array.isArray(row.gallery) && row.gallery.length ? row.gallery : row.cover_url ? [row.cover_url] : [],
+      photos: row.slug === "app-google-play-fr" && lang === "FR"
+        ? [`${import.meta.env.BASE_URL}images/actualites/gaspardnz-500k.jpg`]
+        : Array.isArray(row.gallery) && row.gallery.length ? row.gallery : row.cover_url ? [row.cover_url] : [],
       coverMode: row.metadata?.cover_mode === "cover" ? "cover" : "contain",
       coverFocus: /^center\s+(?:[0-9]{1,2}|100)%$/.test(String(row.metadata?.cover_focus || ""))
         ? row.metadata.cover_focus : "center 25%",

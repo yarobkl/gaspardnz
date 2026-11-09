@@ -18,6 +18,7 @@ const NEWS = {
   FR: [
     {
       id: 4,
+      photos: [`${B}images/actualites/gaspardnz-500k.jpg`],
       location: "Paris",
       date: "Novembre 2026",
       tag: "Communauté",
