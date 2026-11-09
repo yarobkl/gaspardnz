@@ -33,7 +33,7 @@ export default async function handler(req, res) {
     const { error: lockError } = await db.from("notification_deliveries").insert({ campaign_id: id, subscription_id: subscriber.id, status: "queued" });
     if (lockError) continue; // The unique key prevents duplicate deliveries.
     let result;
-    try { result = await sendApns({ deviceToken: subscriber.provider_subscription_id, title: campaign.title, body: campaign.body, url: campaign.target_url || "https://gaspardnz.style/rendez-vous" }); }
+    try { result = await sendApns({ deviceToken: subscriber.provider_subscription_id, title: campaign.title, body: campaign.body, url: campaign.target_url || undefined }); }
     catch { result = { ok: false, status: 0, reason: "APNs unavailable" }; }
     await db.from("notification_deliveries").update({ status: result.ok ? "sent" : "failed", error_code: result.ok ? null : String(result.status || result.reason).slice(0, 100), attempted_at: new Date().toISOString() }).eq("campaign_id", id).eq("subscription_id", subscriber.id);
     if (result.ok) sent++; else failed++;
