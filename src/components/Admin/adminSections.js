@@ -10,18 +10,18 @@ import { lazy } from "react";
 // chargé à la demande (avant, dix écrans sur dix-sept étaient chargés
 // d'un coup dès l'arrivée sur l'admin, quelle que soit la section ouverte).
 export const NAV_GROUPS = [
-  { label: "Pilotage", items: [
+  { label: "Aujourd’hui & performance", items: [
     { id: "dashboard", label: "Tableau de bord", icon: "◫", min: "viewer", component: lazy(() => import("./AdminDashboard.jsx")) },
     { id: "analytics", label: "Analytics", icon: "⌁", min: "viewer", component: lazy(() => import("./AdminAnalytics.jsx")) },
     { id: "seo", label: "Acquisition & SEO", icon: "⌕", min: "editor", component: lazy(() => import("./AdminSEO.jsx")) },
   ]},
-  { label: "Commercial", items: [
+  { label: "Clients & rendez-vous", items: [
     { id: "crm", label: "CRM", icon: "◎", min: "viewer", component: lazy(() => import("./AdminCRM.jsx")) },
     { id: "bookings", label: "Réservations", icon: "□", min: "viewer", component: lazy(() => import("./AdminBookings.jsx")) },
     { id: "availability", label: "Disponibilités", icon: "◷", min: "editor", component: lazy(() => import("./AdminAvailability.jsx")) },
     { id: "emails", label: "Emails", icon: "✉", min: "viewer", component: lazy(() => import("./AdminEmails.jsx")) },
   ]},
-  { label: "Site", items: [
+  { label: "Communication & contenus", items: [
     { id: "content", label: "Contenu du site", icon: "✎", min: "editor", component: lazy(() => import("./AdminContent.jsx")) },
     { id: "editorial", label: "Calendrier éditorial", icon: "◷", min: "editor", component: lazy(() => import("./AdminEditorialCalendar.jsx")) },
     { id: "texts", label: "Textes du site", icon: "Aa", min: "editor", component: lazy(() => import("./AdminTexts.jsx")) },

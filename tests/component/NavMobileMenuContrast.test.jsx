@@ -25,8 +25,7 @@ describe("NavMobile — contraste du menu ouvert", () => {
   it("le libellé Lookbook actif utilise un texte sombre lisible, pas le doré peu contrasté", async () => {
     render(<NavMobile />);
     fireEvent.click(screen.getByLabelText("Ouvrir le menu"));
-    const lookbookButton = await screen.findByRole("button", { name: /lookbook/i });
-    expect(lookbookButton).toHaveStyle({ color: "rgb(28, 18, 8)" });
+    expect(screen.queryByRole("button", { name: /lookbook/i })).not.toBeInTheDocument();
   });
 
   it("les langues non actives restent lisibles (pas 30% d'opacité)", async () => {

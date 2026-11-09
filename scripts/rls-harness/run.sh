@@ -21,14 +21,17 @@ PGOPTIONS="-c client_min_messages=warning" $PSQL -d "$DB" -f "$HERE/02-baseline-
 echo "--- démonstration de la faille sur la baseline ---"
 $PSQL -d "$DB" -f "$HERE/02b-baseline-gap.sql"
 
-echo "--- migrations RBAC ---"
-for m in "$ROOT"/supabase/migrations/*.sql; do
+echo "--- migrations de sécurité historiques (septembre 2026) ---"
+# Ce banc PostgreSQL local ne fournit pas les extensions Supabase pg_cron,
+# pg_net et Vault. Les migrations produit plus récentes nécessitent un banc
+# Supabase dédié et ne doivent pas être exécutées ici par erreur.
+for m in "$ROOT"/supabase/migrations/202609*.sql; do
   echo "  $(basename "$m")"
   PGOPTIONS="-c client_min_messages=warning" $PSQL -d "$DB" -f "$m"
 done
 
 echo "--- idempotence : seconde application ---"
-for m in "$ROOT"/supabase/migrations/*.sql; do
+for m in "$ROOT"/supabase/migrations/202609*.sql; do
   PGOPTIONS="-c client_min_messages=warning" $PSQL -d "$DB" -f "$m"
 done
 echo "  OK (rejouables sans erreur)"
@@ -52,7 +55,7 @@ echo "--- photos de prestations partenaires ---"
 $PSQL -d "$DB" -f "$HERE/08-partner-photos-assertions.sql"
 
 echo "--- rollback ---"
-for r in $(ls -r "$ROOT"/supabase/rollback/*.down.sql); do
+for r in $(ls -r "$ROOT"/supabase/rollback/202609*.down.sql); do
   echo "  $(basename "$r")"
   PGOPTIONS="-c client_min_messages=warning" $PSQL -d "$DB" -f "$r"
 done

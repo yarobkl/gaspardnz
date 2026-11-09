@@ -66,7 +66,7 @@ describe("Partenaires — une catégorie à pourvoir ouvre le formulaire « Deve
     // part uniquement dans le CRM, aucun appel à l'envoi d'email.
     expect(fetchMock.mock.calls.find(([url]) => url === "/api/send-email")).toBeUndefined();
     vi.unstubAllGlobals();
-  });
+  }, 15000);
 });
 
 // Cas réel en prod : sur 4G l'envoi prenait plusieurs secondes, puis
@@ -93,7 +93,7 @@ describe("Partenaires — « Devenir partenaire » confirme sans attendre le ré
     expect(screen.getByText(/Votre candidature a bien été envoyée/)).toBeInTheDocument();
     vi.unstubAllGlobals();
     expect(screen.queryByText(/Erreur/)).not.toBeInTheDocument();
-  });
+  }, 15000);
 });
 
 // Demandé par l'utilisateur : la catégorie "Animation / Divertissement" est

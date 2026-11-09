@@ -38,41 +38,10 @@ describe("Formules — repli si aucune donnée ne charge", () => {
   });
 });
 
-describe("Formules — lookbook : reflète les mêmes réglages que le menu (NavMobile)", () => {
-  // Bug réel (signalé par l'utilisateur) : ce bouton restait désactivé en
-  // dur quoi qu'il arrive dans les réglages — un visiteur voyait le
-  // téléchargement "disponible et gratuit" dans le menu hamburger
-  // (NavMobile.jsx, qui lit bien settings.lookbookPdfUrl/lookbookHidden),
-  // puis "bientôt disponible" ici pour exactement le même fichier.
-  it("active le bouton dès qu'un PDF est déposé et non masqué, sans mention « bientôt disponible »", async () => {
-    fake = createFakeSupabaseTables({
-      packages: [],
-      site_settings: [{ key: "lookbook", value: { pdf_url: "https://example.test/lookbook.pdf", pdf_filename: "lookbook.pdf" }, is_public: true }],
-    });
+describe("Formules — lookbook archivé", () => {
+  it("ne propose aucun téléchargement public", async () => {
+    fake = createFakeSupabaseTables({ packages: [], site_settings: [{ key: "lookbook", value: { pdf_url: "https://example.test/lookbook.pdf" }, is_public: true }] });
     render(<FormulesSection onContact={() => {}} />);
-    const button = await screen.findByRole("button", { name: "Télécharger gratuitement" });
-    expect(button).not.toBeDisabled();
-    expect(screen.queryByText("À venir")).not.toBeInTheDocument();
-  });
-
-  it("reste désactivé avec la mention de disponibilité tant qu'aucun PDF n'est déposé", async () => {
-    fake = createFakeSupabaseTables({ packages: [], site_settings: [] });
-    render(<FormulesSection onContact={() => {}} />);
-    const button = await screen.findByRole("button", { name: "Télécharger gratuitement" });
-    expect(button).toBeDisabled();
-    expect(await screen.findByText("À venir")).toBeInTheDocument();
-  });
-
-  it("reste désactivé si l'admin masque volontairement le lookbook, même avec un PDF déposé", async () => {
-    fake = createFakeSupabaseTables({
-      packages: [],
-      site_settings: [
-        { key: "lookbook", value: { pdf_url: "https://example.test/lookbook.pdf" }, is_public: true },
-        { key: "payment", value: { lookbook_hidden: true, lookbook_hidden_message: "Bientôt disponible" }, is_public: true },
-      ],
-    });
-    render(<FormulesSection onContact={() => {}} />);
-    expect(await screen.findByRole("button", { name: "Télécharger gratuitement" })).toBeDisabled();
-    expect(await screen.findByText("Bientôt disponible")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Télécharger gratuitement" })).not.toBeInTheDocument();
   });
 });
