@@ -12,7 +12,7 @@
   },
   "ios": {
     "scheme": "Gaspardnz",
-    "backgroundColor": "#FAF8F4"
+    "backgroundColor": "#21160E"
   },
   "plugins": {
     "PushNotifications": {
@@ -21,14 +21,14 @@
     "SplashScreen": {
       "launchShowDuration": 2000,
       "launchAutoHide": true,
-      "backgroundColor": "#FAF8F4",
+      "backgroundColor": "#21160E",
       "iosSpinnerStyle": "small",
       "spinnerColor": "#8A5A2B",
       "showSpinner": false
     },
     "StatusBar": {
       "style": "LIGHT",
-      "backgroundColor": "#FAF8F4"
+      "backgroundColor": "#21160E"
     }
   }
 }

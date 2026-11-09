@@ -25,9 +25,8 @@ export function NativeNews({ initialId = null, onInitialArticleOpened, onContact
     fallback, filters: [{ type: "eq", column: "locale", value: lang }],
     orderBy: "published_at", ascending: false,
   });
-  // Les articles historiques restent visibles même lorsqu'une actualité est
-  // publiée depuis l'administration : Supabase complète le fil au lieu de
-  // remplacer brutalement le contenu éditorial déjà présent dans l'application.
+  // La sélection publiée dans l'admin décide seule des articles visibles.
+  // Les données embarquées servent uniquement si Supabase est indisponible.
   const items = useMemo(() => {
     const remoteItems = source === "supabase" ? rows.map(row => ({
       id: row.id, slug: row.slug, title: row.title, date: row.metadata?.date_label || "",
@@ -39,7 +38,7 @@ export function NativeNews({ initialId = null, onInitialArticleOpened, onContact
       coverFocus: /^center\s+(?:[0-9]{1,2}|100)%$/.test(String(row.metadata?.cover_focus || ""))
         ? row.metadata.cover_focus : "center 25%",
     })) : [];
-    return [...remoteItems, ...fallback.filter((item) => !rows.some((row) => String(row.id) === String(item.id) || String(row.metadata?.legacy_id) === String(item.id)))];
+    return source === "supabase" ? remoteItems : fallback;
   }, [source, rows, fallback]);
   const featured = items.filter(item => item.photos?.length);
   const active = featured.length ? featured[((index % featured.length) + featured.length) % featured.length] : null;

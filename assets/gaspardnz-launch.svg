@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2732" height="2732" viewBox="0 0 2732 2732">
+  <defs>
+    <radialGradient id="night"><stop stop-color="#3a2819"/><stop offset=".65" stop-color="#21160e"/><stop offset="1" stop-color="#160e09"/></radialGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#a87936"/><stop offset=".38" stop-color="#e9c888"/><stop offset=".53" stop-color="#fff0c0"/><stop offset=".68" stop-color="#d5a857"/><stop offset="1" stop-color="#a87936"/></linearGradient>
+  </defs>
+  <rect width="2732" height="2732" fill="url(#night)"/>
+  <path d="M830 1230h1072" stroke="#a87936" opacity=".5" stroke-width="2"/>
+  <text x="1366" y="1382" fill="url(#gold)" text-anchor="middle" font-family="DejaVu Serif,serif" font-size="180" letter-spacing="16">GASPARDNZ</text>
+  <text x="1366" y="1490" fill="#f2dfba" text-anchor="middle" font-family="DejaVu Sans,sans-serif" font-size="49" letter-spacing="15">PARIS</text>
+  <path d="M1166 1552h400" stroke="url(#gold)" stroke-width="4"/>
+  <text x="1366" y="1670" fill="#e4d4b8" text-anchor="middle" font-family="DejaVu Sans,sans-serif" font-size="49" letter-spacing="5">S’HABILLER AUTREMENT</text>
+</svg>
