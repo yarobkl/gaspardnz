@@ -3,6 +3,7 @@ import { addLeadNote, listLeads, updateLead } from "../../services/adminData.js"
 import { hasPermission } from "../../services/adminAuth.js";
 import { requestTypeLabel } from "../../utils/requestTypes.js";
 import { analyzeLeadWithGemini } from "../../services/adminGemini.js";
+import { leadOrigin } from "../../utils/leadOrigin.js";
 import "../../styles/admin-v2.css";
 
 const STATUS = [
@@ -50,18 +51,7 @@ const AdminCRM = ({ user }) => {
   };
   useEffect(() => { const t = setTimeout(load, 180); return () => clearTimeout(t); }, [status, search]);
 
-  const channelFor = (lead) => {
-    // `channel` décrit aussi le moyen de contact (WhatsApp, réservation…),
-    // tandis que `source` identifie la plateforme de provenance.
-    const source = String(lead.source || "").toLowerCase();
-    const channel = String(lead.channel || "").toLowerCase();
-    if (/ios|iphone|application|app_mobile|mobile_app|app-ios/.test(source)) return "app";
-    if (/web|site|website/.test(source)) return "web";
-    if (/ios|iphone|mobile_app|app-ios/.test(channel)) return "app";
-    if (/web|website/.test(channel)) return "web";
-    return "unknown";
-  };
-  const visibleLeads = useMemo(() => channelFilter === "all" ? leads : leads.filter((lead) => channelFor(lead) === channelFilter), [leads, channelFilter]);
+  const visibleLeads = useMemo(() => channelFilter === "all" ? leads : leads.filter((lead) => leadOrigin(lead) === channelFilter), [leads, channelFilter]);
   const stats = useMemo(() => ({ ...Object.fromEntries(STATUS.map(([key]) => [key, visibleLeads.filter((l) => l.status === key).length])), marketing: visibleLeads.filter((l) => l.marketing_consent).length }), [visibleLeads]);
 
   const patch = async (id, values) => {
@@ -118,7 +108,7 @@ const AdminCRM = ({ user }) => {
       <div className="gnz-split">
         <article className="gnz-card">
           <div className="gnz-table-wrap gnz-table-wrap--capped"><table className="gnz-table"><thead><tr><th>Prospect</th><th>Besoin</th><th>Source</th><th>Statut</th><th>Valeur</th><th>Créé</th></tr></thead><tbody>
-            {loading ? <tr><td colSpan="6"><div className="gnz-empty-state">Chargement…</div></td></tr> : visibleLeads.length ? visibleLeads.map((lead) => <tr key={lead.id} onClick={() => selectLead(lead)} style={{ cursor: "pointer" }}><td><strong>{lead.full_name || "Identité à compléter"}</strong><span className="gnz-table-sub">{lead.email || lead.phone || "Coordonnée manquante"}</span></td><td>{requestTypeLabel(lead.request_type)}</td><td>{channelFor(lead) === "app" ? "Application iOS" : channelFor(lead) === "web" ? "Site web" : "À identifier"}</td><td><span className={`gnz-status ${lead.status}`}>{statusLabel(lead.status)}</span></td><td>{lead.estimated_value ? `${Number(lead.estimated_value).toLocaleString("fr-FR")} €` : "—"}</td><td>{fmtDate(lead.created_at)}</td></tr>) : <tr><td colSpan="6"><div className="gnz-empty-state">Aucun prospect ne correspond à ce filtre.</div></td></tr>}
+            {loading ? <tr><td colSpan="6"><div className="gnz-empty-state">Chargement…</div></td></tr> : visibleLeads.length ? visibleLeads.map((lead) => <tr key={lead.id} onClick={() => selectLead(lead)} style={{ cursor: "pointer" }}><td><strong>{lead.full_name || "Identité à compléter"}</strong><span className="gnz-table-sub">{lead.email || lead.phone || "Coordonnée manquante"}</span></td><td>{requestTypeLabel(lead.request_type)}</td><td>{leadOrigin(lead) === "app" ? "Application iOS" : leadOrigin(lead) === "web" ? "Site web" : "À identifier"}</td><td><span className={`gnz-status ${lead.status}`}>{statusLabel(lead.status)}</span></td><td>{lead.estimated_value ? `${Number(lead.estimated_value).toLocaleString("fr-FR")} €` : "—"}</td><td>{fmtDate(lead.created_at)}</td></tr>) : <tr><td colSpan="6"><div className="gnz-empty-state">Aucun prospect ne correspond à ce filtre.</div></td></tr>}
           </tbody></table></div>
         </article>
 
