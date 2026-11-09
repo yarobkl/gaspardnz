@@ -93,7 +93,7 @@ Deno.serve(async (req: Request) => {
     .not("news_post_id", "is", null).in("status", ["scheduled", "sending"])
     .lte("scheduled_at", now).limit(15);
   if (campaignListError) return reply({ published, error: "campaign_lookup_failed" }, 503);
-  if (!campaigns?.length) return reply({ published, campaignsCreated, sent, failed });
+  if (!campaigns?.length) return reply({ published, campaignsCreated, sent, failed, apnsConfigured: apnsConfigReady() });
 
   const { data: subscribers, error: subscriptionError } = await db.from("push_subscriptions")
     .select("id,provider_subscription_id").eq("provider", "apns").eq("platform", "ios")
