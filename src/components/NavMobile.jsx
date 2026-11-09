@@ -1,3 +1,4 @@
+import { downloadFile } from "../utils/downloadFile.js";
 import { useState, useEffect, useRef, useContext } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { GOLD, CREAM, SOCIAL_LINKS, TEXT } from "../constants.js";
@@ -245,6 +246,13 @@ const NavMobile = ({ onShowroom, onGalerie, onCatalogue, onFormules, highContras
                 {label}
               </motion.button>
             ))}
+
+            <button type="button" disabled={!settings.lookbookPdfUrl || settings.lookbookHidden}
+              onClick={() => { if (settings.lookbookPdfUrl && !settings.lookbookHidden) downloadFile(settings.lookbookPdfUrl, "lookbook-gaspardnz.pdf"); }}
+              style={{ width: "100%", marginTop: "1rem", padding: "1rem", background: "rgba(184,151,62,.1)", border: "1px solid rgba(184,151,62,.4)", color: TEXT, cursor: settings.lookbookPdfUrl && !settings.lookbookHidden ? "pointer" : "not-allowed" }}>
+              <span style={{ display: "block", fontSize: "1rem" }}>Lookbook</span>
+              <span style={{ display: "block", fontSize: ".75rem", color: TEXT }}>{settings.lookbookHidden ? (settings.lookbookHiddenMessage || "À venir") : settings.lookbookPdfUrl ? "Téléchargement gratuit" : "À venir"}</span>
+            </button>
 
             <motion.button
               initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.18 }}
