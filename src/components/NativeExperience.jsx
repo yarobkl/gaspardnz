@@ -187,7 +187,7 @@ export default function NativeExperience(){
        })();
      });
      const response=await CapacitorHttp.post({
-       url:"https://gaspardnz.style/api/push-test-device",
+       url:"https://gaspardnz.style/api/notifications/push-test-device",
        headers:{"Content-Type":"application/json"},
        data:{code:pairCode.trim(),deviceToken:token},
        connectTimeout:12000,readTimeout:20000
