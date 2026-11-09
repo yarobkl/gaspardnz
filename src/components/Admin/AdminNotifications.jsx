@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../../services/supabaseClient.js";
-const initial = { category:"arrivage",title:"",body:"",image_url:"",target_url:"",status:"draft",scheduled_at:"" };
+const initial = { category:"arrivage",title:"",body:"",image_url:"",target_url:"",status:"send_now",scheduled_at:"" };
 const labels={arrivage:"Nouvel arrivage",promotion:"Promotion",evenement:"Événement",showroom:"Showroom",service:"Nouveau service",actualite:"Actualité",rappel:"Rappel",personnalise:"Message personnalisé"};
 export default function AdminNotifications() {
- const [form,setForm]=useState(initial),[rows,setRows]=useState([]),[error,setError]=useState(""),[loading,setLoading]=useState(false),[pairCode,setPairCode]=useState(""),[pairBusy,setPairBusy]=useState(false),[testBusy,setTestBusy]=useState(false),[testResult,setTestResult]=useState(""),[sendingId,setSendingId]=useState(""),[sendResult,setSendResult]=useState(""),[subscribers,setSubscribers]=useState(0);
+ const [articles,setArticles]=useState([]),[articlesError,setArticlesError]=useState(""),[form,setForm]=useState(initial),[rows,setRows]=useState([]),[error,setError]=useState(""),[loading,setLoading]=useState(false),[pairCode,setPairCode]=useState(""),[pairBusy,setPairBusy]=useState(false),[testBusy,setTestBusy]=useState(false),[testResult,setTestResult]=useState(""),[sendingId,setSendingId]=useState(""),[sendResult,setSendResult]=useState(""),[subscribers,setSubscribers]=useState(0);
  async function request(method,body) {
    const {data}=await supabase.auth.getSession();
    if(!data?.session?.access_token) throw new Error("Session expirée");
@@ -36,8 +36,13 @@ export default function AdminNotifications() {
    finally{setTestBusy(false);}
  }
  async function load(){try {const result=await request("GET");setRows(result.campaigns||[]);setSubscribers(result.subscribers||0);setError("");}catch(e){setError(e.message);}}
- useEffect(()=>{load();},[]);
- async function save(e){e.preventDefault();setLoading(true);setError("");try{await request("POST",form);setForm(initial);await load();}catch(e){setError(e.message);}finally{setLoading(false);}}
+ useEffect(()=>{load();supabase.from("news_posts").select("id,title,body,excerpt,cover_url,published_at,created_at").eq("published",true).order("created_at",{ascending:false}).limit(100).then(({data,error})=>{if(error)setArticlesError("Impossible de charger les articles publiés.");else setArticles(data||[]);});},[]);
+ async function save(e){e.preventDefault();setLoading(true);setError("");setSendResult("");try{const immediate=form.status==="send_now";if(immediate&&!window.confirm(`Envoyer maintenant « ${form.title} » aux ${subscribers} iPhone inscrits ?`))return;if(immediate&&subscribers===0)throw new Error("Aucun iPhone inscrit aux notifications. Aucun envoi effectué.");const result=await request("POST",{...form,status:"draft"});if(immediate){await deliverCampaign(result.campaign.id);setSendResult("Campagne envoyée : consultez le résultat des livraisons ci-dessus.");}setForm(initial);await load();}catch(e){setError(e.message);}finally{setLoading(false);}}
+ async function deliverCampaign(id){
+   const {data}=await supabase.auth.getSession();if(!data?.session?.access_token)throw new Error("Session expirée");
+   let remaining=1,sent=0,failed=0;
+   while(remaining>0){const response=await fetch("/api/notifications/send-campaign",{method:"POST",headers:{"Content-Type":"application/json",Authorization:"Bearer "+data.session.access_token},body:JSON.stringify({id})});const result=await response.json().catch(()=>({}));if(!response.ok)throw new Error(result.error||"Envoi indisponible");remaining=result.remaining;sent+=result.sent||0;failed+=result.failed||0;setSendResult(`${sent} accepté(s) par Apple, ${failed} échec(s), ${remaining} restant(s).`);}
+ }
  async function sendCampaign(row){
    if(!window.confirm(`Envoyer « ${row.title} » aux iPhone ayant accepté les notifications ?`))return;
    setSendingId(row.id);setSendResult("");
@@ -62,13 +67,14 @@ export default function AdminNotifications() {
  {error&&<div className="gnz-alert gnz-alert-error" role="alert">{error}</div>}
  <div className="gnz-split"><article className="gnz-card"><header className="gnz-card-header"><div className="gnz-card-title"><strong>Campagnes enregistrées</strong><span>{rows.length} campagne(s)</span></div></header><div className="gnz-table-wrap"><table className="gnz-table"><thead><tr><th>Campagne</th><th>Type</th><th>Statut</th><th>Action</th></tr></thead><tbody>{rows.map(r=><tr key={r.id}><td><strong>{r.title}</strong><span className="gnz-table-sub">{r.body}</span></td><td>{labels[r.category]||r.category}</td><td>{r.status}</td><td>{["draft","sending"].includes(r.status)&&<button type="button" disabled={!!sendingId} onClick={()=>sendCampaign(r)}>{sendingId===r.id?"Envoi…":r.status==="sending"?"Reprendre":"Envoyer"}</button>}</td></tr>)}{!rows.length&&<tr><td colSpan="4">Aucune campagne enregistrée.</td></tr>}</tbody></table></div></article>
  <aside className="gnz-card gnz-editor"><header className="gnz-card-header"><div className="gnz-card-title"><strong>Nouvelle campagne</strong></div></header><form className="gnz-card-body gnz-editor-grid" onSubmit={save}>
+ <label className="gnz-field">Article publié<select className="gnz-select" defaultValue="" onChange={e=>{const article=articles.find(a=>a.id===e.target.value);if(article)setForm(v=>({...v,category:"actualite",title:article.title||"",body:(article.excerpt||article.body||"").slice(0,500),image_url:article.cover_url?.startsWith("https://gaspardnz.style/")?article.cover_url:"",target_url:"https://gaspardnz.style/"}));}}><option value="">Choisir un article réel…</option>{articles.map(a=><option key={a.id} value={a.id}>{a.title}</option>)}</select>{articlesError&&<span role="alert">{articlesError}</span>}{!articlesError&&<small>{articles.length} article(s) publié(s)</small>}</label>
  <label className="gnz-field">Catégorie<select className="gnz-select" value={form.category} onChange={e=>setForm({...form,category:e.target.value})}>{Object.entries(labels).map(([k,v])=><option key={k} value={k}>{v}</option>)}</select></label>
  <label className="gnz-field">Titre<input className="gnz-input" required maxLength="120" value={form.title} onChange={e=>setForm({...form,title:e.target.value})}/></label>
  <label className="gnz-field">Message<textarea className="gnz-textarea" required maxLength="500" value={form.body} onChange={e=>setForm({...form,body:e.target.value})}/></label>
  <label className="gnz-field">Lien GaspardNZ (facultatif)<input className="gnz-input" type="url" placeholder="https://gaspardnz.style/..." value={form.target_url} onChange={e=>setForm({...form,target_url:e.target.value})}/></label>
  <label className="gnz-field">URL image GaspardNZ (facultatif)<input className="gnz-input" type="url" value={form.image_url} onChange={e=>setForm({...form,image_url:e.target.value})}/></label>
- <label className="gnz-field">Mode<select className="gnz-select" value={form.status} onChange={e=>setForm({...form,status:e.target.value})}><option value="draft">Brouillon</option><option value="scheduled">Préparer une programmation (envoi désactivé)</option></select></label>
+ <label className="gnz-field">Mode<select className="gnz-select" value={form.status} onChange={e=>setForm({...form,status:e.target.value})}><option value="send_now">Envoyer maintenant</option><option value="draft">Brouillon</option><option value="scheduled">Préparer une programmation (envoi désactivé)</option></select></label>
  {form.status==="scheduled"&&<label className="gnz-field">Date prévue<input className="gnz-input" type="datetime-local" required value={form.scheduled_at} onChange={e=>setForm({...form,scheduled_at:e.target.value})}/></label>}
- <button className="gnz-primary-button" disabled={loading}>{loading?"Enregistrement…":"Enregistrer sans envoyer"}</button>
+ <button className="gnz-primary-button" disabled={loading}>{loading?"Traitement…":form.status==="send_now"?"Envoyer maintenant":"Enregistrer sans envoyer"}</button>
  </form></aside></div></div>;
 }
