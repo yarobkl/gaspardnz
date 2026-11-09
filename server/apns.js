@@ -37,41 +37,40 @@ export function apnsJwt() {
 export async function sendApns({ deviceToken, title, body, url, apnsId }) {
   if (!/^[a-f0-9]{64,}$/i.test(deviceToken)) throw new Error("Token appareil invalide");
   const { topic, environment } = apnsConfig();
-  const host = environment === "sandbox"
+  const primaryHost = environment === "sandbox"
     ? "api.sandbox.push.apple.com"
     : "api.push.apple.com";
+  const fallbackHost = environment === "sandbox"
+    ? "api.push.apple.com"
+    : "api.sandbox.push.apple.com";
   const http2 = await import("node:http2");
-  const session = http2.connect("https://" + host);
-  try {
-    const payload = JSON.stringify({
-      aps: { alert: { title, body }, sound: "default" },
-      ...(url ? { url } : {}),
+  const payload = JSON.stringify({
+    aps: { alert: { title, body }, sound: "default" },
+    ...(url ? { url } : {}),
+  });
+  const sendToHost = (host) => new Promise((resolve, reject) => {
+    const session = http2.connect("https://" + host);
+    const close = () => session.close();
+    const request = session.request({
+      ":method": "POST",
+      ":path": "/3/device/" + deviceToken,
+      authorization: "bearer " + apnsJwt(),
+      "apns-topic": topic,
+      "apns-push-type": "alert",
+      "apns-priority": "10",
+      ...(apnsId ? { "apns-id": apnsId } : {}),
     });
-    return await new Promise((resolve, reject) => {
-      const request = session.request({
-        ":method": "POST",
-        ":path": "/3/device/" + deviceToken,
-        authorization: "bearer " + apnsJwt(),
-        "apns-topic": topic,
-        "apns-push-type": "alert",
-        "apns-priority": "10",
-        ...(apnsId ? { "apns-id": apnsId } : {}),
-      });
-      let responseStatus = 0;
-      let output = "";
-      request.on("response", (headers) => { responseStatus = Number(headers[":status"] || 0); });
-      request.on("data", (chunk) => { output += chunk.toString(); });
-      request.on("end", () => resolve({
-        ok: responseStatus === 200,
-        status: responseStatus,
-        reason: output.slice(0, 400),
-      }));
-      request.on("error", reject);
-      request.end(payload);
-    });
-  } finally {
-    session.close();
-  }
+    let responseStatus = 0;
+    let output = "";
+    request.on("response", (headers) => { responseStatus = Number(headers[":status"] || 0); });
+    request.on("data", (chunk) => { output += chunk.toString(); });
+    request.on("end", () => { close(); resolve({ ok: responseStatus === 200, status: responseStatus, reason: output.slice(0, 400) }); });
+    request.on("error", (error) => { close(); reject(error); });
+    request.end(payload);
+  });
+  const result = await sendToHost(primaryHost);
+  if (!result.ok && /BadEnvironmentKeyInToken/.test(result.reason || "")) return sendToHost(fallbackHost);
+  return result;
 }
 
 export function notificationAdminDb() {
