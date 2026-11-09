@@ -1,8 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence, useInView } from "framer-motion";
 import { GOLD, CREAM } from "../../constants.js";
-import { useSettings } from "../../hooks/useSettings.js";
-import { downloadFile } from "../../utils/downloadFile.js";
 import { SvgArrow } from "../../icons.jsx";
 import { useTr } from "../../context.jsx";
 import { listPackagesWithBreakdown, subscribePackagePricing, sumGroupItems, sumPackageTotal } from "../../services/packagePricing.js";
@@ -14,7 +12,6 @@ import { listPackagesWithBreakdown, subscribePackagePricing, sumGroupItems, sumP
 // listPackagesWithBreakdown() renvoie donc directement la bonne liste.
 const FormulesSection = ({ refEl, onContact }) => {
   const t = useTr();
-  const settings = useSettings();
   const [packages, setPackages] = useState([]);
   // Distingue "encore en train de charger" de "a fini de charger, rien à
   // montrer" : sans ça, une panne ou une lenteur Supabase laisse cette
@@ -60,14 +57,6 @@ const FormulesSection = ({ refEl, onContact }) => {
           )}
         </div>
 
-        <div style={{ padding: "0 1.4rem", marginBottom: "1.5rem" }}>
-          <button type="button" disabled={!settings.lookbookPdfUrl || settings.lookbookHidden}
-            onClick={() => { if (settings.lookbookPdfUrl && !settings.lookbookHidden) downloadFile(settings.lookbookPdfUrl, "lookbook-gaspardnz.pdf"); }}
-            style={{ whiteSpace: "nowrap", maxWidth: "100%", fontSize: "clamp(8px, 2.5vw, 11px)", letterSpacing: ".06em", padding: "1rem", border: `1px solid ${GOLD}`, color: CREAM, background: "transparent", cursor: settings.lookbookPdfUrl && !settings.lookbookHidden ? "pointer" : "not-allowed" }}>
-            Télécharger gratuitement
-          </button>
-          {(!settings.lookbookPdfUrl || settings.lookbookHidden) && <p style={{ color: GOLD, marginTop: ".5rem" }}>{settings.lookbookHidden ? (settings.lookbookHiddenMessage || "À venir") : "À venir"}</p>}
-        </div>
         {loaded && formules.length === 0 && (
           <div style={{ padding: "1.6rem 1.4rem", border: "1px solid rgba(184,151,62,0.3)", background: "rgba(184,151,62,0.05)", textAlign: "center", marginBottom: "1.5rem" }}>
             <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "0.95rem", fontStyle: "italic", color: "rgba(245,240,232,0.8)", margin: "0 0 1.2rem" }}>{t("formules_indisponibles")}</p>
