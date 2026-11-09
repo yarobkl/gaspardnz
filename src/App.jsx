@@ -112,6 +112,7 @@ export default function App() {
   const isCompactMobile = useCompactMobile();
   const settings = useSettings();
   const [mobileSection, setMobileSection] = useState(null);
+  const [servicesVisit, setServicesVisit] = useState(0);
   const finishSplash = useCallback(() => setSplashDone(true), []);
   const [lang, setLang] = useState(() => {
     try {
@@ -219,6 +220,9 @@ export default function App() {
 
   const scrollTo = (ref) => { ref?.current?.scrollIntoView({ behavior: "smooth", block: "start" }); };
   const handleMobileSectionSelect = (key) => {
+    // Un nouvel appui sur « Formules / Services » revient à la liste,
+    // même lorsqu’une formule détaillée est déjà ouverte.
+    if (key === "formules") setServicesVisit((visit) => visit + 1);
     setMobileSection(key);
     window.requestAnimationFrame(() => scrollToStableTarget(key ? "gnz-mobile-active-section" : "gnz-mobile-home"));
   };
@@ -330,7 +334,7 @@ export default function App() {
                       {mobileSection === "gallery" && <GalleryMobile refEl={galleryRef} />}
                       {mobileSection === "video" && <div ref={videoRef}><VideoSection /></div>}
                       {mobileSection === "wedding" && <WeddingInspirationSection refEl={weddingRef} />}
-                      {mobileSection === "formules" && <FormulesSection refEl={formulesRef} onContact={() => window.open(getWhatsappUrl(settings.whatsappNumber, (APP_COPY[lang] || APP_COPY.FR).waFormula), "_blank")} />}
+                      {mobileSection === "formules" && <FormulesSection key={servicesVisit} refEl={formulesRef} onContact={() => window.open(getWhatsappUrl(settings.whatsappNumber, (APP_COPY[lang] || APP_COPY.FR).waFormula), "_blank")} />}
                       {mobileSection === "partners" && <PartnersSection refEl={partenairesRef} />}
                       {mobileSection === "news" && <div ref={actualitesRef}><ActualitesSection /></div>}
                       {mobileSection === "vip" && <div ref={vipRef}><VIPClientsSection /></div>}
