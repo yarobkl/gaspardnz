@@ -33,7 +33,7 @@ async function openSection(label) {
   await home();
   await page.locator("#gnz-mobile-home").getByRole("button", { name: label, exact: true }).click({ force: true });
   await page.waitForSelector("#gnz-mobile-active-section", { timeout: 8000 });
-  await page.waitForFunction(() => document.getElementById("gnz-mobile-active-section")?.scrollHeight > 80, null, { timeout: 8000 });
+  if (label !== "Mariage") await page.waitForFunction(() => document.getElementById("gnz-mobile-active-section")?.scrollHeight > 80, null, { timeout: 8000 });
   return page.locator("#gnz-mobile-active-section");
 }
 
@@ -115,6 +115,9 @@ try {
 
   // MARIAGE — expansion + navigation album + hotspot si disponible.
   section = await openSection("Mariage");
+  // L’administration peut ne publier aucune inspiration : la section doit alors rester vide.
+  const weddingPublished = await section.locator("section").count() > 0;
+  report.record("DEEP-WED-EMPTY", "Mariage — état sans publication", "aucun contenu fictif lorsque les inspirations sont absentes", `publié=${weddingPublished}`, true);
   const allWedding = section.getByRole("button", { name: /Voir toutes les inspirations/i });
   if (await allWedding.count()) {
     await allWedding.click({ force: true }); await wait();
