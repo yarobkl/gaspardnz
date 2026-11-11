@@ -129,6 +129,12 @@ export default function App() {
     setAppAnnouncementVisible(false);
     try { sessionStorage.setItem("gnz-app-announcement-dismissed", "1"); } catch {}
   };
+  useEffect(() => {
+    if (!appAnnouncementVisible || isAdminPath || currentlyOnAdminPath) return undefined;
+    const timer = window.setTimeout(() => setAppAnnouncementVisible(false), 25_000);
+    return () => window.clearTimeout(timer);
+  }, [appAnnouncementVisible, isAdminPath, currentlyOnAdminPath]);
+
   const finishSplash = useCallback(() => setSplashDone(true), []);
   const [lang, setLang] = useState(() => {
     try {
@@ -319,14 +325,14 @@ export default function App() {
             />
           {appAnnouncementVisible && (
             <aside aria-label={(APP_BANNER_COPY[lang] || APP_BANNER_COPY.FR).eyebrow}
-              style={{ position: "fixed", left: "max(12px, env(safe-area-inset-left))", right: "max(12px, env(safe-area-inset-right))", top: "calc(env(safe-area-inset-top) + 94px)", zIndex: 110, maxWidth: 340, margin: "0 auto", padding: "12px 44px 12px 14px", borderRadius: 10, border: "1px solid rgba(184,151,62,.5)", background: "rgba(18,12,8,.97)", boxShadow: "0 8px 24px rgba(0,0,0,.32)", color: "#faf7f2", backdropFilter: "blur(14px)" }}>
+              style={{ position: "fixed", left: "max(12px, env(safe-area-inset-left))", right: "max(12px, env(safe-area-inset-right))", top: "calc(env(safe-area-inset-top) + 94px)", zIndex: 110, maxWidth: 260, margin: "0 auto", padding: "9px 35px 10px 11px", borderRadius: 8, border: "1px solid rgba(184,151,62,.5)", background: "rgba(18,12,8,.97)", boxShadow: "0 8px 24px rgba(0,0,0,.32)", color: "#faf7f2", backdropFilter: "blur(14px)" }}>
               <button type="button" aria-label={(APP_BANNER_COPY[lang] || APP_BANNER_COPY.FR).close}
                 onClick={dismissAppAnnouncement}
-                style={{ position: "absolute", right: 7, top: 7, width: 38, height: 38, border: 0, background: "transparent", color: "#faf7f2", fontSize: 25, cursor: "pointer", touchAction: "manipulation" }}>×</button>
-              <p style={{ margin: "0 0 4px", color: GOLD, fontFamily: "'Montserrat',sans-serif", fontSize: 8, letterSpacing: ".12em" }}>{(APP_BANNER_COPY[lang] || APP_BANNER_COPY.FR).eyebrow}</p>
-              <p style={{ margin: "0 0 9px", fontFamily: "'Cormorant Garamond',serif", fontSize: "clamp(17px,4.5vw,21px)", lineHeight: 1.12 }}>{(APP_BANNER_COPY[lang] || APP_BANNER_COPY.FR).title}</p>
+                style={{ position: "absolute", right: 7, top: 7, width: 30, height: 30, border: 0, background: "transparent", color: "#faf7f2", fontSize: 19, cursor: "pointer", touchAction: "manipulation" }}>×</button>
+              <p style={{ margin: "0 0 3px", color: GOLD, fontFamily: "'Montserrat',sans-serif", fontSize: 7, letterSpacing: ".1em" }}>{(APP_BANNER_COPY[lang] || APP_BANNER_COPY.FR).eyebrow}</p>
+              <p style={{ margin: "0 0 7px", fontFamily: "'Cormorant Garamond',serif", fontSize: "clamp(15px,4vw,18px)", lineHeight: 1.12 }}>{(APP_BANNER_COPY[lang] || APP_BANNER_COPY.FR).title}</p>
               <a href={APP_STORE_URL} target="_blank" rel="noopener noreferrer"
-                style={{ minHeight: 40, padding: "8px 12px", display: "inline-flex", alignItems: "center", justifyContent: "center", background: GOLD, color: "#120c08", fontFamily: "'Montserrat',sans-serif", fontSize: 10, fontWeight: 700, textDecoration: "none", borderRadius: 5, touchAction: "manipulation" }}>{(APP_BANNER_COPY[lang] || APP_BANNER_COPY.FR).action} ↗</a>
+                style={{ minHeight: 36, padding: "7px 10px", display: "inline-flex", alignItems: "center", justifyContent: "center", background: GOLD, color: "#120c08", fontFamily: "'Montserrat',sans-serif", fontSize: 9, fontWeight: 700, textDecoration: "none", borderRadius: 5, touchAction: "manipulation" }}>{(APP_BANNER_COPY[lang] || APP_BANNER_COPY.FR).action}</a>
             </aside>
           )}
           <div
