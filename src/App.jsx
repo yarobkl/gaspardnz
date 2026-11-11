@@ -49,6 +49,7 @@ const FONTS_CSS = "";
 const SUPPORTED_LANGS = ["FR", "EN", "ES", "ZH"];
 const HTML_LANG = { FR: "fr", EN: "en", ES: "es", ZH: "zh" };
 const APP_STORE_URL = "https://apps.apple.com/fr/app/gaspardnz/id6829908641";
+const SHOP_URL = "https://gaspardnz.myshopify.com/";
 const APP_BANNER_COPY = {
   FR: { eyebrow: "GASPARDNZ PARIS · APPLICATION IOS", title: "GaspardNZ est maintenant sur iPhone.", action: "Télécharger l’application", close: "Fermer l’annonce" },
   EN: { eyebrow: "GASPARDNZ PARIS · IOS APP", title: "GaspardNZ is now on iPhone.", action: "Download the app", close: "Dismiss announcement" },
@@ -246,6 +247,7 @@ export default function App() {
     handleMobileSectionSelect(key);
   };
   const openBooking = (boutique = false) => { setBoutiqueMode(boutique); setBookingOpen(true); };
+  const openShop = () => { window.location.assign(SHOP_URL); };
 
   return (
     <LangCtx.Provider value={{ lang, setLang: changeLang }}>
@@ -298,7 +300,7 @@ export default function App() {
             <NavMobile
               onShowroom={() => scrollTo(showroomRef)}
               onGalerie={() => openMobileSection("gallery", galleryRef)}
-              onCatalogue={() => openBooking(true)}
+              onCatalogue={openShop}
               onFormules={() => openMobileSection("formules", formulesRef)}
               onBiographie={() => openMobileSection("heritage", heritageRef)}
               onReserver={() => openBooking(false)}
@@ -370,7 +372,7 @@ export default function App() {
 
                 <Suspense fallback={null}>
                   <SectionDivider from="#0a0602" to={CREAM} />
-                  <ShowroomMobile refEl={showroomRef} onCatalogue={() => openBooking(true)} onGalerie={() => openMobileSection("gallery", galleryRef)} onFlammes={() => openMobileSection("gallery", galleryRef)} />
+                  <ShowroomMobile refEl={showroomRef} onCatalogue={openShop} onGalerie={() => openMobileSection("gallery", galleryRef)} onFlammes={() => openMobileSection("gallery", galleryRef)} />
                   <CommunityWhatsAppLink />
                   <FooterMobile onFormules={() => openMobileSection("formules", formulesRef)} onGalerie={() => openMobileSection("gallery", galleryRef)} onShowroom={() => scrollTo(showroomRef)} />
                 </Suspense>
@@ -396,7 +398,7 @@ export default function App() {
                 <div ref={actualitesRef}><ActualitesSection /></div>
                 <div ref={vipRef}><VIPClientsSection /></div>
                 <SectionDivider from="#0f0a04" to={CREAM} />
-                <ShowroomMobile refEl={showroomRef} onCatalogue={() => openBooking(true)} onGalerie={() => scrollTo(galleryRef)} onFlammes={() => scrollTo(galleryRef)} />
+                <ShowroomMobile refEl={showroomRef} onCatalogue={openShop} onGalerie={() => scrollTo(galleryRef)} onFlammes={() => scrollTo(galleryRef)} />
                 <InstagramSection />
                 <SectionDivider from="#faf7f2" to="#0a0602" />
                 <StyleDuMoisSection refEl={styleDuMoisRef} />
