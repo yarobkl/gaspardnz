@@ -48,6 +48,14 @@ const PartnersSection = lazy(() => import("./components/sections/PartnersSection
 const FONTS_CSS = "";
 const SUPPORTED_LANGS = ["FR", "EN", "ES", "ZH"];
 const HTML_LANG = { FR: "fr", EN: "en", ES: "es", ZH: "zh" };
+const APP_STORE_URL = "https://apps.apple.com/fr/app/gaspardnz/id6829908641";
+const APP_BANNER_COPY = {
+  FR: { eyebrow: "GASPARDNZ PARIS · APPLICATION IOS", title: "GaspardNZ est maintenant sur iPhone.", action: "Télécharger l’application", close: "Fermer l’annonce" },
+  EN: { eyebrow: "GASPARDNZ PARIS · IOS APP", title: "GaspardNZ is now on iPhone.", action: "Download the app", close: "Dismiss announcement" },
+  ES: { eyebrow: "GASPARDNZ PARIS · APP IOS", title: "GaspardNZ ya está en iPhone.", action: "Descargar la app", close: "Cerrar anuncio" },
+  ZH: { eyebrow: "GASPARDNZ PARIS · IOS 应用", title: "GaspardNZ 现已登陆 iPhone。", action: "下载应用", close: "关闭公告" },
+};
+
 
 // Repli d'une rubrique mobile pendant que son code se charge (premier clic
 // de la session sur cette rubrique). Avant, une seule frontière Suspense
@@ -112,6 +120,14 @@ export default function App() {
   const isCompactMobile = useCompactMobile();
   const settings = useSettings();
   const [mobileSection, setMobileSection] = useState(null);
+  const [appAnnouncementVisible, setAppAnnouncementVisible] = useState(() => {
+    try { return sessionStorage.getItem("gnz-app-announcement-dismissed") !== "1"; }
+    catch { return true; }
+  });
+  const dismissAppAnnouncement = () => {
+    setAppAnnouncementVisible(false);
+    try { sessionStorage.setItem("gnz-app-announcement-dismissed", "1"); } catch {}
+  };
   const finishSplash = useCallback(() => setSplashDone(true), []);
   const [lang, setLang] = useState(() => {
     try {
@@ -299,6 +315,18 @@ export default function App() {
               lightMode={lightMode}
               onToggleDark={() => setLightMode(v => !v)}
             />
+          {appAnnouncementVisible && (
+            <aside aria-label={(APP_BANNER_COPY[lang] || APP_BANNER_COPY.FR).eyebrow}
+              style={{ position: "fixed", left: "max(12px, env(safe-area-inset-left))", right: "max(12px, env(safe-area-inset-right))", bottom: "calc(env(safe-area-inset-bottom) + 16px)", zIndex: 110, maxWidth: 470, margin: "0 auto", padding: "17px 46px 17px 18px", borderRadius: 12, border: "1px solid rgba(184,151,62,.7)", background: "rgba(18,12,8,.97)", boxShadow: "0 12px 45px rgba(0,0,0,.55)", color: "#faf7f2", backdropFilter: "blur(14px)" }}>
+              <button type="button" aria-label={(APP_BANNER_COPY[lang] || APP_BANNER_COPY.FR).close}
+                onClick={dismissAppAnnouncement}
+                style={{ position: "absolute", right: 7, top: 7, width: 38, height: 38, border: 0, background: "transparent", color: "#faf7f2", fontSize: 25, cursor: "pointer", touchAction: "manipulation" }}>×</button>
+              <p style={{ margin: "0 0 6px", color: GOLD, fontFamily: "'Montserrat',sans-serif", fontSize: 9, letterSpacing: ".16em" }}>{(APP_BANNER_COPY[lang] || APP_BANNER_COPY.FR).eyebrow}</p>
+              <p style={{ margin: "0 0 13px", fontFamily: "'Cormorant Garamond',serif", fontSize: "clamp(20px,5vw,26px)", lineHeight: 1.12 }}>{(APP_BANNER_COPY[lang] || APP_BANNER_COPY.FR).title}</p>
+              <a href={APP_STORE_URL} target="_blank" rel="noopener noreferrer"
+                style={{ minHeight: 46, padding: "10px 14px", display: "inline-flex", alignItems: "center", justifyContent: "center", background: GOLD, color: "#120c08", fontFamily: "'Montserrat',sans-serif", fontSize: 11, fontWeight: 700, textDecoration: "none", borderRadius: 5, touchAction: "manipulation" }}>{(APP_BANNER_COPY[lang] || APP_BANNER_COPY.FR).action} ↗</a>
+            </aside>
+          )}
           <div
             id="gnz-app-root"
             data-gnz-mode={lightMode ? "light" : "dark"}
