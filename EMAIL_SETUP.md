@@ -1,3 +1,5 @@
+> **Incident SMTP confirmé (19 octobre 2026) :** le serveur a reçu des refus d'authentification 535 en septembre, puis les notifications ont été désactivées dans le code. L'ajout d'un diagnostic dans Admin > Emails ne réactive pas les messages. Une correction complète est préparée dans [PR #25](https://github.com/yarobkl/gaspardnz/pull/25), à publier seulement après authentification SMTP vérifiée. Ne jamais partager les secrets dans le dépôt ni dans le chat.
+
 # 📧 Configuration Email - Gaspardnz
 
 ## Vue d'ensemble

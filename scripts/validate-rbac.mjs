@@ -14,6 +14,7 @@ globalThis.window = { localStorage: globalThis.localStorage, location: { hash: "
 
 const { hasPermission } = await import("../src/services/adminAuth.js");
 const layout = readFileSync("src/components/Admin/AdminLayout.jsx", "utf8");
+const navigation = readFileSync("src/components/Admin/adminSections.js", "utf8");
 
 // ---------------------------------------------------------------------------
 // 1. Hiérarchie des rôles frontend.
@@ -36,7 +37,7 @@ for (const bogus of [undefined, null, "", "superadmin", "OWNER "]) {
 // ---------------------------------------------------------------------------
 // 2. Défense en profondeur dans l'interface.
 // ---------------------------------------------------------------------------
-const navBlock = layout.slice(layout.indexOf("const NAV_GROUPS"), layout.indexOf("const allItems"));
+const navBlock = navigation.slice(navigation.indexOf("export const NAV_GROUPS"), navigation.indexOf("export const ALL_SECTIONS"));
 const entries = [...navBlock.matchAll(/\{\s*id:\s*"([a-z]+)"[^}]*\}/g)];
 assert.ok(entries.length >= 10, "la navigation admin doit être détectée");
 for (const [raw, id] of entries) {
@@ -50,7 +51,9 @@ assert.match(layout, /import \{ hasPermission, logout \}/);
 assert.match(layout, /visibleGroups\.map\(\(group\)/);
 assert.doesNotMatch(layout, /<nav className="gnz-nav"[^>]*>\{NAV_GROUPS\.map/);
 assert.match(layout, /sectionRefused/);
-assert.match(layout, /let rendered = sectionRefused \? null : children;/);
+assert.match(layout, /const ActiveComponent = !sectionRefused \? current\?\.component : null;/);
+assert.match(layout, /sectionRefused \? \(/);
+assert.match(layout, /<ActiveComponent user=\{user\}/);
 
 // ---------------------------------------------------------------------------
 // 3. Migrations additives et rollbacks présents.
