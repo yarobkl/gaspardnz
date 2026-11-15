@@ -18,6 +18,10 @@ describe("Cal.com — rendez-vous sur le site GaspardNZ", () => {
 
     expect(screen.getByRole("heading", { name: "Votre rendez-vous" })).toBeInTheDocument();
     expect(screen.getByLabelText("Calendrier de réservation GaspardNZ")).toBeInTheDocument();
+    const watermark = screen.getByTestId("cal-watermark");
+    expect(watermark).toHaveAttribute("src", "/images/gaspardnz-watermark.svg");
+    expect(watermark).toHaveAttribute("aria-hidden", "true");
+    expect(watermark).toHaveStyle({ pointerEvents: "none", opacity: "0.065" });
     expect(screen.getByRole("link", { name: /Ouvrir le calendrier/ })).toHaveAttribute("href", CALCOM_BOOKING_URL);
     expect(document.querySelector('script[src="https://app.cal.com/embed/embed.js"]')).toBeInTheDocument();
 

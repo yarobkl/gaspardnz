@@ -94,8 +94,19 @@ export default function CalBookingPanel({ onClose, focusTrapRef }) {
       </div>
 
       <div style={{ padding: "clamp(.4rem, 2vw, 1rem)", minHeight: 560 }}>
-        <div id="gnz-cal-booking" aria-label="Calendrier de réservation GaspardNZ"
-          style={{ width: "100%", minHeight: 540, overflow: "auto" }} />
+        <div style={{ position: "relative", isolation: "isolate" }}>
+          <div id="gnz-cal-booking" aria-label="Calendrier de réservation GaspardNZ"
+            style={{ position: "relative", zIndex: 0, width: "100%", minHeight: 540, overflow: "auto" }} />
+          {/* L'iframe Cal.com est externe : le filigrane est superpose sans capter les clics. */}
+          <img src="/images/gaspardnz-watermark.svg" alt="" aria-hidden="true"
+            data-testid="cal-watermark"
+            style={{
+              position: "absolute", zIndex: 1, top: "52%", left: "50%",
+              transform: "translate(-50%, -50%)", width: "min(75%, 620px)",
+              maxHeight: 420, objectFit: "contain", opacity: 0.065,
+              pointerEvents: "none", userSelect: "none",
+            }} />
+        </div>
       </div>
 
       <div style={{ padding: "0 1rem 1.25rem", textAlign: "center" }}>
