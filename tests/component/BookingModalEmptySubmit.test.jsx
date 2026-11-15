@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { createFakeSupabaseTables } from "../support/fakeSupabaseTables.js";
 
@@ -19,6 +19,9 @@ vi.mock("../../src/services/supabaseClient.js", () => ({
 
 const BookingModal = (await import("../../src/components/BookingModal.jsx")).default;
 
+beforeEach(() => { window.Capacitor = { isNativePlatform: () => true }; });
+afterEach(() => { delete window.Capacitor; });
+
 describe("BookingModal — le bouton Continuer est un vrai bouton de formulaire", () => {
   it("ne passe pas à l'étape 2 avec des champs vides (validation native, pas un silence total)", () => {
     render(<BookingModal isOpen onClose={() => {}} />);
@@ -33,13 +36,13 @@ describe("BookingModal — le bouton Continuer est un vrai bouton de formulaire"
     expect(form.checkValidity()).toBe(false);
   });
 
-  it("passe à l'étape 2 une fois les champs remplis", () => {
+  it("passe à l'étape 2 une fois les champs remplis", async () => {
     render(<BookingModal isOpen onClose={() => {}} />);
     fireEvent.change(screen.getByLabelText(/nom/i), { target: { value: "Marc Ferrand" } });
     fireEvent.change(screen.getByLabelText(/projet/i), { target: { value: "Mariage" } });
     fireEvent.change(screen.getByLabelText(/besoin/i), { target: { value: "Costume complet" } });
 
     fireEvent.click(screen.getByRole("button", { name: /continuer/i }));
-    expect(screen.getByText("Choisissez")).toBeInTheDocument();
+    expect(await screen.findByText(/Choisissez un créneau disponible/)).toBeInTheDocument();
   });
 });

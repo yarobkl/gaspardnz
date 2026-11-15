@@ -6,7 +6,8 @@ export const TEXT = "#1c1208";
 // Contact & URLs
 export const WA_NUM = "33664826920";
 export const SITE_URL = "https://gaspardnz.style";
-export const CALENDLY_URL = "https://calendly.com/gaspardnz";
+export const CALCOM_BOOKING_PATH = "gaspardnz-s-habiller-autrement-ghzqy2/rendez-vous";
+export const CALCOM_BOOKING_URL = `https://cal.com/${CALCOM_BOOKING_PATH}`;
 export const CDN_BASE = "https://res.cloudinary.com/dtzhbeebz";
 export const GA_ID = import.meta.env?.VITE_GA_MEASUREMENT_ID || "G-231KK9HPKF";
 

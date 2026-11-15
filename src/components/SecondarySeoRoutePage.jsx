@@ -1,4 +1,4 @@
-import { CALENDLY_URL, GOLD, CREAM } from "../constants.js";
+import { CALCOM_BOOKING_URL, GOLD, CREAM } from "../constants.js";
 import SeoLayout from "./SeoLayout.jsx";
 
 const ROUTES = {
@@ -111,7 +111,7 @@ export default function SecondarySeoRoutePage() {
           <p style={{ maxWidth: 650, margin: "1rem auto 2rem", fontFamily: "'Montserrat', sans-serif", color: "rgba(28,18,8,.68)", lineHeight: 1.75 }}>Découvrez les services GaspardNZ ou choisissez un créneau pour parler de votre mariage, gala ou événement.</p>
           <div style={{ display: "flex", justifyContent: "center", flexWrap: "wrap", gap: 12 }}>
             <a href="/services" style={{ ...button, color: "#1c1208", border: "1px solid rgba(28,18,8,.3)" }}>Voir les services</a>
-            <a href={CALENDLY_URL} target="_blank" rel="noopener noreferrer" data-track="booking_start" style={{ ...button, background: GOLD, border: `1px solid ${GOLD}`, color: "#1c1208" }}>Prendre rendez-vous</a>
+            <a href={CALCOM_BOOKING_URL} target="_blank" rel="noopener noreferrer" data-track="booking_start" style={{ ...button, background: GOLD, border: `1px solid ${GOLD}`, color: "#1c1208" }}>Prendre rendez-vous</a>
           </div>
         </div>
       </section>

@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { createFakeSupabaseTables } from "../support/fakeSupabaseTables.js";
@@ -19,6 +19,11 @@ vi.mock("../../src/services/supabaseClient.js", () => ({
 const BookingModal = (await import("../../src/components/BookingModal.jsx")).default;
 
 const setup = () => { fake = createFakeSupabaseTables({ site_settings: [] }); };
+
+// Depuis l'intégration Cal.com sur le site, ce formulaire reste le parcours
+// propre à l'application iOS. Ses régressions sont testées en mode natif.
+beforeEach(() => { window.Capacitor = { isNativePlatform: () => true }; });
+afterEach(() => { delete window.Capacitor; });
 
 describe("BookingModal", () => {
   it("un clic sur le fond ferme la fenêtre sans effacer la saisie en cours", async () => {

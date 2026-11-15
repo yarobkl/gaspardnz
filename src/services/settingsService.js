@@ -1,4 +1,4 @@
-import { SOCIAL_LINKS, CALENDLY_URL, WA_NUM } from "../constants.js";
+import { SOCIAL_LINKS, CALCOM_BOOKING_URL, WA_NUM } from "../constants.js";
 
 const SETTINGS_KEY = "gaspardnz_settings";
 
@@ -7,7 +7,7 @@ const defaultSettings = {
   heroTitle: "Événements d'Exception",
   heroSubtitle: "Création et organisation d'événements mémorables",
   whatsappNumber: `+${WA_NUM}`,
-  calendlyUrl: CALENDLY_URL,
+  calendlyUrl: CALCOM_BOOKING_URL,
   instagramUrl: SOCIAL_LINKS.instagram,
   whatsappCommunityUrl: "",
   loginBackgroundUrl: "",

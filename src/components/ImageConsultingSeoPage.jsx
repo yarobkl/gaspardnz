@@ -1,4 +1,4 @@
-import { CALENDLY_URL, WA_NUM, GOLD, CREAM } from "../constants.js";
+import { CALCOM_BOOKING_URL, WA_NUM, GOLD, CREAM } from "../constants.js";
 import SeoLayout from "./SeoLayout.jsx";
 
 const waHref = `https://wa.me/${WA_NUM}?text=${encodeURIComponent("Bonjour Gaspard, je souhaite clarifier mon style et mon image. J’aimerais échanger sur un accompagnement de conseil en image.")}`;
@@ -33,7 +33,7 @@ export default function ImageConsultingSeoPage() {
         <h1 style={{ maxWidth: 920, fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(3.2rem,8vw,6.8rem)", fontWeight: 300, lineHeight: .96, margin: 0 }}>Conseil en image homme à Paris</h1>
         <p style={{ maxWidth: 790, color: "rgba(245,240,232,.77)", fontFamily: "'Montserrat', sans-serif", fontSize: "clamp(.96rem,2vw,1.06rem)", lineHeight: 1.9, margin: "2rem 0 0" }}>Vous pouvez avoir de belles pièces et malgré tout hésiter devant votre tenue. Le problème vient souvent moins du vêtement que de la cohérence entre les coupes, les couleurs, les matières, les proportions et le contexte. GaspardNZ accompagne les hommes qui souhaitent clarifier leur image et construire des silhouettes plus lisibles, sans leur imposer un personnage qui ne leur ressemble pas.</p>
         <div style={{ display: "flex", flexWrap: "wrap", gap: 12, marginTop: "2rem" }}>
-          <a href={CALENDLY_URL} target="_blank" rel="noopener noreferrer" data-track="booking_start" style={{ ...buttonStyle, background: GOLD, color: "#1c1208", border: `1px solid ${GOLD}` }}>Prendre rendez-vous</a>
+          <a href={CALCOM_BOOKING_URL} target="_blank" rel="noopener noreferrer" data-track="booking_start" style={{ ...buttonStyle, background: GOLD, color: "#1c1208", border: `1px solid ${GOLD}` }}>Prendre rendez-vous</a>
           <a href={waHref} target="_blank" rel="noopener noreferrer" data-track="whatsapp_click" style={{ ...buttonStyle, color: CREAM, border: "1px solid rgba(245,240,232,.3)" }}>Échanger sur WhatsApp</a>
         </div>
       </section>
@@ -73,7 +73,7 @@ export default function ImageConsultingSeoPage() {
       <section style={{ maxWidth: 860, margin: "0 auto", padding: "1rem 1.25rem 5.5rem", textAlign: "center" }}>
         <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(2.4rem,6vw,4.4rem)", fontWeight: 300, margin: 0 }}>Clarifions votre image</h2>
         <p style={{ maxWidth: 650, margin: "1.25rem auto 2rem", fontFamily: "'Montserrat', sans-serif", color: "rgba(245,240,232,.7)", lineHeight: 1.8 }}>Présentez les situations dans lesquelles vous souhaitez être plus à l’aise et les difficultés que vous rencontrez aujourd’hui. Le premier échange permettra d’identifier la manière la plus utile de vous accompagner.</p>
-        <a href={CALENDLY_URL} target="_blank" rel="noopener noreferrer" data-track="booking_start" style={{ ...buttonStyle, background: GOLD, color: "#1c1208", border: `1px solid ${GOLD}` }}>Choisir un créneau</a>
+        <a href={CALCOM_BOOKING_URL} target="_blank" rel="noopener noreferrer" data-track="booking_start" style={{ ...buttonStyle, background: GOLD, color: "#1c1208", border: `1px solid ${GOLD}` }}>Choisir un créneau</a>
       </section>
     </SeoLayout>
   );

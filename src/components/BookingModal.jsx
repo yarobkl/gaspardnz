@@ -6,6 +6,7 @@ import { useFocusTrap } from "../hooks/useFocusTrap.js";
 import { useEscapeKey } from "../hooks/useEscapeKey.js";
 import { SvgWA, SvgArrow } from "../icons.jsx";
 import Portal from "./ui/Portal.jsx";
+import CalBookingPanel from "./CalBookingPanel.jsx";
 import { listBookingAvailability, requestBooking } from "../services/bookingAvailability.js";
 import "../styles/ios-booking.css";
 
@@ -81,6 +82,7 @@ const BookingModal = ({ isOpen, onClose, boutiqueMode = false, onSwitchToBooking
   const besoin = form.besoin.trim();
 
   useEffect(() => {
+    if (!isNative) return;
     if (!isOpen || !availability.length) {
       if (!isOpen) return;
       listBookingAvailability().then((items) => {
@@ -138,7 +140,9 @@ const BookingModal = ({ isOpen, onClose, boutiqueMode = false, onSwitchToBooking
           // fenêtre, et son en-tête passait sous la barre de navigation.
           style={{ position: "fixed", inset: 0, zIndex: 750, background: "rgba(0,0,0,0.92)", display: "flex", alignItems: "flex-start", justifyContent: "center", padding: "1rem", paddingTop: "calc(env(safe-area-inset-top) + 3.5rem)", overflowY: "auto" }}>
 
-          {boutiqueMode ? (
+          {!isNative && !boutiqueMode ? (
+            <CalBookingPanel onClose={close} focusTrapRef={focusTrapRef} />
+          ) : boutiqueMode ? (
             <BoutiqueModal onClose={close} onReserver={onSwitchToBooking} />
           ) : (
           <motion.div

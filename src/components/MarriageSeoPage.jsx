@@ -1,4 +1,4 @@
-import { CALENDLY_URL, WA_NUM, GOLD, CREAM } from "../constants.js";
+import { CALCOM_BOOKING_URL, WA_NUM, GOLD, CREAM } from "../constants.js";
 import SeoLayout from "./SeoLayout.jsx";
 
 const waHref = `https://wa.me/${WA_NUM}?text=${encodeURIComponent("Bonjour Gaspard, je prépare un mariage et je souhaite être accompagné pour ma tenue et mon style.")}`;
@@ -30,7 +30,7 @@ export default function MarriageSeoPage() {
         <h1 style={{ maxWidth: 920, fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(3.2rem,8vw,6.8rem)", fontWeight: 300, lineHeight: .96, margin: 0 }}>Styliste mariage homme à Paris</h1>
         <p style={{ maxWidth: 790, color: "rgba(245,240,232,.77)", fontFamily: "'Montserrat', sans-serif", fontSize: "clamp(.96rem,2vw,1.06rem)", lineHeight: 1.9, margin: "2rem 0 0" }}>Pour un mariage, une tenue ne se résume pas au costume. Il faut penser la coupe, les proportions, la chemise, les chaussures, les accessoires, les couleurs et surtout la cohérence avec le lieu, la saison et votre rôle. GaspardNZ accompagne les hommes qui veulent construire une allure précise et élégante, sans se perdre dans une accumulation de choix.</p>
         <div style={{ display: "flex", flexWrap: "wrap", gap: 12, marginTop: "2rem" }}>
-          <a href={CALENDLY_URL} target="_blank" rel="noopener noreferrer" data-track="booking_start" style={{ ...buttonStyle, background: GOLD, color: "#1c1208", border: `1px solid ${GOLD}` }}>Prendre rendez-vous</a>
+          <a href={CALCOM_BOOKING_URL} target="_blank" rel="noopener noreferrer" data-track="booking_start" style={{ ...buttonStyle, background: GOLD, color: "#1c1208", border: `1px solid ${GOLD}` }}>Prendre rendez-vous</a>
           <a href={waHref} target="_blank" rel="noopener noreferrer" data-track="whatsapp_click" style={{ ...buttonStyle, color: CREAM, border: "1px solid rgba(245,240,232,.3)" }}>Parler du mariage sur WhatsApp</a>
         </div>
       </section>
@@ -65,7 +65,7 @@ export default function MarriageSeoPage() {
       <section style={{ maxWidth: 860, margin: "0 auto", padding: "1rem 1.25rem 5.5rem", textAlign: "center" }}>
         <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(2.4rem,6vw,4.4rem)", fontWeight: 300, margin: 0 }}>Préparons votre allure pour le jour J</h2>
         <p style={{ maxWidth: 650, margin: "1.25rem auto 2rem", fontFamily: "'Montserrat', sans-serif", color: "rgba(245,240,232,.7)", lineHeight: 1.8 }}>Présentez la date, le déroulé et vos premières idées. Le premier échange permettra de définir la manière la plus utile de vous accompagner.</p>
-        <a href={CALENDLY_URL} target="_blank" rel="noopener noreferrer" data-track="booking_start" style={{ ...buttonStyle, background: GOLD, color: "#1c1208", border: `1px solid ${GOLD}` }}>Choisir un créneau</a>
+        <a href={CALCOM_BOOKING_URL} target="_blank" rel="noopener noreferrer" data-track="booking_start" style={{ ...buttonStyle, background: GOLD, color: "#1c1208", border: `1px solid ${GOLD}` }}>Choisir un créneau</a>
       </section>
     </SeoLayout>
   );
