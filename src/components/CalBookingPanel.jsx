@@ -56,13 +56,13 @@ export default function CalBookingPanel({ onClose, focusTrapRef }) {
     });
     cal.ns.gaspardnz("ui", {
       theme: "light",
-      styles: { branding: { brandColor: GOLD }, body: { backgroundColor: "transparent" } },
+      styles: { branding: { brandColor: GOLD }, body: { backgroundColor: CREAM } },
       cssVarsPerTheme: {
         light: {
           "cal-brand": GOLD,
-          "cal-bg": "transparent",
-          "cal-bg-subtle": "transparent",
-          "cal-bg-muted": "transparent",
+          "cal-bg": CREAM,
+          "cal-bg-subtle": CREAM,
+          "cal-bg-muted": CREAM,
           "cal-border-booker": "transparent",
           "cal-border-booker-width": "0px",
           "cal-border-subtle": "rgba(184, 151, 62, 0.2)",
@@ -109,19 +109,25 @@ export default function CalBookingPanel({ onClose, focusTrapRef }) {
         <div data-testid="cal-booking-surface" style={{
           position: "relative", isolation: "isolate", background: CREAM, overflow: "hidden",
         }}>
-          {/* Le logo est dans le fond ; le calendrier Cal.com reste au-dessus et cliquable. */}
-          <img src="/images/gaspardnz-watermark.svg" alt="" aria-hidden="true"
-            data-testid="cal-watermark"
-            style={{
-              position: "absolute", zIndex: 0, top: "51%", left: "50%",
-              transform: "translate(-50%, -50%)", width: "min(82%, 670px)",
-              maxHeight: 460, objectFit: "contain", opacity: 0.1,
-              pointerEvents: "none", userSelect: "none",
-            }} />
           <div id="gnz-cal-booking" aria-label="Calendrier de réservation GaspardNZ"
             style={{
               position: "relative", zIndex: 1, width: "100%", minHeight: 540,
-              overflow: "auto", background: "transparent", mixBlendMode: "multiply",
+              overflow: "auto", background: CREAM,
+            }} />
+          {/* Teinte protectrice pour les navigateurs iOS où l'iframe reste blanche. */}
+          <div aria-hidden="true" data-testid="cal-cream-tint" style={{
+            position: "absolute", zIndex: 2, inset: 0, pointerEvents: "none",
+            backdropFilter: "sepia(0.22) brightness(0.97)",
+            WebkitBackdropFilter: "sepia(0.22) brightness(0.97)",
+          }} />
+          {/* Le filigrane reste visible quel que soit le fond opaque de l'iframe Cal.com. */}
+          <img src="/images/gaspardnz-watermark.svg" alt="" aria-hidden="true"
+            data-testid="cal-watermark"
+            style={{
+              position: "absolute", zIndex: 3, top: "51%", left: "50%",
+              transform: "translate(-50%, -50%)", width: "min(82%, 670px)",
+              maxHeight: 460, objectFit: "contain", opacity: 0.07,
+              pointerEvents: "none", userSelect: "none",
             }} />
         </div>
       </div>

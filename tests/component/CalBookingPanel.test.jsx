@@ -21,10 +21,12 @@ describe("Cal.com — rendez-vous sur le site GaspardNZ", () => {
     const watermark = screen.getByTestId("cal-watermark");
     expect(watermark).toHaveAttribute("src", "/images/gaspardnz-watermark.svg");
     expect(watermark).toHaveAttribute("aria-hidden", "true");
-    expect(watermark).toHaveStyle({ pointerEvents: "none", opacity: "0.1", zIndex: "0" });
+    expect(watermark).toHaveStyle({ pointerEvents: "none", opacity: "0.07", zIndex: "3" });
     expect(screen.getByTestId("cal-booking-surface")).toHaveStyle({ background: "#f5f0e8" });
     expect(screen.getByLabelText("Calendrier de réservation GaspardNZ"))
-      .toHaveStyle({ zIndex: "1", background: "transparent", mixBlendMode: "multiply" });
+      .toHaveStyle({ zIndex: "1", background: "#f5f0e8" });
+    expect(screen.getByTestId("cal-cream-tint"))
+      .toHaveStyle({ pointerEvents: "none", zIndex: "2" });
     expect(screen.getByRole("link", { name: /Ouvrir le calendrier/ })).toHaveAttribute("href", CALCOM_BOOKING_URL);
     expect(document.querySelector('script[src="https://app.cal.com/embed/embed.js"]')).toBeInTheDocument();
 
@@ -32,9 +34,9 @@ describe("Cal.com — rendez-vous sur le site GaspardNZ", () => {
     expect(calls[1]).toEqual(["inline", expect.objectContaining({ calLink: CALCOM_BOOKING_PATH })]);
     expect(calls[2]).toEqual(["ui", expect.objectContaining({
       theme: "light",
-      styles: { branding: { brandColor: "#b8973e" }, body: { backgroundColor: "transparent" } },
+      styles: { branding: { brandColor: "#b8973e" }, body: { backgroundColor: "#f5f0e8" } },
       cssVarsPerTheme: { light: expect.objectContaining({
-        "cal-bg": "transparent", "cal-bg-subtle": "transparent", "cal-bg-muted": "transparent",
+        "cal-bg": "#f5f0e8", "cal-bg-subtle": "#f5f0e8", "cal-bg-muted": "#f5f0e8",
       }) },
     })]);
   });
