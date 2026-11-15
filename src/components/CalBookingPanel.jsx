@@ -56,7 +56,19 @@ export default function CalBookingPanel({ onClose, focusTrapRef }) {
     });
     cal.ns.gaspardnz("ui", {
       theme: "light",
-      styles: { branding: { brandColor: GOLD } },
+      styles: { branding: { brandColor: GOLD }, body: { backgroundColor: "transparent" } },
+      cssVarsPerTheme: {
+        light: {
+          "cal-brand": GOLD,
+          "cal-bg": "transparent",
+          "cal-bg-subtle": "transparent",
+          "cal-bg-muted": "transparent",
+          "cal-border-booker": "transparent",
+          "cal-border-booker-width": "0px",
+          "cal-border-subtle": "rgba(184, 151, 62, 0.2)",
+          "cal-text": TEXT,
+        },
+      },
       layout: "month_view",
     });
   }, []);
@@ -94,17 +106,22 @@ export default function CalBookingPanel({ onClose, focusTrapRef }) {
       </div>
 
       <div style={{ padding: "clamp(.4rem, 2vw, 1rem)", minHeight: 560 }}>
-        <div style={{ position: "relative", isolation: "isolate" }}>
-          <div id="gnz-cal-booking" aria-label="Calendrier de réservation GaspardNZ"
-            style={{ position: "relative", zIndex: 0, width: "100%", minHeight: 540, overflow: "auto" }} />
-          {/* L'iframe Cal.com est externe : le filigrane est superpose sans capter les clics. */}
+        <div data-testid="cal-booking-surface" style={{
+          position: "relative", isolation: "isolate", background: CREAM, overflow: "hidden",
+        }}>
+          {/* Le logo est dans le fond ; le calendrier Cal.com reste au-dessus et cliquable. */}
           <img src="/images/gaspardnz-watermark.svg" alt="" aria-hidden="true"
             data-testid="cal-watermark"
             style={{
-              position: "absolute", zIndex: 1, top: "52%", left: "50%",
-              transform: "translate(-50%, -50%)", width: "min(75%, 620px)",
-              maxHeight: 420, objectFit: "contain", opacity: 0.065,
+              position: "absolute", zIndex: 0, top: "51%", left: "50%",
+              transform: "translate(-50%, -50%)", width: "min(82%, 670px)",
+              maxHeight: 460, objectFit: "contain", opacity: 0.1,
               pointerEvents: "none", userSelect: "none",
+            }} />
+          <div id="gnz-cal-booking" aria-label="Calendrier de réservation GaspardNZ"
+            style={{
+              position: "relative", zIndex: 1, width: "100%", minHeight: 540,
+              overflow: "auto", background: "transparent", mixBlendMode: "multiply",
             }} />
         </div>
       </div>
