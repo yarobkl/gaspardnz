@@ -115,6 +115,9 @@
 .gnz-native-service-feature{position:relative;height:290px;border-radius:18px;overflow:hidden}
 .gnz-native-service-feature img{width:100%;height:100%;object-fit:cover}
 .gnz-native-service-feature h2{position:absolute;bottom:0;left:0;right:0;color:#fff;margin:0;padding:60px 20px 20px;background:linear-gradient(transparent,#1b120bdd);text-shadow:0 2px 8px #0008}
+.gnz-native-concierge-intro{padding:8px 3px 4px}
+.gnz-native-concierge-intro h3{font:400 clamp(25px,7vw,32px)/1.17 Georgia,serif;color:var(--gnz-ink);margin:0 0 10px}
+.gnz-native-concierge-intro p{font-size:15px;line-height:1.65;color:#55473a;margin:0}
 .gnz-native-muted{color:#65564b;font-size:14px;line-height:1.5}
 .gnz-native-package-card{padding:16px;min-height:76px}
 .gnz-native-package-card span:last-child{white-space:nowrap;color:var(--gnz-brown);font-size:12px}

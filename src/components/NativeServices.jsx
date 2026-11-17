@@ -31,6 +31,15 @@ const LABELS = {
   ZH: { formulas: "服务方案", formulasDetail: "已发布的方案", ask: "咨询此项目", unavailable: "服务方案即将上线。", back: "所有服务", details: "方案详情", request: "对这个方案感兴趣？", assistance: "有特别的活动或穿搭计划吗？", discuss: "咨询我的项目" },
 };
 
+// Parcours de conciergerie réservé à l'application iOS. Aucune offre ni aucun
+// tarif n'est annoncé tant que ses modalités ne sont pas publiées.
+const CONCIERGE = {
+  FR: { title: "Conciergerie", detail: "Votre demande, un accompagnement personnalisé", heading: "Une attention particulière pour votre projet", intro: "Mariage, événement ou besoin spécifique : décrivez votre demande à GaspardNZ pour échanger sur un accompagnement adapté.", ask: "Présenter ma demande", prefill: "Demande de conciergerie GaspardNZ" },
+  EN: { title: "Concierge", detail: "Personal guidance for your request", heading: "A personal touch for your project", intro: "A wedding, an event or a specific need? Tell GaspardNZ what you have in mind to discuss suitable support.", ask: "Send my request", prefill: "GaspardNZ concierge enquiry" },
+  ES: { title: "Conserjería", detail: "Acompañamiento personalizado", heading: "Una atención especial para su proyecto", intro: "¿Una boda, un evento o una necesidad especial? Cuéntenos su proyecto para hablar de un acompañamiento a medida.", ask: "Enviar mi solicitud", prefill: "Solicitud de conserjería GaspardNZ" },
+  ZH: { title: "专属礼宾服务", detail: "为您的需求提供专属协助", heading: "为您的计划提供贴心关注", intro: "婚礼、活动或特别需求？请向 GaspardNZ 描述您的计划，了解适合的协助方式。", ask: "提交我的需求", prefill: "GaspardNZ 礼宾服务咨询" },
+};
+
 export default function NativeServices({ lang, onContact }) {
   const [selected, setSelected] = useState(null);
   const [selectedFormula, setSelectedFormula] = useState(null);
@@ -38,6 +47,7 @@ export default function NativeServices({ lang, onContact }) {
   const [loaded, setLoaded] = useState(false);
   const labels = LABELS[lang] || LABELS.FR;
   const categories = CATEGORIES[lang] || CATEGORIES.FR;
+  const concierge = CONCIERGE[lang] || CONCIERGE.FR;
 
   useEffect(() => {
     let active = true;
@@ -54,30 +64,40 @@ export default function NativeServices({ lang, onContact }) {
     return new Intl.NumberFormat(lang === "FR" ? "fr-FR" : "en-US", { style: "currency", currency: currency || "EUR", maximumFractionDigits: 0 }).format(Number(price));
   };
   return <div className="gnz-native-service-list">
-    {selected && <button className="gnz-native-inline-back" type="button" onClick={() => setSelected(null)}>‹ {labels.back}</button>}
+    {selected && <button className="gnz-native-inline-back" type="button" onClick={() => selectedFormula ? setSelectedFormula(null) : setSelected(null)}>‹ {selectedFormula ? labels.formulas : labels.back}</button>}
     {selected === null && selectedFormula === null ? <>
-      {categories.map((item) => <button key={item.title} type="button" className="gnz-native-service-card" onClick={() => setSelected(item)}>
-        <img src={item.image} alt="" loading="lazy" />
-        <span><strong>{item.title}</strong><small>{item.detail}</small></span><span aria-hidden="true">›</span>
-      </button>)}
       <button type="button" className="gnz-native-service-card" onClick={() => setSelected("formulas")}>
         <img src="/images/veste-navy-soiree.jpg" alt="" loading="lazy" />
         <span><strong>{labels.formulas}</strong><small>{labels.formulasDetail}</small></span><span aria-hidden="true">›</span>
       </button>
+      <button type="button" className="gnz-native-service-card" onClick={() => setSelected("concierge")}>
+        <img src="/images/veste-bleue.jpg" alt="" loading="lazy" />
+        <span><strong>{concierge.title}</strong><small>{concierge.detail}</small></span><span aria-hidden="true">›</span>
+      </button>
+      {categories.map((item) => <button key={item.title} type="button" className="gnz-native-service-card" onClick={() => setSelected(item)}>
+        <img src={item.image} alt="" loading="lazy" />
+        <span><strong>{item.title}</strong><small>{item.detail}</small></span><span aria-hidden="true">›</span>
+      </button>)}
       <div className="gnz-native-service-assistance">
         <p>{labels.assistance}</p>
         <button type="button" onClick={() => onContact("other")}>{labels.discuss}<span aria-hidden="true">→</span></button>
       </div>
     </> : selectedFormula ? <>
-      <button className="gnz-native-inline-back" type="button" onClick={() => setSelectedFormula(null)}>‹ {labels.formulas}</button>
       <article className="gnz-native-formula-detail">
         <h2>{selectedFormula.name}</h2>
         {selectedFormula.subtitle && <p className="gnz-native-formula-subtitle">{selectedFormula.subtitle}</p>}
         {selectedFormula.description && <p className="gnz-native-muted">{selectedFormula.description}</p>}
         {selectedFormula.package_groups?.length > 0 && <div className="gnz-native-formula-breakdown"><h3>{labels.details}</h3>{selectedFormula.package_groups.map(group => <div key={group.id || group.label}><strong>{group.label}</strong>{group.tag && <small>{group.tag}</small>}{group.package_items?.map(item => <span key={item.id || item.label}>✓ {item.label}</span>)}</div>)}</div>}
         <p className="gnz-native-formula-request">{labels.request}</p>
-        <button className="gnz-native-primary" type="button" onClick={() => onContact("other")}>{labels.ask} →</button>
+        <button className="gnz-native-primary" type="button" onClick={() => onContact("other", `${labels.formulas} : ${selectedFormula.name}`)}>{labels.ask} →</button>
       </article>
+    </> : selected === "concierge" ? <>
+      <div className="gnz-native-service-feature"><img src="/images/veste-bleue.jpg" alt="" /><h2>{concierge.title}</h2></div>
+      <article className="gnz-native-concierge-intro">
+        <h3>{concierge.heading}</h3>
+        <p>{concierge.intro}</p>
+      </article>
+      <button className="gnz-native-primary" type="button" onClick={() => onContact("other", concierge.prefill)}>{concierge.ask} →</button>
     </> : selected === "formulas" ? <>
       <h2>{labels.formulas}</h2>
       {loaded && !packages.length && <p className="gnz-native-muted">{labels.unavailable}</p>}
