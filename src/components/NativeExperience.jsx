@@ -4,7 +4,7 @@ import { StatusBar, Style } from "@capacitor/status-bar";
 import { Capacitor, CapacitorHttp } from "@capacitor/core";
 import { PushNotifications } from "@capacitor/push-notifications";
 import { Browser } from "@capacitor/browser";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { useSettings } from "../hooks/useSettings.js";
 import { usePublicCollection } from "../hooks/usePublicCollection.js";
 import { downloadFile } from "../utils/downloadFile.js";
@@ -104,7 +104,6 @@ export default function NativeExperience(){
  const legal=legalCopy[lang]||legalCopy.FR;
  useEffect(()=>{StatusBar.setStyle({style:Style.Light}).catch(()=>{});},[]);
  const [page,setPage]=useState("home"),[servicesRevision,setServicesRevision]=useState(0),[contactOpen,setContactOpen]=useState(false),[contactProject,setContactProject]=useState(""),[contactDetails,setContactDetails]=useState(""),[bookingProject,setBookingProject]=useState(""),[bookingSlotId,setBookingSlotId]=useState(""),[downloadError,setDownloadError]=useState(""),[notificationsOpen,setNotificationsOpen]=useState(false),[newsFocusId,setNewsFocusId]=useState(null);
- const [pageDirection,setPageDirection]=useState(1);
  useEffect(()=>{
    const warm=()=>{ import("./GalleryMobile.jsx"); import("./NativeServices.jsx"); import("./NativeEditorial.jsx"); };
    const idle=window.requestIdleCallback?.(warm,{timeout:1200});
@@ -215,7 +214,6 @@ export default function NativeExperience(){
      setPairCode("");setPairStatus("iPhone associé. Vous pouvez envoyer un test depuis l’administration.");
    }catch(e){setPairStatus(e.message||"Association impossible");}finally{setPairBusy(false);}
  }
- const swipeStart = useRef(null);
  const { rows: announcements } = usePublicCollection("news_posts", { fallback: [], filters: [{ type:"eq", column:"locale", value:lang }], orderBy:"published_at", ascending:false });
  const notificationItems = announcements;
  const [notificationFilter,setNotificationFilter]=useState("all");
@@ -236,7 +234,7 @@ export default function NativeExperience(){
      : notificationFilter==="unread" ? !state.read && !state.archived : !state.archived;
  });
  const unreadCount=notificationItems.filter(item=>!notificationState[String(item.id)]?.read && !notificationState[String(item.id)]?.archived).length;
- const select=(key)=>{setNotificationsOpen(false);if(key==="services")setServicesRevision(revision=>revision+1);if(key===page)return;const from=tabs.findIndex(([tab])=>tab===topTabForPage(page));const to=tabs.findIndex(([tab])=>tab===topTabForPage(key));setPageDirection(to>=from?1:-1);window.scrollTo(0,0);setPage(key);setDownloadError("");};
+ const select=(key)=>{setNotificationsOpen(false);if(key==="services")setServicesRevision(revision=>revision+1);if(key===page)return;window.scrollTo(0,0);setPage(key);setDownloadError("");};
  const backToHome = () => select("home");
  const topTabForPage = (value) => tabs.some(([key]) => key === value) ? value : "more";
  const selectRef = useRef(select);
@@ -257,25 +255,6 @@ export default function NativeExperience(){
  useEffect(() => {
    if (systemTabBar) sendNativeTabState({ selected: topTabForPage(page), visible: true, labels: ui.tabs });
  }, [page, systemTabBar, lang]);
- const handleSwipeStart = (event) => {
-   const target = event.target;
-   if (target.closest("button,a,input,textarea,select,[data-no-tab-swipe],.gnz-native-photo-viewer")) return;
-   const touch = event.changedTouches?.[0];
-   if (touch) swipeStart.current = { x: touch.clientX, y: touch.clientY };
- };
- const handleSwipeEnd = (event) => {
-   const start = swipeStart.current;
-   swipeStart.current = null;
-   if (!start) return;
-   const touch = event.changedTouches?.[0];
-   if (!touch) return;
-   const dx = touch.clientX - start.x;
-   const dy = touch.clientY - start.y;
-   if (Math.abs(dx) < 55 || Math.abs(dx) < Math.abs(dy) * 1.2) return;
-   const current = tabs.findIndex(([key]) => key === topTabForPage(page));
-   const next = tabs[current + (dx < 0 ? 1 : -1)]?.[0];
-   if (next) { nativeFeedback("selection"); select(next); }
- };
  const handleAction=(event)=>{
   const action=event.target.closest("button,a");
   if(action && !action.disabled) nativeFeedback(action.dataset.haptic||"tap");
@@ -350,5 +329,5 @@ export default function NativeExperience(){
    }
   }
  };
- return <div className="gnz-native" onClickCapture={handleAction} onChangeCapture={e=>{if(e.target.matches("select"))nativeFeedback("selection");}}><div className="gnz-native-top"><strong>GASPARDNZ <small>PARIS</small></strong><button type="button" className="gnz-native-notification-trigger" onClick={()=>setNotificationsOpen(v=>!v)} aria-label={ui.notifications} aria-expanded={notificationsOpen} aria-controls="gnz-native-notifications"><NativeIcon name="bell"/>{unreadCount>0 && <span className="gnz-native-notification-count">{unreadCount>9?"9+":unreadCount}</span>}</button></div><AnimatePresence>{notificationsOpen&&<motion.section key="notifications" initial={reduceMotion?false:{opacity:0,y:-8}} animate={{opacity:1,y:0}} exit={reduceMotion?{opacity:0}:{opacity:0,y:-8}} transition={{duration:reduceMotion?0:.18}} id="gnz-native-notifications" className="gnz-native-notifications" aria-label={ui.notifications}><div className="gnz-native-notifications-head"><strong>{ui.notifications}</strong><button type="button" onClick={()=>setNotificationsOpen(false)} aria-label={ui.close}>×</button></div>{Capacitor.getPlatform()==="ios"&&<div className="gnz-native-push-consent"><span>Alertes sur cet iPhone</span><button type="button" disabled={pushBusy} onClick={togglePublicPush} aria-pressed={pushEnabled}>{pushBusy?"Patientez…":pushEnabled?"Désactiver":"Activer"}</button>{pushMessage&&<small role="status">{pushMessage}</small>}</div>}<div className="gnz-native-notification-filters" role="group" aria-label="Filtrer les notifications">{[["all",lang==="FR"?"Toutes":"All"],["unread",lang==="FR"?"Non lues":"Unread"],["archived",lang==="FR"?"Archivées":"Archived"]].map(([key,label])=><button key={key} type="button" aria-pressed={notificationFilter===key} onClick={()=>setNotificationFilter(key)}>{label}</button>)}</div>{visibleNotifications.length ? visibleNotifications.map(item=><div className="gnz-native-notification-row" key={item.id}><button type="button" className="gnz-native-notification-item" onClick={()=>{updateNotification(item.id,{read:true});setNewsFocusId(item.id);setNotificationsOpen(false);select("news");}}>{!notificationState[String(item.id)]?.read && <span className="gnz-native-notification-unread" aria-label="Non lue"/>}<strong>{item.title}</strong><p>{item.excerpt || item.body || item.text || ""}</p>{(item.published_at || item.date) && <small>{item.published_at ? new Date(item.published_at).toLocaleDateString(lang === "FR" ? "fr-FR" : undefined) : item.date}</small>}</button><div className="gnz-native-notification-actions">{notificationFilter==="archived" ? <button type="button" onClick={()=>updateNotification(item.id,{archived:false})}>{lang==="FR"?"Restaurer":"Restore"}</button> : <><button type="button" onClick={()=>updateNotification(item.id,{read:true})}>{lang==="FR"?"Marquer comme lue":"Mark read"}</button><button type="button" onClick={()=>updateNotification(item.id,{archived:true})}>{lang==="FR"?"Archiver":"Archive"}</button></>}</div></div>) : <p>{notificationFilter==="unread" ? (lang==="FR"?"Aucune notification non lue.":"No unread notifications.") : notificationFilter==="archived" ? (lang==="FR"?"Aucune notification archivée.":"No archived notifications.") : ui.noNotifications}</p>}</motion.section>}</AnimatePresence><main id="gnz-native-main" onTouchStart={handleSwipeStart} onTouchEnd={handleSwipeEnd}><AnimatePresence mode="popLayout" initial={false} custom={pageDirection}><motion.div className="gnz-native-page" key={page} custom={pageDirection} initial={reduceMotion?false:(direction)=>({opacity:.82,x:direction*24})} animate={{opacity:1,x:0}} exit={reduceMotion?{opacity:0}:(direction)=>({opacity:0,x:direction*-18})} transition={{duration:reduceMotion?0:.32,ease:[.22,1,.36,1]}}><Suspense fallback={<div className="gnz-native-loading" role="status">{ui.loading}</div>}>{content()}</Suspense></motion.div></AnimatePresence></main>{!systemTabBar && <NativeTabBar tabs={tabs} labels={ui} activeTab={topTabForPage(page)} onSelect={select} Icon={NativeIcon} />}<Suspense fallback={null}>{contactOpen&&<Contact native isOpen onClose={()=>setContactOpen(false)} whatsappNumber={settings.whatsappNumber} initialProjectType={contactProject} initialProjectDetails={contactDetails}/>}</Suspense></div>;
+ return <div className="gnz-native" onClickCapture={handleAction} onChangeCapture={e=>{if(e.target.matches("select"))nativeFeedback("selection");}}><div className="gnz-native-top"><strong>GASPARDNZ <small>PARIS</small></strong><button type="button" className="gnz-native-notification-trigger" onClick={()=>setNotificationsOpen(v=>!v)} aria-label={ui.notifications} aria-expanded={notificationsOpen} aria-controls="gnz-native-notifications"><NativeIcon name="bell"/>{unreadCount>0 && <span className="gnz-native-notification-count">{unreadCount>9?"9+":unreadCount}</span>}</button></div><AnimatePresence>{notificationsOpen&&<motion.section key="notifications" initial={reduceMotion?false:{opacity:0,y:-8}} animate={{opacity:1,y:0}} exit={reduceMotion?{opacity:0}:{opacity:0,y:-8}} transition={{duration:reduceMotion?0:.18}} id="gnz-native-notifications" className="gnz-native-notifications" aria-label={ui.notifications}><div className="gnz-native-notifications-head"><strong>{ui.notifications}</strong><button type="button" onClick={()=>setNotificationsOpen(false)} aria-label={ui.close}>×</button></div>{Capacitor.getPlatform()==="ios"&&<div className="gnz-native-push-consent"><span>Alertes sur cet iPhone</span><button type="button" disabled={pushBusy} onClick={togglePublicPush} aria-pressed={pushEnabled}>{pushBusy?"Patientez…":pushEnabled?"Désactiver":"Activer"}</button>{pushMessage&&<small role="status">{pushMessage}</small>}</div>}<div className="gnz-native-notification-filters" role="group" aria-label="Filtrer les notifications">{[["all",lang==="FR"?"Toutes":"All"],["unread",lang==="FR"?"Non lues":"Unread"],["archived",lang==="FR"?"Archivées":"Archived"]].map(([key,label])=><button key={key} type="button" aria-pressed={notificationFilter===key} onClick={()=>setNotificationFilter(key)}>{label}</button>)}</div>{visibleNotifications.length ? visibleNotifications.map(item=><div className="gnz-native-notification-row" key={item.id}><button type="button" className="gnz-native-notification-item" onClick={()=>{updateNotification(item.id,{read:true});setNewsFocusId(item.id);setNotificationsOpen(false);select("news");}}>{!notificationState[String(item.id)]?.read && <span className="gnz-native-notification-unread" aria-label="Non lue"/>}<strong>{item.title}</strong><p>{item.excerpt || item.body || item.text || ""}</p>{(item.published_at || item.date) && <small>{item.published_at ? new Date(item.published_at).toLocaleDateString(lang === "FR" ? "fr-FR" : undefined) : item.date}</small>}</button><div className="gnz-native-notification-actions">{notificationFilter==="archived" ? <button type="button" onClick={()=>updateNotification(item.id,{archived:false})}>{lang==="FR"?"Restaurer":"Restore"}</button> : <><button type="button" onClick={()=>updateNotification(item.id,{read:true})}>{lang==="FR"?"Marquer comme lue":"Mark read"}</button><button type="button" onClick={()=>updateNotification(item.id,{archived:true})}>{lang==="FR"?"Archiver":"Archive"}</button></>}</div></div>) : <p>{notificationFilter==="unread" ? (lang==="FR"?"Aucune notification non lue.":"No unread notifications.") : notificationFilter==="archived" ? (lang==="FR"?"Aucune notification archivée.":"No archived notifications.") : ui.noNotifications}</p>}</motion.section>}</AnimatePresence><main id="gnz-native-main"><motion.div className="gnz-native-page" key={page} initial={reduceMotion?false:{opacity:.94}} animate={{opacity:1}} transition={{duration:reduceMotion?0:.12,ease:"easeOut"}}><Suspense fallback={<div className="gnz-native-loading" role="status">{ui.loading}</div>}>{content()}</Suspense></motion.div></main>{!systemTabBar && <NativeTabBar tabs={tabs} labels={ui} activeTab={topTabForPage(page)} onSelect={select} Icon={NativeIcon} />}<Suspense fallback={null}>{contactOpen&&<Contact native isOpen onClose={()=>setContactOpen(false)} whatsappNumber={settings.whatsappNumber} initialProjectType={contactProject} initialProjectDetails={contactDetails}/>}</Suspense></div>;
 }
