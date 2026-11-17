@@ -50,6 +50,9 @@ final class GaspardNativeTabController: CAPBridgeViewController, UITabBarDelegat
     private let tabBar = UITabBar()
     private let bottomBackground = UIView()
     private var webAppReady = false
+    private var launchArtworkOverlay: UIView?
+    private var launchPresentedAt: TimeInterval = 0
+    private var launchDismissPending = false
 
     private let cream = UIColor(red: 245.0 / 255.0, green: 240.0 / 255.0, blue: 232.0 / 255.0, alpha: 1)
     private let gold = UIColor(red: 184.0 / 255.0, green: 151.0 / 255.0, blue: 62.0 / 255.0, alpha: 1)
@@ -66,6 +69,62 @@ final class GaspardNativeTabController: CAPBridgeViewController, UITabBarDelegat
     override func viewDidLoad() {
         super.viewDidLoad()
         configureTabBar()
+        presentLaunchArtwork()
+    }
+
+    // Native, full-bleed continuation of LaunchScreen.storyboard.
+    // The source visual is a phone mockup: the oversized image view clips
+    // precisely into its interior, without retaining the phone frame.
+    private func presentLaunchArtwork() {
+        guard let image = UIImage(named: "GaspardLaunchPortrait") else { return }
+        let overlay = UIView()
+        overlay.translatesAutoresizingMaskIntoConstraints = false
+        overlay.backgroundColor = UIColor(red: 28.0 / 255.0, green: 18.0 / 255.0, blue: 8.0 / 255.0, alpha: 1)
+        overlay.clipsToBounds = true
+        overlay.isUserInteractionEnabled = true
+        overlay.accessibilityElementsHidden = true
+
+        let artwork = UIImageView(image: image)
+        artwork.translatesAutoresizingMaskIntoConstraints = false
+        artwork.contentMode = .scaleAspectFill
+        artwork.isAccessibilityElement = false
+        overlay.addSubview(artwork)
+        view.addSubview(overlay)
+
+        NSLayoutConstraint.activate([
+            overlay.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            overlay.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            overlay.topAnchor.constraint(equalTo: view.topAnchor),
+            overlay.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            artwork.centerXAnchor.constraint(equalTo: overlay.centerXAnchor),
+            artwork.centerYAnchor.constraint(equalTo: overlay.centerYAnchor),
+            artwork.widthAnchor.constraint(equalTo: overlay.widthAnchor, multiplier: 1.57),
+            artwork.heightAnchor.constraint(equalTo: overlay.heightAnchor, multiplier: 1.09)
+        ])
+        launchArtworkOverlay = overlay
+        launchPresentedAt = Date().timeIntervalSinceReferenceDate
+
+        // Always release the overlay, including if the web bridge never responds.
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3.5) { [weak self] in
+            self?.dismissLaunchArtworkWhenReady()
+        }
+    }
+
+    private func dismissLaunchArtworkWhenReady() {
+        guard launchArtworkOverlay != nil, !launchDismissPending else { return }
+        launchDismissPending = true
+        let minimumDuration: TimeInterval = 1.15
+        let remaining = max(0, minimumDuration - (Date().timeIntervalSinceReferenceDate - launchPresentedAt))
+        DispatchQueue.main.asyncAfter(deadline: .now() + remaining) { [weak self] in
+            guard let self = self, let overlay = self.launchArtworkOverlay else { return }
+            let duration: TimeInterval = UIAccessibility.isReduceMotionEnabled ? 0 : 0.42
+            UIView.animate(withDuration: duration, delay: 0, options: .curveEaseInOut, animations: {
+                overlay.alpha = 0
+            }, completion: { _ in
+                overlay.removeFromSuperview()
+                self.launchArtworkOverlay = nil
+            })
+        }
     }
 
     private func configureTabBar() {
@@ -150,6 +209,7 @@ final class GaspardNativeTabController: CAPBridgeViewController, UITabBarDelegat
         let visible = body["visible"] as? Bool ?? false
         tabBar.isHidden = !visible
         bottomBackground.isHidden = !visible
+        if visible { dismissLaunchArtworkWhenReady() }
 
         if let key = body["selected"] as? String,
            let index = GaspardTab.allCases.firstIndex(where: { $0.rawValue == key }) {
