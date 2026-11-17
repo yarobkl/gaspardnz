@@ -691,26 +691,55 @@
   .gnz-native-photo-viewer-contact,.gnz-native-news-reader-contact{transition:none}
 }
 
-/* iOS only — extend the existing draggable tab surface through the home-indicator area.
-   The web site never mounts NativeExperience or this navigation. */
+/* WebView fallback when UIKit's tab bridge is unavailable: one compact,
+   translucent floating capsule, never a charcoal strip across the bottom. */
 .gnz-native:has(> .gnz-native-tabs-draggable){
-  padding-bottom:calc(84px + env(safe-area-inset-bottom));
+  padding-bottom:calc(94px + env(safe-area-inset-bottom));
+}
+.gnz-native:has(> .gnz-native-tabs-draggable):has(.gnz-native-hero){
+  padding-bottom:0;
+}
+.gnz-native:has(> .gnz-native-tabs-draggable) .gnz-native-hero{
+  height:calc(100dvh - 73px - env(safe-area-inset-top));
+}
+.gnz-native:has(> .gnz-native-tabs-draggable) .gnz-native-hero-content{
+  padding-bottom:calc(91px + env(safe-area-inset-bottom));
 }
 .gnz-native-tabs-draggable{
-  min-height:calc(80px + env(safe-area-inset-bottom));
-  padding:7px 8px calc(7px + env(safe-area-inset-bottom));
-  background:#45413c;
-  border:0;
-  border-radius:28px 28px 0 0;
-  box-shadow:0 -4px 18px rgba(30,22,16,.12);
+  left:12px;
+  right:12px;
+  bottom:calc(8px + env(safe-area-inset-bottom));
+  min-height:68px;
+  padding:4px 6px;
+  background:rgba(247,241,233,.58);
+  border:1px solid rgba(255,255,255,.55);
+  border-radius:34px;
+  box-shadow:0 8px 28px rgba(30,22,16,.16),inset 0 1px 0 rgba(255,255,255,.46);
+  backdrop-filter:blur(26px) saturate(1.25);
+  -webkit-backdrop-filter:blur(26px) saturate(1.25);
 }
 .gnz-native-tabs-draggable button{
-  min-height:64px;
-  color:rgba(255,249,241,.82);
+  min-height:58px;
+  color:#3d332a;
 }
-.gnz-native-tabs-draggable button.active{color:#d7b15b}
+.gnz-native-tabs-draggable button.active{color:#805121}
 .gnz-native-tabs-draggable>.gnz-native-tab-pill{
-  border-color:rgba(255,255,255,.12);
-  background:rgba(255,255,255,.13);
-  box-shadow:inset 0 1px 1px rgba(255,255,255,.12);
+  border-color:rgba(255,255,255,.48);
+  background:rgba(255,255,255,.38);
+  box-shadow:inset 0 1px 1px rgba(255,255,255,.5);
+}
+
+/* Native UIKit bar: let Gaspard's portrait extend behind the real glass.
+   The page actions stay above the controls, including the home indicator. */
+html.gnz-system-tabs .gnz-native{
+  padding-bottom:calc(94px + env(safe-area-inset-bottom));
+}
+html.gnz-system-tabs.gnz-system-tabs--home .gnz-native{
+  padding-bottom:0;
+}
+html.gnz-system-tabs .gnz-native-hero{
+  height:calc(100dvh - 73px - env(safe-area-inset-top));
+}
+html.gnz-system-tabs .gnz-native-hero-content{
+  padding-bottom:calc(91px + env(safe-area-inset-bottom));
 }

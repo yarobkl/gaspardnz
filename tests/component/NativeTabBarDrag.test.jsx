@@ -36,12 +36,12 @@ beforeEach(() => vi.clearAllMocks());
 afterEach(() => vi.useRealTimers());
 
 describe("barre iOS à capsule tactile", () => {
-  it("encadre la cellule entière, y compris le texte, et conserve cinq boutons", () => {
+  it("garde une capsule de sélection discrète et conserve cinq boutons", () => {
     render(<Harness />);
     setupGeometry();
     const pill = nav().querySelector(":scope > .gnz-native-tab-pill");
     expect(pill).not.toBeNull();
-    expect(pill).toHaveStyle({ width: "94px", height: "62px", top: "8px" });
+    expect(pill).toHaveStyle({ width: "94px", height: "43px", top: "10px" });
     expect(pill).toHaveAttribute("aria-hidden", "true");
     expect(buttons()).toHaveLength(5);
     expect(selected()).toHaveTextContent("Accueil");

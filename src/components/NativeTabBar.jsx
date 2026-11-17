@@ -7,7 +7,7 @@ const HOLD_DELAY_MS = 165;
 const MIN_TICK_INTERVAL_MS = 55;
 
 /**
- * Barre iOS : la capsule occupe la hauteur entière de l'onglet.
+ * Barre de repli iOS : la capsule souligne l'icône sans recouvrir le libellé.
  * Toucher = comportement de bouton classique ; glisser horizontalement =
  * déplacement direct sous le doigt puis verrouillage sur l'onglet le plus proche.
  */
@@ -47,9 +47,9 @@ export default function NativeTabBar({ tabs, labels, activeTab, onSelect, Icon }
         return {
           x: r.left - rect.left + 3,
           center: r.left + r.width / 2,
-          top: r.top - rect.top,
+          top: r.top - rect.top + 2,
           width: Math.max(0, r.width - 6),
-          height: r.height,
+          height: Math.min(43, Math.max(0, r.height - 6)),
         };
       });
       boxesRef.current = boxes;

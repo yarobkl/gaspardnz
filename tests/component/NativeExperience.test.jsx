@@ -55,12 +55,14 @@ describe("GaspardNZ native iOS experience", () => {
       render(<Harness />);
       expect(screen.queryByRole("navigation")).not.toBeInTheDocument();
       expect(screen.getByRole("img", { name: "Portrait de GaspardNZ" })).toBeInTheDocument();
+      expect(document.documentElement).toHaveClass("gnz-system-tabs", "gnz-system-tabs--home");
       expect(postMessage).toHaveBeenCalledWith(expect.objectContaining({
         type: "state", selected: "home", visible: true,
       }));
 
       act(() => window.dispatchEvent(new CustomEvent("gnz:native-tab", { detail: { tab: "gallery" } })));
       expect(await screen.findByTestId("gallery")).toBeInTheDocument();
+      expect(document.documentElement).not.toHaveClass("gnz-system-tabs--home");
       expect(document.querySelectorAll("#gnz-native-main > .gnz-native-page")).toHaveLength(1);
       expect(postMessage).toHaveBeenLastCalledWith(expect.objectContaining({
         type: "state", selected: "gallery", visible: true,

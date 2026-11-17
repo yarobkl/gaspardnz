@@ -48,16 +48,13 @@ private final class WeakTabMessageHandler: NSObject, WKScriptMessageHandler {
 
 final class GaspardNativeTabController: CAPBridgeViewController, UITabBarDelegate {
     private let tabBar = UITabBar()
-    private let bottomBackground = UIView()
+    private let floatingGlass = UIVisualEffectView()
     private var webAppReady = false
     private var launchArtworkOverlay: UIView?
     private var launchPresentedAt: TimeInterval = 0
     private var launchDismissPending = false
 
-    private let cream = UIColor(red: 245.0 / 255.0, green: 240.0 / 255.0, blue: 232.0 / 255.0, alpha: 1)
     private let gold = UIColor(red: 184.0 / 255.0, green: 151.0 / 255.0, blue: 62.0 / 255.0, alpha: 1)
-    private let ink = UIColor(red: 28.0 / 255.0, green: 18.0 / 255.0, blue: 8.0 / 255.0, alpha: 1)
-    private let charcoal = UIColor(red: 69.0 / 255.0, green: 65.0 / 255.0, blue: 60.0 / 255.0, alpha: 1)
 
     override func capacitorDidLoad() {
         super.capacitorDidLoad()
@@ -129,34 +126,27 @@ final class GaspardNativeTabController: CAPBridgeViewController, UITabBarDelegat
 
     private func configureTabBar() {
         let appearance = UITabBarAppearance()
-        appearance.configureWithDefaultBackground()
-        // Keep iOS 26 Liquid Glass; use the same dark brand surface on older iOS.
-        if #unavailable(iOS 26.0) {
-            appearance.configureWithOpaqueBackground()
-            appearance.backgroundColor = charcoal
-        }
-        appearance.stackedLayoutAppearance.normal.iconColor = ink.withAlphaComponent(0.55)
+        // A single floating Apple material replaces the full-width gray panel.
+        // Leave the tab bar itself transparent to prevent a double backdrop.
+        appearance.configureWithTransparentBackground()
+        appearance.shadowColor = .clear
+        appearance.stackedLayoutAppearance.normal.iconColor = UIColor.label.withAlphaComponent(0.82)
         appearance.stackedLayoutAppearance.normal.titleTextAttributes = [
-            .foregroundColor: ink.withAlphaComponent(0.62)
+            .foregroundColor: UIColor.label.withAlphaComponent(0.84)
         ]
         appearance.stackedLayoutAppearance.selected.iconColor = gold
         appearance.stackedLayoutAppearance.selected.titleTextAttributes = [
             .foregroundColor: gold,
             .font: UIFont.systemFont(ofSize: 10, weight: .semibold)
         ]
-        if #unavailable(iOS 26.0) {
-            appearance.stackedLayoutAppearance.normal.iconColor = UIColor.white.withAlphaComponent(0.78)
-            appearance.stackedLayoutAppearance.normal.titleTextAttributes = [
-                .foregroundColor: UIColor.white.withAlphaComponent(0.8)
-            ]
-        }
-
         tabBar.standardAppearance = appearance
         if #available(iOS 15.0, *) {
             tabBar.scrollEdgeAppearance = appearance
         }
+        tabBar.isTranslucent = true
+        tabBar.backgroundColor = .clear
         tabBar.tintColor = gold
-        tabBar.unselectedItemTintColor = ink.withAlphaComponent(0.55)
+        tabBar.unselectedItemTintColor = UIColor.label.withAlphaComponent(0.82)
         tabBar.delegate = self
         tabBar.items = GaspardTab.allCases.enumerated().map { index, tab in
             let item = UITabBarItem(title: tab.title, image: UIImage(systemName: tab.symbol), tag: index)
@@ -166,28 +156,30 @@ final class GaspardNativeTabController: CAPBridgeViewController, UITabBarDelegat
         tabBar.selectedItem = tabBar.items?.first
         tabBar.isHidden = true
 
-        // Extend the dark navigation surface into the bottom safe area while
-        // retaining the system-provided Liquid Glass controls on iOS 26.
-        bottomBackground.backgroundColor = charcoal
-        bottomBackground.layer.cornerRadius = 28
-        bottomBackground.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
-        bottomBackground.layer.masksToBounds = true
-        bottomBackground.isUserInteractionEnabled = false
-        bottomBackground.isHidden = true
-        bottomBackground.translatesAutoresizingMaskIntoConstraints = false
+        // Use actual UIKit Liquid Glass on iOS 26+, with a system blur on 15-25.
+        if #available(iOS 26.0, *) {
+            floatingGlass.effect = UIGlassEffect()
+        } else {
+            floatingGlass.effect = UIBlurEffect(style: .systemThinMaterial)
+        }
+        floatingGlass.isUserInteractionEnabled = false
+        floatingGlass.isHidden = true
+        floatingGlass.layer.cornerRadius = 34
+        floatingGlass.clipsToBounds = true
+        floatingGlass.translatesAutoresizingMaskIntoConstraints = false
         tabBar.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(bottomBackground)
+        view.addSubview(floatingGlass)
         view.addSubview(tabBar)
 
         NSLayoutConstraint.activate([
-            bottomBackground.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            bottomBackground.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            bottomBackground.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -68),
-            bottomBackground.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            tabBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            tabBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            tabBar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -68),
-            tabBar.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+            floatingGlass.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 12),
+            floatingGlass.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -12),
+            floatingGlass.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -8),
+            floatingGlass.heightAnchor.constraint(equalToConstant: 68),
+            tabBar.leadingAnchor.constraint(equalTo: floatingGlass.leadingAnchor),
+            tabBar.trailingAnchor.constraint(equalTo: floatingGlass.trailingAnchor),
+            tabBar.topAnchor.constraint(equalTo: floatingGlass.topAnchor),
+            tabBar.bottomAnchor.constraint(equalTo: floatingGlass.bottomAnchor)
         ])
     }
 
@@ -208,7 +200,7 @@ final class GaspardNativeTabController: CAPBridgeViewController, UITabBarDelegat
         webAppReady = true
         let visible = body["visible"] as? Bool ?? false
         tabBar.isHidden = !visible
-        bottomBackground.isHidden = !visible
+        floatingGlass.isHidden = !visible
         if visible { dismissLaunchArtworkWhenReady() }
 
         if let key = body["selected"] as? String,

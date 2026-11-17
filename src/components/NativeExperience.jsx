@@ -96,6 +96,13 @@ const legalLinks = [
 export default function NativeExperience(){
  const {lang,setLang}=useContext(LangCtx);
  const [systemTabBar] = useState(hasNativeTabBarBridge);
+ useEffect(()=>{
+   if(!systemTabBar)return;
+   document.documentElement.classList.add("gnz-system-tabs");
+   return()=>{
+     document.documentElement.classList.remove("gnz-system-tabs","gnz-system-tabs--home");
+   };
+ },[systemTabBar]);
  const settings=useSettings();
  const reduceMotion=useReducedMotion();
  const c=copy[lang]||copy.FR;
@@ -103,6 +110,9 @@ export default function NativeExperience(){
  const legal=legalCopy[lang]||legalCopy.FR;
  useEffect(()=>{StatusBar.setStyle({style:Style.Light}).catch(()=>{});},[]);
  const [page,setPage]=useState("home"),[servicesRevision,setServicesRevision]=useState(0),[contactOpen,setContactOpen]=useState(false),[contactProject,setContactProject]=useState(""),[contactDetails,setContactDetails]=useState(""),[downloadError,setDownloadError]=useState(""),[notificationsOpen,setNotificationsOpen]=useState(false),[newsFocusId,setNewsFocusId]=useState(null);
+ useEffect(()=>{
+   if(systemTabBar)document.documentElement.classList.toggle("gnz-system-tabs--home",page==="home");
+ },[page,systemTabBar]);
  useEffect(()=>{
    const warm=()=>{ import("./GalleryMobile.jsx"); import("./NativeServices.jsx"); import("./NativeEditorial.jsx"); };
    const idle=window.requestIdleCallback?.(warm,{timeout:1200});
