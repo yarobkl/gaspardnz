@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-label="GNZ Paris — cravate rouge">
+  <!-- Artwork for the iOS icon: flat, opaque, and independent of the system corner mask. -->
+  <rect width="1024" height="1024" fill="#02112B"/>
+
+  <!-- Shirt-collar silhouette, drawn with clean vector contours from the approved brand motif. -->
+  <path fill="#FFFFFF" d="M172 144H383L432 219C384 220 339 241 310 278C295 300 284 334 279 392C263 363 256 324 235 291C210 253 190 202 172 144Z"/>
+  <path fill="#FFFFFF" d="M852 144H641L592 219C640 220 685 241 714 278C729 300 740 334 745 392C761 363 768 324 789 291C814 253 834 202 852 144Z"/>
+
+  <!-- The distinctive red GNZ tie: symmetric, smooth edges, no raster enlargement. -->
+  <path fill="#ED0B1B" d="M419 132H605L560 214L578 240L560 273L539 265L485 265L464 273L446 240L464 214Z"/>
+  <path fill="#ED0B1B" d="M491 287C503 278 521 278 533 287L558 316L620 757L512 893L404 757L466 316Z"/>
+</svg>
