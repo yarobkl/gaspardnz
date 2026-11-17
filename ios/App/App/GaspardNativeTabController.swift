@@ -49,6 +49,7 @@ private final class WeakTabMessageHandler: NSObject, WKScriptMessageHandler {
 final class GaspardNativeTabController: CAPBridgeViewController, UITabBarDelegate {
     private let tabBar = UITabBar()
     private let floatingGlass = UIVisualEffectView()
+    private var currentBackdropTab: GaspardTab?
     private var webAppReady = false
     private var launchArtworkOverlay: UIView?
     private var launchPresentedAt: TimeInterval = 0
@@ -125,28 +126,9 @@ final class GaspardNativeTabController: CAPBridgeViewController, UITabBarDelegat
     }
 
     private func configureTabBar() {
-        let appearance = UITabBarAppearance()
-        // A single floating Apple material replaces the full-width gray panel.
-        // Leave the tab bar itself transparent to prevent a double backdrop.
-        appearance.configureWithTransparentBackground()
-        appearance.shadowColor = .clear
-        appearance.stackedLayoutAppearance.normal.iconColor = UIColor.label.withAlphaComponent(0.82)
-        appearance.stackedLayoutAppearance.normal.titleTextAttributes = [
-            .foregroundColor: UIColor.label.withAlphaComponent(0.84)
-        ]
-        appearance.stackedLayoutAppearance.selected.iconColor = gold
-        appearance.stackedLayoutAppearance.selected.titleTextAttributes = [
-            .foregroundColor: gold,
-            .font: UIFont.systemFont(ofSize: 10, weight: .semibold)
-        ]
-        tabBar.standardAppearance = appearance
-        if #available(iOS 15.0, *) {
-            tabBar.scrollEdgeAppearance = appearance
-        }
         tabBar.isTranslucent = true
         tabBar.backgroundColor = .clear
         tabBar.tintColor = gold
-        tabBar.unselectedItemTintColor = UIColor.label.withAlphaComponent(0.82)
         tabBar.delegate = self
         tabBar.items = GaspardTab.allCases.enumerated().map { index, tab in
             let item = UITabBarItem(title: tab.title, image: UIImage(systemName: tab.symbol), tag: index)
@@ -156,12 +138,9 @@ final class GaspardNativeTabController: CAPBridgeViewController, UITabBarDelegat
         tabBar.selectedItem = tabBar.items?.first
         tabBar.isHidden = true
 
-        // Use actual UIKit Liquid Glass on iOS 26+, with a system blur on 15-25.
-        if #available(iOS 26.0, *) {
-            floatingGlass.effect = UIGlassEffect()
-        } else {
-            floatingGlass.effect = UIBlurEffect(style: .systemThinMaterial)
-        }
+        // The photographic home page and the cream editorial pages use
+        // different glass contrasts, while the system controls the material.
+        updateBackdrop(for: .home)
         floatingGlass.isUserInteractionEnabled = false
         floatingGlass.isHidden = true
         floatingGlass.layer.cornerRadius = 34
@@ -183,9 +162,43 @@ final class GaspardNativeTabController: CAPBridgeViewController, UITabBarDelegat
         ])
     }
 
+    private func updateBackdrop(for tab: GaspardTab) {
+        guard currentBackdropTab != tab else { return }
+        currentBackdropTab = tab
+        let overPortrait = tab == .home
+        let foreground = overPortrait
+            ? UIColor.white.withAlphaComponent(0.95)
+            : UIColor.label.withAlphaComponent(0.82)
+
+        // Clear Liquid Glass exposes the photograph; regular glass keeps
+        // controls legible over text and light editorial content.
+        if #available(iOS 26.0, *) {
+            floatingGlass.effect = UIGlassEffect(style: overPortrait ? .clear : .regular)
+        } else {
+            floatingGlass.effect = UIBlurEffect(style: overPortrait ? .systemThinMaterialDark : .systemThinMaterialLight)
+        }
+
+        let appearance = UITabBarAppearance()
+        appearance.configureWithTransparentBackground()
+        appearance.shadowColor = .clear
+        appearance.stackedLayoutAppearance.normal.iconColor = foreground
+        appearance.stackedLayoutAppearance.normal.titleTextAttributes = [.foregroundColor: foreground]
+        appearance.stackedLayoutAppearance.selected.iconColor = gold
+        appearance.stackedLayoutAppearance.selected.titleTextAttributes = [
+            .foregroundColor: gold,
+            .font: UIFont.systemFont(ofSize: 10, weight: .semibold)
+        ]
+        tabBar.standardAppearance = appearance
+        if #available(iOS 15.0, *) {
+            tabBar.scrollEdgeAppearance = appearance
+        }
+        tabBar.unselectedItemTintColor = foreground
+    }
+
     func tabBar(_ tabBar: UITabBar, didSelect item: UITabBarItem) {
         guard webAppReady, GaspardTab.allCases.indices.contains(item.tag) else { return }
         let selected = GaspardTab.allCases[item.tag]
+        updateBackdrop(for: selected)
         UISelectionFeedbackGenerator().selectionChanged()
         // The route is an enum value, never arbitrary content from a webpage.
         let js = "window.dispatchEvent(new CustomEvent('gnz:native-tab', { detail: { tab: '\(selected.rawValue)' } }))"
@@ -206,6 +219,7 @@ final class GaspardNativeTabController: CAPBridgeViewController, UITabBarDelegat
         if let key = body["selected"] as? String,
            let index = GaspardTab.allCases.firstIndex(where: { $0.rawValue == key }) {
             tabBar.selectedItem = tabBar.items?[index]
+            updateBackdrop(for: GaspardTab.allCases[index])
         }
         if let labels = body["labels"] as? [String], labels.count == GaspardTab.allCases.count {
             for (index, item) in (tabBar.items ?? []).enumerated() {

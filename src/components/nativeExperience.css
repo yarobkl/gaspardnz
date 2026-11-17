@@ -727,6 +727,19 @@
   background:rgba(255,255,255,.38);
   box-shadow:inset 0 1px 1px rgba(255,255,255,.5);
 }
+/* The fallback bar over the portrait is clearer and uses bright labels;
+   the editorial cream pages retain their darker high-contrast labels. */
+.gnz-native:has(> .gnz-native-tabs-draggable):has(.gnz-native-hero)>.gnz-native-tabs-draggable{
+  background:rgba(19,17,17,.27);
+  border-color:rgba(255,255,255,.3);
+  box-shadow:0 8px 28px rgba(0,0,0,.2),inset 0 1px 0 rgba(255,255,255,.23);
+}
+.gnz-native:has(> .gnz-native-tabs-draggable):has(.gnz-native-hero)>.gnz-native-tabs-draggable button{color:#fff}
+.gnz-native:has(> .gnz-native-tabs-draggable):has(.gnz-native-hero)>.gnz-native-tabs-draggable button.active{color:#eac277}
+.gnz-native:has(> .gnz-native-tabs-draggable):has(.gnz-native-hero)>.gnz-native-tabs-draggable>.gnz-native-tab-pill{
+  background:rgba(255,255,255,.18);
+  border-color:rgba(255,255,255,.28);
+}
 
 /* Native UIKit bar: let Gaspard's portrait extend behind the real glass.
    The page actions stay above the controls, including the home indicator. */
