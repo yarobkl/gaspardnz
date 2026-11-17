@@ -54,6 +54,7 @@ final class GaspardNativeTabController: CAPBridgeViewController, UITabBarDelegat
     private let cream = UIColor(red: 245.0 / 255.0, green: 240.0 / 255.0, blue: 232.0 / 255.0, alpha: 1)
     private let gold = UIColor(red: 184.0 / 255.0, green: 151.0 / 255.0, blue: 62.0 / 255.0, alpha: 1)
     private let ink = UIColor(red: 28.0 / 255.0, green: 18.0 / 255.0, blue: 8.0 / 255.0, alpha: 1)
+    private let charcoal = UIColor(red: 69.0 / 255.0, green: 65.0 / 255.0, blue: 60.0 / 255.0, alpha: 1)
 
     override func capacitorDidLoad() {
         super.capacitorDidLoad()
@@ -70,10 +71,10 @@ final class GaspardNativeTabController: CAPBridgeViewController, UITabBarDelegat
     private func configureTabBar() {
         let appearance = UITabBarAppearance()
         appearance.configureWithDefaultBackground()
-        // iOS 26 uses the system glass appearance. Older iOS versions get
-        // the discreet cream background from the GaspardNZ identity.
+        // Keep iOS 26 Liquid Glass; use the same dark brand surface on older iOS.
         if #unavailable(iOS 26.0) {
-            appearance.backgroundColor = cream.withAlphaComponent(0.96)
+            appearance.configureWithOpaqueBackground()
+            appearance.backgroundColor = charcoal
         }
         appearance.stackedLayoutAppearance.normal.iconColor = ink.withAlphaComponent(0.55)
         appearance.stackedLayoutAppearance.normal.titleTextAttributes = [
@@ -84,6 +85,12 @@ final class GaspardNativeTabController: CAPBridgeViewController, UITabBarDelegat
             .foregroundColor: gold,
             .font: UIFont.systemFont(ofSize: 10, weight: .semibold)
         ]
+        if #unavailable(iOS 26.0) {
+            appearance.stackedLayoutAppearance.normal.iconColor = UIColor.white.withAlphaComponent(0.78)
+            appearance.stackedLayoutAppearance.normal.titleTextAttributes = [
+                .foregroundColor: UIColor.white.withAlphaComponent(0.8)
+            ]
+        }
 
         tabBar.standardAppearance = appearance
         if #available(iOS 15.0, *) {
@@ -100,13 +107,12 @@ final class GaspardNativeTabController: CAPBridgeViewController, UITabBarDelegat
         tabBar.selectedItem = tabBar.items?.first
         tabBar.isHidden = true
 
-        // An opaque view behind the system tab bar flattens its glass effect.
-        // Keep the original cream treatment only for pre-Liquid-Glass iOS.
-        if #available(iOS 26.0, *) {
-            bottomBackground.backgroundColor = .clear
-        } else {
-            bottomBackground.backgroundColor = cream
-        }
+        // Extend the dark navigation surface into the bottom safe area while
+        // retaining the system-provided Liquid Glass controls on iOS 26.
+        bottomBackground.backgroundColor = charcoal
+        bottomBackground.layer.cornerRadius = 28
+        bottomBackground.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
+        bottomBackground.layer.masksToBounds = true
         bottomBackground.isUserInteractionEnabled = false
         bottomBackground.isHidden = true
         bottomBackground.translatesAutoresizingMaskIntoConstraints = false
@@ -117,11 +123,11 @@ final class GaspardNativeTabController: CAPBridgeViewController, UITabBarDelegat
         NSLayoutConstraint.activate([
             bottomBackground.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             bottomBackground.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            bottomBackground.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -56),
+            bottomBackground.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -68),
             bottomBackground.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             tabBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             tabBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            tabBar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -56),
+            tabBar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -68),
             tabBar.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
     }
