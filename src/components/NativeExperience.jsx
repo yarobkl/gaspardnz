@@ -10,9 +10,9 @@ import { usePublicCollection } from "../hooks/usePublicCollection.js";
 import { downloadFile } from "../utils/downloadFile.js";
 import { nativeFeedback } from "../utils/nativeHaptics.js";
 import { openCookieSettings } from "../services/consent.js";
-import { listBookingAvailability, requestBooking } from "../services/bookingAvailability.js";
 import { hasNativeTabBarBridge, NATIVE_TAB_EVENT, NATIVE_TABS, sendNativeTabState } from "../services/nativeTabs.js";
 import NativeTabBar from "./NativeTabBar.jsx";
+import NativeCalBooking from "./NativeCalBooking.jsx";
 import "./nativeExperience.css";
 
 const Gallery = lazy(() => import("./GalleryMobile.jsx"));
@@ -92,7 +92,6 @@ const legalLinks = [
  ["terms","https://gaspardnz.style/cgv.html"],
  ["support","mailto:gaspardnz.contact@gmail.com"],
 ];
-const phoneCountries = [["FR","France","+33"],["BE","Belgique","+32"],["CH","Suisse","+41"],["GB","Royaume-Uni","+44"],["US","États-Unis / Canada","+1"],["CG","Congo-Brazzaville","+242"],["CD","RD Congo","+243"],["CI","Côte d’Ivoire","+225"],["SN","Sénégal","+221"],["CM","Cameroun","+237"],["MA","Maroc","+212"],["DZ","Algérie","+213"],["TN","Tunisie","+216"]];
 
 export default function NativeExperience(){
  const {lang,setLang}=useContext(LangCtx);
@@ -103,25 +102,15 @@ export default function NativeExperience(){
  const ui=localUI[lang]||localUI.FR;
  const legal=legalCopy[lang]||legalCopy.FR;
  useEffect(()=>{StatusBar.setStyle({style:Style.Light}).catch(()=>{});},[]);
- const [page,setPage]=useState("home"),[servicesRevision,setServicesRevision]=useState(0),[contactOpen,setContactOpen]=useState(false),[contactProject,setContactProject]=useState(""),[contactDetails,setContactDetails]=useState(""),[bookingProject,setBookingProject]=useState(""),[bookingSlotId,setBookingSlotId]=useState(""),[downloadError,setDownloadError]=useState(""),[notificationsOpen,setNotificationsOpen]=useState(false),[newsFocusId,setNewsFocusId]=useState(null);
+ const [page,setPage]=useState("home"),[servicesRevision,setServicesRevision]=useState(0),[contactOpen,setContactOpen]=useState(false),[contactProject,setContactProject]=useState(""),[contactDetails,setContactDetails]=useState(""),[downloadError,setDownloadError]=useState(""),[notificationsOpen,setNotificationsOpen]=useState(false),[newsFocusId,setNewsFocusId]=useState(null);
  useEffect(()=>{
    const warm=()=>{ import("./GalleryMobile.jsx"); import("./NativeServices.jsx"); import("./NativeEditorial.jsx"); };
    const idle=window.requestIdleCallback?.(warm,{timeout:1200});
    const timer=idle==null?window.setTimeout(warm,350):null;
    return()=>{if(idle!=null)window.cancelIdleCallback?.(idle);if(timer!=null)window.clearTimeout(timer);};
  },[]);
- const [bookingDates,setBookingDates]=useState([]),[bookingLoading,setBookingLoading]=useState(false),[bookingError,setBookingError]=useState(""),[bookingSuccess,setBookingSuccess]=useState(""),[bookingSending,setBookingSending]=useState(false);
- const [bookingForm,setBookingForm]=useState({full_name:"",email:"",phone:"",need:""});
- const [phoneCountry,setPhoneCountry]=useState("FR");
  const [pushEnabled,setPushEnabled]=useState(()=>window.localStorage.getItem("gnz-push-consent") === "yes");
  const [pushBusy,setPushBusy]=useState(false),[pushMessage,setPushMessage]=useState("");
- useEffect(()=>{
-   if(page!=="booking")return;
-   let active=true;
-   setBookingLoading(true);setBookingError("");
-   listBookingAvailability().then(items=>{if(active)setBookingDates(items);}).catch(error=>{if(active)setBookingError(error.message);}).finally(()=>{if(active)setBookingLoading(false);});
-   return()=>{active=false;};
- },[page]);
  const [pairCode,setPairCode]=useState(""),[pairStatus,setPairStatus]=useState(""),[pairBusy,setPairBusy]=useState(false);
  const pushToken=useRef("");
  useEffect(()=>{
@@ -261,28 +250,6 @@ export default function NativeExperience(){
  };
  const openContact=(project="",details="")=>{setContactProject(project);setContactDetails(details);setContactOpen(true);};
  const heading=(title,subtitle)=> <header className="gnz-native-heading"><span className="gnz-native-eyebrow">GASPARDNZ · PARIS</span><h1>{title}</h1>{subtitle&&<p>{subtitle}</p>}</header>;
- const bookingChoices=lang==="FR" ? [
-  ["image_consulting","Conseil en image"],["wedding","Préparation de mariage"],["master_of_ceremonies","Maître de cérémonie / animation"],["other","Autre demande"]
- ] : lang==="EN" ? [["image_consulting","Image consulting"],["wedding","Wedding styling"],["master_of_ceremonies","Master of ceremonies / hosting"],["other","Other request"]]
-   : lang==="ES" ? [["image_consulting","Asesoría de imagen"],["wedding","Preparación de boda"],["master_of_ceremonies","Maestro de ceremonias / animación"],["other","Otra solicitud"]]
-   : [["image_consulting","形象咨询"],["wedding","婚礼造型"],["master_of_ceremonies","司仪与活动主持"],["other","其他需求"]];
- const bookingSlots=bookingDates.flatMap(date=>(date.slots||[]).map(slot=>({id:`${date.service_date}-${slot}`,date:date.service_date,slot,remaining:date.remaining_clients})));
- const chosenSlot=bookingSlots.find(item=>item.id===bookingSlotId);
- const bookingLabel=item=>`${new Date(`${item.date}T12:00:00`).toLocaleDateString(lang==="FR"?"fr-FR":undefined,{weekday:"long",day:"numeric",month:"long"})} · ${item.slot}`;
- const submitAppointment=async event=>{
-   event.preventDefault();
-   if(!chosenSlot||bookingSending)return;
-   setBookingSending(true);setBookingError("");
-   try{
-     const dialingCode=phoneCountries.find(([code])=>code===phoneCountry)?.[2]||"+33";
-     const localNumber=bookingForm.phone.replace(/\D/g,"").replace(/^0+/,"");
-     await requestBooking({...bookingForm,phone:localNumber?`${dialingCode}${localNumber}`:"",project:bookingChoices.find(([key])=>key===bookingProject)?.[1]||"Autre demande",service_date:chosenSlot.date,slot:chosenSlot.slot});
-     nativeFeedback("success");
-     setBookingSuccess(`Merci, votre demande pour le ${bookingLabel(chosenSlot)} a bien été envoyée. GaspardNZ vous rappellera pour confirmer le rendez-vous.`);
-     setBookingDates(await listBookingAvailability().catch(()=>bookingDates));
-   }catch(error){setBookingError(error.message);setBookingDates(await listBookingAvailability().catch(()=>bookingDates));}
-   finally{setBookingSending(false);}
- };
  const showInternalPushTools = import.meta.env.VITE_GNZ_INTERNAL_BUILD === "true";
  const content=()=>{
   switch(page){
@@ -293,30 +260,8 @@ export default function NativeExperience(){
       <button className="gnz-native-section-back" type="button" onClick={backToHome}>‹ {c.back}</button>
       <div className="gnz-native-booking-icon" aria-hidden="true"><NativeIcon name="booking"/></div>
       {heading(c.booking,ui.bookingHint)}
-      <label className="gnz-native-booking-project">Votre projet
-        <select value={bookingProject} onChange={e=>setBookingProject(e.target.value)} required>
-          <option value="" disabled>Choisissez votre prestation</option>
-          {bookingChoices.map(([project,label])=><option key={project} value={project}>{label}</option>)}
-        </select>
-      </label>
-      <div className="gnz-native-availability">
-        <strong>{lang==="FR"?"Créneaux disponibles":lang==="EN"?"Available appointments":lang==="ES"?"Citas disponibles":"可预约时间"}</strong>
-        {bookingLoading?<p role="status">Chargement des créneaux…</p>:bookingSlots.length ? <select className="gnz-native-slot-select" aria-label="Date et horaire du rendez-vous" value={bookingSlotId} onChange={e=>{setBookingSlotId(e.target.value);setBookingSuccess("");}}><option value="">Choisissez une date et un horaire</option>{bookingSlots.map(slot=><option key={slot.id} value={slot.id}>{bookingLabel(slot)} · {slot.remaining} place{slot.remaining>1?"s":""}</option>)}</select> : <div className="gnz-native-no-slots" role="status">
-          <strong>{lang==="FR"?"Aucun créneau publié pour le moment":lang==="EN"?"No appointments published yet":lang==="ES"?"Aún no hay horarios disponibles":"暂时没有可预约的时间"}</strong>
-          <p>Les prochaines disponibilités seront publiées ici.</p>
-        </div>}
-        {chosenSlot&&<p className="gnz-native-booking-confirmation-note">
-          {lang==="FR"?"Ce créneau est souhaité, pas encore confirmé.":lang==="EN"?"This is a requested time, not a confirmed booking.":lang==="ES"?"Este horario aún no está confirmado.":"预约时段尚未确认。"}
-        </p>}
-      </div>
-      {bookingError&&<p role="alert" className="gnz-native-booking-error">{bookingError}</p>}
-      {bookingSuccess?<p role="status" className="gnz-native-booking-success">{bookingSuccess}</p>:<form className="gnz-native-booking-form" onSubmit={submitAppointment}>
-        <label>Votre nom<input required maxLength={160} autoComplete="name" value={bookingForm.full_name} onChange={e=>setBookingForm({...bookingForm,full_name:e.target.value})}/></label>
-        <label>Votre email<input required type="email" autoComplete="email" value={bookingForm.email} onChange={e=>setBookingForm({...bookingForm,email:e.target.value})}/></label>
-        <label>Téléphone<span className="gnz-native-phone-row"><select aria-label="Pays et indicatif téléphonique" value={phoneCountry} onChange={e=>setPhoneCountry(e.target.value)}>{phoneCountries.map(([code,name,dial])=><option key={code} value={code}>{name} {dial}</option>)}</select><input aria-label="Numéro de téléphone" type="tel" inputMode="tel" autoComplete="tel-national" placeholder="6 12 34 56 78" value={bookingForm.phone} onChange={e=>setBookingForm({...bookingForm,phone:e.target.value})}/></span></label>
-        <label>Votre projet<textarea rows={3} maxLength={1800} value={bookingForm.need} onChange={e=>setBookingForm({...bookingForm,need:e.target.value})}/></label>
-        <button className="gnz-native-booking-contact" type="submit" disabled={!chosenSlot||!bookingProject||bookingSending}>{bookingSending?(lang==="EN"?"Sending…":lang==="ES"?"Enviando…":lang==="ZH"?"提交中…":"Envoi en cours…"):(lang==="EN"?"Request an appointment →":lang==="ES"?"Solicitar cita →":lang==="ZH"?"提交预约申请 →":"Demander ce créneau →")}</button>
-      </form>}
+      <NativeCalBooking lang={lang}/>
+      <button className="gnz-native-cal-project" type="button" onClick={()=>openContact("other","Demande de rendez-vous ou projet sur mesure")}>{lang==="FR"?"Décrire mon projet à Gaspard →":lang==="EN"?"Discuss my project with Gaspard →":lang==="ES"?"Hablar de mi proyecto con Gaspard →":"与 Gaspard 讨论我的项目 →"}</button>
     </section>;
    case "more":return <section className="gnz-native-section">{heading(c.more)}<div className="gnz-native-list">{extra.map(([key,label])=><button key={key} onClick={()=>select(key)}><span className="gnz-native-more-icon"><NativeIcon name={key}/></span><span className="gnz-native-more-label">{ui.sections[key]||label}</span><span aria-hidden="true">›</span></button>)}{settings.lookbookPdfUrl && !settings.lookbookHidden && <button onClick={()=>{setDownloadError("");downloadFile(settings.lookbookPdfUrl,"lookbook-gaspardnz.pdf").catch(()=>setDownloadError(ui.loadError));}}><span className="gnz-native-more-icon"><NativeIcon name="lookbook"/></span><span className="gnz-native-more-label">{ui.lookbook}</span><span aria-hidden="true">↓</span></button>}{downloadError&&<p className="gnz-native-error" role="alert">{downloadError}</p>}<label className="gnz-native-language">{ui.language} <select value={lang} onChange={e=>setLang(e.target.value)}><option value="FR">Français</option><option value="EN">English</option><option value="ES">Español</option><option value="ZH">中文</option></select></label><section className="gnz-native-legal" aria-label={legal.title}><h2>{legal.title}</h2><div className="gnz-native-legal-links">{legalLinks.map(([key,href])=><a key={key} href={href} target={href.startsWith("https://")?"_blank":undefined} rel={href.startsWith("https://")?"noopener noreferrer":undefined}><span>{legal[key]}</span><span aria-hidden="true">↗</span></a>)}<button type="button" onClick={openCookieSettings}><span>{legal.consent}</span><span aria-hidden="true">›</span></button></div></section>{showInternalPushTools&&Capacitor.getPlatform()==="ios"&&<details className="gnz-native-internal-tools"><summary>Outils de diagnostic TestFlight</summary><div style={{padding:"12px 4px",display:"grid",gap:10}}><strong>Notifications Apple — appareil de test</strong><p>Entrez le code temporaire créé depuis l’administration pour associer cet iPhone.</p><input aria-label="Code d’appairage Apple" value={pairCode} onChange={e=>setPairCode(e.target.value.trim())} placeholder="Code temporaire" autoCapitalize="none" autoCorrect="off" style={{width:"100%",padding:12,borderRadius:8,border:"1px solid #b9aa97"}}/><button type="button" disabled={pairBusy} onClick={pairIphone}>{pairBusy?"Connexion Apple…":"Activer les notifications sur cet iPhone"}</button>{pairStatus&&<p role="status">{pairStatus}</p>}</div></details>}</div></section>;
    case "contact":return <section className="gnz-native-section"><button className="gnz-native-section-back" type="button" onClick={backToHome}>‹ {c.back}</button>{heading(ui.sections.contact)}<div className="gnz-native-contact-list"><button type="button" onClick={()=>openContact()}><ContactBrandIcon type="whatsapp"/><span><strong>WhatsApp</strong><small>{c.talk}</small></span><span aria-hidden="true">›</span></button>{settings.contactEmail&&<a href={`mailto:${settings.contactEmail}`}><ContactBrandIcon type="email"/><span><strong>E-mail</strong><small>{settings.contactEmail}</small></span><span aria-hidden="true">›</span></a>}<button type="button" onClick={()=>openContact()}><ContactBrandIcon type="request"/><span><strong>{ui.request}</strong><small>{ui.bookingHint}</small></span><span aria-hidden="true">›</span></button></div></section>;

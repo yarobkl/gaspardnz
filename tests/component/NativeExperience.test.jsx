@@ -2,11 +2,12 @@ import { useState } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { Capacitor } from "@capacitor/core";
+import { Browser } from "@capacitor/browser";
 import { LangCtx } from "../../src/context.jsx";
 import NativeExperience from "../../src/components/NativeExperience.jsx";
+import { CAL_BOOKING_URL } from "../../src/components/NativeCalBooking.jsx";
 
 const mockSettings = vi.hoisted(() => ({ availability: undefined }));
-const mockBooking = vi.hoisted(() => ({ dates: [], request: vi.fn() }));
 
 // Test navigation without making live CRM calls or opening external apps.
 vi.mock("../../src/hooks/useSettings.js", () => ({
@@ -15,10 +16,7 @@ vi.mock("../../src/hooks/useSettings.js", () => ({
 vi.mock("../../src/hooks/usePublicCollection.js", () => ({
   usePublicCollection: () => ({ rows: [], loading: false, error: null }),
 }));
-vi.mock("../../src/services/bookingAvailability.js", () => ({
-  listBookingAvailability: vi.fn(async () => mockBooking.dates),
-  requestBooking: mockBooking.request,
-}));
+vi.mock("@capacitor/browser", () => ({ Browser: { open: vi.fn(async () => {}) } }));
 vi.mock("../../src/components/NativeServices.jsx", () => ({
   default: ({ onContact }) => <button onClick={() => onContact("image_consulting")}>Parler de ce projet</button>,
 }));
@@ -44,8 +42,6 @@ const openTab = (label) => fireEvent.click(within(navigation()).getByRole("butto
 
 beforeEach(() => {
   mockSettings.availability = undefined;
-  mockBooking.dates = [];
-  mockBooking.request.mockReset().mockResolvedValue({ ok: true });
   vi.stubGlobal("scrollTo", vi.fn());
 });
 
@@ -124,35 +120,24 @@ describe("GaspardNZ native iOS experience", () => {
     expect(await screen.findByRole("dialog", { name: "Contact CRM" })).toHaveAttribute("data-project", "image_consulting");
   });
 
-  it("shows published availability and prevents requests when there are no slots", async () => {
+  it("utilise le calendrier Cal.com du site plutôt que d'anciennes disponibilités indépendantes", async () => {
     render(<Harness />);
     openTab("Plus");
     fireEvent.click(await screen.findByRole("button", { name: /Réserver/ }));
-    expect(await screen.findByText("Créneaux disponibles")).toBeInTheDocument();
-    expect(await screen.findByText("Aucun créneau publié pour le moment")).toBeInTheDocument();
-    fireEvent.change(screen.getByRole("combobox", { name: "Votre projet" }), { target: { value: "wedding" } });
-    expect(screen.getByRole("button", { name: "Demander ce créneau →" })).toBeDisabled();
-    expect(mockBooking.request).not.toHaveBeenCalled();
+    expect(await screen.findByTestId("native-cal-booking")).toBeInTheDocument();
+    expect(CAL_BOOKING_URL).toBe("https://cal.com/gaspardnz-s-habiller-autrement-ghzqy2/rendez-vous");
+    const calls = window.Cal.ns["gaspardnz-ios"].q;
+    expect(calls.some(call => call[0] === "inline" && call[1].calLink === "gaspardnz-s-habiller-autrement-ghzqy2/rendez-vous")).toBe(true);
+    expect(screen.queryByText("Aucun créneau publié pour le moment")).not.toBeInTheDocument();
   });
 
-  it("transmet la prestation et le créneau au système de réservation sans prétendre le confirmer", async () => {
-    mockBooking.dates = [{ service_date: "2030-06-16", slots: ["15:30–16:30"], remaining_clients: 2 }];
+  it("permet d'ouvrir le calendrier directement si l'intégration iOS ne charge pas", async () => {
+    Browser.open.mockClear();
     render(<Harness />);
     openTab("Plus");
     fireEvent.click(await screen.findByRole("button", { name: /Réserver/ }));
-    fireEvent.change(screen.getByRole("combobox", { name: "Votre projet" }), { target: { value: "wedding" } });
-    const slots = await screen.findByRole("combobox", { name: "Date et horaire du rendez-vous" });
-    fireEvent.change(slots, { target: { value: "2030-06-16-15:30–16:30" } });
-    expect(screen.getByText("Ce créneau est souhaité, pas encore confirmé.")).toBeInTheDocument();
-    fireEvent.change(screen.getByRole("textbox", { name: "Votre nom" }), { target: { value: "Client Test" } });
-    fireEvent.change(screen.getByRole("textbox", { name: "Votre email" }), { target: { value: "test@example.com" } });
-    fireEvent.change(screen.getByRole("textbox", { name: "Numéro de téléphone" }), { target: { value: "06 12 34 56 78" } });
-    fireEvent.click(screen.getByRole("button", { name: "Demander ce créneau →" }));
-    await waitFor(() => expect(mockBooking.request).toHaveBeenCalledWith(expect.objectContaining({
-      full_name: "Client Test", email: "test@example.com", phone: "+33612345678",
-      project: "Préparation de mariage", service_date: "2030-06-16", slot: "15:30–16:30",
-    })));
-    expect(await screen.findByText(/vous rappellera pour confirmer le rendez-vous/i)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Ouvrir le calendrier des rendez-vous ↗" }));
+    expect(Browser.open).toHaveBeenCalledWith({ url: CAL_BOOKING_URL });
   });
 
   it("n'expose pas les outils Push internes dans une version publique", async () => {
@@ -170,7 +155,7 @@ describe("GaspardNZ native iOS experience", () => {
     const tabs = within(navigation()).getAllByRole("button");
     expect(tabs.map((tab) => tab.textContent)).toEqual(["Home", "Services", "Gallery", "News", "More"]);
     fireEvent.click(await screen.findByRole("button", { name: "Book" }));
-    expect(await screen.findByRole("button", { name: "Request an appointment →" })).toBeInTheDocument();
+    expect(await screen.findByRole("button", { name: "Open the booking calendar ↗" })).toBeInTheDocument();
   });
 
   it("exposes privacy, legal terms and support from the native More tab", async () => {
@@ -236,7 +221,7 @@ describe("GaspardNZ native iOS experience", () => {
     expect(document.querySelectorAll("#gnz-native-main > .gnz-native-page")).toHaveLength(1);
     expect(document.querySelector("#gnz-native-main > .gnz-native-page")).not.toHaveAttribute("aria-hidden", "true");
     fireEvent.click(await screen.findByRole("button", { name: /Réserver/ }));
-    expect(await screen.findByText("Créneaux disponibles")).toBeInTheDocument();
+    expect(await screen.findByTestId("native-cal-booking")).toBeInTheDocument();
     expect(within(navigation()).getByRole("button", { name: "Plus" })).toHaveAttribute("aria-current", "page");
   });
 
