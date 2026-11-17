@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { Capacitor } from "@capacitor/core";
 import { LangCtx } from "../../src/context.jsx";
 import NativeExperience from "../../src/components/NativeExperience.jsx";
 
@@ -42,6 +43,30 @@ beforeEach(() => {
 });
 
 describe("GaspardNZ native iOS experience", () => {
+  it("remplace seulement la barre React par UIKit et conserve les vrais écrans iOS", async () => {
+    const postMessage = vi.fn();
+    vi.spyOn(Capacitor, "getPlatform").mockReturnValue("ios");
+    vi.spyOn(Capacitor, "isNativePlatform").mockReturnValue(true);
+    window.webkit = { messageHandlers: { gnzNativeTabs: { postMessage } } };
+    try {
+      render(<Harness />);
+      expect(screen.queryByRole("navigation")).not.toBeInTheDocument();
+      expect(screen.getByRole("img", { name: "Portrait de GaspardNZ" })).toBeInTheDocument();
+      expect(postMessage).toHaveBeenCalledWith(expect.objectContaining({
+        type: "state", selected: "home", visible: true,
+      }));
+
+      act(() => window.dispatchEvent(new CustomEvent("gnz:native-tab", { detail: { tab: "gallery" } })));
+      expect(await screen.findByTestId("gallery")).toBeInTheDocument();
+      expect(postMessage).toHaveBeenLastCalledWith(expect.objectContaining({
+        type: "state", selected: "gallery", visible: true,
+      }));
+    } finally {
+      delete window.webkit;
+      vi.restoreAllMocks();
+    }
+  });
+
   it("shows the authentic uploaded portrait and the five navigation tabs", async () => {
     render(<Harness />);
     expect(screen.getByRole("img", { name: "Portrait de GaspardNZ" }))
