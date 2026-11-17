@@ -6,6 +6,7 @@ import { LangCtx } from "../../src/context.jsx";
 import NativeExperience from "../../src/components/NativeExperience.jsx";
 
 const mockSettings = vi.hoisted(() => ({ availability: undefined }));
+const mockBooking = vi.hoisted(() => ({ dates: [], request: vi.fn() }));
 
 // Test navigation without making live CRM calls or opening external apps.
 vi.mock("../../src/hooks/useSettings.js", () => ({
@@ -13,6 +14,10 @@ vi.mock("../../src/hooks/useSettings.js", () => ({
 }));
 vi.mock("../../src/hooks/usePublicCollection.js", () => ({
   usePublicCollection: () => ({ rows: [], loading: false, error: null }),
+}));
+vi.mock("../../src/services/bookingAvailability.js", () => ({
+  listBookingAvailability: vi.fn(async () => mockBooking.dates),
+  requestBooking: mockBooking.request,
 }));
 vi.mock("../../src/components/NativeServices.jsx", () => ({
   default: ({ onContact }) => <button onClick={() => onContact("image_consulting")}>Parler de ce projet</button>,
@@ -39,6 +44,8 @@ const openTab = (label) => fireEvent.click(within(navigation()).getByRole("butto
 
 beforeEach(() => {
   mockSettings.availability = undefined;
+  mockBooking.dates = [];
+  mockBooking.request.mockReset().mockResolvedValue({ ok: true });
   vi.stubGlobal("scrollTo", vi.fn());
 });
 
@@ -117,35 +124,35 @@ describe("GaspardNZ native iOS experience", () => {
     expect(await screen.findByRole("dialog", { name: "Contact CRM" })).toHaveAttribute("data-project", "image_consulting");
   });
 
-  it("opens admin-published booking availability and the CRM contact form for a project", async () => {
+  it("shows published availability and prevents requests when there are no slots", async () => {
     render(<Harness />);
     openTab("Plus");
     fireEvent.click(await screen.findByRole("button", { name: /Réserver/ }));
     expect(await screen.findByText("Créneaux disponibles")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "Préparation de mariage" }));
     expect(await screen.findByText("Aucun créneau publié pour le moment")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "Demander un rendez-vous →" }));
-    expect(await screen.findByRole("dialog", { name: "Contact CRM" })).toHaveAttribute("data-project", "wedding");
+    fireEvent.change(screen.getByRole("combobox", { name: "Votre projet" }), { target: { value: "wedding" } });
+    expect(screen.getByRole("button", { name: "Demander ce créneau →" })).toBeDisabled();
+    expect(mockBooking.request).not.toHaveBeenCalled();
   });
 
-  it("transmet la prestation ET le créneau souhaité au CRM sans annoncer une confirmation", async () => {
-    mockSettings.availability = {timezone:"Europe/Paris",slots:[
-      {id:"vip-2030",date:"2030-06-16",start:"15:30",end:"16:30",active:true},
-      {id:"past",date:"2021-05-10",start:"13:00",end:"14:00",active:true},
-    ]};
+  it("transmet la prestation et le créneau au système de réservation sans prétendre le confirmer", async () => {
+    mockBooking.dates = [{ service_date: "2030-06-16", slots: ["15:30–16:30"], remaining_clients: 2 }];
     render(<Harness />);
     openTab("Plus");
     fireEvent.click(await screen.findByRole("button", { name: /Réserver/ }));
-    fireEvent.click(await screen.findByRole("button", {name:"Préparation de mariage"}));
-    const slot = screen.getByRole("button", {name:/16 juin.*15:30/i});
-    fireEvent.click(slot);
-    expect(slot).toHaveAttribute("aria-pressed","true");
-    expect(screen.queryByRole("button",{name:/mai 2021/})).not.toBeInTheDocument();
+    fireEvent.change(screen.getByRole("combobox", { name: "Votre projet" }), { target: { value: "wedding" } });
+    const slots = await screen.findByRole("combobox", { name: "Date et horaire du rendez-vous" });
+    fireEvent.change(slots, { target: { value: "2030-06-16-15:30–16:30" } });
     expect(screen.getByText("Ce créneau est souhaité, pas encore confirmé.")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button",{name:"Demander ce créneau →"}));
-    const modal = await screen.findByRole("dialog",{name:"Contact CRM"});
-    expect(modal).toHaveAttribute("data-project","wedding");
-    expect(modal.getAttribute("data-details")).toContain("15:30–16:30");
+    fireEvent.change(screen.getByRole("textbox", { name: "Votre nom" }), { target: { value: "Client Test" } });
+    fireEvent.change(screen.getByRole("textbox", { name: "Votre email" }), { target: { value: "test@example.com" } });
+    fireEvent.change(screen.getByRole("textbox", { name: "Numéro de téléphone" }), { target: { value: "06 12 34 56 78" } });
+    fireEvent.click(screen.getByRole("button", { name: "Demander ce créneau →" }));
+    await waitFor(() => expect(mockBooking.request).toHaveBeenCalledWith(expect.objectContaining({
+      full_name: "Client Test", email: "test@example.com", phone: "+33612345678",
+      project: "Préparation de mariage", service_date: "2030-06-16", slot: "15:30–16:30",
+    })));
+    expect(await screen.findByText(/vous rappellera pour confirmer le rendez-vous/i)).toBeInTheDocument();
   });
 
   it("n'expose pas les outils Push internes dans une version publique", async () => {
