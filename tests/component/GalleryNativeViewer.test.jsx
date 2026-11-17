@@ -2,6 +2,9 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { createFakeSupabaseTables } from "../support/fakeSupabaseTables.js";
 
+const mockNativeFeedback = vi.hoisted(() => vi.fn());
+vi.mock("../../src/utils/nativeHaptics.js", () => ({ nativeFeedback: mockNativeFeedback }));
+
 const fake = createFakeSupabaseTables({ content_albums: [] });
 vi.mock("../../src/services/supabaseClient.js", () => ({
   supabase: fake.supabase,
@@ -13,7 +16,7 @@ vi.mock("../../src/services/supabaseClient.js", () => ({
 
 const GalleryMobile = (await import("../../src/components/GalleryMobile.jsx")).default;
 
-afterEach(() => { document.body.style.overflow = ""; fake.state.content_albums = []; fake.state.vip_clients = []; });
+afterEach(() => { document.body.style.overflow = ""; fake.state.content_albums = []; fake.state.vip_clients = []; mockNativeFeedback.mockClear(); });
 
 describe("galerie native", () => {
   it("ouvre la photo choisie en entier, navigue et restaure l'écran après fermeture", async () => {
@@ -54,6 +57,7 @@ describe("galerie native", () => {
     const events = within(filters).getByRole("button", { name: "Événements" });
     const looks = within(filters).getByRole("button", { name: "Looks" });
     expect(all).toHaveAttribute("aria-pressed", "true");
+    expect(wedding).toHaveAttribute("data-haptic", "selection");
 
     expect(await screen.findByRole("button", { name: "Tenue de mariage" })).toBeInTheDocument();
     fireEvent.click(wedding);
@@ -186,6 +190,10 @@ describe("galerie native", () => {
     expect(within(dialog).getByText("02 / 15")).toBeInTheDocument();
     fireEvent.touchStart(stage, { touches: [{ clientX: 200, clientY: 100 }] });
     fireEvent.touchEnd(stage, { changedTouches: [{ clientX: 198, clientY: 225 }] });
+    expect(mockNativeFeedback).toHaveBeenLastCalledWith("selection");
+    const feedbackCount = mockNativeFeedback.mock.calls.length;
+    fireEvent.touchEnd(stage, { changedTouches: [{ clientX: 198, clientY: 230 }] });
+    expect(mockNativeFeedback).toHaveBeenCalledTimes(feedbackCount);
     await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
   });
 });
