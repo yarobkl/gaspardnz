@@ -1,0 +1,52 @@
+name: iOS — Compilation simulateur (sans déploiement)
+
+on:
+  pull_request:
+    paths:
+      - "ios/App/App/**/*.swift"
+      - "ios/App/App.xcodeproj/**"
+      - "ios/App/App/*.plist"
+      - ".github/workflows/ios-native-simulator.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  build-simulator:
+    name: Compiler GNZ PARIS sur iOS Simulator
+    runs-on: macos-26
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Choisir Xcode
+        run: |
+          XCODE_APP="$(find /Applications -maxdepth 1 -type d -name 'Xcode*.app' | sort -V | tail -1)"
+          test -n "$XCODE_APP"
+          sudo xcode-select --switch "$XCODE_APP/Contents/Developer"
+          xcodebuild -version
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Installer les dépendances
+        run: npm ci --no-audit --no-fund
+
+      - name: Synchroniser les ressources et plugins Capacitor
+        run: npm run cap:sync:ios
+
+      - name: Résoudre les dépendances Swift
+        run: xcodebuild -resolvePackageDependencies -project ios/App/App.xcodeproj -scheme App
+
+      - name: Compiler sans profil Apple ni signature
+        run: |
+          xcodebuild build -quiet \
+            -project ios/App/App.xcodeproj \
+            -scheme App \
+            -configuration Debug \
+            -sdk iphonesimulator \
+            -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath "$RUNNER_TEMP/DerivedData" \
+            CODE_SIGNING_ALLOWED=NO
