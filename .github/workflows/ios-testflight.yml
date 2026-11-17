@@ -103,6 +103,13 @@ jobs:
           MARKETING_VERSION: ${{ env.GNZ_RELEASE_VERSION }}
           BUILD_NUMBER: ${{ env.GNZ_RELEASE_BUILD }}
         run: |
+          # Cette branche iOS utilise encore les anciens numéros 1.0.19/39
+          # au niveau du workflow. Le build 101 a déjà été envoyé à Apple.
+          # Le numéro de run garantit un build croissant pour ses prochains push.
+          if [ "$GITHUB_EVENT_NAME" = "push" ] && [ "$GITHUB_REF" = "refs/heads/codex/ios-app-store" ]; then
+            MARKETING_VERSION="1.0.20"
+            BUILD_NUMBER="$((101 + GITHUB_RUN_NUMBER))"
+          fi
           sed -i '' "s/MARKETING_VERSION = [^;]*;/MARKETING_VERSION = $MARKETING_VERSION;/g" ios/App/App.xcodeproj/project.pbxproj
           sed -i '' "s/CURRENT_PROJECT_VERSION = [^;]*;/CURRENT_PROJECT_VERSION = $BUILD_NUMBER;/g" ios/App/App.xcodeproj/project.pbxproj
 
