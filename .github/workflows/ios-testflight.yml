@@ -228,38 +228,52 @@ jobs:
               private_key, algorithm="ES256",
               headers={"kid": os.environ["ASC_KEY_ID"], "typ": "JWT"},
           )
-          query = urllib.parse.urlencode({
-              "filter[name]": "GaspardNZ App Store Distribution", "limit": "200"
-          })
-          req = urllib.request.Request(
-              "https://api.appstoreconnect.apple.com/v1/profiles?" + query,
-              headers={"Authorization": "Bearer " + token, "Accept": "application/json"},
-          )
-          # Apple occasionally returns transient 5xx/429 responses while the
-          # API key and profile are valid. Retry those only; never retry a
-          # definitive authentication or permission failure (401/403).
-          for attempt in range(1, 4):
-              try:
-                  with urllib.request.urlopen(req, timeout=40) as response:
-                      profiles = json.load(response)["data"]
+          # If Apple's name-filter endpoint returns repeated server errors,
+          # fall back to listing the team's profiles and checking the exact
+          # profile name locally. Never use a different signing profile.
+          queries = [
+              urllib.parse.urlencode({"filter[name]": "GaspardNZ App Store Distribution", "limit": "200"}),
+              urllib.parse.urlencode({"limit": "200"}),
+          ]
+          profiles = None
+          for mode, query in enumerate(queries):
+              req = urllib.request.Request(
+                  "https://api.appstoreconnect.apple.com/v1/profiles?" + query,
+                  headers={"Authorization": "Bearer " + token, "Accept": "application/json"},
+              )
+              for attempt in range(1, 4):
+                  try:
+                      with urllib.request.urlopen(req, timeout=40) as response:
+                          profiles = json.load(response)["data"]
+                      break
+                  except urllib.error.HTTPError as error:
+                      if error.code in (429, 500, 502, 503, 504):
+                          if attempt < 3:
+                              delay = attempt * 10
+                              print(f"API Apple HTTP {error.code}, nouvelle tentative dans {delay}s ({attempt}/3).", flush=True)
+                              time.sleep(delay)
+                              continue
+                          if mode == 0:
+                              print("Recherche ciblée Apple indisponible ; essai via liste des profils.", flush=True)
+                              break
+                      raise SystemExit(
+                          "::error::Téléchargement du profil App Store impossible "
+                          f"(API Apple HTTP {error.code})."
+                      )
+                  except urllib.error.URLError:
+                      if attempt < 3:
+                          delay = attempt * 10
+                          print(f"Réseau Apple temporairement indisponible, nouvelle tentative dans {delay}s ({attempt}/3).", flush=True)
+                          time.sleep(delay)
+                          continue
+                      if mode == 0:
+                          print("Recherche ciblée Apple inaccessible ; essai via liste des profils.", flush=True)
+                          break
+                      raise SystemExit("::error::Connexion à l'API Apple impossible après 3 tentatives.")
+              if profiles is not None:
                   break
-              except urllib.error.HTTPError as error:
-                  if error.code in (429, 500, 502, 503, 504) and attempt < 3:
-                      delay = attempt * 10
-                      print(f"API Apple HTTP {error.code}, nouvelle tentative dans {delay}s ({attempt}/3).", flush=True)
-                      time.sleep(delay)
-                      continue
-                  raise SystemExit(
-                      "::error::Téléchargement du profil App Store impossible "
-                      f"(API Apple HTTP {error.code})."
-                  )
-              except urllib.error.URLError as error:
-                  if attempt < 3:
-                      delay = attempt * 10
-                      print(f"Réseau Apple temporairement indisponible, nouvelle tentative dans {delay}s ({attempt}/3).", flush=True)
-                      time.sleep(delay)
-                      continue
-                  raise SystemExit("::error::Connexion à l'API Apple impossible après 3 tentatives.")
+          if profiles is None:
+              raise SystemExit("::error::Aucun profil App Store téléchargé depuis Apple.")
           matching = [
               p for p in profiles
               if p["attributes"].get("name") == "GaspardNZ App Store Distribution"
