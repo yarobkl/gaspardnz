@@ -347,7 +347,6 @@
 }
 .gnz-native-gallery-grid button img{
   transition:transform .28s cubic-bezier(.2,.75,.25,1);
-  transform:translateZ(0);
 }
 @media(hover:hover) and (prefers-reduced-motion:no-preference){
   .gnz-native-gallery-grid button:hover img{transform:scale(1.035)}
