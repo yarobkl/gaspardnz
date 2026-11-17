@@ -77,7 +77,7 @@ const CookieBanner = () => {
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: 80, opacity: 0 }}
           transition={{ type: "spring", damping: 28, stiffness: 300 }}
-          style={{ position: "fixed", bottom: "max(0.85rem, env(safe-area-inset-bottom))", left: "0.85rem", right: "0.85rem", maxWidth: "520px", maxHeight: "calc(100vh - 1.7rem)", overflowY: "auto", margin: "0 auto", zIndex: 640, background: "rgba(15,10,4,0.97)", backdropFilter: "blur(18px)", border: "1px solid rgba(184,151,62,0.28)", borderRadius: "12px", padding: "1rem", display: "grid", gridTemplateColumns: "1fr", gap: "0.8rem", boxShadow: "0 10px 28px rgba(0,0,0,0.34)", outline: "none" }}
+          style={{ position: "fixed", bottom: "calc(var(--gnz-native-tab-inset, 0px) + max(0.85rem, env(safe-area-inset-bottom)))", left: "0.85rem", right: "0.85rem", maxWidth: "520px", maxHeight: "calc(100vh - var(--gnz-native-tab-inset, 0px) - 1.7rem)", overflowY: "auto", margin: "0 auto", zIndex: 640, background: "rgba(15,10,4,0.97)", backdropFilter: "blur(18px)", border: "1px solid rgba(184,151,62,0.28)", borderRadius: "12px", padding: "1rem", display: "grid", gridTemplateColumns: "1fr", gap: "0.8rem", boxShadow: "0 10px 28px rgba(0,0,0,0.34)", outline: "none" }}
         >
           <strong id="cookie-consent-title" style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "12px", color: "#faf7f2", letterSpacing: "0.08em" }}>
             {showPreferences ? t("cookie_preferences_title") : t("cookie_title")}

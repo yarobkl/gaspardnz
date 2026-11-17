@@ -24,6 +24,7 @@ import MobileHomeCompact from "./components/MobileHomeCompact.jsx";
 import CommunityWhatsAppLink from "./components/CommunityWhatsAppLink.jsx";
 import { useSettings } from "./hooks/useSettings.js";
 import { getWhatsappUrl } from "./utils/whatsappUtil.js";
+import { isNativeIOS, NATIVE_TAB_EVENT, NATIVE_TABS, sendNativeTabState } from "./services/nativeTabs.js";
 
 import SectionDivider from "./components/ui/SectionDivider.jsx";
 
@@ -92,6 +93,7 @@ const scrollToStableTarget = (id, attempt = 0, lastTop = null) => {
 };
 
 export default function App() {
+  const [nativeIOS] = useState(isNativeIOS);
   const [splashDone, setSplashDone] = useState(true);
   const [bookingOpen, setBookingOpen] = useState(false);
   const [boutiqueMode, setBoutiqueMode] = useState(false);
@@ -121,6 +123,13 @@ export default function App() {
   const isCompactMobile = useCompactMobile();
   const settings = useSettings();
   const [mobileSection, setMobileSection] = useState(null);
+  const [nativeActiveTab, setNativeActiveTab] = useState("home");
+  const nativeActiveTabRef = useRef("home");
+  const tabBeforeBookingRef = useRef("home");
+  const selectNativeTab = (tab) => {
+    nativeActiveTabRef.current = tab;
+    setNativeActiveTab(tab);
+  };
   const [appAnnouncementVisible, setAppAnnouncementVisible] = useState(() => {
     try { return sessionStorage.getItem("gnz-app-announcement-dismissed") !== "1"; }
     catch { return true; }
@@ -243,17 +252,75 @@ export default function App() {
   const scrollTo = (ref) => { ref?.current?.scrollIntoView({ behavior: "smooth", block: "start" }); };
   const handleMobileSectionSelect = (key) => {
     setMobileSection(key);
+    selectNativeTab(key === "gallery" ? "gallery" : key === "news" ? "news" : "home");
     window.requestAnimationFrame(() => scrollToStableTarget(key ? "gnz-mobile-active-section" : "gnz-mobile-home"));
   };
   const openMobileSection = (key, ref) => {
     if (!isCompactMobile) {
+      selectNativeTab(key === "gallery" ? "gallery" : key === "news" ? "news" : "home");
       scrollTo(ref);
       return;
     }
     handleMobileSectionSelect(key);
   };
-  const openBooking = (boutique = false) => { setBoutiqueMode(boutique); setBookingOpen(true); };
+  const openBooking = (boutique = false) => {
+    tabBeforeBookingRef.current = nativeActiveTabRef.current;
+    selectNativeTab("booking");
+    setBoutiqueMode(boutique);
+    setBookingOpen(true);
+  };
+  const closeBooking = () => {
+    setBookingOpen(false);
+    selectNativeTab(tabBeforeBookingRef.current);
+  };
+  const openShowroom = () => {
+    selectNativeTab("showroom");
+    scrollTo(showroomRef);
+  };
   const openShop = () => { window.location.assign(SHOP_URL); };
+
+  useEffect(() => {
+    if (!nativeIOS || isAdminPath || currentlyOnAdminPath) return undefined;
+    const navigateFromNativeTab = (event) => {
+      const tab = event.detail?.tab;
+      if (!NATIVE_TABS.includes(tab)) return;
+      switch (tab) {
+        case "home":
+          setMobileSection(null);
+          selectNativeTab("home");
+          window.scrollTo({ top: 0, behavior: "smooth" });
+          break;
+        case "gallery": openMobileSection("gallery", galleryRef); break;
+        case "news": openMobileSection("news", actualitesRef); break;
+        case "showroom": openShowroom(); break;
+        case "booking": openBooking(false); break;
+      }
+    };
+    window.__gnzNativeTabsReady = true;
+    window.addEventListener(NATIVE_TAB_EVENT, navigateFromNativeTab);
+
+    // On a dedicated SEO page, the native bar returns to the app home with
+    // this query parameter; consume it once after the React handler exists.
+    const url = new URL(window.location.href);
+    const requestedTab = url.searchParams.get("gnzTab");
+    if (NATIVE_TABS.includes(requestedTab)) {
+      url.searchParams.delete("gnzTab");
+      window.history.replaceState(window.history.state, "", `${url.pathname}${url.search}${url.hash}`);
+      window.requestAnimationFrame(() => navigateFromNativeTab({ detail: { tab: requestedTab } }));
+    }
+    return () => {
+      window.removeEventListener(NATIVE_TAB_EVENT, navigateFromNativeTab);
+      window.__gnzNativeTabsReady = false;
+    };
+  }, [nativeIOS, isAdminPath, currentlyOnAdminPath, isCompactMobile]);
+
+  useEffect(() => {
+    if (!nativeIOS) return;
+    sendNativeTabState({
+      selected: nativeActiveTab,
+      visible: splashDone && !bookingOpen && !isAdminPath && !currentlyOnAdminPath,
+    });
+  }, [nativeIOS, nativeActiveTab, splashDone, bookingOpen, isAdminPath, currentlyOnAdminPath]);
 
   return (
     <LangCtx.Provider value={{ lang, setLang: changeLang }}>
@@ -281,6 +348,10 @@ export default function App() {
         ` : ""}
         @keyframes gnz-spin { to { transform: rotate(360deg); } }
         .gnz-section-spinner { width: 32px; height: 32px; border-radius: 50%; border: 2px solid rgba(184,151,62,.25); border-top-color: ${GOLD}; animation: gnz-spin .8s linear infinite; }
+        ${nativeIOS ? `
+          :root { --gnz-native-tab-inset: calc(56px + env(safe-area-inset-bottom)); }
+          #gnz-app-root { padding-bottom: var(--gnz-native-tab-inset); }
+        ` : ""}
       `}</style>
 
       <AnimatePresence mode="wait">
@@ -304,7 +375,7 @@ export default function App() {
                 élément position:fixed placé à l'intérieur. Reste le premier
                 élément du DOM, donc l'ordre de tabulation ne change pas. */}
             <NavMobile
-              onShowroom={() => scrollTo(showroomRef)}
+              onShowroom={openShowroom}
               onGalerie={() => openMobileSection("gallery", galleryRef)}
               onCatalogue={openShop}
               onFormules={() => openMobileSection("formules", formulesRef)}
@@ -413,7 +484,7 @@ export default function App() {
               </Suspense>
             )}
             <Suspense fallback={null}>
-              <BookingModal isOpen={bookingOpen} onClose={() => setBookingOpen(false)} boutiqueMode={boutiqueMode} onSwitchToBooking={() => setBoutiqueMode(false)} />
+              <BookingModal isOpen={bookingOpen} onClose={closeBooking} boutiqueMode={boutiqueMode} onSwitchToBooking={() => setBoutiqueMode(false)} />
               <ChatBot onReserver={() => openBooking(false)} onGalerie={() => openMobileSection("gallery", galleryRef)} onShowroom={() => scrollTo(showroomRef)} onFormules={() => openMobileSection("formules", formulesRef)} />
             </Suspense>
             </ErrorBoundary>
