@@ -52,7 +52,7 @@ concurrency:
 jobs:
   build-ios:
     name: Build iOS
-    runs-on: macos-15
+    runs-on: macos-26
     timeout-minutes: 45
     env:
       APP_BUNDLE_ID: com.gaspardnz.app
