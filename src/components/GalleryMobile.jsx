@@ -1,5 +1,5 @@
 import { useContext, useEffect, useMemo, useRef, useState } from "react";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, LayoutGroup, motion, useReducedMotion } from "framer-motion";
 import { createPortal } from "react-dom";
 import { GOLD, CREAM, SITE_URL } from "../constants.js";
 import { LangCtx, useTr } from "../context.jsx";
@@ -135,6 +135,7 @@ export default function GalleryMobile({ refEl, native = false, onContact }) {
   const copy = COPY[lang] || COPY.FR;
   const [cur, setCur] = useState(0);
   const [viewerOpen, setViewerOpen] = useState(false);
+  const [matchedIndex, setMatchedIndex] = useState(null);
   const [slideDirection, setSlideDirection] = useState(1);
   const warmedImages = useRef(new Set());
   const [favorites, setFavorites] = useState(() => {
@@ -145,7 +146,14 @@ export default function GalleryMobile({ refEl, native = false, onContact }) {
   const touchStart = useRef(null);
   const viewerCloseRef = useRef(null);
   const viewerTriggerRef = useRef(null);
+  const currentIndexRef = useRef(cur);
+  currentIndexRef.current = cur;
   const n = visibleItems.length;
+
+  const closeViewer = () => {
+    setMatchedIndex(currentIndexRef.current);
+    setViewerOpen(false);
+  };
 
   useEffect(() => { if (n > 0 && cur >= n) setCur(0); }, [n, cur]);
   useEffect(() => {
@@ -159,7 +167,10 @@ export default function GalleryMobile({ refEl, native = false, onContact }) {
     document.body.style.overflow = "hidden";
     viewerCloseRef.current?.focus();
     const onKeyDown = (event) => {
-      if (event.key === "Escape") setViewerOpen(false);
+      if (event.key === "Escape") {
+        setMatchedIndex(currentIndexRef.current);
+        setViewerOpen(false);
+      }
       if (event.key === "ArrowRight" && n > 1) { setSlideDirection(1); setCur((value) => (value + 1) % n); }
       if (event.key === "ArrowLeft" && n > 1) { setSlideDirection(-1); setCur((value) => (value - 1 + n) % n); }
       if (event.key === "Tab") {
@@ -194,7 +205,7 @@ export default function GalleryMobile({ refEl, native = false, onContact }) {
   if (!items.length) return native ? <p className="gnz-native-muted">{lang === "FR" ? "La galerie sera bientôt disponible." : lang === "EN" ? "The gallery will be available soon." : lang === "ES" ? "La galería estará disponible pronto." : "图库即将上线。"}</p> : null;
   const current = visibleItems[cur];
   const selected = activeSpot !== null ? current?.hotspots?.[activeSpot] : null;
-  const go = (direction) => { if (native) nativeFeedback("selection"); setSlideDirection(direction); setActiveSpot(null); setCur((value) => (value + direction + n) % n); };
+  const go = (direction) => { if (native) nativeFeedback("selection"); setMatchedIndex(null); setSlideDirection(direction); setActiveSpot(null); setCur((value) => (value + direction + n) % n); };
   const isFavorite = (item = current) => favorites.has(item?.src);
   const toggleFavorite = (item = current) => {
     if (!item?.src) return;
@@ -222,7 +233,7 @@ export default function GalleryMobile({ refEl, native = false, onContact }) {
     if (!item || !onContact) return;
     // Le CRM reçoit le libellé de la tenue pour personnaliser la demande.
     const project = galleryCategory(item) === "wedding" ? "wedding" : "image_consulting";
-    if (viewerOpen) setViewerOpen(false);
+    if (viewerOpen) closeViewer();
     onContact(project, item.label || "");
   };
 
@@ -233,7 +244,7 @@ export default function GalleryMobile({ refEl, native = false, onContact }) {
   };
 
   if (native) return (
-    <>
+    <LayoutGroup id="gnz-native-gallery-zoom">
     <section ref={refEl} className="gnz-native-gallery gnz-native-gallery-editorial" aria-label={t("nav_galerie")}>
       <div className="gnz-native-gallery-filters" role="group" aria-label={lang === "FR" ? "Filtrer la galerie" : lang === "EN" ? "Filter gallery" : lang === "ES" ? "Filtrar la galería" : "筛选图库"}>
         {filters.map(([key, label]) => (
@@ -255,10 +266,10 @@ export default function GalleryMobile({ refEl, native = false, onContact }) {
                 animate={{ opacity: 1, scale: 1 }}
                 transition={reduceMotion ? { duration: 0 } : { duration: 0.19, ease: [0.2, 0.75, 0.2, 1] }}
                 key={item.src}
-                onClick={(event) => { viewerTriggerRef.current = event.currentTarget; nativeFeedback("tap"); setSlideDirection(1); setCur(index); setViewerOpen(true); }}
+                onClick={(event) => { viewerTriggerRef.current = event.currentTarget; nativeFeedback("tap"); setSlideDirection(1); setCur(index); setMatchedIndex(index); setViewerOpen(true); }}
                 aria-label={item.label}
               >
-                <img src={item.src} alt="" loading={index < 4 ? "eager" : "lazy"} decoding="async" fetchPriority={index < 2 ? "high" : "low"} style={{objectPosition:`center ${Math.min(100,Math.max(0,Number(item.focusY??36)||0))}%`}} />
+                <motion.img layoutId={reduceMotion ? undefined : `gnz-look-${index}`} src={item.src} alt="" loading={index < 4 ? "eager" : "lazy"} decoding="async" fetchpriority={index < 2 ? "high" : "low"} style={{objectPosition:`center ${Math.min(100,Math.max(0,Number(item.focusY??36)||0))}%`}} />
               </motion.button>
             ))}
           </div>
@@ -274,35 +285,49 @@ export default function GalleryMobile({ refEl, native = false, onContact }) {
         <span>{favorites.size} {lang === "FR" ? "look(s) enregistré(s)" : lang === "EN" ? "saved look(s)" : ""}</span>
       </div>}
     </section>
-    {viewerOpen && createPortal(
-      <div className="gnz-native-photo-viewer" role="dialog" aria-modal="true" aria-label={t("nav_galerie")}>
+    {createPortal(<AnimatePresence initial={false}>
+      {viewerOpen && <motion.div className="gnz-native-photo-viewer" role="dialog" aria-modal="true" aria-label={t("nav_galerie")}
+        initial={reduceMotion ? false : { opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+        transition={{ duration: reduceMotion ? 0 : 0.24 }}>
         <div className="gnz-native-photo-viewer-top">
-          <button ref={viewerCloseRef} type="button" onClick={() => { nativeFeedback("tap"); setViewerOpen(false); }} aria-label={lang === "FR" ? "Fermer la photo" : lang === "EN" ? "Close photo" : lang === "ES" ? "Cerrar foto" : "关闭照片"}>×</button>
+          <button ref={viewerCloseRef} type="button" onClick={() => { nativeFeedback("tap"); closeViewer(); }} aria-label={lang === "FR" ? "Fermer la photo" : lang === "EN" ? "Close photo" : lang === "ES" ? "Cerrar foto" : "关闭照片"}>×</button>
           <span>{String(cur + 1).padStart(2, "0")} / {String(n).padStart(2, "0")}</span>
           <div className="gnz-native-photo-viewer-actions"><button type="button" onClick={() => toggleFavorite()} aria-label={isFavorite() ? "Retirer des inspirations" : "Ajouter aux inspirations"} aria-pressed={isFavorite()}>{isFavorite() ? "♥" : "♡"}</button><button type="button" onClick={share} aria-label={lang === "FR" ? "Partager ce look" : lang === "EN" ? "Share this look" : lang === "ES" ? "Compartir este look" : "分享此造型"}>↗</button></div>
         </div>
         <div className="gnz-native-photo-viewer-stage"
           onTouchStart={(event) => { const touch = event.touches[0]; touchStart.current = { x:touch.clientX, y:touch.clientY }; }}
           onTouchEnd={(event) => {
-            if (!touchStart.current || n < 2) return;
+            if (!touchStart.current) return;
             const dx = event.changedTouches[0].clientX - touchStart.current.x;
             const dy = event.changedTouches[0].clientY - touchStart.current.y;
             touchStart.current = null;
-            if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy) * 1.2) go(dx < 0 ? 1 : -1);
+            if (dy > 90 && dy > Math.abs(dx) * 1.3) { nativeFeedback("selection"); closeViewer(); }
+            else if (n > 1 && Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy) * 1.2) go(dx < 0 ? 1 : -1);
           }}>
           {n > 1 && <button type="button" className="gnz-native-photo-viewer-prev" onClick={() => go(-1)} aria-label={t("previous_photo")}>‹</button>}
           <AnimatePresence initial={false} custom={slideDirection} mode="sync">
             <motion.img
               key={`${cur}-${current.src}`}
+              layoutId={reduceMotion || matchedIndex !== cur ? undefined : `gnz-look-${cur}`}
               src={current.src}
               alt={current.label}
               decoding="async"
               draggable={false}
+              drag={reduceMotion ? false : "y"}
+              dragConstraints={{ top: 0, bottom: 0 }}
+              dragElastic={{ top: 0.1, bottom: 0.45 }}
+              dragMomentum={false}
+              onDragEnd={(_, info) => {
+                if (info.offset.y > 90 || info.velocity.y > 650) {
+                  nativeFeedback("selection");
+                  closeViewer();
+                }
+              }}
               custom={slideDirection}
-              initial={reduceMotion ? false : { opacity: 0.55, x: slideDirection * 64, scale: 0.985 }}
+              initial={reduceMotion || matchedIndex === cur ? false : { opacity: 0.55, x: slideDirection * 64, scale: 0.985 }}
               animate={{ opacity: 1, x: 0, scale: 1 }}
               exit={(direction) => reduceMotion ? { opacity: 0 } : { opacity: 0, x: -direction * 64, scale: 0.985 }}
-              transition={reduceMotion ? { duration: 0 } : { duration: 0.28, ease: [0.2, 0.75, 0.25, 1] }}
+              transition={reduceMotion ? { duration: 0 } : { duration: 0.28, ease: [0.2, 0.75, 0.25, 1], layout: { type: "spring", stiffness: 330, damping: 36 } }}
             />
           </AnimatePresence>
           {n > 1 && <button type="button" className="gnz-native-photo-viewer-next" onClick={() => go(1)} aria-label={t("next_photo")}>›</button>}
@@ -311,9 +336,9 @@ export default function GalleryMobile({ refEl, native = false, onContact }) {
         {onContact && <button type="button" className="gnz-native-photo-viewer-contact" onClick={() => requestLook()}>
           {lang === "FR" ? "Être accompagné pour ce look" : lang === "EN" ? "Get styling help for this look" : lang === "ES" ? "Recibir asesoría para este estilo" : "咨询此造型"} <span aria-hidden="true">→</span>
         </button>}
-      </div>, document.body)
-    }
-    </>
+      </motion.div>}
+      </AnimatePresence>, document.body)}
+    </LayoutGroup>
   );
 
   return (

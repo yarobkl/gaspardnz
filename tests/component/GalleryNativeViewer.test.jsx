@@ -16,7 +16,7 @@ const GalleryMobile = (await import("../../src/components/GalleryMobile.jsx")).d
 afterEach(() => { document.body.style.overflow = ""; fake.state.content_albums = []; fake.state.vip_clients = []; });
 
 describe("galerie native", () => {
-  it("ouvre la photo choisie en entier, navigue et restaure l'écran après fermeture", () => {
+  it("ouvre la photo choisie en entier, navigue et restaure l'écran après fermeture", async () => {
     render(<GalleryMobile native />);
     const tiles = screen.getAllByRole("button").filter((button) => button.querySelector("img"));
     fireEvent.click(tiles[1]);
@@ -31,7 +31,7 @@ describe("galerie native", () => {
     fireEvent.keyDown(window, { key: "ArrowLeft" });
     expect(within(dialog).getByText("02 / 15")).toBeInTheDocument();
     fireEvent.keyDown(window, { key: "Escape" });
-    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
     expect(document.body.style.overflow).toBe("");
     expect(tiles[1]).toHaveFocus();
   });
@@ -65,6 +65,7 @@ describe("galerie native", () => {
     expect(within(viewer).getByText("01 / 01")).toBeInTheDocument();
     expect(within(viewer).getByRole("img")).toHaveAttribute("src", "/images/existing-wedding.jpg");
     fireEvent.click(within(viewer).getByRole("button", { name: /fermer/i }));
+    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
 
     fireEvent.click(events);
     expect(screen.getByRole("button", { name: "Tenue de gala" })).toBeInTheDocument();
@@ -131,6 +132,7 @@ describe("galerie native", () => {
     expect(within(dialog).getByText("02 / 03")).toBeInTheDocument();
     expect(within(dialog).getByRole("img")).toHaveAttribute("src", "/images/mariage-album-1.jpg");
     fireEvent.click(within(dialog).getByRole("button", {name: /fermer/i}));
+    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
     fireEvent.click(screen.getByRole("button", {name: "Tout"}));
     expect(screen.getByRole("button", {name: "Look original"})).toBeInTheDocument();
   });
@@ -168,10 +170,10 @@ describe("galerie native", () => {
     const dialog=screen.getByRole("dialog");
     fireEvent.click(within(dialog).getByRole("button",{name:/Être accompagné pour ce look/}));
     expect(onContact).toHaveBeenCalledWith("wedding","Tenue mariage personnalisée");
-    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
   });
 
-  it("change de photo au balayage horizontal, sans réagir au défilement vertical", () => {
+  it("balaie horizontalement et ferme la photographie en glissant vers le bas", async () => {
     render(<GalleryMobile native />);
     fireEvent.click(screen.getAllByRole("button").find((button) => button.querySelector("img")));
     const dialog = screen.getByRole("dialog");
@@ -182,5 +184,8 @@ describe("galerie native", () => {
     fireEvent.touchStart(stage, { touches: [{ clientX: 200, clientY: 200 }] });
     fireEvent.touchEnd(stage, { changedTouches: [{ clientX: 180, clientY: 80 }] });
     expect(within(dialog).getByText("02 / 15")).toBeInTheDocument();
+    fireEvent.touchStart(stage, { touches: [{ clientX: 200, clientY: 100 }] });
+    fireEvent.touchEnd(stage, { changedTouches: [{ clientX: 198, clientY: 225 }] });
+    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
   });
 });

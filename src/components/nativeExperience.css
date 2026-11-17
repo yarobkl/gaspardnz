@@ -743,3 +743,10 @@ html.gnz-system-tabs .gnz-native-hero{
 html.gnz-system-tabs .gnz-native-hero-content{
   padding-bottom:calc(91px + env(safe-area-inset-bottom));
 }
+
+/* Framer Motion owns the matched-image animation and interactive drag.
+   The legacy image entrance keyframe would fight that transition. */
+.gnz-native-photo-viewer-stage>img{
+  animation:none;
+  touch-action:none;
+}
