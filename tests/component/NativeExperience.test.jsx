@@ -58,6 +58,7 @@ describe("GaspardNZ native iOS experience", () => {
 
       act(() => window.dispatchEvent(new CustomEvent("gnz:native-tab", { detail: { tab: "gallery" } })));
       expect(await screen.findByTestId("gallery")).toBeInTheDocument();
+      expect(document.querySelectorAll("#gnz-native-main > .gnz-native-page")).toHaveLength(1);
       expect(postMessage).toHaveBeenLastCalledWith(expect.objectContaining({
         type: "state", selected: "gallery", visible: true,
       }));
@@ -225,8 +226,21 @@ describe("GaspardNZ native iOS experience", () => {
     openTab("Services");
     openTab("Galerie");
     openTab("Plus");
+    expect(document.querySelectorAll("#gnz-native-main > .gnz-native-page")).toHaveLength(1);
+    expect(document.querySelector("#gnz-native-main > .gnz-native-page")).not.toHaveAttribute("aria-hidden", "true");
     fireEvent.click(await screen.findByRole("button", { name: /Réserver/ }));
     expect(await screen.findByText("Créneaux disponibles")).toBeInTheDocument();
     expect(within(navigation()).getByRole("button", { name: "Plus" })).toHaveAttribute("aria-current", "page");
+  });
+
+  it("does not carry an outgoing screen into the next iOS tab", async () => {
+    render(<Harness />);
+    openTab("Galerie");
+    expect(await screen.findByTestId("gallery")).toBeInTheDocument();
+
+    openTab("Services");
+    expect(document.querySelectorAll("#gnz-native-main > .gnz-native-page")).toHaveLength(1);
+    expect(screen.queryByTestId("gallery")).not.toBeInTheDocument();
+    expect(await screen.findByRole("button", { name: "Parler de ce projet" })).toBeInTheDocument();
   });
 });

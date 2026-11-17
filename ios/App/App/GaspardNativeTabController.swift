@@ -100,7 +100,13 @@ final class GaspardNativeTabController: CAPBridgeViewController, UITabBarDelegat
         tabBar.selectedItem = tabBar.items?.first
         tabBar.isHidden = true
 
-        bottomBackground.backgroundColor = cream
+        // An opaque view behind the system tab bar flattens its glass effect.
+        // Keep the original cream treatment only for pre-Liquid-Glass iOS.
+        if #available(iOS 26.0, *) {
+            bottomBackground.backgroundColor = .clear
+        } else {
+            bottomBackground.backgroundColor = cream
+        }
         bottomBackground.isUserInteractionEnabled = false
         bottomBackground.isHidden = true
         bottomBackground.translatesAutoresizingMaskIntoConstraints = false
