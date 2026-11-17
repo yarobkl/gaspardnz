@@ -16,20 +16,42 @@ describe("Services — conversion mobile GaspardNZ", () => {
   it("place Formules en premier, puis Conciergerie, sans déplacer les trois prestations existantes", () => {
     const { container } = render(<NativeServices lang="FR" onContact={vi.fn()} />);
     expect(Array.from(container.querySelectorAll(".gnz-native-service-card strong"), node => node.textContent)).toEqual([
-      "Formules", "Conciergerie", "Conseil en image", "Tenues d’événements", "Accompagnement sur mesure",
+      "Formules", "Groom Conciergerie", "Conseil en image", "Tenues d’événements", "Accompagnement sur mesure",
     ]);
   });
 
-  it("ouvre le parcours conciergerie et préremplit sa demande dans le CRM existant", () => {
+  it("présente les offres Groom Concierge communiquées et permet une demande liée à une formule", () => {
     const onContact = vi.fn();
     render(<NativeServices lang="FR" onContact={onContact} />);
-    fireEvent.click(screen.getByRole("button", { name: /Conciergerie/ }));
-    expect(screen.getByText("Une attention particulière pour votre projet")).toBeInTheDocument();
-    expect(screen.queryByText(/199\s*€/)).not.toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: /Présenter ma demande/ }));
-    expect(onContact).toHaveBeenCalledWith("other", "Demande de conciergerie GaspardNZ");
+    fireEvent.click(screen.getByRole("button", { name: /Groom Conciergerie/ }));
+    expect(screen.getByText(/L'élégance à vos côtés/)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Élégance Essentielle, 1 h 30, 199/ })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Signature, 4 h, 349/ })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Prestige, 8 h, 599/ })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Excellence Privée, 12 h, 990/ })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Marié Signature.*Dès 799/ })).toBeInTheDocument();
+    expect(screen.getByText("Conseil vestimentaire avant mariage")).toBeInTheDocument();
+    expect(screen.getByText("Déplacement hors zone")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /Élégance Essentielle, 1 h 30, 199/ }));
+    expect(screen.getByText("Mise en tenue du marié")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /Demander cette formule/ }));
+    expect(onContact).toHaveBeenCalledWith("other", expect.stringContaining("Élégance Essentielle (1 h 30, 199 €)"));
+    fireEvent.click(screen.getByRole("button", { name: /Toutes les formules Groom Concierge/ }));
+    expect(screen.getByRole("button", { name: /Excellence Privée, 12 h, 990/ })).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: /Tous les services/ }));
-    expect(screen.getByRole("button", { name: /Conciergerie/ })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Groom Conciergerie/ })).toBeInTheDocument();
+  });
+
+  it("ne confond pas l'offre avec costume Marié Signature et la Signature de 4 heures", () => {
+    const onContact = vi.fn();
+    render(<NativeServices lang="FR" onContact={onContact} />);
+    fireEvent.click(screen.getByRole("button", { name: /Groom Conciergerie/ }));
+    fireEvent.click(screen.getByRole("button", { name: /Marié Signature.*Dès 799/ }));
+    expect(screen.getByText(/Associée à l'achat d'un costume GaspardNZ/)).toBeInTheDocument();
+    expect(screen.getByText(/distincte de Signature à 349/)).toBeInTheDocument();
+    expect(screen.getByText(/Tarifs communiqués à titre indicatif/)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /Demander cette formule/ }));
+    expect(onContact).toHaveBeenCalledWith("other", expect.stringContaining("dès 799 €"));
   });
 
   it("transmet au CRM la formule publiée choisie et revient correctement à sa liste", async () => {

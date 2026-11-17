@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { listPackagesWithBreakdown, subscribePackagePricing, sumPackageTotal } from "../services/packagePricing.js";
+import { GROOM_CONCIERGE_OPTIONS, GROOM_CONCIERGE_PACKAGES } from "../data/groomConcierge.js";
 
 const CATEGORIES = {
   FR: [
@@ -31,18 +32,19 @@ const LABELS = {
   ZH: { formulas: "服务方案", formulasDetail: "已发布的方案", ask: "咨询此项目", unavailable: "服务方案即将上线。", back: "所有服务", details: "方案详情", request: "对这个方案感兴趣？", assistance: "有特别的活动或穿搭计划吗？", discuss: "咨询我的项目" },
 };
 
-// Parcours de conciergerie réservé à l'application iOS. Aucune offre ni aucun
-// tarif n'est annoncé tant que ses modalités ne sont pas publiées.
+// Parcours éditorial iOS uniquement. Les demandes passent par le CRM existant,
+// sans paiement ni promesse de disponibilité avant validation par GaspardNZ.
 const CONCIERGE = {
-  FR: { title: "Conciergerie", detail: "Votre demande, un accompagnement personnalisé", heading: "Une attention particulière pour votre projet", intro: "Mariage, événement ou besoin spécifique : décrivez votre demande à GaspardNZ pour échanger sur un accompagnement adapté.", ask: "Présenter ma demande", prefill: "Demande de conciergerie GaspardNZ" },
-  EN: { title: "Concierge", detail: "Personal guidance for your request", heading: "A personal touch for your project", intro: "A wedding, an event or a specific need? Tell GaspardNZ what you have in mind to discuss suitable support.", ask: "Send my request", prefill: "GaspardNZ concierge enquiry" },
-  ES: { title: "Conserjería", detail: "Acompañamiento personalizado", heading: "Una atención especial para su proyecto", intro: "¿Una boda, un evento o una necesidad especial? Cuéntenos su proyecto para hablar de un acompañamiento a medida.", ask: "Enviar mi solicitud", prefill: "Solicitud de conserjería GaspardNZ" },
-  ZH: { title: "专属礼宾服务", detail: "为您的需求提供专属协助", heading: "为您的计划提供贴心关注", intro: "婚礼、活动或特别需求？请向 GaspardNZ 描述您的计划，了解适合的协助方式。", ask: "提交我的需求", prefill: "GaspardNZ 礼宾服务咨询" },
+  FR: { title: "Groom Conciergerie", detail: "L'élégance à vos côtés, jusqu'au dernier détail", heading: "L'élégance à vos côtés, jusqu'au dernier détail.", intro: "Un accompagnement vestimentaire du marié, de la préparation de la tenue aux derniers ajustements du jour J.", ask: "Demander cette formule", prefill: "Demande Groom Conciergerie GaspardNZ", back: "Toutes les formules Groom Concierge", included: "Accompagnement prévu", options: "Options complémentaires", disclaimer: "Tarifs communiqués à titre indicatif. Disponibilités, lieu, déplacement et conditions à confirmer directement avec GaspardNZ. Aucun paiement dans l'application.", select: "Découvrir la formule", from: "Dès", inquire: "Parler de mon mariage", timing: "Durée de présence" },
+  EN: { title: "Groom Concierge", detail: "Elegance by your side, down to the last detail", heading: "Elegance by your side, down to the last detail.", intro: "Personal dressing support for the groom, from preparing the outfit to final adjustments on the wedding day.", ask: "Enquire about this offer", prefill: "GaspardNZ Groom Concierge enquiry", back: "All Groom Concierge offers", included: "What's included", options: "Additional services", disclaimer: "Prices are indicative. Availability, location, travel and terms must be confirmed with GaspardNZ. No in-app payment.", select: "View offer", from: "From", inquire: "Discuss my wedding", timing: "Service duration" },
+  ES: { title: "Groom Concierge", detail: "Elegancia a su lado, hasta el último detalle", heading: "Elegancia a su lado, hasta el último detalle.", intro: "Acompañamiento del novio desde la preparación del traje hasta los ajustes finales el día de la boda.", ask: "Consultar esta fórmula", prefill: "Consulta Groom Concierge GaspardNZ", back: "Todas las fórmulas Groom Concierge", included: "Servicio incluido", options: "Servicios adicionales", disclaimer: "Precios orientativos. Disponibilidad, ubicación, desplazamientos y condiciones sujetos a confirmación. Sin pago en la aplicación.", select: "Ver fórmula", from: "Desde", inquire: "Hablar de mi boda", timing: "Duración" },
+  ZH: { title: "新郎礼宾服务", detail: "从准备到婚礼当天的贴心着装服务", heading: "优雅相伴，关注每个细节。", intro: "为新郎提供从礼服准备到婚礼当天最后调整的专属着装服务。", ask: "咨询此方案", prefill: "GaspardNZ 新郎礼宾服务咨询", back: "全部新郎礼宾方案", included: "服务内容", options: "附加服务", disclaimer: "价格仅供参考；档期、地点、交通与服务条款须由 GaspardNZ 确认。应用内不收款。", select: "查看方案", from: "起", inquire: "咨询我的婚礼", timing: "服务时长" },
 };
 
 export default function NativeServices({ lang, onContact }) {
   const [selected, setSelected] = useState(null);
   const [selectedFormula, setSelectedFormula] = useState(null);
+  const [selectedGroomPackage, setSelectedGroomPackage] = useState(null);
   const [packages, setPackages] = useState([]);
   const [loaded, setLoaded] = useState(false);
   const labels = LABELS[lang] || LABELS.FR;
@@ -64,7 +66,11 @@ export default function NativeServices({ lang, onContact }) {
     return new Intl.NumberFormat(lang === "FR" ? "fr-FR" : "en-US", { style: "currency", currency: currency || "EUR", maximumFractionDigits: 0 }).format(Number(price));
   };
   return <div className="gnz-native-service-list">
-    {selected && <button className="gnz-native-inline-back" type="button" onClick={() => selectedFormula ? setSelectedFormula(null) : setSelected(null)}>‹ {selectedFormula ? labels.formulas : labels.back}</button>}
+    {selected && <button className="gnz-native-inline-back" type="button" onClick={() => {
+      if (selectedGroomPackage) setSelectedGroomPackage(null);
+      else if (selectedFormula) setSelectedFormula(null);
+      else setSelected(null);
+    }}>‹ {selectedGroomPackage ? concierge.back : selectedFormula ? labels.formulas : labels.back}</button>}
     {selected === null && selectedFormula === null ? <>
       <button type="button" className="gnz-native-service-card" onClick={() => setSelected("formulas")}>
         <img src="/images/veste-navy-soiree.jpg" alt="" loading="lazy" />
@@ -91,13 +97,38 @@ export default function NativeServices({ lang, onContact }) {
         <p className="gnz-native-formula-request">{labels.request}</p>
         <button className="gnz-native-primary" type="button" onClick={() => onContact("other", `${labels.formulas} : ${selectedFormula.name}`)}>{labels.ask} →</button>
       </article>
+    </> : selected === "concierge" && selectedGroomPackage ? <>
+      <article className="gnz-native-groom-detail">
+        <span className="gnz-native-groom-kicker">GASPARD NZ PARIS · GROOM CONCIERGE</span>
+        <h2>{selectedGroomPackage.name}</h2>
+        <div className="gnz-native-groom-detail-meta">
+          <strong>{selectedGroomPackage.fromPrice ? `${concierge.from} ` : ""}{formatPrice(selectedGroomPackage.price, "EUR")}</strong>
+          <span>{concierge.timing} · {selectedGroomPackage.duration}</span>
+        </div>
+        <h3>{concierge.included}</h3>
+        <ul>{selectedGroomPackage.inclusions.map(item => <li key={item}>{item}</li>)}</ul>
+        {selectedGroomPackage.note && <p className="gnz-native-groom-note">{selectedGroomPackage.note}</p>}
+        <p className="gnz-native-groom-disclaimer">{concierge.disclaimer}</p>
+        <button className="gnz-native-primary" type="button" onClick={() => onContact("other", `${concierge.prefill} : ${selectedGroomPackage.name} (${selectedGroomPackage.duration}, ${selectedGroomPackage.fromPrice ? "dès " : ""}${selectedGroomPackage.price} €). Date et lieu souhaités : `)}>{concierge.ask} →</button>
+      </article>
     </> : selected === "concierge" ? <>
       <div className="gnz-native-service-feature"><img src="/images/veste-bleue.jpg" alt="" /><h2>{concierge.title}</h2></div>
       <article className="gnz-native-concierge-intro">
         <h3>{concierge.heading}</h3>
         <p>{concierge.intro}</p>
       </article>
-      <button className="gnz-native-primary" type="button" onClick={() => onContact("other", concierge.prefill)}>{concierge.ask} →</button>
+      <div className="gnz-native-groom-packages">
+        {GROOM_CONCIERGE_PACKAGES.map(pkg => <button className="gnz-native-groom-card" key={pkg.id} type="button" onClick={() => setSelectedGroomPackage(pkg)} aria-label={`${concierge.select} ${pkg.name}, ${pkg.duration}, ${pkg.fromPrice ? `${concierge.from} ` : ""}${formatPrice(pkg.price, "EUR")}`}>
+          <span><strong>{pkg.name}</strong><small>{pkg.duration}</small></span>
+          <span><b>{pkg.fromPrice ? `${concierge.from} ` : ""}{formatPrice(pkg.price, "EUR")}</b><i aria-hidden="true">›</i></span>
+        </button>)}
+      </div>
+      <div className="gnz-native-groom-options">
+        <h3>{concierge.options}</h3>
+        {GROOM_CONCIERGE_OPTIONS.map(option => <div key={option.name}><span>{option.name}{option.duration ? <small> · {option.duration}</small> : null}</span><strong>{option.price}</strong></div>)}
+      </div>
+      <p className="gnz-native-groom-disclaimer">{concierge.disclaimer}</p>
+      <button className="gnz-native-primary" type="button" onClick={() => onContact("other", concierge.prefill)}>{concierge.inquire} →</button>
     </> : selected === "formulas" ? <>
       <h2>{labels.formulas}</h2>
       {loaded && !packages.length && <p className="gnz-native-muted">{labels.unavailable}</p>}
