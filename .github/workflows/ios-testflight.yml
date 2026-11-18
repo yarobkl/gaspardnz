@@ -5,6 +5,8 @@ on:
     branches:
       - main
       - codex/ios-app-store
+      # Branche de validation : compile sur simulateur, sans téléverser à Apple.
+      - feature/gnz-cloudflare-testflight-20261118
       - feature/ios-premium-interface
       - feature/native-ios-editorial
       - feature/build15-journal-editorial
