@@ -23,9 +23,12 @@ describe("CityField — menu déroulant des villes de France", () => {
     render(<Harness />);
     expect(FRENCH_CITIES.length).toBeGreaterThan(1000);
     expect(FRENCH_CITIES.every(([, dep]) => ["75", "77", "78", "91", "92", "93", "94", "95"].includes(dep))).toBe(true);
-    expect(screen.getByRole("option", { name: "Paris (75)" })).toBeInTheDocument();
-    expect(screen.getByRole("option", { name: "Versailles (78)" })).toBeInTheDocument();
-    expect(screen.getByRole("option", { name: "Autre ville…" })).toBeInTheDocument();
+    // With >1,000 options, three full accessibility-tree scans are slow in
+    // jsdom under parallel CI load; inspect the actual select's option list.
+    const options = [...screen.getByLabelText("Ville *").options].map(option => option.textContent.trim());
+    expect(options).toContain("Paris (75)");
+    expect(options).toContain("Versailles (78)");
+    expect(options).toContain("Autre ville…");
   });
 
   it("« Autre ville » révèle une saisie libre", async () => {
