@@ -11,6 +11,7 @@ function appointmentNotice(lang, status) {
   const french = {
     "waiting-native": "Réservation acceptée. Activez les notifications sur votre iPhone pour recevoir les rappels GNZ PARIS.",
     scheduled: "Rappels iPhone activés : la veille et deux heures avant le rendez-vous, lorsque ces délais sont encore possibles.",
+    "live-scheduled": "Votre rendez-vous GNZ PARIS est enregistré. Le suivi iPhone est programmé à l’approche du créneau, même si l’application est fermée. Son affichage dépend des réglages Live Activities de l’iPhone.",
     pending: "Votre demande est enregistrée chez Cal.com. Nous attendons sa confirmation avant d’activer les rappels.",
     "permission-denied": "Votre rendez-vous est enregistré, mais les notifications sont désactivées. Autorisez-les dans Réglages pour les prochains rappels.",
     unavailable: "Votre rendez-vous est enregistré, mais les rappels iPhone n’ont pas pu être programmés.",
@@ -20,6 +21,7 @@ function appointmentNotice(lang, status) {
   const english = {
     "waiting-native": "Booking accepted. Allow iPhone notifications to receive GNZ PARIS reminders.",
     scheduled: "iPhone reminders enabled: one day and two hours before your appointment, when applicable.",
+    "live-scheduled": "Your GNZ PARIS appointment is saved. Your iPhone Live Activity is scheduled for the upcoming appointment, even if the app is closed. Display depends on your iPhone Live Activities settings.",
     pending: "Your request was sent to Cal.com. We will wait for confirmation before enabling reminders.",
     "permission-denied": "Your appointment is saved, but notifications are disabled. Enable them in Settings for future reminders.",
     unavailable: "Your appointment is saved, but we could not schedule iPhone reminders.",
@@ -108,7 +110,7 @@ export default function NativeCalBooking({ lang = "FR" }) {
     };
     const nativeReminderResult = (event) => {
       const status = event.detail?.status;
-      if (["scheduled", "pending", "permission-denied", "invalid", "unavailable"].includes(status)) {
+      if (["scheduled", "live-scheduled", "pending", "permission-denied", "invalid", "unavailable"].includes(status)) {
         setReminderStatus(status);
       }
     };

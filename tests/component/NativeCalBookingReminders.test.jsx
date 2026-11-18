@@ -40,6 +40,9 @@ describe("Cal.com → native iPhone appointment reminders", () => {
 
     act(() => window.dispatchEvent(new CustomEvent("gnz:appointment-reminder-result", { detail: { status: "scheduled" } })));
     expect(screen.getByTestId("gnz-appointment-reminder-status")).toHaveTextContent("Rappels iPhone activés");
+
+    act(() => window.dispatchEvent(new CustomEvent("gnz:appointment-reminder-result", { detail: { status: "live-scheduled" } })));
+    expect(screen.getByTestId("gnz-appointment-reminder-status")).toHaveTextContent("suivi iPhone est programmé");
   });
 
   it("never calls the native bridge for an unconfirmed Cal.com request", () => {
