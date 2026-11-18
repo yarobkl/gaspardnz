@@ -4,6 +4,8 @@ import { Capacitor } from "@capacitor/core";
 // React in sync without introducing website navigation or a second WebView.
 export const NATIVE_TAB_EVENT = "gnz:native-tab";
 export const NATIVE_TABS = ["home", "services", "gallery", "news", "more"];
+export const NATIVE_SHORTCUT_ROUTE_EVENT = "gnz:shortcut-route";
+export const NATIVE_SHORTCUT_ROUTES = ["services", "gallery", "news", "booking"];
 
 export function hasNativeTabBarBridge() {
   return typeof window !== "undefined"

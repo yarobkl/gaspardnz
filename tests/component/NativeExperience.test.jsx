@@ -73,6 +73,32 @@ describe("GaspardNZ native iOS experience", () => {
     }
   });
 
+  it("ouvre les vraies pages demandées par Siri, sans prétendre consulter les rendez-vous personnels", async () => {
+    const postMessage = vi.fn();
+    vi.spyOn(Capacitor, "getPlatform").mockReturnValue("ios");
+    vi.spyOn(Capacitor, "isNativePlatform").mockReturnValue(true);
+    window.webkit = { messageHandlers: { gnzNativeTabs: { postMessage } } };
+    try {
+      render(<Harness />);
+      act(() => window.dispatchEvent(new CustomEvent("gnz:shortcut-route", { detail: { route: "services" } })));
+      expect(await screen.findByText("Parler de ce projet")).toBeInTheDocument();
+      expect(postMessage).toHaveBeenLastCalledWith(expect.objectContaining({ selected: "services" }));
+
+      act(() => window.dispatchEvent(new CustomEvent("gnz:shortcut-route", { detail: { route: "gallery" } })));
+      expect(await screen.findByTestId("gallery")).toBeInTheDocument();
+
+      act(() => window.dispatchEvent(new CustomEvent("gnz:shortcut-route", { detail: { route: "booking" } })));
+      expect(await screen.findByTestId("native-cal-booking")).toBeInTheDocument();
+      expect(postMessage).toHaveBeenLastCalledWith(expect.objectContaining({ selected: "more" }));
+
+      act(() => window.dispatchEvent(new CustomEvent("gnz:shortcut-route", { detail: { route: "admin" } })));
+      expect(await screen.findByTestId("native-cal-booking")).toBeInTheDocument();
+    } finally {
+      delete window.webkit;
+      vi.restoreAllMocks();
+    }
+  });
+
   it("shows the authentic uploaded portrait and the five navigation tabs", async () => {
     render(<Harness />);
     expect(screen.getByRole("img", { name: "Portrait de GaspardNZ" }))

@@ -10,7 +10,7 @@ import { usePublicCollection } from "../hooks/usePublicCollection.js";
 import { downloadFile } from "../utils/downloadFile.js";
 import { nativeFeedback } from "../utils/nativeHaptics.js";
 import { openCookieSettings } from "../services/consent.js";
-import { hasNativeTabBarBridge, NATIVE_TAB_EVENT, NATIVE_TABS, sendNativeTabState } from "../services/nativeTabs.js";
+import { hasNativeTabBarBridge, NATIVE_SHORTCUT_ROUTE_EVENT, NATIVE_SHORTCUT_ROUTES, NATIVE_TAB_EVENT, NATIVE_TABS, sendNativeTabState } from "../services/nativeTabs.js";
 import NativeTabBar from "./NativeTabBar.jsx";
 import NativeCalBooking from "./NativeCalBooking.jsx";
 import "./nativeExperience.css";
@@ -244,10 +244,16 @@ export default function NativeExperience(){
      const key = event.detail?.tab;
      if (NATIVE_TABS.includes(key)) selectRef.current(key);
    };
+   const onShortcutRoute = (event) => {
+     const route = event.detail?.route;
+     if (NATIVE_SHORTCUT_ROUTES.includes(route)) selectRef.current(route);
+   };
    window.addEventListener(NATIVE_TAB_EVENT, onNativeTab);
+   window.addEventListener(NATIVE_SHORTCUT_ROUTE_EVENT, onShortcutRoute);
    sendNativeTabState({ selected: "home", visible: true, labels: ui.tabs });
    return () => {
      window.removeEventListener(NATIVE_TAB_EVENT, onNativeTab);
+     window.removeEventListener(NATIVE_SHORTCUT_ROUTE_EVENT, onShortcutRoute);
      sendNativeTabState({ selected: "home", visible: false });
    };
  }, [systemTabBar]);
