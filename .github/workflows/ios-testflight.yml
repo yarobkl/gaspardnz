@@ -61,7 +61,7 @@ jobs:
       ASC_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
       ASC_PRIVATE_KEY: ${{ secrets.APP_STORE_CONNECT_API_PRIVATE_KEY }}
       VITE_GNZ_INTERNAL_BUILD: ${{ github.ref == 'refs/heads/feature/build25-ux-commercial-quality' && 'true' || 'false' }}
-      GNZ_RELEASE_UPLOAD: ${{ (github.event_name == 'workflow_dispatch') || (github.event_name == 'push' && github.ref == 'refs/heads/codex/ios-app-store') || (github.event_name == 'push' && github.ref == 'refs/heads/feature/build15-journal-editorial' && contains(github.event.head_commit.message, '[ship-gaspardnz-15]')) || (github.event_name == 'push' && github.ref == 'refs/heads/feature/build16-native-polish-20261104' && contains(github.event.head_commit.message, '[ship-gaspardnz-16]'))  || (github.event_name == 'push' && github.ref == 'refs/heads/feature/build17-fluid-gallery-nav' && contains(github.event.head_commit.message, '[ship-gaspardnz-17]'))  || (github.event_name == 'push' && github.ref == 'refs/heads/feature/build18-draggable-native-tab-pill' && contains(github.event.head_commit.message, '[ship-gaspardnz-18]'))  || (github.event_name == 'push' && github.ref == 'refs/heads/feature/build19-haptic-bubble' && contains(github.event.head_commit.message, '[ship-gaspardnz-19]'))  || (github.event_name == 'push' && github.ref == 'refs/heads/feature/build20-native-news-magazine' && contains(github.event.head_commit.message, '[ship-gaspardnz-20]'))  || (github.event_name == 'push' && github.ref == 'refs/heads/feature/build21-news-photo-crop-equal-cards' && contains(github.event.head_commit.message, '[ship-gaspardnz-21]'))  || (github.event_name == 'push' && github.ref == 'refs/heads/feature/build22-gallery-editorial-filters' && contains(github.event.head_commit.message, '[ship-gaspardnz-22]'))  || (github.event_name == 'push' && github.ref == 'refs/heads/feature/build23-gallery-vip-weddings' && contains(github.event.head_commit.message, '[ship-gaspardnz-23]'))  || (github.event_name == 'push' && github.ref == 'refs/heads/feature/build24-editorial-navy-cover' && contains(github.event.head_commit.message, '[ship-gaspardnz-24]'))  || (github.event_name == 'push' && github.ref == 'refs/heads/feature/build25-ux-commercial-quality' && contains(github.event.head_commit.message, '[ship-gaspardnz-25]')) }}
+      GNZ_RELEASE_UPLOAD: ${{ (github.event_name == 'workflow_dispatch' && inputs.uploadToTestFlight) || (github.event_name == 'push' && github.ref == 'refs/heads/codex/ios-app-store') || (github.event_name == 'push' && github.ref == 'refs/heads/feature/build15-journal-editorial' && contains(github.event.head_commit.message, '[ship-gaspardnz-15]')) || (github.event_name == 'push' && github.ref == 'refs/heads/feature/build16-native-polish-20261104' && contains(github.event.head_commit.message, '[ship-gaspardnz-16]'))  || (github.event_name == 'push' && github.ref == 'refs/heads/feature/build17-fluid-gallery-nav' && contains(github.event.head_commit.message, '[ship-gaspardnz-17]'))  || (github.event_name == 'push' && github.ref == 'refs/heads/feature/build18-draggable-native-tab-pill' && contains(github.event.head_commit.message, '[ship-gaspardnz-18]'))  || (github.event_name == 'push' && github.ref == 'refs/heads/feature/build19-haptic-bubble' && contains(github.event.head_commit.message, '[ship-gaspardnz-19]'))  || (github.event_name == 'push' && github.ref == 'refs/heads/feature/build20-native-news-magazine' && contains(github.event.head_commit.message, '[ship-gaspardnz-20]'))  || (github.event_name == 'push' && github.ref == 'refs/heads/feature/build21-news-photo-crop-equal-cards' && contains(github.event.head_commit.message, '[ship-gaspardnz-21]'))  || (github.event_name == 'push' && github.ref == 'refs/heads/feature/build22-gallery-editorial-filters' && contains(github.event.head_commit.message, '[ship-gaspardnz-22]'))  || (github.event_name == 'push' && github.ref == 'refs/heads/feature/build23-gallery-vip-weddings' && contains(github.event.head_commit.message, '[ship-gaspardnz-23]'))  || (github.event_name == 'push' && github.ref == 'refs/heads/feature/build24-editorial-navy-cover' && contains(github.event.head_commit.message, '[ship-gaspardnz-24]'))  || (github.event_name == 'push' && github.ref == 'refs/heads/feature/build25-ux-commercial-quality' && contains(github.event.head_commit.message, '[ship-gaspardnz-25]')) }}
       GNZ_RELEASE_VERSION: ${{ (github.event_name == 'push' && github.ref == 'refs/heads/codex/ios-app-store') && '1.0.20' || (github.event_name == 'push' && github.ref == 'refs/heads/feature/build25-ux-commercial-quality' && contains(github.event.head_commit.message, '[ship-gaspardnz-25]')) && '1.0.14' || (github.event_name == 'push' && github.ref == 'refs/heads/feature/build24-editorial-navy-cover' && contains(github.event.head_commit.message, '[ship-gaspardnz-24]')) && '1.0.13' || (github.event_name == 'push' && github.ref == 'refs/heads/feature/build23-gallery-vip-weddings' && contains(github.event.head_commit.message, '[ship-gaspardnz-23]')) && '1.0.12' || (github.event_name == 'push' && github.ref == 'refs/heads/feature/build22-gallery-editorial-filters' && contains(github.event.head_commit.message, '[ship-gaspardnz-22]')) && '1.0.11' || (github.event_name == 'push' && github.ref == 'refs/heads/feature/build21-news-photo-crop-equal-cards' && contains(github.event.head_commit.message, '[ship-gaspardnz-21]') && '1.0.10') || (github.event_name == 'push' && github.ref == 'refs/heads/feature/build20-native-news-magazine' && contains(github.event.head_commit.message, '[ship-gaspardnz-20]') && '1.0.9') || (github.event_name == 'push' && github.ref == 'refs/heads/feature/build19-haptic-bubble' && contains(github.event.head_commit.message, '[ship-gaspardnz-19]') && '1.0.8') || (github.event_name == 'push' && github.ref == 'refs/heads/feature/build18-draggable-native-tab-pill' && contains(github.event.head_commit.message, '[ship-gaspardnz-18]') && '1.0.7') || (github.event_name == 'push' && github.ref == 'refs/heads/feature/build17-fluid-gallery-nav' && contains(github.event.head_commit.message, '[ship-gaspardnz-17]') && '1.0.6') || (github.event_name == 'push' && github.ref == 'refs/heads/feature/build16-native-polish-20261104' && contains(github.event.head_commit.message, '[ship-gaspardnz-16]') && '1.0.5') || (github.event_name == 'push' && contains(github.event.head_commit.message, '[ship-gaspardnz-15]') && '1.0.4') || inputs.version || '1.0.0' }}
       GNZ_RELEASE_BUILD: ${{ (github.event_name == 'push' && github.ref == 'refs/heads/codex/ios-app-store') && github.run_number || (github.event_name == 'push' && github.ref == 'refs/heads/feature/build25-ux-commercial-quality' && contains(github.event.head_commit.message, '[ship-gaspardnz-25]')) && '25' || (github.event_name == 'push' && github.ref == 'refs/heads/feature/build24-editorial-navy-cover' && contains(github.event.head_commit.message, '[ship-gaspardnz-24]')) && '24' || (github.event_name == 'push' && github.ref == 'refs/heads/feature/build23-gallery-vip-weddings' && contains(github.event.head_commit.message, '[ship-gaspardnz-23]')) && '23' || (github.event_name == 'push' && github.ref == 'refs/heads/feature/build22-gallery-editorial-filters' && contains(github.event.head_commit.message, '[ship-gaspardnz-22]')) && '22' || (github.event_name == 'push' && github.ref == 'refs/heads/feature/build21-news-photo-crop-equal-cards' && contains(github.event.head_commit.message, '[ship-gaspardnz-21]') && '21') || (github.event_name == 'push' && github.ref == 'refs/heads/feature/build20-native-news-magazine' && contains(github.event.head_commit.message, '[ship-gaspardnz-20]') && '20') || (github.event_name == 'push' && github.ref == 'refs/heads/feature/build19-haptic-bubble' && contains(github.event.head_commit.message, '[ship-gaspardnz-19]') && '19') || (github.event_name == 'push' && github.ref == 'refs/heads/feature/build18-draggable-native-tab-pill' && contains(github.event.head_commit.message, '[ship-gaspardnz-18]') && '18') || (github.event_name == 'push' && github.ref == 'refs/heads/feature/build17-fluid-gallery-nav' && contains(github.event.head_commit.message, '[ship-gaspardnz-17]') && '17') || (github.event_name == 'push' && github.ref == 'refs/heads/feature/build16-native-polish-20261104' && contains(github.event.head_commit.message, '[ship-gaspardnz-16]') && '16') || (github.event_name == 'push' && contains(github.event.head_commit.message, '[ship-gaspardnz-15]') && '15') || inputs.buildNumber || '1' }}
 
@@ -327,10 +327,18 @@ jobs:
           cp "$RUNNER_TEMP/GaspardNZ-AppStore.mobileprovision" "$HOME/Library/MobileDevice/Provisioning Profiles/$PROFILE_UUID.mobileprovision"
           echo "Profil App Store renouvelé installé, capacités Push production confirmées."
 
+      - name: Préparer le profil App Store du widget Dynamic Island
+        if: ${{ env.GNZ_RELEASE_UPLOAD == 'true' }}
+        run: |
+          set -euo pipefail
+          python3 .github/scripts/apple_widget_profile.py \
+            "$RUNNER_TEMP/renewed-profile.plist" \
+            "$RUNNER_TEMP/GaspardNZ-Widget.mobileprovision"
+
       - name: Archiver l’application signée
         if: ${{ env.GNZ_RELEASE_UPLOAD == 'true' }}
         run: |
-          set -o pipefail
+          set -euo pipefail
           xcodebuild archive \
             -project ios/App/App.xcodeproj \
             -scheme App \
@@ -338,10 +346,11 @@ jobs:
             -destination 'generic/platform=iOS' \
             -archivePath "$RUNNER_TEMP/GaspardNZ.xcarchive" \
             -resultBundlePath "$RUNNER_TEMP/GaspardNZ-archive.xcresult" \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$RUNNER_TEMP/appstoreconnect/private_keys/AuthKey_${ASC_KEY_ID}.p8" \
+            -authenticationKeyID "$ASC_KEY_ID" \
+            -authenticationKeyIssuerID "$ASC_ISSUER_ID" \
             DEVELOPMENT_TEAM="$APPLE_TEAM_ID" \
-            CODE_SIGN_STYLE=Manual \
-            CODE_SIGN_IDENTITY='Apple Distribution' \
-            PROVISIONING_PROFILE_SPECIFIER='GaspardNZ App Store Distribution' \
             2>&1 | tee "$RUNNER_TEMP/GaspardNZ-archive.log"
 
       - name: Conserver le diagnostic Xcode
@@ -358,16 +367,33 @@ jobs:
       - name: Exporter l’IPA App Store
         if: ${{ env.GNZ_RELEASE_UPLOAD == 'true' }}
         run: |
-          set -o pipefail
+          set -euo pipefail
+          # The extension has a separate bundle ID and must never reuse the
+          # host app's distribution profile. Xcode provisions it automatically
+          # with the App Store Connect key during archiving.
+          WIDGET_PROFILE="$RUNNER_TEMP/GaspardNZ.xcarchive/Products/Applications/App.app/PlugIns/GNZActivityWidget.appex/embedded.mobileprovision"
+          test -f "$WIDGET_PROFILE" || { echo '::error::Profil de signature du widget absent de l’archive.'; exit 1; }
+          security cms -D -i "$WIDGET_PROFILE" > "$RUNNER_TEMP/widget-profile.plist"
+          WIDGET_NAME="$(/usr/libexec/PlistBuddy -c 'Print :Name' "$RUNNER_TEMP/widget-profile.plist")"
+          WIDGET_APP_ID="$(/usr/libexec/PlistBuddy -c 'Print :Entitlements:application-identifier' "$RUNNER_TEMP/widget-profile.plist")"
+          case "$WIDGET_APP_ID" in
+            "$APPLE_TEAM_ID.com.gaspardnz.app.GNZActivityWidget") ;;
+            *) echo '::error::Le profil du widget correspond à un autre App ID.'; exit 1 ;;
+          esac
           /usr/libexec/PlistBuddy -c "Add :teamID string $APPLE_TEAM_ID" ios/ExportOptions.plist
           /usr/libexec/PlistBuddy -c 'Set :signingStyle manual' ios/ExportOptions.plist
           /usr/libexec/PlistBuddy -c 'Add :signingCertificate string Apple Distribution' ios/ExportOptions.plist
           /usr/libexec/PlistBuddy -c 'Add :provisioningProfiles dict' ios/ExportOptions.plist
           /usr/libexec/PlistBuddy -c 'Add :provisioningProfiles:com.gaspardnz.app string GaspardNZ App Store Distribution' ios/ExportOptions.plist
+          /usr/libexec/PlistBuddy -c "Add :provisioningProfiles:com.gaspardnz.app.GNZActivityWidget string $WIDGET_NAME" ios/ExportOptions.plist
           xcodebuild -exportArchive \
             -archivePath "$RUNNER_TEMP/GaspardNZ.xcarchive" \
             -exportPath "$RUNNER_TEMP/export" \
             -exportOptionsPlist ios/ExportOptions.plist \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$RUNNER_TEMP/appstoreconnect/private_keys/AuthKey_${ASC_KEY_ID}.p8" \
+            -authenticationKeyID "$ASC_KEY_ID" \
+            -authenticationKeyIssuerID "$ASC_ISSUER_ID" \
             2>&1 | tee "$RUNNER_TEMP/GaspardNZ-export.log"
 
       - name: Conserver les erreurs d'export IPA
