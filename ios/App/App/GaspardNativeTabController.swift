@@ -54,6 +54,8 @@ final class GaspardNativeTabController: CAPBridgeViewController, UITabBarDelegat
     private var launchArtworkOverlay: UIView?
     private var launchPresentedAt: TimeInterval = 0
     private var launchDismissPending = false
+    private var shortcutObserver: NSObjectProtocol?
+    private var deliveringShortcut = false
 
     private let gold = UIColor(red: 184.0 / 255.0, green: 151.0 / 255.0, blue: 62.0 / 255.0, alpha: 1)
 
@@ -68,6 +70,32 @@ final class GaspardNativeTabController: CAPBridgeViewController, UITabBarDelegat
         super.viewDidLoad()
         configureTabBar()
         presentLaunchArtwork()
+        shortcutObserver = NotificationCenter.default.addObserver(
+            forName: GNZShortcutRouter.didRequestRoute, object: nil, queue: .main
+        ) { [weak self] _ in
+            self?.deliverPendingShortcut()
+        }
+    }
+
+    deinit {
+        if let shortcutObserver = shortcutObserver {
+            NotificationCenter.default.removeObserver(shortcutObserver)
+        }
+    }
+
+    private func deliverPendingShortcut() {
+        guard webAppReady, !deliveringShortcut,
+              let pending = GNZShortcutRouter.pending,
+              let webView = webView else { return }
+        deliveringShortcut = true
+        // destination comes from a fixed Swift enum; it cannot inject script.
+        let js = "window.dispatchEvent(new CustomEvent('gnz:shortcut-route', { detail: { route: '\(pending.destination.rawValue)' } }))"
+        webView.evaluateJavaScript(js) { [weak self] _, error in
+            if error == nil { GNZShortcutRouter.clearIfDelivered(pending) }
+            self?.deliveringShortcut = false
+            // A second Siri request may have arrived while the first was in flight.
+            if error == nil { self?.deliverPendingShortcut() }
+        }
     }
 
     // Native, full-bleed continuation of LaunchScreen.storyboard.
@@ -210,8 +238,8 @@ final class GaspardNativeTabController: CAPBridgeViewController, UITabBarDelegat
               let body = message.body as? [String: Any],
               body["type"] as? String == "state" else { return }
 
-        webAppReady = true
         let visible = body["visible"] as? Bool ?? false
+        webAppReady = visible
         tabBar.isHidden = !visible
         floatingGlass.isHidden = !visible
         if visible { dismissLaunchArtworkWhenReady() }
@@ -227,5 +255,6 @@ final class GaspardNativeTabController: CAPBridgeViewController, UITabBarDelegat
                 item.accessibilityLabel = labels[index]
             }
         }
+        deliverPendingShortcut()
     }
 }
