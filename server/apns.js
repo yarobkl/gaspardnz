@@ -34,7 +34,7 @@ export function apnsJwt() {
   return cachedToken;
 }
 
-export async function sendApns({ deviceToken, title, body, url, apnsId }) {
+export async function sendApns({ deviceToken, title, body, url, newsSlug, apnsId }) {
   if (!/^[a-f0-9]{64,}$/i.test(deviceToken)) throw new Error("Token appareil invalide");
   const { topic, environment } = apnsConfig();
   const primaryHost = environment === "sandbox"
@@ -47,6 +47,7 @@ export async function sendApns({ deviceToken, title, body, url, apnsId }) {
   const payload = JSON.stringify({
     aps: { alert: { title, body }, sound: "default" },
     ...(url ? { url } : {}),
+    ...(newsSlug ? { news_slug: newsSlug } : {}),
   });
   const sendToHost = (host) => new Promise((resolve, reject) => {
     const session = http2.connect("https://" + host);
