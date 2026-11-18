@@ -46,6 +46,16 @@ private final class WeakTabMessageHandler: NSObject, WKScriptMessageHandler {
     }
 }
 
+private final class WeakBookingMessageHandler: NSObject, WKScriptMessageHandler {
+    weak var owner: GaspardNativeTabController?
+
+    init(owner: GaspardNativeTabController) { self.owner = owner }
+
+    func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
+        owner?.handleBookingMessage(message)
+    }
+}
+
 final class GaspardNativeTabController: CAPBridgeViewController, UITabBarDelegate {
     private let tabBar = UITabBar()
     private let floatingGlass = UIVisualEffectView()
@@ -55,6 +65,7 @@ final class GaspardNativeTabController: CAPBridgeViewController, UITabBarDelegat
     private var launchPresentedAt: TimeInterval = 0
     private var launchDismissPending = false
     private var shortcutObserver: NSObjectProtocol?
+    private var foregroundObserver: NSObjectProtocol?
     private var deliveringShortcut = false
 
     private let gold = UIColor(red: 184.0 / 255.0, green: 151.0 / 255.0, blue: 62.0 / 255.0, alpha: 1)
@@ -63,6 +74,9 @@ final class GaspardNativeTabController: CAPBridgeViewController, UITabBarDelegat
         super.capacitorDidLoad()
         webView?.configuration.userContentController.add(
             WeakTabMessageHandler(owner: self), name: "gnzNativeTabs"
+        )
+        webView?.configuration.userContentController.add(
+            WeakBookingMessageHandler(owner: self), name: "gnzBookingReminders"
         )
     }
 
@@ -75,11 +89,32 @@ final class GaspardNativeTabController: CAPBridgeViewController, UITabBarDelegat
         ) { [weak self] _ in
             self?.deliverPendingShortcut()
         }
+        foregroundObserver = NotificationCenter.default.addObserver(
+            forName: UIApplication.didBecomeActiveNotification, object: nil, queue: .main
+        ) { _ in
+            Task { @MainActor in GNZAppointmentReminders.shared.applicationBecameActive() }
+        }
+        GNZAppointmentReminders.shared.applicationBecameActive()
     }
 
     deinit {
         if let shortcutObserver = shortcutObserver {
             NotificationCenter.default.removeObserver(shortcutObserver)
+        }
+        if let foregroundObserver = foregroundObserver {
+            NotificationCenter.default.removeObserver(foregroundObserver)
+        }
+    }
+
+    fileprivate func handleBookingMessage(_ message: WKScriptMessage) {
+        // Only the packaged first-party page may request on-device reminders;
+        // Cal.com runs inside a cross-origin iframe and communicates via its SDK.
+        guard message.name == "gnzBookingReminders", message.frameInfo.isMainFrame,
+              let body = message.body as? [String: Any] else { return }
+        Task { @MainActor [weak self] in
+            let status = await GNZAppointmentReminders.shared.receiveCalBooking(body)
+            let js = "window.dispatchEvent(new CustomEvent('gnz:appointment-reminder-result', {detail: {status: '\(status)'}}))"
+            self?.webView?.evaluateJavaScript(js, completionHandler: nil)
         }
     }
 

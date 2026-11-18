@@ -1,5 +1,18 @@
 # GNZ PARIS — Cal.com et rendez-vous iOS
 
+## Rappels locaux iPhone (proposition iOS en cours de validation)
+
+Le calendrier **réel** reste `https://cal.com/gaspardnz-s-habiller-autrement-ghzqy2/rendez-vous` : les dates ouvertes jusqu'en février proviennent directement de Cal.com. Aucun calendrier fictif, accès administrateur Cal.com ou compte client GNZ n'est nécessaire pour la partie suivante.
+
+- Après une réservation effectuée **dans le calendrier intégré à l'application iPhone**, l'événement `bookingSuccessfulV2` de Cal.com renvoie un UID, une date et un statut. Seuls `ACCEPTED`/`CONFIRMED` sont traités comme confirmés sur cet appareil ; les autres statuts affichent « en attente de confirmation ».
+- L'app Swift demande **une seule autorisation iOS** en contexte, puis utilise `UserNotifications` pour programmer, si les créneaux sont encore futurs, deux notifications **locales** : J-1 et H-2. Elles peuvent s'afficher sur l'écran verrouillé lorsque l'app est fermée. Aucun email, numéro, nom de client ou jeton APNs n'est transmis par le pont JavaScript → Swift.
+- Les rendez-vous acceptés sont conservés **sur l'appareil uniquement** avec leur UID opaque et leur heure. Sur iPhone compatible et avec les Live Activities activées, l'app ouvre une activité native GNZ PARIS **quand elle est au premier plan dans les 2 heures précédant le rendez-vous**. ActivityKit ne permet pas de programmer une activité plusieurs mois avant.
+- La réservation effectuée via le lien externe de secours (navigateur) ne déclenche pas le pont natif. Cal.com fournit ses confirmations habituelles ; l'application ne prétend pas avoir programmé un rappel iOS qu'elle n'a pas reçu.
+
+**Limite sans accès au Cal.com de l'organisateur :** l'application ne peut pas connaître automatiquement un déplacement, une annulation ou une validation tardive d'une demande faite hors de l'app. Dans ce cas les rappels déjà programmés peuvent devenir obsolètes. La synchronisation fiable multi-appareils, les mises à jour APNs à distance et le démarrage automatique de la Dynamic Island en arrière-plan nécessitent l'activation du webhook authentifié décrit ci-dessous, le consentement et une association sécurisée réservation ↔ appareil. Ne pas présenter ces fonctions comme actives avant tests réels.
+
+Pour validation TestFlight : réserver soi-même un **vrai créneau futur** dans l'app, constater la permission iOS, vérifier dans Réglages que GNZ PARIS peut notifier, contrôler J-1/H-2 avec un créneau de test approprié, puis ouvrir l'app dans les deux dernières heures pour observer la Live Activity. Tester en parallèle le statut en attente et le refus de permission, sans créer de rendez-vous factice sur le calendrier public.
+
 ## Ce qui est prêt dans cette branche
 
 - `POST /api/cal/webhook` accepte uniquement des événements Cal.com dont la signature HMAC-SHA256 `X-Cal-Signature-256` correspond au **corps brut**.
