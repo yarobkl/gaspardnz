@@ -32,6 +32,67 @@ private enum GaspardTab: String, CaseIterable {
     }
 }
 
+// A compact native control keeps its SF Symbol and label in separate rows.
+// UITabBar may switch to an inline layout on newer iOS releases, which is not
+// compatible with the short floating capsule used by this application.
+private final class GaspardTabButton: UIControl {
+    private let icon = UIImageView()
+    private let caption = UILabel()
+
+    init(tab: GaspardTab) {
+        super.init(frame: .zero)
+        translatesAutoresizingMaskIntoConstraints = false
+        isAccessibilityElement = true
+        accessibilityTraits = .button
+
+        icon.image = UIImage(systemName: tab.symbol)
+        icon.contentMode = .scaleAspectFit
+        icon.translatesAutoresizingMaskIntoConstraints = false
+        icon.isAccessibilityElement = false
+
+        caption.text = tab.title
+        caption.font = .systemFont(ofSize: 10, weight: .medium)
+        caption.textAlignment = .center
+        caption.adjustsFontSizeToFitWidth = true
+        caption.minimumScaleFactor = 0.85
+        caption.numberOfLines = 1
+        caption.isAccessibilityElement = false
+        accessibilityLabel = tab.title
+
+        let content = UIStackView(arrangedSubviews: [icon, caption])
+        content.axis = .vertical
+        content.alignment = .fill
+        content.spacing = 4
+        content.isUserInteractionEnabled = false
+        content.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(content)
+
+        NSLayoutConstraint.activate([
+            icon.heightAnchor.constraint(equalToConstant: 21),
+            content.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 2),
+            content.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -2),
+            content.centerYAnchor.constraint(equalTo: centerYAnchor)
+        ])
+    }
+
+    required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
+
+    func update(title: String) {
+        caption.text = title
+        accessibilityLabel = title
+    }
+
+    func update(foreground: UIColor, selected: Bool) {
+        isSelected = selected
+        icon.tintColor = foreground
+        caption.textColor = foreground
+        icon.preferredSymbolConfiguration = UIImage.SymbolConfiguration(
+            pointSize: 20, weight: selected ? .semibold : .regular
+        )
+        accessibilityTraits = selected ? [.button, .selected] : .button
+    }
+}
+
 // WKUserContentController retains handlers strongly; the owner must be weak to
 // avoid keeping the entire Capacitor controller (and WebView) alive forever.
 private final class WeakTabMessageHandler: NSObject, WKScriptMessageHandler {
@@ -56,9 +117,13 @@ private final class WeakBookingMessageHandler: NSObject, WKScriptMessageHandler 
     }
 }
 
-final class GaspardNativeTabController: CAPBridgeViewController, UITabBarDelegate {
-    private let tabBar = UITabBar()
+final class GaspardNativeTabController: CAPBridgeViewController {
+    private let floatingBar = UIView()
     private let floatingGlass = UIVisualEffectView()
+    private let selectionPill = UIView()
+    private var tabButtons: [GaspardTabButton] = []
+    private var pillLeadingConstraint: NSLayoutConstraint?
+    private var selectedTab: GaspardTab = .home
     private var currentBackdropTab: GaspardTab?
     private var webAppReady = false
     private var launchArtworkOverlay: UIView?
@@ -190,44 +255,71 @@ final class GaspardNativeTabController: CAPBridgeViewController, UITabBarDelegat
     }
 
     private func configureTabBar() {
-        tabBar.isTranslucent = true
-        tabBar.backgroundColor = .clear
-        tabBar.tintColor = gold
-        tabBar.delegate = self
-        tabBar.items = GaspardTab.allCases.enumerated().map { index, tab in
-            let item = UITabBarItem(title: tab.title, image: UIImage(systemName: tab.symbol), tag: index)
-            item.accessibilityLabel = tab.title
-            return item
-        }
-        tabBar.selectedItem = tabBar.items?.first
-        tabBar.isHidden = true
+        floatingBar.translatesAutoresizingMaskIntoConstraints = false
+        floatingBar.isHidden = true
+        floatingBar.layer.cornerRadius = 34
+        floatingBar.clipsToBounds = true
 
-        // The photographic home page and the cream editorial pages use
-        // different glass contrasts, while the system controls the material.
-        updateBackdrop(for: .home)
         floatingGlass.isUserInteractionEnabled = false
-        floatingGlass.isHidden = true
-        floatingGlass.layer.cornerRadius = 34
-        floatingGlass.clipsToBounds = true
         floatingGlass.translatesAutoresizingMaskIntoConstraints = false
-        tabBar.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(floatingGlass)
-        view.addSubview(tabBar)
+
+        selectionPill.translatesAutoresizingMaskIntoConstraints = false
+        selectionPill.isUserInteractionEnabled = false
+        selectionPill.layer.cornerRadius = 25
+
+        tabButtons = GaspardTab.allCases.enumerated().map { index, tab in
+            let button = GaspardTabButton(tab: tab)
+            button.tag = index
+            button.addTarget(self, action: #selector(didTapTab(_:)), for: .touchUpInside)
+            return button
+        }
+        let buttonRow = UIStackView(arrangedSubviews: tabButtons)
+        buttonRow.axis = .horizontal
+        buttonRow.alignment = .fill
+        buttonRow.distribution = .fillEqually
+        buttonRow.spacing = 0
+        buttonRow.translatesAutoresizingMaskIntoConstraints = false
+
+        view.addSubview(floatingBar)
+        floatingBar.addSubview(floatingGlass)
+        floatingBar.addSubview(selectionPill)
+        floatingBar.addSubview(buttonRow)
+
+        let initialPillLeading = selectionPill.leadingAnchor.constraint(
+            equalTo: tabButtons[0].leadingAnchor, constant: 3
+        )
+        pillLeadingConstraint = initialPillLeading
+        let pillWidth = selectionPill.widthAnchor.constraint(
+            equalTo: tabButtons[0].widthAnchor, constant: -6
+        )
 
         NSLayoutConstraint.activate([
-            floatingGlass.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 12),
-            floatingGlass.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -12),
-            floatingGlass.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -8),
-            floatingGlass.heightAnchor.constraint(equalToConstant: 68),
-            tabBar.leadingAnchor.constraint(equalTo: floatingGlass.leadingAnchor),
-            tabBar.trailingAnchor.constraint(equalTo: floatingGlass.trailingAnchor),
-            tabBar.topAnchor.constraint(equalTo: floatingGlass.topAnchor),
-            tabBar.bottomAnchor.constraint(equalTo: floatingGlass.bottomAnchor)
+            floatingBar.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 12),
+            floatingBar.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -12),
+            floatingBar.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -8),
+            floatingBar.heightAnchor.constraint(equalToConstant: 68),
+            floatingGlass.leadingAnchor.constraint(equalTo: floatingBar.leadingAnchor),
+            floatingGlass.trailingAnchor.constraint(equalTo: floatingBar.trailingAnchor),
+            floatingGlass.topAnchor.constraint(equalTo: floatingBar.topAnchor),
+            floatingGlass.bottomAnchor.constraint(equalTo: floatingBar.bottomAnchor),
+            buttonRow.leadingAnchor.constraint(equalTo: floatingBar.leadingAnchor, constant: 7),
+            buttonRow.trailingAnchor.constraint(equalTo: floatingBar.trailingAnchor, constant: -7),
+            buttonRow.topAnchor.constraint(equalTo: floatingBar.topAnchor),
+            buttonRow.bottomAnchor.constraint(equalTo: floatingBar.bottomAnchor),
+            selectionPill.topAnchor.constraint(equalTo: floatingBar.topAnchor, constant: 9),
+            selectionPill.bottomAnchor.constraint(equalTo: floatingBar.bottomAnchor, constant: -9),
+            initialPillLeading,
+            pillWidth
         ])
+
+        // The photograph and the editorial pages use distinct native glass
+        // treatments, but neither changes the icon/label geometry.
+        updateBackdrop(for: .home)
     }
 
     private func updateBackdrop(for tab: GaspardTab) {
         guard currentBackdropTab != tab else { return }
+        let needsNewMaterial = currentBackdropTab == nil || (currentBackdropTab == .home) != (tab == .home)
         currentBackdropTab = tab
         let overPortrait = tab == .home
         let foreground = overPortrait
@@ -236,33 +328,55 @@ final class GaspardNativeTabController: CAPBridgeViewController, UITabBarDelegat
 
         // Clear Liquid Glass exposes the photograph; regular glass keeps
         // controls legible over text and light editorial content.
-        if #available(iOS 26.0, *) {
-            floatingGlass.effect = UIGlassEffect(style: overPortrait ? .clear : .regular)
-        } else {
-            floatingGlass.effect = UIBlurEffect(style: overPortrait ? .systemThinMaterialDark : .systemThinMaterialLight)
+        if needsNewMaterial {
+            if #available(iOS 26.0, *) {
+                floatingGlass.effect = UIGlassEffect(style: overPortrait ? .clear : .regular)
+            } else {
+                floatingGlass.effect = UIBlurEffect(style: overPortrait ? .systemThinMaterialDark : .systemThinMaterialLight)
+            }
         }
 
-        let appearance = UITabBarAppearance()
-        appearance.configureWithTransparentBackground()
-        appearance.shadowColor = .clear
-        appearance.stackedLayoutAppearance.normal.iconColor = foreground
-        appearance.stackedLayoutAppearance.normal.titleTextAttributes = [.foregroundColor: foreground]
-        appearance.stackedLayoutAppearance.selected.iconColor = gold
-        appearance.stackedLayoutAppearance.selected.titleTextAttributes = [
-            .foregroundColor: gold,
-            .font: UIFont.systemFont(ofSize: 10, weight: .semibold)
-        ]
-        tabBar.standardAppearance = appearance
-        if #available(iOS 15.0, *) {
-            tabBar.scrollEdgeAppearance = appearance
+        selectionPill.backgroundColor = overPortrait
+            ? UIColor.white.withAlphaComponent(0.18)
+            : UIColor.black.withAlphaComponent(0.07)
+        for (index, button) in tabButtons.enumerated() {
+            let isSelected = GaspardTab.allCases[index] == tab
+            button.update(foreground: isSelected ? gold : foreground, selected: isSelected)
         }
-        tabBar.unselectedItemTintColor = foreground
     }
 
-    func tabBar(_ tabBar: UITabBar, didSelect item: UITabBarItem) {
-        guard webAppReady, GaspardTab.allCases.indices.contains(item.tag) else { return }
-        let selected = GaspardTab.allCases[item.tag]
-        updateBackdrop(for: selected)
+    private func selectTab(_ tab: GaspardTab, animated: Bool) {
+        guard let index = GaspardTab.allCases.firstIndex(of: tab) else { return }
+        let hasChanged = selectedTab != tab
+        if hasChanged {
+            // Keep the selection track behind the buttons and move it only
+            // horizontally. An Auto Layout width shared by all tabs prevents
+            // jitter on compact iPhones and when long labels are translated.
+            floatingBar.layoutIfNeeded()
+            pillLeadingConstraint?.isActive = false
+            let next = selectionPill.leadingAnchor.constraint(
+                equalTo: tabButtons[index].leadingAnchor, constant: 3
+            )
+            next.isActive = true
+            pillLeadingConstraint = next
+        }
+        selectedTab = tab
+        updateBackdrop(for: tab)
+        if hasChanged {
+            if animated && !UIAccessibility.isReduceMotionEnabled {
+                UIView.animate(withDuration: 0.27, delay: 0, options: [.curveEaseInOut, .beginFromCurrentState]) {
+                    self.floatingBar.layoutIfNeeded()
+                }
+            } else {
+                floatingBar.layoutIfNeeded()
+            }
+        }
+    }
+
+    @objc private func didTapTab(_ sender: GaspardTabButton) {
+        guard webAppReady, GaspardTab.allCases.indices.contains(sender.tag) else { return }
+        let selected = GaspardTab.allCases[sender.tag]
+        selectTab(selected, animated: true)
         UISelectionFeedbackGenerator().selectionChanged()
         // The route is an enum value, never arbitrary content from a webpage.
         let js = "window.dispatchEvent(new CustomEvent('gnz:native-tab', { detail: { tab: '\(selected.rawValue)' } }))"
@@ -276,19 +390,16 @@ final class GaspardNativeTabController: CAPBridgeViewController, UITabBarDelegat
 
         let visible = body["visible"] as? Bool ?? false
         webAppReady = visible
-        tabBar.isHidden = !visible
-        floatingGlass.isHidden = !visible
+        floatingBar.isHidden = !visible
         if visible { dismissLaunchArtworkWhenReady() }
 
         if let key = body["selected"] as? String,
            let index = GaspardTab.allCases.firstIndex(where: { $0.rawValue == key }) {
-            tabBar.selectedItem = tabBar.items?[index]
-            updateBackdrop(for: GaspardTab.allCases[index])
+            selectTab(GaspardTab.allCases[index], animated: visible)
         }
         if let labels = body["labels"] as? [String], labels.count == GaspardTab.allCases.count {
-            for (index, item) in (tabBar.items ?? []).enumerated() {
-                item.title = labels[index]
-                item.accessibilityLabel = labels[index]
+            for (index, button) in tabButtons.enumerated() {
+                button.update(title: labels[index])
             }
         }
         deliverPendingShortcut()
