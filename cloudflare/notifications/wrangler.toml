@@ -1,0 +1,14 @@
+name = "gaspardnz-notifications"
+main = "worker.js"
+compatibility_date = "2026-11-18"
+
+# Secrets (never commit their values): SUPABASE_SERVICE_ROLE_KEY,
+# APNS_PRIVATE_KEY. APNs Key ID and Apple Team ID are non-secret identifiers.
+# Cloudflare route /api/notifications/* and /api/admin-notifications
+# on gaspardnz.style must be configured after the Worker is verified.
+[vars]
+SUPABASE_URL = "https://imvjudhhtcdmtyhfhksm.supabase.co"
+APNS_BUNDLE_ID = "com.gaspardnz.app"
+APNS_ENVIRONMENT = "production"
+APNS_KEY_ID = "27Q3USHH92"
+APNS_ISSUER_ID = "UK4UQCQ57G"

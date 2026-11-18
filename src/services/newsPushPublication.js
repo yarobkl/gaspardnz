@@ -1,7 +1,8 @@
 import { supabase } from "./supabaseClient.js";
+import { notificationEndpoint } from "./notificationEndpoint.js";
 
 async function authorizedPost(path, body, token) {
-  const response = await fetch(path, {
+  const response = await fetch(notificationEndpoint(path), {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
     body: JSON.stringify(body),
