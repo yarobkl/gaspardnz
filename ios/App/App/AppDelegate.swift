@@ -42,6 +42,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey: Any] = [:]) -> Bool {
+        // Widgets deep-link only to allowlisted public destinations.
+        // Do not allow a URL to inject an arbitrary React or admin route.
+        if url.scheme == "gnzparis", url.host == "open",
+           url.pathComponents.count == 2,
+           let destination = GNZShortcutDestination(rawValue: url.lastPathComponent) {
+            GNZShortcutRouter.request(destination)
+            return true
+        }
         // Called when the app was launched with a url. Feel free to add additional processing here,
         // but if you want the App API to support tracking app url opens, make sure to keep this call
         return ApplicationDelegateProxy.shared.application(app, open: url, options: options)
