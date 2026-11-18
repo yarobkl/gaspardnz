@@ -1,5 +1,5 @@
 import crypto from "node:crypto";
-import { createGoogleAuthorizationUrl, json, requireAdmin } from "../_lib/google.js";
+import { createGoogleAuthorizationUrl, json, requireAdmin } from "../../api/_lib/google.js";
 
 export default async function handler(req, res) {
   if (req.method !== "POST") return json(res, 405, { error: "Method not allowed" });

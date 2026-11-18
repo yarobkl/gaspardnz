@@ -1,6 +1,6 @@
 import nodemailer from "nodemailer";
 import { createClient } from "@supabase/supabase-js";
-import { consumePersistentRateLimit } from "./send-email.js";
+import { consumePersistentRateLimit } from "../../api/send-email.js";
 
 const SUPABASE_URL = process.env.SUPABASE_URL || "https://imvjudhhtcdmtyhfhksm.supabase.co";
 const clean = (value, max = 2000) => String(value ?? "").replace(/[\u0000-\u001f\u007f]/g, " ").replace(/\s+/g, " ").trim().slice(0, max);
