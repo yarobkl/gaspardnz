@@ -16,6 +16,7 @@
 		A1000000000000000000000D /* GNZAppointmentAttributes.swift in App Sources */ = {isa = PBXBuildFile; fileRef = A1000000000000000000000A /* GNZAppointmentAttributes.swift */; };
 		A1000000000000000000000E /* GNZAppointmentAttributes.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = A1000000000000000000000A /* GNZAppointmentAttributes.swift */; };
 		A1000000000000000000000F /* GNZAppointmentLiveActivity.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = A1000000000000000000000B /* GNZAppointmentLiveActivity.swift */; };
+		A10000000000000000000014 /* GNZQuickAccessWidget.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000015 /* GNZQuickAccessWidget.swift */; };
 		A10000000000000000000010 /* GNZActivityWidget.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = A10000000000000000000002 /* GNZActivityWidget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		504EC30D1FED79650016851F /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 504EC30B1FED79650016851F /* Main.storyboard */; };
 		504EC30F1FED79650016851F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 504EC30E1FED79650016851F /* Assets.xcassets */; };
@@ -57,6 +58,7 @@
 		A10000000000000000000002 /* GNZActivityWidget.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = GNZActivityWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		A1000000000000000000000A /* GNZAppointmentAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GNZAppointmentAttributes.swift; sourceTree = "<group>"; };
 		A1000000000000000000000B /* GNZAppointmentLiveActivity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GNZAppointmentLiveActivity.swift; sourceTree = "<group>"; };
+		A10000000000000000000015 /* GNZQuickAccessWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GNZQuickAccessWidget.swift; sourceTree = "<group>"; };
 		A1000000000000000000000C /* Widget Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		504EC30C1FED79650016851F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		504EC30E1FED79650016851F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -126,6 +128,7 @@
 			children = (
 				A1000000000000000000000A /* GNZAppointmentAttributes.swift */,
 				A1000000000000000000000B /* GNZAppointmentLiveActivity.swift */,
+				A10000000000000000000015 /* GNZQuickAccessWidget.swift */,
 				A1000000000000000000000C /* Widget Info.plist */,
 			);
 			path = GNZActivityWidget;
@@ -245,6 +248,7 @@
 			files = (
 				A1000000000000000000000E /* GNZAppointmentAttributes.swift in Widget Sources */,
 				A1000000000000000000000F /* GNZAppointmentLiveActivity.swift in Widget Sources */,
+				A10000000000000000000014 /* GNZQuickAccessWidget.swift in Widget Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

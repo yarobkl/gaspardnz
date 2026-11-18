@@ -2,7 +2,7 @@ import ActivityKit
 import SwiftUI
 import WidgetKit
 
-private enum GNZActivityPalette {
+enum GNZActivityPalette {
     static let navy = Color(red: 0.01, green: 0.055, blue: 0.115)
     static let gold = Color(red: 0.76, green: 0.61, blue: 0.36)
     static let cream = Color(red: 0.99, green: 0.97, blue: 0.94)
@@ -117,6 +117,7 @@ struct GNZAppointmentLiveActivity: Widget {
 @main
 struct GNZWidgetBundle: WidgetBundle {
     var body: some Widget {
+        GNZQuickAccessWidget()
         if #available(iOS 16.2, *) {
             GNZAppointmentLiveActivity()
         }
