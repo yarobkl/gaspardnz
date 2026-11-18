@@ -110,6 +110,7 @@ final class GaspardNativeTabController: CAPBridgeViewController, UITabBarDelegat
         // Only the packaged first-party page may request on-device reminders;
         // Cal.com runs inside a cross-origin iframe and communicates via its SDK.
         guard message.name == "gnzBookingReminders", message.frameInfo.isMainFrame,
+              message.frameInfo.securityOrigin.host.lowercased() == "localhost",
               let body = message.body as? [String: Any] else { return }
         Task { @MainActor [weak self] in
             let status = await GNZAppointmentReminders.shared.receiveCalBooking(body)
