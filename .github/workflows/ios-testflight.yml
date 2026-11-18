@@ -327,6 +327,14 @@ jobs:
           cp "$RUNNER_TEMP/GaspardNZ-AppStore.mobileprovision" "$HOME/Library/MobileDevice/Provisioning Profiles/$PROFILE_UUID.mobileprovision"
           echo "Profil App Store renouvelé installé, capacités Push production confirmées."
 
+      - name: Préparer le profil App Store du widget Dynamic Island
+        if: ${{ env.GNZ_RELEASE_UPLOAD == 'true' }}
+        run: |
+          set -euo pipefail
+          python3 .github/scripts/apple_widget_profile.py \
+            "$RUNNER_TEMP/renewed-profile.plist" \
+            "$RUNNER_TEMP/GaspardNZ-Widget.mobileprovision"
+
       - name: Archiver l’application signée
         if: ${{ env.GNZ_RELEASE_UPLOAD == 'true' }}
         run: |
