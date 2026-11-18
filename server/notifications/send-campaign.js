@@ -1,4 +1,5 @@
 import { notificationAdminDb, sendApns } from "../apns.js";
+import { campaignDestination, ensureCampaignNews } from "./campaign-news.js";
 
 export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).json({ error: "Méthode non autorisée" });
@@ -13,16 +14,25 @@ export default async function handler(req, res) {
   if (!access?.active || !["owner", "admin"].includes(access.role)) return res.status(403).json({ error: "Accès refusé" });
   const id = req.body?.id;
   if (typeof id !== "string" || !/^[0-9a-f-]{36}$/i.test(id)) return res.status(400).json({ error: "Campagne invalide" });
-  const { data: campaign, error: campaignError } = await db.from("notification_campaigns").select("id,title,body,target_url,status").eq("id", id).maybeSingle();
+  const { data: campaign, error: campaignError } = await db.from("notification_campaigns").select("id,category,title,body,image_url,target_url,status,created_at").eq("id", id).maybeSingle();
   if (campaignError || !campaign) return res.status(404).json({ error: "Campagne introuvable" });
   if (!["draft", "sending"].includes(campaign.status)) return res.status(409).json({ error: "Campagne déjà terminée" });
   if (campaign.status === "draft") {
     const { data: claimed, error } = await db.from("notification_campaigns").update({ status: "sending" }).eq("id", id).eq("status", "draft").select("id").maybeSingle();
     if (error || !claimed) return res.status(409).json({ error: "Campagne déjà prise en charge" });
   }
+  // La publication durable précède chaque tentative d'envoi. Même si aucun
+  // appareil n'est abonné ou si Apple est indisponible, l'article reste visible.
+  let newsArticle;
+  try { newsArticle = await ensureCampaignNews(db, campaign); }
+  catch (error) { return res.status(503).json({ error: error.message }); }
+  const destination = campaignDestination(campaign, newsArticle);
   const { data: subscribers, error: subscribersError } = await db.from("push_subscriptions").select("id,provider_subscription_id").eq("provider", "apns").eq("platform", "ios").eq("marketing_opt_in", true).is("revoked_at", null).order("id");
   if (subscribersError) return res.status(503).json({ error: "Abonnements indisponibles" });
-  if (!subscribers?.length) return res.status(409).json({ error: "Aucun iPhone n’a accepté les notifications pour le moment" });
+  if (!subscribers?.length) {
+    await db.from("notification_campaigns").update({ status: "sent", sent_at: new Date().toISOString() }).eq("id", id).eq("status", "sending");
+    return res.json({ sent: 0, failed: 0, remaining: 0, published: true, message: "Actualité publiée. Aucun iPhone abonné pour le moment." });
+  }
   const { data: deliveries, error: deliveriesError } = await db.from("notification_deliveries").select("subscription_id,status").eq("campaign_id", id);
   if (deliveriesError) return res.status(503).json({ error: "Suivi des envois indisponible" });
   const done = new Set((deliveries || []).map(row => row.subscription_id));
@@ -33,7 +43,7 @@ export default async function handler(req, res) {
     const { error: lockError } = await db.from("notification_deliveries").insert({ campaign_id: id, subscription_id: subscriber.id, status: "queued" });
     if (lockError) continue; // The unique key prevents duplicate deliveries.
     let result;
-    try { result = await sendApns({ deviceToken: subscriber.provider_subscription_id, title: campaign.title, body: campaign.body, url: campaign.target_url || "https://gaspardnz.style/rendez-vous" }); }
+    try { result = await sendApns({ deviceToken: subscriber.provider_subscription_id, title: campaign.title, body: campaign.body, url: destination, newsSlug: newsArticle.slug }); }
     catch { result = { ok: false, status: 0, reason: "APNs unavailable" }; }
     await db.from("notification_deliveries").update({ status: result.ok ? "sent" : "failed", error_code: result.ok ? null : String(result.status || result.reason).slice(0, 100), attempted_at: new Date().toISOString() }).eq("campaign_id", id).eq("subscription_id", subscriber.id);
     if (result.ok) sent++; else failed++;
@@ -41,5 +51,5 @@ export default async function handler(req, res) {
   }
   const remaining = Math.max(0, pending.length - batch.length);
   if (!remaining) await db.from("notification_campaigns").update({ status: "sent", sent_at: new Date().toISOString() }).eq("id", id).eq("status", "sending");
-  return res.json({ sent, failed, remaining });
+  return res.json({ sent, failed, remaining, published: true });
 }

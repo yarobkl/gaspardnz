@@ -1,9 +1,11 @@
 import { useContext, useMemo, useState, useEffect, useRef } from "react";
+import { Browser } from "@capacitor/browser";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { nativeFeedback } from "../utils/nativeHaptics.js";
 import { LangCtx } from "../context.jsx";
 import { getActualites } from "../data/actualitesData.js";
 import { usePublicCollection } from "../hooks/usePublicCollection.js";
+import { safeNotificationUrl } from "../utils/notificationLinks.js";
 
 const readingMinutes = text => Math.max(1, Math.ceil(String(text || "").trim().split(/\s+/).filter(Boolean).length / 200));
 const readingLabel = (text, lang) => `${readingMinutes(text)} ${lang === "FR" ? "min de lecture" : lang === "EN" ? "min read" : lang === "ES" ? "min de lectura" : "分钟阅读"}`;
@@ -37,6 +39,7 @@ export function NativeNews({ initialId = null, onInitialArticleOpened, onContact
       coverMode: row.metadata?.cover_mode === "cover" ? "cover" : "contain",
       coverFocus: /^center\s+(?:[0-9]{1,2}|100)%$/.test(String(row.metadata?.cover_focus || ""))
         ? row.metadata.cover_focus : "center 25%",
+      linkUrl: safeNotificationUrl(row.metadata?.link_url),
     })) : [];
     return source === "supabase" ? remoteItems : fallback;
   }, [source, rows, fallback]);
@@ -84,6 +87,10 @@ export function NativeNews({ initialId = null, onInitialArticleOpened, onContact
     return () => document.removeEventListener("keydown", onKeyDown);
   }, [article]);
   const openArticle = (item) => { setArticle(item); setPhotoIndex(0); };
+  const openLinkedPage = (url) => {
+    const destination = safeNotificationUrl(url);
+    if (destination) Browser.open({ url: destination }).catch(() => window.open(destination, "_blank", "noopener,noreferrer"));
+  };
   const requestArticle = (item) => {
     if (!item || !onContact) return;
     setArticle(null);
@@ -182,6 +189,9 @@ export function NativeNews({ initialId = null, onInitialArticleOpened, onContact
         <button type="button" className="gnz-native-news-reader-close" onClick={() => setArticle(null)} aria-label="Fermer">×</button>
         {article.photos?.length > 0 && <div className="gnz-native-news-reader-media"><img src={mediaUrl(article.photos[photoIndex])} alt={article.title} />{article.photos.length > 1 && <><button type="button" onClick={() => setPhotoIndex((photoIndex - 1 + article.photos.length) % article.photos.length)} aria-label="Photo précédente">‹</button><button type="button" onClick={() => setPhotoIndex((photoIndex + 1) % article.photos.length)} aria-label="Photo suivante">›</button><div className="gnz-native-news-reader-dots">{article.photos.map((_, i) => <span key={i} className={i === photoIndex ? "active" : ""} />)}</div></>}</div>}
         <div className="gnz-native-news-reader-copy"><span>{[article.tag, article.date, readingLabel(article.text, lang)].filter(Boolean).join(" · ")}</span><h2>{article.title}</h2>{String(article.text || "").split(/\n\s*\n/).filter(Boolean).map((paragraph, i) => <p key={i}>{paragraph}</p>)}
+          {article.linkUrl && <button type="button" className="gnz-native-news-reader-contact" onClick={() => openLinkedPage(article.linkUrl)}>
+            {/tiktok\.com$/i.test(new URL(article.linkUrl).hostname) ? "Voir sur TikTok" : lang === "FR" ? "Ouvrir le lien" : "Open link"} <span aria-hidden="true">↗</span>
+          </button>}
           {onContact && <button type="button" className="gnz-native-news-reader-contact" onClick={() => requestArticle(article)}>
             {lang === "FR" ? "Échanger sur ce style" : lang === "EN" ? "Discuss this style" : lang === "ES" ? "Hablar de este estilo" : "咨询此造型"} <span aria-hidden="true">→</span>
           </button>}

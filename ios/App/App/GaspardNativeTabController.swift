@@ -69,6 +69,7 @@ final class GaspardNativeTabController: CAPBridgeViewController, UIGestureRecogn
     private let selectionFeedback = UISelectionFeedbackGenerator()
     private var isTrackingSelection = false
     private var previewTab: GaspardTab?
+    private var selectionAnimationGeneration = 0
     private var currentBackdropTab: GaspardTab?
     private var webAppReady = false
     private var launchArtworkOverlay: UIView?
@@ -310,22 +311,22 @@ final class GaspardNativeTabController: CAPBridgeViewController, UIGestureRecogn
         currentBackdropTab = tab
         let overPortrait = tab == .home
 
-        // Clear Liquid Glass exposes the photograph; regular glass keeps
-        // controls legible over text and light editorial content.
+        // Clear Liquid Glass keeps photography and editorial pages visible
+        // through the capsule, as on the QR Permanent floating navigation.
         if #available(iOS 26.0, *) {
-            let backdrop = UIGlassEffect(style: overPortrait ? .clear : .regular)
+            let backdrop = UIGlassEffect(style: .clear)
             backdrop.isInteractive = false
             floatingGlass.effect = backdrop
 
-            let highlight = UIGlassEffect(style: .regular)
+            let highlight = UIGlassEffect(style: .clear)
             highlight.isInteractive = true
             highlight.tintColor = overPortrait
-                ? UIColor.white.withAlphaComponent(0.08)
-                : gold.withAlphaComponent(0.16)
+                ? UIColor.white.withAlphaComponent(0.10)
+                : gold.withAlphaComponent(0.12)
             selectionGlass.effect = highlight
         } else {
-            floatingGlass.effect = UIBlurEffect(style: overPortrait ? .systemThinMaterialDark : .systemThinMaterialLight)
-            selectionGlass.effect = UIBlurEffect(style: overPortrait ? .systemThinMaterialLight : .systemMaterialLight)
+            floatingGlass.effect = UIBlurEffect(style: overPortrait ? .systemUltraThinMaterialDark : .systemUltraThinMaterialLight)
+            selectionGlass.effect = UIBlurEffect(style: .systemThinMaterialLight)
         }
 
         updateTabAppearance(for: tab)
@@ -352,13 +353,17 @@ final class GaspardNativeTabController: CAPBridgeViewController, UIGestureRecogn
         floatingGlass.contentView.layoutIfNeeded()
         let target = tabButtons[index].center.x
         guard abs((selectionCenterXConstraint?.constant ?? 0) - target) > 0.5 else { return }
+        selectionAnimationGeneration += 1
+        let generation = selectionAnimationGeneration
         if animated && !UIAccessibility.isReduceMotionEnabled {
             isTrackingSelection = true
             selectionCenterXConstraint?.constant = target
-            UIView.animate(withDuration: 0.32, delay: 0, usingSpringWithDamping: 0.86, initialSpringVelocity: 0.15, options: [.beginFromCurrentState, .allowUserInteraction]) {
+            UIView.animate(withDuration: 0.42, delay: 0, usingSpringWithDamping: 0.9, initialSpringVelocity: 0.25, options: [.beginFromCurrentState, .allowUserInteraction]) {
                 self.floatingGlass.contentView.layoutIfNeeded()
             } completion: { _ in
-                self.isTrackingSelection = false
+                if self.selectionAnimationGeneration == generation {
+                    self.isTrackingSelection = false
+                }
             }
         } else {
             selectionCenterXConstraint?.constant = target
@@ -384,6 +389,9 @@ final class GaspardNativeTabController: CAPBridgeViewController, UIGestureRecogn
         switch gesture.state {
         case .began, .changed:
             if gesture.state == .began {
+                selectionAnimationGeneration += 1
+                floatingGlass.contentView.layer.removeAllAnimations()
+                selectionGlass.layer.removeAllAnimations()
                 isTrackingSelection = true
                 selectionFeedback.prepare()
             }
@@ -398,7 +406,11 @@ final class GaspardNativeTabController: CAPBridgeViewController, UIGestureRecogn
                 updateTabAppearance(for: hovered)
             }
         case .ended:
-            let hovered = tab(at: gesture.location(in: tabBar).x)
+            // Project the release very slightly, so a quick swipe settles on
+            // the intended tab while the lens keeps following the finger.
+            let velocity = gesture.velocity(in: tabBar).x
+            let projectedX = gesture.location(in: tabBar).x + max(-45, min(45, velocity * 0.07))
+            let hovered = tab(at: projectedX)
             previewTab = nil
             isTrackingSelection = false
             commitSelection(hovered, haptic: false)

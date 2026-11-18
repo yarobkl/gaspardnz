@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import { safeNotificationUrl } from "../../src/utils/notificationLinks.js";
 
 const url = process.env.SUPABASE_URL || "https://imvjudhhtcdmtyhfhksm.supabase.co";
 const categories = new Set(["arrivage","promotion","evenement","showroom","service","actualite","rappel","personnalise"]);
@@ -21,6 +22,7 @@ function safeUrl(value) {
   try { const u = new URL(value, "https://gaspardnz.style"); return u.protocol === "https:" && (u.hostname === "gaspardnz.style" || u.hostname.endsWith(".gaspardnz.style")) ? u.href : null; }
   catch { return null; }
 }
+const isUuid = value => typeof value === "string" && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value);
 export default async function handler(req,res) {
   if (!["GET","POST"].includes(req.method)) return res.status(405).json({error:"Méthode non autorisée"});
   let db;
@@ -32,12 +34,32 @@ export default async function handler(req,res) {
     return error ? res.status(503).json({error:"Table notifications indisponible"}) : res.json({campaigns:data,subscribers:count??0});
   }
   const b=req.body || {};
+  // Une publication depuis l'éditeur Actualités doit notifier une seule fois.
+  // L'identifiant de l'article sert de clé d'idempotence de sa campagne.
+  if (b.source_news_id !== undefined) {
+    if (!isUuid(b.source_news_id)) return res.status(400).json({error:"Actualité invalide"});
+    const {data:article,error:articleError}=await db.from("news_posts").select("id,slug,title,excerpt,body,cover_url,published").eq("id",b.source_news_id).eq("published",true).maybeSingle();
+    if(articleError||!article) return res.status(404).json({error:"Actualité publiée introuvable"});
+    const {data:already}=await db.from("notification_campaigns").select("id,status").eq("id",article.id).maybeSingle();
+    if(already) return res.json({campaign:already,already_exists:true});
+    const message=String(article.excerpt||article.body||article.title).trim().slice(0,500);
+    const {data:campaign,error}=await db.from("notification_campaigns").insert({
+      id:article.id,category:"actualite",title:article.title.slice(0,120),body:message,
+      image_url:article.cover_url,target_url:`https://gaspardnz.style/actualites?article=${encodeURIComponent(article.slug)}`,
+      audience:"opted_in",status:"draft"
+    }).select("id,status").single();
+    if(error){
+      if(error.code==="23505")return res.json({campaign:{id:article.id,status:"sending"},already_exists:true});
+      return res.status(503).json({error:"Campagne de cette actualité indisponible"});
+    }
+    return res.status(201).json({campaign});
+  }
   const category=String(b.category||"");
   const title=String(b.title||"").trim(), body=String(b.body||"").trim();
   if (!categories.has(category) || !title || title.length>120 || !body || body.length>500) return res.status(400).json({error:"Catégorie, titre ou message invalide"});
   if (b.audience && b.audience!=="opted_in") return res.status(400).json({error:"Envois individuels non disponibles dans ce module"});
-  const target_url=safeUrl(b.target_url);
-  if (b.target_url && !target_url) return res.status(400).json({error:"Lien hors du site GaspardNZ interdit"});
+  const target_url=safeNotificationUrl(b.target_url);
+  if (b.target_url && (!target_url || target_url.length>2048)) return res.status(400).json({error:"Le lien doit être une adresse HTTPS publique valide (2048 caractères maximum)"});
   const image_url=safeUrl(b.image_url);
   if (b.image_url && !image_url) return res.status(400).json({error:"Image hors du site GaspardNZ interdite"});
   const status=String(b.status||"draft");
