@@ -13,11 +13,39 @@
 		504EC3081FED79650016851F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 504EC3071FED79650016851F /* AppDelegate.swift */; };
 		6B763E2023DB429F86514201 /* GaspardNativeTabController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B763E2123DB429F86514201 /* GaspardNativeTabController.swift */; };
 		6B763E2223DB429F86514201 /* GNZAppShortcuts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B763E2323DB429F86514201 /* GNZAppShortcuts.swift */; };
+		A1000000000000000000000D /* GNZAppointmentAttributes.swift in App Sources */ = {isa = PBXBuildFile; fileRef = A1000000000000000000000A /* GNZAppointmentAttributes.swift */; };
+		A1000000000000000000000E /* GNZAppointmentAttributes.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = A1000000000000000000000A /* GNZAppointmentAttributes.swift */; };
+		A1000000000000000000000F /* GNZAppointmentLiveActivity.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = A1000000000000000000000B /* GNZAppointmentLiveActivity.swift */; };
+		A10000000000000000000010 /* GNZActivityWidget.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = A10000000000000000000002 /* GNZActivityWidget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		504EC30D1FED79650016851F /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 504EC30B1FED79650016851F /* Main.storyboard */; };
 		504EC30F1FED79650016851F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 504EC30E1FED79650016851F /* Assets.xcassets */; };
 		504EC3121FED79650016851F /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 504EC3101FED79650016851F /* LaunchScreen.storyboard */; };
 		50B271D11FEDC1A000F3C39B /* public in Resources */ = {isa = PBXBuildFile; fileRef = 50B271D01FEDC1A000F3C39B /* public */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		A10000000000000000000012 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 504EC2FC1FED79650016851F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A10000000000000000000001;
+			remoteInfo = GNZActivityWidget;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		A10000000000000000000011 /* Embed App Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				A10000000000000000000010 /* GNZActivityWidget.appex in Embed App Extensions */,
+			);
+			name = "Embed App Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		2FAD9762203C412B000D30F8 /* config.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = config.xml; sourceTree = "<group>"; };
@@ -26,6 +54,10 @@
 		504EC3071FED79650016851F /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		6B763E2123DB429F86514201 /* GaspardNativeTabController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GaspardNativeTabController.swift; sourceTree = "<group>"; };
 		6B763E2323DB429F86514201 /* GNZAppShortcuts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GNZAppShortcuts.swift; sourceTree = "<group>"; };
+		A10000000000000000000002 /* GNZActivityWidget.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = GNZActivityWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		A1000000000000000000000A /* GNZAppointmentAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GNZAppointmentAttributes.swift; sourceTree = "<group>"; };
+		A1000000000000000000000B /* GNZAppointmentLiveActivity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GNZAppointmentLiveActivity.swift; sourceTree = "<group>"; };
+		A1000000000000000000000C /* Widget Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		504EC30C1FED79650016851F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		504EC30E1FED79650016851F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		504EC3111FED79650016851F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
@@ -35,6 +67,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		A10000000000000000000006 /* Widget Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		504EC3011FED79650016851F /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -51,6 +90,7 @@
 			children = (
 				958DCC722DB07C7200EA8C5F /* debug.xcconfig */,
 				504EC3061FED79650016851F /* App */,
+				A10000000000000000000003 /* GNZActivityWidget */,
 				504EC3051FED79650016851F /* Products */,
 			);
 			sourceTree = "<group>";
@@ -59,6 +99,7 @@
 			isa = PBXGroup;
 			children = (
 				504EC3041FED79650016851F /* App.app */,
+				A10000000000000000000002 /* GNZActivityWidget.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -80,6 +121,16 @@
 			path = App;
 			sourceTree = "<group>";
 		};
+		A10000000000000000000003 /* GNZActivityWidget */ = {
+			isa = PBXGroup;
+			children = (
+				A1000000000000000000000A /* GNZAppointmentAttributes.swift */,
+				A1000000000000000000000B /* GNZAppointmentLiveActivity.swift */,
+				A1000000000000000000000C /* Widget Info.plist */,
+			);
+			path = GNZActivityWidget;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -90,10 +141,12 @@
 				504EC3001FED79650016851F /* Sources */,
 				504EC3011FED79650016851F /* Frameworks */,
 				504EC3021FED79650016851F /* Resources */,
+				A10000000000000000000011 /* Embed App Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				A10000000000000000000013 /* PBXTargetDependency */,
 			);
 			name = App;
 			packageProductDependencies = (
@@ -102,6 +155,23 @@
 			productName = App;
 			productReference = 504EC3041FED79650016851F /* App.app */;
 			productType = "com.apple.product-type.application";
+		};
+		A10000000000000000000001 /* GNZActivityWidget */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A10000000000000000000007 /* Build configuration list for PBXNativeTarget "GNZActivityWidget" */;
+			buildPhases = (
+				A10000000000000000000004 /* Sources */,
+				A10000000000000000000006 /* Widget Frameworks */,
+				A10000000000000000000005 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = GNZActivityWidget;
+			productName = GNZActivityWidget;
+			productReference = A10000000000000000000002 /* GNZActivityWidget.appex */;
+			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
 
@@ -115,6 +185,10 @@
 					504EC3031FED79650016851F = {
 						CreatedOnToolsVersion = 9.2;
 						LastSwiftMigration = 1100;
+						ProvisioningStyle = Automatic;
+					};
+					A10000000000000000000001 = {
+						CreatedOnToolsVersion = 26.0;
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -136,11 +210,19 @@
 			projectRoot = "";
 			targets = (
 				504EC3031FED79650016851F /* App */,
+				A10000000000000000000001 /* GNZActivityWidget */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		A10000000000000000000005 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		504EC3021FED79650016851F /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -157,6 +239,15 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		A10000000000000000000004 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A1000000000000000000000E /* GNZAppointmentAttributes.swift in Widget Sources */,
+				A1000000000000000000000F /* GNZAppointmentLiveActivity.swift in Widget Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		504EC3001FED79650016851F /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -164,10 +255,19 @@
 				504EC3081FED79650016851F /* AppDelegate.swift in Sources */,
 				6B763E2023DB429F86514201 /* GaspardNativeTabController.swift in Sources */,
 				6B763E2223DB429F86514201 /* GNZAppShortcuts.swift in Sources */,
+				A1000000000000000000000D /* GNZAppointmentAttributes.swift in App Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		A10000000000000000000013 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A10000000000000000000001 /* GNZActivityWidget */;
+			targetProxy = A10000000000000000000012 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		504EC30B1FED79650016851F /* Main.storyboard */ = {
@@ -189,6 +289,52 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		A10000000000000000000008 /* Widget Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				INFOPLIST_FILE = GNZActivityWidget/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.2;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.gaspardnz.app.GNZActivityWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		A10000000000000000000009 /* Widget Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				INFOPLIST_FILE = GNZActivityWidget/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.2;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.gaspardnz.app.GNZActivityWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
 		504EC3141FED79650016851F /* Debug */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 958DCC722DB07C7200EA8C5F /* debug.xcconfig */;
@@ -347,6 +493,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		A10000000000000000000007 /* Build configuration list for PBXNativeTarget "GNZActivityWidget" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A10000000000000000000008 /* Widget Debug */,
+				A10000000000000000000009 /* Widget Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		504EC2FF1FED79650016851F /* Build configuration list for PBXProject "App" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
