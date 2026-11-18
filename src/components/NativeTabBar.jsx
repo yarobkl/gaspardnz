@@ -31,7 +31,7 @@ export default function NativeTabBar({ tabs, labels, activeTab, onSelect, Icon }
       return;
     }
     animationRef.current = animate(x, targetX, {
-      type: "spring", stiffness: 520, damping: 42, mass: 0.78,
+      type: "spring", stiffness: 680, damping: 46, mass: 0.62,
     });
   };
 
