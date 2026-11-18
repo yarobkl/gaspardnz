@@ -1,5 +1,5 @@
 import { useContext, useEffect, useMemo, useRef, useState } from "react";
-import { AnimatePresence, LayoutGroup, motion, useReducedMotion } from "framer-motion";
+import { animate, AnimatePresence, LayoutGroup, motion, useMotionValue, useReducedMotion } from "framer-motion";
 import { createPortal } from "react-dom";
 import { GOLD, CREAM, SITE_URL } from "../constants.js";
 import { LangCtx, useTr } from "../context.jsx";
@@ -51,7 +51,7 @@ export function galleryCategory(item) {
   return "looks";
 }
 
-export default function GalleryMobile({ refEl, native = false, onContact }) {
+export default function GalleryMobile({ refEl, native = false, onContact, onViewerVisibilityChange }) {
   const t = useTr();
   const reduceMotion = useReducedMotion();
   const { lang } = useContext(LangCtx);
@@ -136,6 +136,11 @@ export default function GalleryMobile({ refEl, native = false, onContact }) {
   const [viewerOpen, setViewerOpen] = useState(false);
   const [matchedIndex, setMatchedIndex] = useState(null);
   const [slideDirection, setSlideDirection] = useState(1);
+  const photoScale = useMotionValue(1);
+  const [isPhotoZoomed, setIsPhotoZoomed] = useState(false);
+  const pinchStart = useRef(null);
+  const lastTapAt = useRef(0);
+  const lastZoomAt = useRef(0);
   const warmedImages = useRef(new Set());
   const [favorites, setFavorites] = useState(() => {
     try { return new Set(JSON.parse(window.localStorage.getItem(FAVORITES_KEY) || "[]")); } catch { return new Set(); }
@@ -150,12 +155,38 @@ export default function GalleryMobile({ refEl, native = false, onContact }) {
   currentIndexRef.current = cur;
   const n = visibleItems.length;
 
+  const setPhotoZoom = (next) => {
+    const scale = Math.max(1, Math.min(3, next));
+    animate(photoScale, scale, { type: "spring", stiffness: 340, damping: 34 });
+    setIsPhotoZoomed(scale > 1.05);
+  };
+  const resetPhotoZoom = () => {
+    photoScale.set(1);
+    setIsPhotoZoomed(false);
+    pinchStart.current = null;
+    lastTapAt.current = 0;
+  };
+  const togglePhotoZoom = () => {
+    const now = Date.now();
+    if (now - lastZoomAt.current < 240) return;
+    lastZoomAt.current = now;
+    setPhotoZoom(photoScale.get() > 1.05 ? 1 : 2.3);
+  };
+
+  // The UIKit capsule must not cover the fullscreen image or its caption.
+  useEffect(() => {
+    if (!native) return undefined;
+    onViewerVisibilityChange?.(viewerOpen);
+    return () => { if (viewerOpen) onViewerVisibilityChange?.(false); };
+  }, [native, viewerOpen, onViewerVisibilityChange]);
+
   const closeViewer = (haptic = null) => {
     if (viewerClosingRef.current) return;
     viewerClosingRef.current = true;
     if (haptic) nativeFeedback(haptic);
     setMatchedIndex(currentIndexRef.current);
     setViewerOpen(false);
+    resetPhotoZoom();
   };
 
   useEffect(() => { if (n > 0 && cur >= n) setCur(0); }, [n, cur]);
@@ -210,7 +241,7 @@ export default function GalleryMobile({ refEl, native = false, onContact }) {
   if (!items.length) return native ? <p className="gnz-native-muted">{lang === "FR" ? "La galerie sera bientôt disponible." : lang === "EN" ? "The gallery will be available soon." : lang === "ES" ? "La galería estará disponible pronto." : "图库即将上线。"}</p> : null;
   const current = visibleItems[cur];
   const selected = activeSpot !== null ? current?.hotspots?.[activeSpot] : null;
-  const go = (direction) => { if (native) nativeFeedback("selection"); setMatchedIndex(null); setSlideDirection(direction); setActiveSpot(null); setCur((value) => (value + direction + n) % n); };
+  const go = (direction) => { if (native) nativeFeedback("selection"); resetPhotoZoom(); setMatchedIndex(null); setSlideDirection(direction); setActiveSpot(null); setCur((value) => (value + direction + n) % n); };
   const isFavorite = (item = current) => favorites.has(item?.src);
   const toggleFavorite = (item = current) => {
     if (!item?.src) return;
@@ -272,7 +303,7 @@ export default function GalleryMobile({ refEl, native = false, onContact }) {
                 animate={{ opacity: 1, scale: 1 }}
                 transition={reduceMotion ? { duration: 0 } : { duration: 0.19, ease: [0.2, 0.75, 0.2, 1] }}
                 key={item.src}
-                onClick={(event) => { viewerTriggerRef.current = event.currentTarget; viewerClosingRef.current = false; setSlideDirection(1); setCur(index); setMatchedIndex(index); setViewerOpen(true); }}
+                onClick={(event) => { viewerTriggerRef.current = event.currentTarget; viewerClosingRef.current = false; resetPhotoZoom(); setSlideDirection(1); setCur(index); setMatchedIndex(index); setViewerOpen(true); }}
                 aria-label={item.label}
               >
                 <motion.img layoutId={reduceMotion ? undefined : `gnz-look-${index}`} src={item.src} alt="" loading={index < 4 ? "eager" : "lazy"} decoding="async" fetchpriority={index < 2 ? "high" : "low"} style={{objectPosition:`center ${Math.min(100,Math.max(0,Number(item.focusY??36)||0))}%`}} />
@@ -301,15 +332,48 @@ export default function GalleryMobile({ refEl, native = false, onContact }) {
           <div className="gnz-native-photo-viewer-actions"><button type="button" onClick={() => toggleFavorite()} aria-label={isFavorite() ? "Retirer des inspirations" : "Ajouter aux inspirations"} aria-pressed={isFavorite()}>{isFavorite() ? "♥" : "♡"}</button><button type="button" onClick={share} aria-label={lang === "FR" ? "Partager ce look" : lang === "EN" ? "Share this look" : lang === "ES" ? "Compartir este look" : "分享此造型"}>↗</button></div>
         </div>
         <div className="gnz-native-photo-viewer-stage"
-          onTouchStart={(event) => { const touch = event.touches[0]; touchStart.current = { x:touch.clientX, y:touch.clientY }; }}
+          onTouchStart={(event) => {
+            if (event.touches.length === 2) {
+              const [a, b] = event.touches;
+              pinchStart.current = { distance: Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY), scale: photoScale.get() };
+              touchStart.current = null;
+            } else if (event.touches.length === 1) {
+              const touch = event.touches[0];
+              touchStart.current = { x: touch.clientX, y: touch.clientY };
+            }
+          }}
+          onTouchMove={(event) => {
+            if (event.touches.length !== 2 || !pinchStart.current) return;
+            const [a, b] = event.touches;
+            const distance = Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY);
+            photoScale.set(Math.max(1, Math.min(3, pinchStart.current.scale * distance / Math.max(1, pinchStart.current.distance))));
+          }}
           onTouchEnd={(event) => {
+            if (pinchStart.current) {
+              if (event.touches.length < 2) {
+                pinchStart.current = null;
+                const scale = photoScale.get();
+                if (scale < 1.05) setPhotoZoom(1);
+                else setIsPhotoZoomed(true);
+              }
+              return;
+            }
             if (!touchStart.current) return;
             const dx = event.changedTouches[0].clientX - touchStart.current.x;
             const dy = event.changedTouches[0].clientY - touchStart.current.y;
             touchStart.current = null;
+            if (Math.abs(dx) < 15 && Math.abs(dy) < 15) {
+              const now = Date.now();
+              if (now - lastTapAt.current < 320) { lastTapAt.current = 0; togglePhotoZoom(); }
+              else lastTapAt.current = now;
+              return;
+            }
+            lastTapAt.current = 0;
+            if (photoScale.get() > 1.05) return;
             if (dy > 90 && dy > Math.abs(dx) * 1.3) closeViewer("selection");
             else if (n > 1 && Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy) * 1.2) go(dx < 0 ? 1 : -1);
-          }}>
+          }}
+          onTouchCancel={() => { pinchStart.current = null; touchStart.current = null; }}>
           {n > 1 && <button type="button" className="gnz-native-photo-viewer-prev" onClick={() => go(-1)} aria-label={t("previous_photo")}>‹</button>}
           <AnimatePresence initial={false} custom={slideDirection} mode="sync">
             <motion.img
@@ -319,19 +383,21 @@ export default function GalleryMobile({ refEl, native = false, onContact }) {
               alt={current.label}
               decoding="async"
               draggable={false}
-              drag={reduceMotion ? false : "y"}
+              style={{ scale: photoScale }}
+              onDoubleClick={togglePhotoZoom}
+              drag={reduceMotion || isPhotoZoomed ? false : "y"}
               dragConstraints={{ top: 0, bottom: 0 }}
               dragElastic={{ top: 0.1, bottom: 0.45 }}
               dragMomentum={false}
               onDragEnd={(_, info) => {
-                if (info.offset.y > 90 || info.velocity.y > 650) {
+                if (!isPhotoZoomed && (info.offset.y > 90 || info.velocity.y > 650)) {
                   closeViewer("selection");
                 }
               }}
               custom={slideDirection}
-              initial={reduceMotion || matchedIndex === cur ? false : { opacity: 0.55, x: slideDirection * 64, scale: 0.985 }}
-              animate={{ opacity: 1, x: 0, scale: 1 }}
-              exit={(direction) => reduceMotion ? { opacity: 0 } : { opacity: 0, x: -direction * 64, scale: 0.985 }}
+              initial={reduceMotion || matchedIndex === cur ? false : { opacity: 0.55, x: slideDirection * 64 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={(direction) => reduceMotion ? { opacity: 0 } : { opacity: 0, x: -direction * 64 }}
               transition={reduceMotion ? { duration: 0 } : { duration: 0.28, ease: [0.2, 0.75, 0.25, 1], layout: { type: "spring", stiffness: 330, damping: 36 } }}
             />
           </AnimatePresence>

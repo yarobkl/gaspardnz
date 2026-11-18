@@ -109,7 +109,7 @@ export default function NativeExperience(){
  const ui=localUI[lang]||localUI.FR;
  const legal=legalCopy[lang]||legalCopy.FR;
  useEffect(()=>{StatusBar.setStyle({style:Style.Light}).catch(()=>{});},[]);
- const [page,setPage]=useState("home"),[servicesRevision,setServicesRevision]=useState(0),[contactOpen,setContactOpen]=useState(false),[contactProject,setContactProject]=useState(""),[contactDetails,setContactDetails]=useState(""),[downloadError,setDownloadError]=useState(""),[notificationsOpen,setNotificationsOpen]=useState(false),[newsFocusId,setNewsFocusId]=useState(null);
+ const [page,setPage]=useState("home"),[servicesRevision,setServicesRevision]=useState(0),[galleryViewerOpen,setGalleryViewerOpen]=useState(false),[contactOpen,setContactOpen]=useState(false),[contactProject,setContactProject]=useState(""),[contactDetails,setContactDetails]=useState(""),[downloadError,setDownloadError]=useState(""),[notificationsOpen,setNotificationsOpen]=useState(false),[newsFocusId,setNewsFocusId]=useState(null);
  useEffect(()=>{
    if(systemTabBar)document.documentElement.classList.toggle("gnz-system-tabs--home",page==="home");
  },[page,systemTabBar]);
@@ -258,8 +258,8 @@ export default function NativeExperience(){
    };
  }, [systemTabBar]);
  useEffect(() => {
-   if (systemTabBar) sendNativeTabState({ selected: topTabForPage(page), visible: true, labels: ui.tabs });
- }, [page, systemTabBar, lang]);
+   if (systemTabBar) sendNativeTabState({ selected: topTabForPage(page), visible: !galleryViewerOpen, labels: ui.tabs });
+ }, [page, systemTabBar, lang, galleryViewerOpen]);
  const handleAction=(event)=>{
   const action=event.target.closest("button,a");
   if(action && !action.disabled) nativeFeedback(action.dataset.haptic||"tap");
@@ -271,7 +271,7 @@ export default function NativeExperience(){
   switch(page){
    case "home":return <div className="gnz-native-hero"><img src="/images/Photo%20application%20.JPG" alt={ui.photo} loading="eager" /><div className="gnz-native-hero-shade"/><div className="gnz-native-hero-content"><h1>{c.tagline}</h1><p>{c.intro}</p><button onClick={()=>select("services")}>{c.discover} <span>→</span></button><button className="gnz-native-outline" onClick={()=>openContact()}>{c.talk}</button></div></div>;
    case "services":return <section className="gnz-native-section">{heading(ui.sections.services,c.intro)}<Services key={servicesRevision} lang={lang} onContact={openContact}/></section>;
-   case "gallery":return <section className="gnz-native-section gnz-native-gallery-page">{heading(ui.sections.gallery)}<Gallery native onContact={openContact}/></section>;
+   case "gallery":return <section className="gnz-native-section gnz-native-gallery-page">{heading(ui.sections.gallery)}<Gallery native onContact={openContact} onViewerVisibilityChange={setGalleryViewerOpen}/></section>;
     case "booking":return <section className="gnz-native-section gnz-native-booking-page">
       <button className="gnz-native-section-back" type="button" onClick={backToHome}>‹ {c.back}</button>
       <div className="gnz-native-booking-icon" aria-hidden="true"><NativeIcon name="booking"/></div>

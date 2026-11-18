@@ -24,6 +24,7 @@ describe("Services — conversion mobile GaspardNZ", () => {
     const onContact = vi.fn();
     render(<NativeServices lang="FR" onContact={onContact} />);
     fireEvent.click(screen.getByRole("button", { name: /Groom Conciergerie/ }));
+    expect(document.querySelector(".gnz-native-service-feature-portrait img")).toHaveAttribute("src", "/images/costume-bordeaux.jpg");
     expect(screen.getByText(/L'élégance à vos côtés/)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /Élégance Essentielle, 1 h 30, 199/ })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /Signature, 4 h, 349/ })).toBeInTheDocument();

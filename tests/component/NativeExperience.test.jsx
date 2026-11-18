@@ -21,7 +21,10 @@ vi.mock("../../src/components/NativeServices.jsx", () => ({
   default: ({ onContact }) => <button onClick={() => onContact("image_consulting")}>Parler de ce projet</button>,
 }));
 vi.mock("../../src/components/GalleryMobile.jsx", () => ({
-  default: () => <div data-testid="gallery">Galerie chargée</div>,
+  default: ({ onViewerVisibilityChange }) => <div data-testid="gallery">Galerie chargée
+    <button onClick={() => onViewerVisibilityChange?.(true)}>Afficher une photo</button>
+    <button onClick={() => onViewerVisibilityChange?.(false)}>Fermer la photo</button>
+  </div>,
 }));
 vi.mock("../../src/components/WhatsappContactModal.jsx", () => ({
   default: ({ isOpen, onClose, initialProjectType, initialProjectDetails }) => isOpen
@@ -67,6 +70,24 @@ describe("GaspardNZ native iOS experience", () => {
       expect(postMessage).toHaveBeenLastCalledWith(expect.objectContaining({
         type: "state", selected: "gallery", visible: true,
       }));
+    } finally {
+      delete window.webkit;
+      vi.restoreAllMocks();
+    }
+  });
+
+  it("masque UIKit pendant la photo plein écran et le restaure à la fermeture", async () => {
+    const postMessage = vi.fn();
+    vi.spyOn(Capacitor, "getPlatform").mockReturnValue("ios");
+    vi.spyOn(Capacitor, "isNativePlatform").mockReturnValue(true);
+    window.webkit = { messageHandlers: { gnzNativeTabs: { postMessage } } };
+    try {
+      render(<Harness />);
+      act(() => window.dispatchEvent(new CustomEvent("gnz:native-tab", { detail: { tab: "gallery" } })));
+      fireEvent.click(await screen.findByRole("button", { name: "Afficher une photo" }));
+      expect(postMessage).toHaveBeenLastCalledWith(expect.objectContaining({ selected: "gallery", visible: false }));
+      fireEvent.click(screen.getByRole("button", { name: "Fermer la photo" }));
+      expect(postMessage).toHaveBeenLastCalledWith(expect.objectContaining({ selected: "gallery", visible: true }));
     } finally {
       delete window.webkit;
       vi.restoreAllMocks();

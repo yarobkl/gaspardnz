@@ -39,6 +39,21 @@ describe("galerie native", () => {
     expect(tiles[1]).toHaveFocus();
   });
 
+  it("signale la visibilité du lecteur natif et permet le zoom tactile", async () => {
+    const onViewerVisibilityChange = vi.fn();
+    const view = render(<GalleryMobile native onViewerVisibilityChange={onViewerVisibilityChange} />);
+    expect(onViewerVisibilityChange).toHaveBeenLastCalledWith(false);
+    fireEvent.click(screen.getAllByRole("button").find(button => button.querySelector("img")));
+    expect(onViewerVisibilityChange).toHaveBeenLastCalledWith(true);
+    const dialog = screen.getByRole("dialog");
+    const photo = within(dialog).getByRole("img");
+    fireEvent.doubleClick(photo);
+    expect(photo).toBeInTheDocument();
+    fireEvent.click(within(dialog).getByRole("button", { name: /fermer/i }));
+    await waitFor(() => expect(onViewerVisibilityChange).toHaveBeenLastCalledWith(false));
+    view.unmount();
+  });
+
   it("filtre les photos déjà enregistrées en Mariage, Événements et Looks sans toucher aux autres catégories", async () => {
     fake.state.content_albums = [{
       id: "gallery-test",

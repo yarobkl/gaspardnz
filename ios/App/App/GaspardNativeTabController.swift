@@ -56,7 +56,7 @@ private final class WeakBookingMessageHandler: NSObject, WKScriptMessageHandler 
     }
 }
 
-final class GaspardNativeTabController: CAPBridgeViewController {
+final class GaspardNativeTabController: CAPBridgeViewController, UIGestureRecognizerDelegate {
     // Keep the iOS glass materials without UITabBar's oversized tab gesture.
     // Five fixed hit targets sit above a real, sliding glass selection lens.
     private let tabBar = UIStackView()
@@ -66,6 +66,9 @@ final class GaspardNativeTabController: CAPBridgeViewController {
     private let floatingGlass = UIVisualEffectView()
     private let selectionGlass = UIVisualEffectView()
     private var selectionCenterXConstraint: NSLayoutConstraint?
+    private let selectionFeedback = UISelectionFeedbackGenerator()
+    private var isTrackingSelection = false
+    private var previewTab: GaspardTab?
     private var currentBackdropTab: GaspardTab?
     private var webAppReady = false
     private var launchArtworkOverlay: UIView?
@@ -102,6 +105,17 @@ final class GaspardNativeTabController: CAPBridgeViewController {
             Task { @MainActor in GNZAppointmentReminders.shared.applicationBecameActive() }
         }
         GNZAppointmentReminders.shared.applicationBecameActive()
+    }
+
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        guard !isTrackingSelection, let tab = currentBackdropTab,
+              let index = GaspardTab.allCases.firstIndex(of: tab),
+              tabButtons.indices.contains(index) else { return }
+        let center = tabButtons[index].center.x
+        if abs((selectionCenterXConstraint?.constant ?? 0) - center) > 0.5 {
+            selectionCenterXConstraint?.constant = center
+        }
     }
 
     deinit {
@@ -267,7 +281,12 @@ final class GaspardNativeTabController: CAPBridgeViewController {
         floatingGlass.contentView.addSubview(selectionGlass)
         floatingGlass.contentView.addSubview(tabBar)
 
-        let initialSelection = selectionGlass.centerXAnchor.constraint(equalTo: tabButtons[0].centerXAnchor)
+        let drag = UIPanGestureRecognizer(target: self, action: #selector(dragSelection(_:)))
+        drag.maximumNumberOfTouches = 1
+        drag.delegate = self
+        tabBar.addGestureRecognizer(drag)
+
+        let initialSelection = selectionGlass.centerXAnchor.constraint(equalTo: tabBar.leadingAnchor)
         selectionCenterXConstraint = initialSelection
         NSLayoutConstraint.activate([
             floatingGlass.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 12),
@@ -290,9 +309,6 @@ final class GaspardNativeTabController: CAPBridgeViewController {
         guard currentBackdropTab != tab else { return }
         currentBackdropTab = tab
         let overPortrait = tab == .home
-        let foreground = overPortrait
-            ? UIColor.white.withAlphaComponent(0.95)
-            : UIColor.label.withAlphaComponent(0.82)
 
         // Clear Liquid Glass exposes the photograph; regular glass keeps
         // controls legible over text and light editorial content.
@@ -302,7 +318,7 @@ final class GaspardNativeTabController: CAPBridgeViewController {
             floatingGlass.effect = backdrop
 
             let highlight = UIGlassEffect(style: .regular)
-            highlight.isInteractive = false
+            highlight.isInteractive = true
             highlight.tintColor = overPortrait
                 ? UIColor.white.withAlphaComponent(0.08)
                 : gold.withAlphaComponent(0.16)
@@ -312,6 +328,14 @@ final class GaspardNativeTabController: CAPBridgeViewController {
             selectionGlass.effect = UIBlurEffect(style: overPortrait ? .systemThinMaterialLight : .systemMaterialLight)
         }
 
+        updateTabAppearance(for: tab)
+        moveSelection(to: tab, animated: animated)
+    }
+
+    private func updateTabAppearance(for tab: GaspardTab) {
+        let foreground = currentBackdropTab == .home
+            ? UIColor.white.withAlphaComponent(0.95)
+            : UIColor.label.withAlphaComponent(0.82)
         for (index, button) in tabButtons.enumerated() {
             let selected = GaspardTab.allCases[index] == tab
             let color = selected ? gold : foreground
@@ -321,31 +345,94 @@ final class GaspardNativeTabController: CAPBridgeViewController {
             tabLabels[index].textColor = color
             tabLabels[index].font = UIFont.systemFont(ofSize: 11, weight: selected ? .semibold : .medium)
         }
+    }
 
-        if let index = GaspardTab.allCases.firstIndex(of: tab),
-           let previous = selectionCenterXConstraint {
-            floatingGlass.contentView.layoutIfNeeded()
-            previous.isActive = false
-            let next = selectionGlass.centerXAnchor.constraint(equalTo: tabButtons[index].centerXAnchor)
-            next.isActive = true
-            selectionCenterXConstraint = next
-            if animated && !UIAccessibility.isReduceMotionEnabled {
-                UIView.animate(withDuration: 0.23, delay: 0, options: [.curveEaseOut, .beginFromCurrentState, .allowUserInteraction]) {
-                    self.floatingGlass.contentView.layoutIfNeeded()
-                }
-            } else {
-                floatingGlass.contentView.layoutIfNeeded()
+    private func moveSelection(to tab: GaspardTab, animated: Bool) {
+        guard let index = GaspardTab.allCases.firstIndex(of: tab), tabButtons.indices.contains(index) else { return }
+        floatingGlass.contentView.layoutIfNeeded()
+        let target = tabButtons[index].center.x
+        guard abs((selectionCenterXConstraint?.constant ?? 0) - target) > 0.5 else { return }
+        if animated && !UIAccessibility.isReduceMotionEnabled {
+            isTrackingSelection = true
+            selectionCenterXConstraint?.constant = target
+            UIView.animate(withDuration: 0.32, delay: 0, usingSpringWithDamping: 0.86, initialSpringVelocity: 0.15, options: [.beginFromCurrentState, .allowUserInteraction]) {
+                self.floatingGlass.contentView.layoutIfNeeded()
+            } completion: { _ in
+                self.isTrackingSelection = false
             }
+        } else {
+            selectionCenterXConstraint?.constant = target
+            floatingGlass.contentView.layoutIfNeeded()
         }
+    }
+
+    private func tab(at position: CGFloat) -> GaspardTab {
+        let index = tabButtons.indices.min(by: {
+            abs(tabButtons[$0].center.x - position) < abs(tabButtons[$1].center.x - position)
+        }) ?? 0
+        return GaspardTab.allCases[index]
+    }
+
+    func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+        guard let pan = gestureRecognizer as? UIPanGestureRecognizer else { return true }
+        let velocity = pan.velocity(in: tabBar)
+        return abs(velocity.x) > abs(velocity.y)
+    }
+
+    @objc private func dragSelection(_ gesture: UIPanGestureRecognizer) {
+        guard webAppReady, let first = tabButtons.first, let last = tabButtons.last else { return }
+        switch gesture.state {
+        case .began, .changed:
+            if gesture.state == .began {
+                isTrackingSelection = true
+                selectionFeedback.prepare()
+            }
+            let x = max(first.center.x, min(last.center.x, gesture.location(in: tabBar).x))
+            selectionCenterXConstraint?.constant = x
+            floatingGlass.contentView.layoutIfNeeded()
+            let hovered = tab(at: x)
+            if hovered != previewTab {
+                if previewTab != nil || hovered != currentBackdropTab { selectionFeedback.selectionChanged() }
+                selectionFeedback.prepare()
+                previewTab = hovered
+                updateTabAppearance(for: hovered)
+            }
+        case .ended:
+            let hovered = tab(at: gesture.location(in: tabBar).x)
+            previewTab = nil
+            isTrackingSelection = false
+            commitSelection(hovered, haptic: false)
+        case .cancelled, .failed:
+            previewTab = nil
+            isTrackingSelection = false
+            if let selected = currentBackdropTab {
+                updateTabAppearance(for: selected)
+                moveSelection(to: selected, animated: true)
+            }
+        default: break
+        }
+    }
+
+    private func commitSelection(_ selected: GaspardTab, haptic: Bool) {
+        guard webAppReady else { return }
+        if haptic && selected != currentBackdropTab {
+            selectionFeedback.prepare()
+            selectionFeedback.selectionChanged()
+        }
+        if currentBackdropTab == selected {
+            updateTabAppearance(for: selected)
+            moveSelection(to: selected, animated: true)
+        } else {
+            updateBackdrop(for: selected, animated: true)
+        }
+        // The route is an enum value, never arbitrary content from a webpage.
+        let js = "window.dispatchEvent(new CustomEvent('gnz:native-tab', { detail: { tab: '\(selected.rawValue)' } }))"
+        webView?.evaluateJavaScript(js, completionHandler: nil)
     }
 
     @objc private func selectTab(_ button: UIButton) {
         guard webAppReady, GaspardTab.allCases.indices.contains(button.tag) else { return }
-        let selected = GaspardTab.allCases[button.tag]
-        updateBackdrop(for: selected, animated: true)
-        // The route is an enum value, never arbitrary content from a webpage.
-        let js = "window.dispatchEvent(new CustomEvent('gnz:native-tab', { detail: { tab: '\(selected.rawValue)' } }))"
-        webView?.evaluateJavaScript(js, completionHandler: nil)
+        commitSelection(GaspardTab.allCases[button.tag], haptic: true)
     }
 
     fileprivate func handleTabMessage(_ message: WKScriptMessage) {

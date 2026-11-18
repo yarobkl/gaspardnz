@@ -76,8 +76,8 @@ export default function NativeServices({ lang, onContact }) {
         <img src="/images/veste-navy-soiree.jpg" alt="" loading="lazy" />
         <span><strong>{labels.formulas}</strong><small>{labels.formulasDetail}</small></span><span aria-hidden="true">›</span>
       </button>
-      <button type="button" className="gnz-native-service-card" onClick={() => setSelected("concierge")}>
-        <img src="/images/veste-bleue.jpg" alt="" loading="lazy" />
+      <button type="button" className="gnz-native-service-card gnz-native-service-card-portrait" onClick={() => setSelected("concierge")}>
+        <img src="/images/costume-bordeaux.jpg" alt="" loading="lazy" />
         <span><strong>{concierge.title}</strong><small>{concierge.detail}</small></span><span aria-hidden="true">›</span>
       </button>
       {categories.map((item) => <button key={item.title} type="button" className="gnz-native-service-card" onClick={() => setSelected(item)}>
@@ -112,7 +112,7 @@ export default function NativeServices({ lang, onContact }) {
         <button className="gnz-native-primary" type="button" onClick={() => onContact("other", `${concierge.prefill} : ${selectedGroomPackage.name} (${selectedGroomPackage.duration}, ${selectedGroomPackage.fromPrice ? "dès " : ""}${selectedGroomPackage.price} €). Date et lieu souhaités : `)}>{concierge.ask} →</button>
       </article>
     </> : selected === "concierge" ? <>
-      <div className="gnz-native-service-feature"><img src="/images/veste-bleue.jpg" alt="" /><h2>{concierge.title}</h2></div>
+      <div className="gnz-native-service-feature gnz-native-service-feature-portrait"><img src="/images/costume-bordeaux.jpg" alt="" /><h2>{concierge.title}</h2></div>
       <article className="gnz-native-concierge-intro">
         <h3>{concierge.heading}</h3>
         <p>{concierge.intro}</p>
