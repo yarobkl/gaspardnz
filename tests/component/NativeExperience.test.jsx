@@ -1,13 +1,15 @@
 import { useState } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
-import { Capacitor } from "@capacitor/core";
+import { Capacitor, CapacitorHttp } from "@capacitor/core";
 import { Browser } from "@capacitor/browser";
+import { PushNotifications } from "@capacitor/push-notifications";
 import { LangCtx } from "../../src/context.jsx";
 import NativeExperience from "../../src/components/NativeExperience.jsx";
 import { CAL_BOOKING_URL } from "../../src/components/NativeCalBooking.jsx";
 
 const mockSettings = vi.hoisted(() => ({ availability: undefined }));
+const pushListeners = vi.hoisted(() => new Map());
 
 // Test navigation without making live CRM calls or opening external apps.
 vi.mock("../../src/hooks/useSettings.js", () => ({
@@ -16,7 +18,22 @@ vi.mock("../../src/hooks/useSettings.js", () => ({
 vi.mock("../../src/hooks/usePublicCollection.js", () => ({
   usePublicCollection: () => ({ rows: [], loading: false, error: null }),
 }));
+vi.mock("@capacitor/core", async (importOriginal) => ({
+  ...await importOriginal(),
+  CapacitorHttp: {
+    post: vi.fn(async () => ({ status: 200, data: { active: true } })),
+    request: vi.fn(async () => ({ status: 200, data: { active: false } })),
+  },
+}));
 vi.mock("@capacitor/browser", () => ({ Browser: { open: vi.fn(async () => {}) } }));
+vi.mock("@capacitor/push-notifications", () => ({
+  PushNotifications: {
+    addListener: vi.fn(async (name, listener) => { pushListeners.set(name, listener); return { remove: vi.fn(async () => { pushListeners.delete(name); }) }; }),
+    checkPermissions: vi.fn(async () => ({ receive: "denied" })),
+    requestPermissions: vi.fn(async () => ({ receive: "denied" })),
+    register: vi.fn(async () => {}),
+  },
+}));
 vi.mock("../../src/components/NativeServices.jsx", () => ({
   default: ({ onContact }) => <button onClick={() => onContact("image_consulting")}>Parler de ce projet</button>,
 }));
@@ -46,6 +63,12 @@ const openTab = (label) => fireEvent.click(within(navigation()).getByRole("butto
 beforeEach(() => {
   mockSettings.availability = undefined;
   vi.stubGlobal("scrollTo", vi.fn());
+  pushListeners.clear();
+  PushNotifications.checkPermissions.mockReset().mockResolvedValue({ receive: "denied" });
+  PushNotifications.requestPermissions.mockReset().mockResolvedValue({ receive: "denied" });
+  PushNotifications.register.mockReset();
+  window.localStorage.removeItem("gnz-ios-push-device-token");
+  window.localStorage.removeItem("gnz-ios-push-subscribed-token");
 });
 
 describe("GaspardNZ native iOS experience", () => {
@@ -158,8 +181,63 @@ describe("GaspardNZ native iOS experience", () => {
     render(<Harness />);
     fireEvent.click(screen.getByRole("button", { name: "Notifications" }));
     expect(screen.getByText("Aucune notification pour le moment")).toBeInTheDocument();
+    expect(screen.queryByText("Alertes sur cet iPhone")).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /^(Activer|Désactiver)$/ })).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Fermer" }));
     await waitFor(() => expect(screen.queryByText("Aucune notification pour le moment")).not.toBeInTheDocument());
+  });
+
+  it("demande l'autorisation officielle au premier lancement puis ne redemande pas après un refus", async () => {
+    vi.spyOn(Capacitor, "getPlatform").mockReturnValue("ios");
+    vi.useFakeTimers();
+    try {
+      PushNotifications.checkPermissions.mockResolvedValueOnce({ receive: "prompt" }).mockResolvedValue({ receive: "denied" });
+      const first = render(<Harness />);
+      await act(async () => { await vi.advanceTimersByTimeAsync(1400); });
+      expect(PushNotifications.requestPermissions).toHaveBeenCalledTimes(1);
+      expect(PushNotifications.register).not.toHaveBeenCalled();
+      first.unmount();
+      render(<Harness />);
+      await act(async () => { await vi.advanceTimersByTimeAsync(1400); });
+      expect(PushNotifications.requestPermissions).toHaveBeenCalledTimes(1);
+      expect(PushNotifications.register).not.toHaveBeenCalled();
+    } finally { vi.useRealTimers(); vi.restoreAllMocks(); }
+  });
+
+  it("ne réaffiche pas la demande Apple si les notifications sont déjà autorisées", async () => {
+    vi.spyOn(Capacitor, "getPlatform").mockReturnValue("ios");
+    PushNotifications.checkPermissions.mockResolvedValue({ receive: "granted" });
+    vi.useFakeTimers();
+    try {
+      render(<Harness />);
+      await act(async () => { await vi.advanceTimersByTimeAsync(1400); });
+      expect(PushNotifications.requestPermissions).not.toHaveBeenCalled();
+      expect(PushNotifications.register).toHaveBeenCalledTimes(1);
+    } finally { vi.useRealTimers(); vi.restoreAllMocks(); }
+  });
+
+  it("enregistre l'appareil uniquement après l'accord iOS et respecte un retrait dans Réglages", async () => {
+    vi.spyOn(Capacitor, "getPlatform").mockReturnValue("ios");
+    const token = "a".repeat(64);
+    CapacitorHttp.post.mockClear();
+    CapacitorHttp.request.mockClear();
+    PushNotifications.checkPermissions.mockResolvedValueOnce({ receive: "prompt" }).mockResolvedValue({ receive: "denied" });
+    PushNotifications.requestPermissions.mockResolvedValue({ receive: "granted" });
+    PushNotifications.register.mockImplementation(async () => { pushListeners.get("registration")?.({ value: token }); });
+    vi.useFakeTimers();
+    try {
+      render(<Harness />);
+      await act(async () => { await vi.advanceTimersByTimeAsync(1400); });
+      expect(PushNotifications.register).toHaveBeenCalledTimes(1);
+      expect(CapacitorHttp.post).toHaveBeenCalledWith(expect.objectContaining({
+        url: "https://gaspardnz.style/api/notifications/push-subscription",
+        data: { deviceToken: token, consent: true },
+      }));
+      await act(async () => { document.dispatchEvent(new Event("visibilitychange")); });
+      expect(CapacitorHttp.request).toHaveBeenCalledWith(expect.objectContaining({
+        method: "DELETE", data: { deviceToken: token },
+      }));
+    } finally { vi.useRealTimers(); vi.restoreAllMocks(); }
   });
 
   it("sends the services lead to the CRM form, not directly to WhatsApp", async () => {
