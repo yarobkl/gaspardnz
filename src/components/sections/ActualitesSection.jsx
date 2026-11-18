@@ -5,6 +5,7 @@ import { getActualites, JT_SAPE_VIDEO_URL } from "../../data/actualitesData.js";
 import { usePublicCollection } from "../../hooks/usePublicCollection.js";
 import { LangCtx, useTr } from "../../context.jsx";
 import { withFrenchSpacing } from "../../utils/frenchTypography.js";
+import { safeNotificationUrl } from "../../utils/notificationLinks.js";
 
 const MOBILE_QUERY = "(max-width: 640px)";
 const MOBILE_SLIDE_VARIANTS = {
@@ -33,6 +34,7 @@ const remoteToNews = (row) => ({
   date: row.metadata?.date_label || (row.published_at ? new Date(row.published_at).toLocaleDateString("fr-FR", { month: "long", year: "numeric" }) : ""),
   tag: row.metadata?.tag || "Actualité",
   video: row.metadata?.video_url || null,
+  linkUrl: safeNotificationUrl(row.metadata?.link_url),
   photos: Array.isArray(row.gallery) && row.gallery.length ? row.gallery : row.cover_url ? [row.cover_url] : [],
 });
 
@@ -114,6 +116,7 @@ const ActuCard = ({ item, isMobile = false }) => {
         <h3 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(1.5rem,7vw,2rem)", letterSpacing: "0.06em", color: "#faf7f2", margin: "0 0 1rem", lineHeight: 1 }}>{title}</h3>
         <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(0.95rem,4vw,1.1rem)", color: "rgba(245,240,232,0.72)", lineHeight: 1.75, fontStyle: "italic", whiteSpace: "pre-line" }}>{expanded ? item.text : preview}</div>
         {(hasVideo || hasMoreText) && <motion.button whileTap={{ scale: 0.97 }} onClick={handleCta} style={{ marginTop: "1.1rem", background: "none", border: "none", padding: "0.7rem 0", minHeight: "44px", cursor: "pointer", display: "flex", alignItems: "center", gap: "6px" }}><span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "11px", letterSpacing: "0.3em", color: GOLD, textTransform: "uppercase" }}>{expanded ? t("reduce") : hasVideo ? t("watch_full_video") : t("open_article")}</span><motion.span animate={{ rotate: expanded ? 180 : 0 }}>⌄</motion.span></motion.button>}
+        {item.linkUrl && <a href={item.linkUrl} target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", alignItems: "center", minHeight: 44, marginTop: 8, color: GOLD, letterSpacing: ".08em" }}>Ouvrir le lien ↗</a>}
       </div>
     </motion.article>
   );

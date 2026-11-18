@@ -9,6 +9,7 @@ import NativeExperience from "../../src/components/NativeExperience.jsx";
 import { CAL_BOOKING_URL } from "../../src/components/NativeCalBooking.jsx";
 
 const mockSettings = vi.hoisted(() => ({ availability: undefined }));
+const mockNews = vi.hoisted(() => ({ rows: [] }));
 const pushListeners = vi.hoisted(() => new Map());
 
 // Test navigation without making live CRM calls or opening external apps.
@@ -16,7 +17,7 @@ vi.mock("../../src/hooks/useSettings.js", () => ({
   useSettings: () => ({ whatsappNumber: "+33600000000", lookbookHidden: true, bookingAvailability: mockSettings.availability }),
 }));
 vi.mock("../../src/hooks/usePublicCollection.js", () => ({
-  usePublicCollection: () => ({ rows: [], loading: false, error: null }),
+  usePublicCollection: (table) => ({ rows: table === "news_posts" ? mockNews.rows : [], loading: false, error: null }),
 }));
 vi.mock("@capacitor/core", async (importOriginal) => ({
   ...await importOriginal(),
@@ -62,11 +63,13 @@ const openTab = (label) => fireEvent.click(within(navigation()).getByRole("butto
 
 beforeEach(() => {
   mockSettings.availability = undefined;
+  mockNews.rows = [];
   vi.stubGlobal("scrollTo", vi.fn());
   pushListeners.clear();
   PushNotifications.checkPermissions.mockReset().mockResolvedValue({ receive: "denied" });
   PushNotifications.requestPermissions.mockReset().mockResolvedValue({ receive: "denied" });
   PushNotifications.register.mockReset();
+  Browser.open.mockClear();
   window.localStorage.removeItem("gnz-ios-push-device-token");
   window.localStorage.removeItem("gnz-ios-push-subscribed-token");
 });
@@ -361,5 +364,38 @@ describe("GaspardNZ native iOS experience", () => {
     expect(document.querySelectorAll("#gnz-native-main > .gnz-native-page")).toHaveLength(1);
     expect(screen.queryByTestId("gallery")).not.toBeInTheDocument();
     expect(await screen.findByRole("button", { name: "Parler de ce projet" })).toBeInTheDocument();
+  });
+
+  it("keeps admin announcements in the bell and opens their TikTok links directly", async () => {
+    const destination = "https://www.tiktok.com/@gaspardnz/video/123";
+    mockNews.rows = [{ id: "article-video", title: "Nouvelle vidéo de style", body: "Un look inédit",
+      published_at: "2026-11-18T12:00:00Z", metadata: { link_url: destination } }];
+    render(<Harness />);
+    fireEvent.click(screen.getByRole("button", { name: "Notifications" }));
+    const inbox = screen.getByLabelText("Filtrer les notifications").closest("section");
+    expect(within(inbox).getByText("Nouvelle vidéo de style")).toBeInTheDocument();
+    fireEvent.click(within(inbox).getByRole("button", { name: /Nouvelle vidéo de style/ }));
+    await waitFor(() => expect(Browser.open).toHaveBeenCalledWith({ url: destination }));
+    expect(screen.getByRole("button", { name: "Notifications" })).toHaveAttribute("aria-expanded", "false");
+  });
+
+  it("routes a tapped Apple push directly to TikTok and refreshes durable news", async () => {
+    vi.spyOn(Capacitor, "getPlatform").mockReturnValue("ios");
+    const changed = vi.fn();
+    window.addEventListener("gnz:news-updated", changed);
+    try {
+      render(<Harness />);
+      await waitFor(() => expect(pushListeners.has("pushNotificationActionPerformed")).toBe(true));
+      act(() => pushListeners.get("pushNotificationReceived")({ data: {} }));
+      expect(changed).toHaveBeenCalledTimes(1);
+      act(() => pushListeners.get("pushNotificationActionPerformed")({ notification: { data: {
+        url: "https://www.tiktok.com/@gaspardnz/video/456", news_slug: "notification-article",
+      } } }));
+      await waitFor(() => expect(Browser.open).toHaveBeenCalledWith({ url: "https://www.tiktok.com/@gaspardnz/video/456" }));
+      expect(changed).toHaveBeenCalledTimes(2);
+    } finally {
+      window.removeEventListener("gnz:news-updated", changed);
+      vi.restoreAllMocks();
+    }
   });
 });

@@ -62,6 +62,12 @@ export function usePublicCollection(table, {
     };
 
     load();
+    const reloadNews = () => load();
+    const onVisibility = () => { if (document.visibilityState === "visible") load(); };
+    if (table === "news_posts") {
+      window.addEventListener("gnz:news-updated", reloadNews);
+      document.addEventListener("visibilitychange", onVisibility);
+    }
     const channel = supabase
       .channel(`public-${table}-${Math.random().toString(36).slice(2)}`)
       .on("postgres_changes", { event: "*", schema: "public", table }, load)
@@ -69,6 +75,10 @@ export function usePublicCollection(table, {
 
     return () => {
       alive = false;
+      if (table === "news_posts") {
+        window.removeEventListener("gnz:news-updated", reloadNews);
+        document.removeEventListener("visibilitychange", onVisibility);
+      }
       supabase.removeChannel(channel);
     };
   }, [table, enabled, select, orderBy, ascending, JSON.stringify(filters), JSON.stringify(fallback)]);

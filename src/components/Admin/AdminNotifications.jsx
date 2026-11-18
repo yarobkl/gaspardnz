@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../../services/supabaseClient.js";
-const initial = { category:"arrivage",title:"",body:"",image_url:"",target_url:"",status:"draft",scheduled_at:"" };
+const initial = { category:"actualite",title:"",body:"",image_url:"",target_url:"",mode:"article",status:"draft",scheduled_at:"" };
 const labels={arrivage:"Nouvel arrivage",promotion:"Promotion",evenement:"Événement",showroom:"Showroom",service:"Nouveau service",actualite:"Actualité",rappel:"Rappel",personnalise:"Message personnalisé"};
 export default function AdminNotifications() {
  const [form,setForm]=useState(initial),[rows,setRows]=useState([]),[error,setError]=useState(""),[loading,setLoading]=useState(false),[pairCode,setPairCode]=useState(""),[pairBusy,setPairBusy]=useState(false),[testBusy,setTestBusy]=useState(false),[testResult,setTestResult]=useState(""),[sendingId,setSendingId]=useState(""),[sendResult,setSendResult]=useState(""),[subscribers,setSubscribers]=useState(0);
@@ -37,20 +37,20 @@ export default function AdminNotifications() {
  }
  async function load(){try {const result=await request("GET");setRows(result.campaigns||[]);setSubscribers(result.subscribers||0);setError("");}catch(e){setError(e.message);}}
  useEffect(()=>{load();},[]);
- async function save(e){e.preventDefault();setLoading(true);setError("");try{await request("POST",form);setForm(initial);await load();}catch(e){setError(e.message);}finally{setLoading(false);}}
+ async function save(e){e.preventDefault();setLoading(true);setError("");try{await request("POST",{...form,target_url:form.mode==="link"?form.target_url:null});setForm(initial);await load();}catch(e){setError(e.message);}finally{setLoading(false);}}
  async function sendCampaign(row){
    if(!window.confirm(`Envoyer « ${row.title} » aux iPhone ayant accepté les notifications ?`))return;
    setSendingId(row.id);setSendResult("");
    try{
      const {data}=await supabase.auth.getSession();
      if(!data?.session?.access_token)throw new Error("Session expirée");
-     let remaining=1,sent=0,failed=0;
+     let remaining=1,sent=0,failed=0,published=false,message="";
      while(remaining>0){
        const response=await fetch("/api/notifications/send-campaign",{method:"POST",headers:{"Content-Type":"application/json",Authorization:"Bearer "+data.session.access_token},body:JSON.stringify({id:row.id})});
        const result=await response.json().catch(()=>({}));
        if(!response.ok)throw new Error(result.error||"Envoi indisponible");
-       remaining=result.remaining;sent+=result.sent||0;failed+=result.failed||0;
-       setSendResult(`${sent} accepté(s) par Apple, ${failed} échec(s), ${remaining} restant(s).`);
+       remaining=result.remaining;sent+=result.sent||0;failed+=result.failed||0;published=Boolean(result.published);message=result.message||"";
+       setSendResult(`${published?"Actualité publiée. ":""}${sent} accepté(s) par Apple, ${failed} échec(s), ${remaining} restant(s). ${message}`);
      }
      await load();
    }catch(e){setSendResult("Envoi interrompu : "+e.message+". Reprenez cette campagne après vérification.");}
@@ -58,14 +58,15 @@ export default function AdminNotifications() {
  }
  return <div><div className="gnz-page-heading"><div><h1>Notifications clients</h1><p>{subscribers} iPhone{ subscribers>1?"s":"" } inscrit{ subscribers>1?"s":"" } aux alertes.</p></div></div>
  <section className="gnz-card" style={{padding:16,marginBottom:16}}><h2>Test push Apple — iPhone</h2><p>Associez une seule fois votre iPhone avec un code temporaire. Ensuite, envoyez les tests sans manipuler de token.</p><button type="button" className="gnz-primary-button" disabled={pairBusy} onClick={createPairCode}>{pairBusy?"Préparation…":"Créer un code d’appairage"}</button>{pairCode&&<p role="status">Code valable 10 minutes : <strong style={{overflowWrap:"anywhere"}}>{pairCode}</strong> — ouvrez GaspardNZ sur l’iPhone et saisissez ce code dans les réglages des notifications.</p>}<button type="button" className="gnz-primary-button" disabled={testBusy} onClick={sendTest}>{testBusy?"Envoi vers Apple…":"Envoyer un push de test sur mon iPhone"}</button>{testResult&&<p role="status">{testResult}</p>}</section>
- <div className="gnz-alert">Seuls les iPhone ayant accepté les notifications reçoivent une campagne. Vérifiez le message et le lien avant l’envoi. Une confirmation Apple ne garantit pas l’affichage sur l’iPhone.</div>{sendResult&&<p role="status">{sendResult}</p>}
+ <div className="gnz-alert">Le bouton « Publier et notifier » crée d’abord une actualité permanente, puis envoie l’alerte aux iPhone autorisés. Avec un lien direct, toucher l’alerte ouvre la page choisie (TikTok, vidéo, site…) ; l’annonce reste consultable dans Actualités. Une confirmation Apple ne garantit pas l’affichage sur l’iPhone.</div>{sendResult&&<p role="status">{sendResult}</p>}
  {error&&<div className="gnz-alert gnz-alert-error" role="alert">{error}</div>}
- <div className="gnz-split"><article className="gnz-card"><header className="gnz-card-header"><div className="gnz-card-title"><strong>Campagnes enregistrées</strong><span>{rows.length} campagne(s)</span></div></header><div className="gnz-table-wrap"><table className="gnz-table"><thead><tr><th>Campagne</th><th>Type</th><th>Statut</th><th>Action</th></tr></thead><tbody>{rows.map(r=><tr key={r.id}><td><strong>{r.title}</strong><span className="gnz-table-sub">{r.body}</span></td><td>{labels[r.category]||r.category}</td><td>{r.status}</td><td>{["draft","sending"].includes(r.status)&&<button type="button" disabled={!!sendingId} onClick={()=>sendCampaign(r)}>{sendingId===r.id?"Envoi…":r.status==="sending"?"Reprendre":"Envoyer"}</button>}</td></tr>)}{!rows.length&&<tr><td colSpan="4">Aucune campagne enregistrée.</td></tr>}</tbody></table></div></article>
+ <div className="gnz-split"><article className="gnz-card"><header className="gnz-card-header"><div className="gnz-card-title"><strong>Campagnes enregistrées</strong><span>{rows.length} campagne(s)</span></div></header><div className="gnz-table-wrap"><table className="gnz-table"><thead><tr><th>Campagne</th><th>Type</th><th>Statut</th><th>Action</th></tr></thead><tbody>{rows.map(r=><tr key={r.id}><td><strong>{r.title}</strong><span className="gnz-table-sub">{r.body}</span></td><td>{r.target_url?"Lien direct":"Article"} · {labels[r.category]||r.category}</td><td>{r.status}</td><td>{["draft","sending"].includes(r.status)&&<button type="button" disabled={!!sendingId} onClick={()=>sendCampaign(r)}>{sendingId===r.id?"Publication…":r.status==="sending"?"Reprendre":"Publier et notifier"}</button>}</td></tr>)}{!rows.length&&<tr><td colSpan="4">Aucune campagne enregistrée.</td></tr>}</tbody></table></div></article>
  <aside className="gnz-card gnz-editor"><header className="gnz-card-header"><div className="gnz-card-title"><strong>Nouvelle campagne</strong></div></header><form className="gnz-card-body gnz-editor-grid" onSubmit={save}>
  <label className="gnz-field">Catégorie<select className="gnz-select" value={form.category} onChange={e=>setForm({...form,category:e.target.value})}>{Object.entries(labels).map(([k,v])=><option key={k} value={k}>{v}</option>)}</select></label>
  <label className="gnz-field">Titre<input className="gnz-input" required maxLength="120" value={form.title} onChange={e=>setForm({...form,title:e.target.value})}/></label>
  <label className="gnz-field">Message<textarea className="gnz-textarea" required maxLength="500" value={form.body} onChange={e=>setForm({...form,body:e.target.value})}/></label>
- <label className="gnz-field">Lien GaspardNZ (facultatif)<input className="gnz-input" type="url" placeholder="https://gaspardnz.style/..." value={form.target_url} onChange={e=>setForm({...form,target_url:e.target.value})}/></label>
+ <label className="gnz-field">Destination à l'ouverture de la notification<select className="gnz-select" value={form.mode} onChange={e=>setForm({...form,mode:e.target.value})}><option value="article">Lire l'article dans Actualités</option><option value="link">Ouvrir un lien direct (TikTok, vidéo, page web…)</option></select></label>
+ {form.mode==="link"&&<label className="gnz-field">Lien HTTPS de destination<input className="gnz-input" type="url" required placeholder="https://www.tiktok.com/@.../video/..." value={form.target_url} onChange={e=>setForm({...form,target_url:e.target.value})}/><small>Le lien s'ouvrira au toucher du push. L'annonce restera également dans Actualités.</small></label>}
  <label className="gnz-field">URL image GaspardNZ (facultatif)<input className="gnz-input" type="url" value={form.image_url} onChange={e=>setForm({...form,image_url:e.target.value})}/></label>
  <label className="gnz-field">Mode<select className="gnz-select" value={form.status} onChange={e=>setForm({...form,status:e.target.value})}><option value="draft">Brouillon</option><option value="scheduled">Préparer une programmation (envoi désactivé)</option></select></label>
  {form.status==="scheduled"&&<label className="gnz-field">Date prévue<input className="gnz-input" type="datetime-local" required value={form.scheduled_at} onChange={e=>setForm({...form,scheduled_at:e.target.value})}/></label>}

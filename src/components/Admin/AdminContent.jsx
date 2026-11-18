@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { getSiteSettings, listContentTable, saveSiteSetting, setPublished, uploadMedia, upsertRow } from "../../services/adminData.js";
 import { hasPermission } from "../../services/adminAuth.js";
 import { scrollToAdminEditor } from "./scrollToEditor.js";
+import { notifyPublishedNews } from "../../services/newsPushPublication.js";
 import MediaUploadField from "./MediaUploadField.jsx";
 import AdminFormulesPricing from "./AdminFormulesPricing.jsx";
 import PartnerPhotosManager from "./PartnerPhotosManager.jsx";
@@ -53,12 +54,22 @@ export default function AdminContent({ user }) {
       if (!row.slug && (row.name || row.title)) row.slug = slugify(row.name || row.title);
       if (tab === "partners") { row.sort_order = Number(row.sort_order || 0); row.commission_percent = row.commission_percent === "" ? null : Number(row.commission_percent); row.client_discount_percent = row.client_discount_percent === "" ? null : Number(row.client_discount_percent); }
       if (tab === "news" && row.published && !row.published_at) row.published_at = new Date().toISOString();
-      await upsertRow(tableForTab, row, "slug"); await load(); setForm(null); flash("Modification publiée dans la base.");
+      const wasPublished = tab === "news" && rows.some(existing =>
+        (row.id ? existing.id === row.id : existing.slug === row.slug) && existing.published);
+      const saved = await upsertRow(tableForTab, row, "slug"); await load(); setForm(null);
+      if (tab === "news" && saved.published && !wasPublished) {
+        try { const result = await notifyPublishedNews(saved.id); flash(`Actualité publiée · ${result.sent} push envoyé(s).`); }
+        catch (pushError) { setError(`Actualité publiée, mais notification non terminée : ${pushError.message}`); }
+      } else flash("Modification publiée dans la base.");
     } catch (e) { setError(e?.message || "Enregistrement impossible."); } finally { setSaving(false); }
   };
 
   const toggle = async (row) => {
-    try { await setPublished(tableForTab, row.id, !row.published); await load(); flash(row.published ? "Masqué du site." : "Remis en ligne."); }
+    try { await setPublished(tableForTab, row.id, !row.published); await load();
+      if (tab === "news" && !row.published) {
+        try { const result = await notifyPublishedNews(row.id); flash(`Actualité remise en ligne · ${result.sent} push envoyé(s).`); }
+        catch (pushError) { setError(`Actualité visible, mais notification non terminée : ${pushError.message}`); }
+      } else flash(row.published ? "Masqué du site." : "Remis en ligne."); }
     catch (e) { setError(e?.message || "Impossible de changer la visibilité."); }
   };
   const openForm = (row) => { setForm(row); scrollToAdminEditor(); };
