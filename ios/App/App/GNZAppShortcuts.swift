@@ -59,6 +59,8 @@ enum GNZShortcutRouter {
 struct GNZOpenServicesIntent: AppIntent {
     static let title: LocalizedStringResource = "Découvrir les prestations GNZ PARIS"
     static let description = IntentDescription("Ouvre la liste des prestations de GaspardNZ.")
+    static let openAppWhenRun = true // iOS 18–25 fallback
+    @available(iOS 26.0, *)
     static var supportedModes: IntentModes { .foreground(.immediate) }
 
     @MainActor
@@ -72,6 +74,8 @@ struct GNZOpenServicesIntent: AppIntent {
 struct GNZOpenGalleryIntent: AppIntent {
     static let title: LocalizedStringResource = "Voir la galerie GNZ PARIS"
     static let description = IntentDescription("Ouvre les photographies et créations GaspardNZ.")
+    static let openAppWhenRun = true // iOS 18–25 fallback
+    @available(iOS 26.0, *)
     static var supportedModes: IntentModes { .foreground(.immediate) }
 
     @MainActor
@@ -85,6 +89,8 @@ struct GNZOpenGalleryIntent: AppIntent {
 struct GNZOpenNewsIntent: AppIntent {
     static let title: LocalizedStringResource = "Lire les actualités GNZ PARIS"
     static let description = IntentDescription("Ouvre le journal et les dernières actualités de GaspardNZ.")
+    static let openAppWhenRun = true // iOS 18–25 fallback
+    @available(iOS 26.0, *)
     static var supportedModes: IntentModes { .foreground(.immediate) }
 
     @MainActor
@@ -98,6 +104,8 @@ struct GNZOpenNewsIntent: AppIntent {
 struct GNZOpenBookingIntent: AppIntent {
     static let title: LocalizedStringResource = "Réserver avec GNZ PARIS"
     static let description = IntentDescription("Ouvre le calendrier pour choisir un rendez-vous avec GaspardNZ.")
+    static let openAppWhenRun = true // iOS 18–25 fallback
+    @available(iOS 26.0, *)
     static var supportedModes: IntentModes { .foreground(.immediate) }
 
     @MainActor
