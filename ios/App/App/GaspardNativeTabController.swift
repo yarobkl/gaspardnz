@@ -192,10 +192,14 @@ final class GaspardNativeTabController: CAPBridgeViewController, UITabBarDelegat
     private func configureTabBar() {
         tabBar.isTranslucent = true
         tabBar.backgroundColor = .clear
+        // A standalone tab bar inside a floating capsule needs the five items
+        // laid out evenly and a little more vertical room than the default row.
+        tabBar.itemPositioning = .fill
         tabBar.tintColor = gold
         tabBar.delegate = self
         tabBar.items = GaspardTab.allCases.enumerated().map { index, tab in
             let item = UITabBarItem(title: tab.title, image: UIImage(systemName: tab.symbol), tag: index)
+            item.titlePositionAdjustment = UIOffset(horizontal: 0, vertical: 5)
             item.accessibilityLabel = tab.title
             return item
         }
@@ -218,7 +222,7 @@ final class GaspardNativeTabController: CAPBridgeViewController, UITabBarDelegat
             floatingGlass.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 12),
             floatingGlass.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -12),
             floatingGlass.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -8),
-            floatingGlass.heightAnchor.constraint(equalToConstant: 68),
+            floatingGlass.heightAnchor.constraint(equalToConstant: 76),
             tabBar.leadingAnchor.constraint(equalTo: floatingGlass.leadingAnchor),
             tabBar.trailingAnchor.constraint(equalTo: floatingGlass.trailingAnchor),
             tabBar.topAnchor.constraint(equalTo: floatingGlass.topAnchor),
@@ -246,7 +250,10 @@ final class GaspardNativeTabController: CAPBridgeViewController, UITabBarDelegat
         appearance.configureWithTransparentBackground()
         appearance.shadowColor = .clear
         appearance.stackedLayoutAppearance.normal.iconColor = foreground
-        appearance.stackedLayoutAppearance.normal.titleTextAttributes = [.foregroundColor: foreground]
+        appearance.stackedLayoutAppearance.normal.titleTextAttributes = [
+            .foregroundColor: foreground,
+            .font: UIFont.systemFont(ofSize: 10, weight: .medium)
+        ]
         appearance.stackedLayoutAppearance.selected.iconColor = gold
         appearance.stackedLayoutAppearance.selected.titleTextAttributes = [
             .foregroundColor: gold,

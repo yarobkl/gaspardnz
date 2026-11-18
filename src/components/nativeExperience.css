@@ -365,6 +365,7 @@
   touch-action:pan-y;
   -webkit-user-select:none;
   user-select:none;
+  grid-template-columns:repeat(5,minmax(0,1fr));
 }
 .gnz-native-tabs-draggable>.gnz-native-tab-pill{
   position:absolute;
@@ -379,9 +380,46 @@
 .gnz-native-tabs-draggable button{
   position:relative;
   z-index:1;
+  min-width:0;
+  min-height:58px;
+  padding:5px 1px;
+  display:grid;
+  grid-template-rows:25px 15px;
+  align-content:center;
+  justify-items:center;
+  align-items:center;
+  row-gap:3px;
   touch-action:pan-y;
   -webkit-user-select:none;
   user-select:none;
+}
+.gnz-native-tabs-draggable button>span:first-child{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:100%;
+  height:25px;
+  grid-row:1;
+}
+.gnz-native-tabs-draggable button svg{
+  width:22px;
+  height:22px;
+  flex:none;
+}
+.gnz-native-tabs-draggable button>small{
+  display:block;
+  grid-row:2;
+  min-width:0;
+  max-width:100%;
+  height:15px;
+  margin:0;
+  overflow:hidden;
+  white-space:nowrap;
+  font-size:clamp(9px,2.5vw,10px);
+  line-height:15px;
+  font-weight:600;
+  text-align:center;
+  letter-spacing:0;
 }
 .gnz-native-tabs-draggable button>span:not(.gnz-native-tab-pill),
 .gnz-native-tabs-draggable button>small{position:relative;z-index:1}
