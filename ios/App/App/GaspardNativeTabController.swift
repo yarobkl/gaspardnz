@@ -288,6 +288,8 @@ final class GaspardNativeTabController: CAPBridgeViewController, UIGestureRecogn
 
         floatingGlass.isUserInteractionEnabled = true
         floatingGlass.isHidden = true
+        floatingGlass.alpha = 0
+        floatingGlass.transform = CGAffineTransform(translationX: 0, y: 16)
         floatingGlass.layer.cornerRadius = 41
         floatingGlass.clipsToBounds = true
         floatingGlass.translatesAutoresizingMaskIntoConstraints = false
@@ -329,19 +331,22 @@ final class GaspardNativeTabController: CAPBridgeViewController, UIGestureRecogn
         currentBackdropTab = tab
         let overPortrait = tab == .home
 
-        // Clear Liquid Glass keeps photography and editorial pages visible
-        // through the capsule, as on the QR Permanent floating navigation.
+        // Install glass just once. Replacing two effect views at every tab
+        // change causes bright flashes during fast left/right reversals.
         if #available(iOS 26.0, *) {
-            let backdrop = UIGlassEffect(style: .clear)
-            backdrop.isInteractive = false
-            floatingGlass.effect = backdrop
-
-            let highlight = UIGlassEffect(style: .clear)
-            highlight.isInteractive = true
-            highlight.tintColor = overPortrait
-                ? UIColor.white.withAlphaComponent(0.10)
-                : gold.withAlphaComponent(0.12)
-            selectionGlass.effect = highlight
+            if floatingGlass.effect == nil {
+                let backdrop = UIGlassEffect(style: .clear)
+                backdrop.isInteractive = false
+                floatingGlass.effect = backdrop
+            }
+            if selectionGlass.effect == nil {
+                let highlight = UIGlassEffect(style: .clear)
+                // The finger is tracked by our pan recognizer. Interactive
+                // glass adds a second, harsh white response during dragging.
+                highlight.isInteractive = false
+                highlight.tintColor = gold.withAlphaComponent(0.06)
+                selectionGlass.effect = highlight
+            }
         } else {
             floatingGlass.effect = UIBlurEffect(style: overPortrait ? .systemUltraThinMaterialDark : .systemUltraThinMaterialLight)
             selectionGlass.effect = UIBlurEffect(style: .systemThinMaterialLight)
@@ -352,7 +357,9 @@ final class GaspardNativeTabController: CAPBridgeViewController, UIGestureRecogn
     }
 
     private func updateTabAppearance(for tab: GaspardTab) {
-        let foreground = currentBackdropTab == .home
+        // Preview colors must follow the destination being hovered, not the
+        // previous route (which can be the dark portrait during a fast swipe).
+        let foreground = tab == .home
             ? UIColor.white.withAlphaComponent(0.95)
             : UIColor.label.withAlphaComponent(0.82)
         for (index, button) in tabButtons.enumerated() {
@@ -485,8 +492,24 @@ final class GaspardNativeTabController: CAPBridgeViewController, UIGestureRecogn
 
         let visible = body["visible"] as? Bool ?? false
         webAppReady = visible
-        tabBar.isHidden = !visible
-        floatingGlass.isHidden = !visible
+        let duration: TimeInterval = UIAccessibility.isReduceMotionEnabled ? 0 : 0.22
+        if visible {
+            tabBar.isHidden = false
+            floatingGlass.isHidden = false
+            UIView.animate(withDuration: duration, delay: 0, options: [.beginFromCurrentState, .allowUserInteraction]) {
+                self.floatingGlass.alpha = 1
+                self.floatingGlass.transform = .identity
+            }
+        } else if !floatingGlass.isHidden {
+            UIView.animate(withDuration: duration, delay: 0, options: [.beginFromCurrentState, .allowUserInteraction]) {
+                self.floatingGlass.alpha = 0
+                self.floatingGlass.transform = CGAffineTransform(translationX: 0, y: 16)
+            } completion: { [weak self] _ in
+                guard let self = self, !self.webAppReady else { return }
+                self.tabBar.isHidden = true
+                self.floatingGlass.isHidden = true
+            }
+        }
         if visible { dismissLaunchArtworkWhenReady() }
 
         if let key = body["selected"] as? String,

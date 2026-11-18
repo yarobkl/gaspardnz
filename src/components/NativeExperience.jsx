@@ -113,7 +113,7 @@ export default function NativeExperience(){
  const ui=localUI[lang]||localUI.FR;
  const legal=legalCopy[lang]||legalCopy.FR;
  useEffect(()=>{StatusBar.setStyle({style:Style.Light}).catch(()=>{});},[]);
- const [page,setPage]=useState("home"),[servicesRevision,setServicesRevision]=useState(0),[galleryViewerOpen,setGalleryViewerOpen]=useState(false),[contactOpen,setContactOpen]=useState(false),[contactProject,setContactProject]=useState(""),[contactDetails,setContactDetails]=useState(""),[downloadError,setDownloadError]=useState(""),[notificationsOpen,setNotificationsOpen]=useState(false),[newsFocusId,setNewsFocusId]=useState(null);
+ const [page,setPage]=useState("home"),[servicesRevision,setServicesRevision]=useState(0),[galleryViewerOpen,setGalleryViewerOpen]=useState(false),[galleryBarHidden,setGalleryBarHidden]=useState(false),[contactOpen,setContactOpen]=useState(false),[contactProject,setContactProject]=useState(""),[contactDetails,setContactDetails]=useState(""),[downloadError,setDownloadError]=useState(""),[notificationsOpen,setNotificationsOpen]=useState(false),[newsFocusId,setNewsFocusId]=useState(null);
  const openNotificationDestination=(rawUrl,articleRef=null)=>{
    const safeUrl=safeNotificationUrl(rawUrl);
    setNotificationsOpen(false);
@@ -132,6 +132,33 @@ export default function NativeExperience(){
  useEffect(()=>{
    if(systemTabBar)document.documentElement.classList.toggle("gnz-system-tabs--home",page==="home");
  },[page,systemTabBar]);
+ useEffect(()=>{
+   const hidden=page==="gallery"&&galleryBarHidden;
+   document.documentElement.classList.toggle("gnz-gallery-tabs-hidden",hidden);
+   return()=>document.documentElement.classList.remove("gnz-gallery-tabs-hidden");
+ },[page,galleryBarHidden]);
+ // The gallery briefly yields its bottom chrome to the photographs while
+ // scrolling down. An upward swipe or a short pause restores navigation.
+ useEffect(()=>{
+   if(page!=="gallery"){setGalleryBarHidden(false);return undefined;}
+   let previousY=Math.max(0,window.scrollY||document.documentElement.scrollTop||0);
+   let restoreTimer;
+   const onScroll=()=>{
+     const y=Math.max(0,window.scrollY||document.documentElement.scrollTop||0);
+     const delta=y-previousY;
+     previousY=y;
+     if(y<80||delta<-8){
+       window.clearTimeout(restoreTimer);
+       setGalleryBarHidden(false);
+     }else if(y>130&&delta>8){
+       setGalleryBarHidden(true);
+       window.clearTimeout(restoreTimer);
+       restoreTimer=window.setTimeout(()=>setGalleryBarHidden(false),2800);
+     }
+   };
+   window.addEventListener("scroll",onScroll,{passive:true});
+   return()=>{window.removeEventListener("scroll",onScroll);window.clearTimeout(restoreTimer);};
+ },[page]);
  useEffect(()=>{
    const warm=()=>{ import("./GalleryMobile.jsx"); import("./NativeServices.jsx"); import("./NativeEditorial.jsx"); };
    const idle=window.requestIdleCallback?.(warm,{timeout:1200});
@@ -281,8 +308,8 @@ export default function NativeExperience(){
    };
  }, [systemTabBar]);
  useEffect(() => {
-   if (systemTabBar) sendNativeTabState({ selected: topTabForPage(page), visible: !galleryViewerOpen, labels: ui.tabs, newsUnread: discoveryId !== null });
- }, [page, systemTabBar, lang, galleryViewerOpen, discoveryId]);
+   if (systemTabBar) sendNativeTabState({ selected: topTabForPage(page), visible: !galleryViewerOpen && !(page==="gallery"&&galleryBarHidden), labels: ui.tabs, newsUnread: discoveryId !== null });
+ }, [page, systemTabBar, lang, galleryViewerOpen, galleryBarHidden, discoveryId]);
  const handleAction=(event)=>{
   const action=event.target.closest("button,a");
   if(action && !action.disabled) nativeFeedback(action.dataset.haptic||"tap");
@@ -299,7 +326,7 @@ export default function NativeExperience(){
   switch(page){
    case "home":return <div className="gnz-native-hero"><img src="/images/Photo%20application%20.JPG" alt={ui.photo} loading="eager" /><div className="gnz-native-hero-shade"/><div className="gnz-native-hero-content"><h1>{c.tagline}</h1><p>{c.intro}</p><button onClick={()=>select("services")}>{c.discover} <span>→</span></button><button className="gnz-native-outline" onClick={()=>openContact()}>{c.talk}</button></div></div>;
    case "services":return <section className="gnz-native-section">{heading(ui.sections.services,c.intro)}<Services key={servicesRevision} lang={lang} onContact={openContact}/></section>;
-   case "gallery":return <section className="gnz-native-section gnz-native-gallery-page">{heading(ui.sections.gallery)}<Gallery native onContact={openContact} onViewerVisibilityChange={setGalleryViewerOpen}/></section>;
+   case "gallery":return <section className="gnz-native-section gnz-native-gallery-page">{heading(ui.sections.gallery)}<Gallery native onContact={openContact} onViewerVisibilityChange={open=>{setGalleryViewerOpen(open);if(!open)setGalleryBarHidden(false);}}/></section>;
     case "booking":return <section className="gnz-native-section gnz-native-booking-page">
       <button className="gnz-native-section-back" type="button" onClick={backToHome}>‹ {c.back}</button>
       <div className="gnz-native-booking-icon" aria-hidden="true"><NativeIcon name="booking"/></div>

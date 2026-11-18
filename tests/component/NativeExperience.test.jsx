@@ -121,6 +121,40 @@ describe("GaspardNZ native iOS experience", () => {
     }
   });
 
+  it("efface temporairement la barre en descendant dans Galerie, puis la restaure en remontant ou après une pause", async () => {
+    const postMessage = vi.fn();
+    vi.spyOn(Capacitor, "getPlatform").mockReturnValue("ios");
+    vi.spyOn(Capacitor, "isNativePlatform").mockReturnValue(true);
+    window.webkit = { messageHandlers: { gnzNativeTabs: { postMessage } } };
+    try {
+      render(<Harness />);
+      act(() => window.dispatchEvent(new CustomEvent("gnz:native-tab", { detail: { tab: "gallery" } })));
+      expect(await screen.findByTestId("gallery")).toBeInTheDocument();
+      vi.useFakeTimers();
+
+      Object.defineProperty(window, "scrollY", { configurable: true, value: 185 });
+      act(() => fireEvent.scroll(window));
+      expect(postMessage).toHaveBeenLastCalledWith(expect.objectContaining({ selected: "gallery", visible: false }));
+      expect(document.documentElement).toHaveClass("gnz-gallery-tabs-hidden");
+
+      Object.defineProperty(window, "scrollY", { configurable: true, value: 155 });
+      act(() => fireEvent.scroll(window));
+      expect(postMessage).toHaveBeenLastCalledWith(expect.objectContaining({ selected: "gallery", visible: true }));
+
+      Object.defineProperty(window, "scrollY", { configurable: true, value: 245 });
+      act(() => fireEvent.scroll(window));
+      expect(postMessage).toHaveBeenLastCalledWith(expect.objectContaining({ selected: "gallery", visible: false }));
+      act(() => vi.advanceTimersByTime(2800));
+      expect(postMessage).toHaveBeenLastCalledWith(expect.objectContaining({ selected: "gallery", visible: true }));
+      expect(document.documentElement).not.toHaveClass("gnz-gallery-tabs-hidden");
+    } finally {
+      vi.useRealTimers();
+      Object.defineProperty(window, "scrollY", { configurable: true, value: 0 });
+      delete window.webkit;
+      vi.restoreAllMocks();
+    }
+  });
+
   it("ouvre les vraies pages demandées par Siri, sans prétendre consulter les rendez-vous personnels", async () => {
     const postMessage = vi.fn();
     vi.spyOn(Capacitor, "getPlatform").mockReturnValue("ios");
