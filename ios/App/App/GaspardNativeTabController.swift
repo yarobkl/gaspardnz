@@ -65,8 +65,10 @@ final class GaspardNativeTabController: CAPBridgeViewController, UIGestureRecogn
     private var tabLabels: [UILabel] = []
     private let floatingGlass = UIVisualEffectView()
     private let selectionGlass = UIVisualEffectView()
+    private let newsBadge = UIView()
     private var selectionCenterXConstraint: NSLayoutConstraint?
     private let selectionFeedback = UISelectionFeedbackGenerator()
+    private var lastSelectionTick: CFTimeInterval = 0
     private var isTrackingSelection = false
     private var previewTab: GaspardTab?
     private var selectionAnimationGeneration = 0
@@ -266,6 +268,22 @@ final class GaspardNativeTabController: CAPBridgeViewController, UIGestureRecogn
             tabIcons.append(symbol)
             tabLabels.append(label)
             tabBar.addArrangedSubview(button)
+            if tab == .news {
+                newsBadge.backgroundColor = gold
+                newsBadge.layer.cornerRadius = 5
+                newsBadge.layer.borderWidth = 1
+                newsBadge.layer.borderColor = UIColor.white.withAlphaComponent(0.9).cgColor
+                newsBadge.isAccessibilityElement = false
+                newsBadge.isHidden = true
+                newsBadge.translatesAutoresizingMaskIntoConstraints = false
+                button.addSubview(newsBadge)
+                NSLayoutConstraint.activate([
+                    newsBadge.widthAnchor.constraint(equalToConstant: 10),
+                    newsBadge.heightAnchor.constraint(equalToConstant: 10),
+                    newsBadge.centerXAnchor.constraint(equalTo: symbol.trailingAnchor, constant: 2),
+                    newsBadge.centerYAnchor.constraint(equalTo: symbol.topAnchor, constant: 2)
+                ])
+            }
         }
 
         floatingGlass.isUserInteractionEnabled = true
@@ -358,7 +376,9 @@ final class GaspardNativeTabController: CAPBridgeViewController, UIGestureRecogn
         if animated && !UIAccessibility.isReduceMotionEnabled {
             isTrackingSelection = true
             selectionCenterXConstraint?.constant = target
-            UIView.animate(withDuration: 0.42, delay: 0, usingSpringWithDamping: 0.9, initialSpringVelocity: 0.25, options: [.beginFromCurrentState, .allowUserInteraction]) {
+            // QR Permanent uses native TabView responsiveness: settle promptly
+            // while preserving the GNZ glass lens that follows a finger.
+            UIView.animate(withDuration: 0.34, delay: 0, usingSpringWithDamping: 0.88, initialSpringVelocity: 0.34, options: [.beginFromCurrentState, .allowUserInteraction]) {
                 self.floatingGlass.contentView.layoutIfNeeded()
             } completion: { _ in
                 if self.selectionAnimationGeneration == generation {
@@ -389,10 +409,17 @@ final class GaspardNativeTabController: CAPBridgeViewController, UIGestureRecogn
         switch gesture.state {
         case .began, .changed:
             if gesture.state == .began {
+                // Interrupt from the presentation position, never from the
+                // previous destination (fast reversals must not jump).
+                let displayedX = selectionGlass.layer.presentation()?.position.x
                 selectionAnimationGeneration += 1
-                floatingGlass.contentView.layer.removeAllAnimations()
                 selectionGlass.layer.removeAllAnimations()
+                if let displayedX = displayedX, displayedX.isFinite {
+                    selectionCenterXConstraint?.constant = displayedX
+                    floatingGlass.contentView.layoutIfNeeded()
+                }
                 isTrackingSelection = true
+                lastSelectionTick = 0
                 selectionFeedback.prepare()
             }
             let x = max(first.center.x, min(last.center.x, gesture.location(in: tabBar).x))
@@ -400,7 +427,11 @@ final class GaspardNativeTabController: CAPBridgeViewController, UIGestureRecogn
             floatingGlass.contentView.layoutIfNeeded()
             let hovered = tab(at: x)
             if hovered != previewTab {
-                if previewTab != nil || hovered != currentBackdropTab { selectionFeedback.selectionChanged() }
+                let now = CACurrentMediaTime()
+                if (previewTab != nil || hovered != currentBackdropTab) && now - lastSelectionTick >= 0.055 {
+                    selectionFeedback.selectionChanged()
+                    lastSelectionTick = now
+                }
                 selectionFeedback.prepare()
                 previewTab = hovered
                 updateTabAppearance(for: hovered)
@@ -466,6 +497,12 @@ final class GaspardNativeTabController: CAPBridgeViewController, UIGestureRecogn
             for (index, button) in tabButtons.enumerated() {
                 tabLabels[index].text = labels[index]
                 button.accessibilityLabel = labels[index]
+            }
+        }
+        if let unread = body["newsUnread"] as? Bool {
+            newsBadge.isHidden = !unread
+            if let newsIndex = GaspardTab.allCases.firstIndex(of: .news) {
+                tabButtons[newsIndex].accessibilityValue = unread ? "Nouvelle actualité à découvrir" : nil
             }
         }
         deliverPendingShortcut()

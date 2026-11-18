@@ -11,7 +11,7 @@ const readingMinutes = text => Math.max(1, Math.ceil(String(text || "").trim().s
 const readingLabel = (text, lang) => `${readingMinutes(text)} ${lang === "FR" ? "min de lecture" : lang === "EN" ? "min read" : lang === "ES" ? "min de lectura" : "分钟阅读"}`;
 const mediaUrl = value => /^(https?:|data:|blob:)/i.test(value || "") ? value : `${import.meta.env.BASE_URL}${String(value || "").replace(/^\/+/, "")}`;
 
-export function NativeNews({ initialId = null, onInitialArticleOpened, onContact }) {
+export function NativeNews({ initialId = null, discoveryId = null, onArticleOpened, onInitialArticleOpened, onContact }) {
   const { lang } = useContext(LangCtx);
   const [index, setIndex] = useState(0);
   const [direction, setDirection] = useState(1);
@@ -73,7 +73,7 @@ export function NativeNews({ initialId = null, onInitialArticleOpened, onContact
   useEffect(() => {
     if (initialId && items.length) {
       const found = items.find(item => String(item.id) === String(initialId) || String(item.slug || "") === String(initialId));
-      if (found) { setArticle(found); setPhotoIndex(0); onInitialArticleOpened?.(); }
+      if (found) { setArticle(found); setPhotoIndex(0); onArticleOpened?.(found.id); onInitialArticleOpened?.(); }
     }
   }, [initialId, items, onInitialArticleOpened]);
   useEffect(() => {
@@ -86,7 +86,7 @@ export function NativeNews({ initialId = null, onInitialArticleOpened, onContact
     document.addEventListener("keydown", onKeyDown);
     return () => document.removeEventListener("keydown", onKeyDown);
   }, [article]);
-  const openArticle = (item) => { setArticle(item); setPhotoIndex(0); };
+  const openArticle = (item) => { setArticle(item); setPhotoIndex(0); onArticleOpened?.(item.id); };
   const openLinkedPage = (url) => {
     const destination = safeNotificationUrl(url);
     if (destination) Browser.open({ url: destination }).catch(() => window.open(destination, "_blank", "noopener,noreferrer"));
@@ -156,6 +156,9 @@ export function NativeNews({ initialId = null, onInitialArticleOpened, onContact
     {items.length > 0 && <section className="gnz-native-news-recent" aria-label={lang === "FR" ? "Articles récents" : "Recent articles"}>
       <div className="gnz-native-news-recent-heading">
         <h2>{lang === "FR" ? "Articles récents" : lang === "EN" ? "Recent articles" : lang === "ES" ? "Artículos recientes" : "最新文章"}</h2>
+        {discoveryId !== null && <span className="gnz-native-news-discover" role="status">
+          {lang === "FR" ? "À découvrir" : lang === "EN" ? "New to discover" : lang === "ES" ? "Por descubrir" : "新内容"}
+        </span>}
         {items.length > 4 && <button type="button" className="gnz-native-news-see-all" onClick={() => setShowAll(value => !value)}
           aria-expanded={showAll}>
           {showAll ? (lang === "FR" ? "Réduire" : lang === "EN" ? "Show less" : lang === "ES" ? "Ver menos" : "收起")

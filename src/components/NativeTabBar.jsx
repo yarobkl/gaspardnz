@@ -11,7 +11,7 @@ const MIN_TICK_INTERVAL_MS = 55;
  * Toucher = comportement de bouton classique ; glisser horizontalement =
  * déplacement direct sous le doigt puis verrouillage sur l'onglet le plus proche.
  */
-export default function NativeTabBar({ tabs, labels, activeTab, onSelect, Icon }) {
+export default function NativeTabBar({ tabs, labels, activeTab, onSelect, Icon, newsUnread = false }) {
   const navRef = useRef(null);
   const boxesRef = useRef([]);
   const gestureRef = useRef(null);
@@ -241,7 +241,7 @@ export default function NativeTabBar({ tabs, labels, activeTab, onSelect, Icon }
           aria-current={activeTab === key ? "page" : undefined}
           className={activeTab === key ? "active" : ""}
         >
-          <span aria-hidden="true"><Icon name={key} /></span>
+          <span aria-hidden="true"><Icon name={key} />{key === "news" && newsUnread && <i className="gnz-native-news-tab-dot" />}</span>
           <small>{labels.tabs[index]}</small>
         </button>
       ))}

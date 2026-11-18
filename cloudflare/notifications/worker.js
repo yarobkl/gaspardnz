@@ -224,10 +224,10 @@ async function testPush(request, env, db, body) {
   if (!(await authorized(request, db))) return reply({ error: "Accès refusé" }, 403);
   const { data: paired, error: pairError } = await db.from("notification_test_devices").select("device_token").eq("id", "owner-iphone").maybeSingle();
   if (pairError) return reply({ error: "Registre indisponible" }, 503);
-  const { data: fallback, error: fallbackError } = paired?.device_token ? { data: null, error: null } : await db.from("push_subscriptions").select("provider_subscription_id").eq("provider", "apns").eq("platform", "ios").eq("marketing_opt_in", true).is("revoked_at", null).order("updated_at", { ascending: false }).limit(1).maybeSingle();
-  if (fallbackError) return reply({ error: "Registre indisponible" }, 503);
-  const token = paired?.device_token || fallback?.provider_subscription_id;
-  if (!token) return reply({ error: "Aucun iPhone abonné" }, 409);
+  // Diagnostic pushes must NEVER pick a random subscribed customer's iPhone.
+  // Require the exact device paired with the temporary owner code.
+  const token = paired?.device_token;
+  if (!token) return reply({ error: "Associez d'abord l'iPhone de test depuis l'administration" }, 409);
   if (!deviceTokenValid(token) || typeof body.title !== "string" || !body.title.trim() || body.title.length > 120 || typeof body.body !== "string" || !body.body.trim() || body.body.length > 500) return reply({ error: "Paramètres de test invalides" }, 400);
   try {
     const result = await sendApns(env, { deviceToken: token, title: body.title.trim(), body: body.body.trim() });

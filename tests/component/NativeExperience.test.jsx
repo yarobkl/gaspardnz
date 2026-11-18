@@ -72,6 +72,7 @@ beforeEach(() => {
   Browser.open.mockClear();
   window.localStorage.removeItem("gnz-ios-push-device-token");
   window.localStorage.removeItem("gnz-ios-push-subscribed-token");
+  window.localStorage.removeItem("gnz-notification-state-v1");
 });
 
 describe("GaspardNZ native iOS experience", () => {
@@ -377,6 +378,43 @@ describe("GaspardNZ native iOS experience", () => {
     fireEvent.click(within(inbox).getByRole("button", { name: /Nouvelle vidéo de style/ }));
     await waitFor(() => expect(Browser.open).toHaveBeenCalledWith({ url: destination }));
     expect(screen.getByRole("button", { name: "Notifications" })).toHaveAttribute("aria-expanded", "false");
+  });
+
+  it("signale les nouvelles Actualités avec une pastille dorée puis l'efface à la lecture", async () => {
+    mockNews.rows = [{ id: "article-discovery", slug: "collection-automne", locale: "FR",
+      title: "La collection automne", body: "Nouvelle publication depuis l'administration.",
+      published_at: "2026-11-18T12:00:00Z", metadata: {} }];
+    render(<Harness />);
+    const newsTab = within(navigation()).getByRole("button", { name: "Actualités" });
+    expect(newsTab.querySelector(".gnz-native-news-tab-dot")).toBeInTheDocument();
+
+    fireEvent.click(newsTab);
+    expect(await screen.findByText("À découvrir")).toBeInTheDocument();
+    fireEvent.click(await screen.findByRole("button", { name: "La collection automne" }));
+    expect(await screen.findByRole("dialog", { name: "La collection automne" })).toBeInTheDocument();
+    await waitFor(() => {
+      expect(newsTab.querySelector(".gnz-native-news-tab-dot")).not.toBeInTheDocument();
+      expect(screen.queryByText("À découvrir")).not.toBeInTheDocument();
+      expect(screen.getByRole("button", { name: "Notifications" }).querySelector(".gnz-native-notification-count")).not.toBeInTheDocument();
+    });
+    expect(JSON.parse(window.localStorage.getItem("gnz-notification-state-v1"))["article-discovery"].read).toBe(true);
+  });
+
+  it("transmet l'indicateur À découvrir à la barre UIKit et le retire après consultation", async () => {
+    mockNews.rows = [{ id: "article-ios-dot", title: "Article iPhone", locale: "FR", body: "À lire dans l'application.", metadata: {} }];
+    const postMessage = vi.fn();
+    vi.spyOn(Capacitor, "getPlatform").mockReturnValue("ios");
+    vi.spyOn(Capacitor, "isNativePlatform").mockReturnValue(true);
+    window.webkit = { messageHandlers: { gnzNativeTabs: { postMessage } } };
+    try {
+      render(<Harness />);
+      expect(postMessage).toHaveBeenLastCalledWith(expect.objectContaining({ newsUnread: true }));
+      act(() => window.dispatchEvent(new CustomEvent("gnz:native-tab", { detail: { tab: "news" } })));
+      fireEvent.click(await screen.findByRole("button", { name: "Article iPhone" }));
+      await waitFor(() => expect(postMessage).toHaveBeenLastCalledWith(expect.objectContaining({
+        selected: "news", newsUnread: false,
+      })));
+    } finally { delete window.webkit; vi.restoreAllMocks(); }
   });
 
   it("routes a tapped Apple push directly to TikTok and refreshes durable news", async () => {
