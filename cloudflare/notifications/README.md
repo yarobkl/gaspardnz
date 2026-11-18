@@ -21,11 +21,11 @@ Secrets UI, never via committed `.env` files:
 
 - `SUPABASE_SERVICE_ROLE_KEY` — existing GaspardNZ Supabase key
 - `APNS_PRIVATE_KEY` — existing APNs **auth** `.p8` (not signing `.p12`)
-- `APNS_KEY_ID` — matching Apple APNs Key ID
-- `APNS_ISSUER_ID` — Apple Team ID (`APPLE_TEAM_ID` also accepted)
 
-The non-secret `SUPABASE_URL`, `APNS_BUNDLE_ID`, and `APNS_ENVIRONMENT` are
-declared in `wrangler.toml`. Never expose private secrets through `vars`.
+The non-secret `SUPABASE_URL`, `APNS_BUNDLE_ID`, `APNS_ENVIRONMENT`,
+`APNS_KEY_ID` (matching Apple APNs key ID), and `APNS_ISSUER_ID` (Apple Team
+ID; `APPLE_TEAM_ID` also accepted) are declared in `wrangler.toml` so Git
+deployments retain them. Never expose private keys or tokens through `vars`.
 
 The initial Cloudflare repository wizard may select `main`; switch the
 Worker's **Settings → Builds → Production branch** to
