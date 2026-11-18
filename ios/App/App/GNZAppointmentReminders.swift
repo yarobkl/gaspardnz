@@ -64,33 +64,49 @@ final class GNZAppointmentReminders {
         entries.append(appointment)
         appointments = entries
 
+        // Schedule the booking that was just accepted, even if other dates
+        // are already stored on this iPhone.
+        let activityScheduled = await ensureLiveActivity(for: appointment)
         let identifiers = reminderIDs(for: reference)
         notifications.removePendingNotificationRequests(withIdentifiers: identifiers)
 
         do {
             let permitted = try await notifications.requestAuthorization(options: [.alert, .sound])
-            guard permitted else { return "permission-denied" }
-            try await scheduleLocalReminders(for: appointment)
-            startLiveActivityIfAppropriate()
-            return "scheduled"
+            guard permitted else { return activityScheduled ? "live-scheduled" : "permission-denied" }
+            try await scheduleLocalReminders(for: appointment, includeTwoHour: !activityScheduled)
+            return activityScheduled ? "live-scheduled" : "scheduled"
         } catch {
-            return "unavailable"
+            return activityScheduled ? "live-scheduled" : "unavailable"
         }
     }
 
     func applicationBecameActive() {
-        // ActivityKit cannot be scheduled months ahead. Re-entering the app
-        // during the final two hours creates the genuine short-lived activity.
-        startLiveActivityIfAppropriate()
+        // iOS 26 schedules in advance, even while the app is later closed.
+        // Earlier iOS versions retain the foreground-only ActivityKit path.
         Task {
+            let upcoming = appointments.filter { $0.startsAt > Date() }
+                .sorted(by: { $0.startsAt < $1.startsAt })
+            var scheduledReferences = Set<String>()
+            // ActivityKit counts pre-scheduled items towards the system limit.
+            // Keep the on-device queue deliberately small.
+            for entry in upcoming.prefix(3) {
+                if await ensureLiveActivity(for: entry) {
+                    scheduledReferences.insert(entry.reference)
+                }
+            }
+
             let settings = await notifications.notificationSettings()
             guard settings.authorizationStatus == .authorized ||
                   settings.authorizationStatus == .provisional else { return }
             // Allows a client who enabled notifications in Settings after
             // booking to receive remaining reminders without rebooking.
-            for entry in appointments.filter({ $0.startsAt > Date() })
-                .sorted(by: { $0.startsAt < $1.startsAt }).prefix(8) {
-                try? await scheduleLocalReminders(for: entry)
+            for entry in upcoming.prefix(8) {
+                let liveForThisAppointment = scheduledReferences.contains(entry.reference) ||
+                    isActivityKnown(for: entry.reference, startsAt: entry.startsAt)
+                if liveForThisAppointment {
+                    notifications.removePendingNotificationRequests(withIdentifiers: [reminderIDs(for: entry.reference)[1]])
+                }
+                try? await scheduleLocalReminders(for: entry, includeTwoHour: !liveForThisAppointment)
             }
         }
     }
@@ -107,7 +123,7 @@ final class GNZAppointmentReminders {
         ["gnz.appointment.\(reference).day", "gnz.appointment.\(reference).two-hours"]
     }
 
-    private func scheduleLocalReminders(for entry: Appointment) async throws {
+    private func scheduleLocalReminders(for entry: Appointment, includeTwoHour: Bool) async throws {
         let dateFormatter = DateFormatter()
         dateFormatter.locale = Locale.current
         dateFormatter.dateStyle = .medium
@@ -118,6 +134,7 @@ final class GNZAppointmentReminders {
         ]
 
         for lead in leadTimes {
+            if lead.label == "two-hours" && !includeTwoHour { continue }
             let timeUntilReminder = entry.startsAt.addingTimeInterval(-lead.seconds).timeIntervalSinceNow
             guard timeUntilReminder > 1 else { continue }
             let content = UNMutableNotificationContent()
@@ -133,31 +150,70 @@ final class GNZAppointmentReminders {
         }
     }
 
-    private func startLiveActivityIfAppropriate() {
-        guard #available(iOS 16.2, *), ActivityAuthorizationInfo().areActivitiesEnabled else { return }
+    private func isActivityKnown(for reference: String, startsAt: Date) -> Bool {
+        guard #available(iOS 16.2, *) else { return false }
+        return Activity<GNZAppointmentAttributes>.activities.contains(where: {
+            $0.attributes.bookingReference == reference &&
+            $0.activityState != .ended && $0.activityState != .dismissed &&
+            abs($0.content.state.startsAt.timeIntervalSince(startsAt)) < 1
+        })
+    }
+
+    @discardableResult
+    private func ensureLiveActivity(for appointment: Appointment) async -> Bool {
+        guard #available(iOS 16.2, *), ActivityAuthorizationInfo().areActivitiesEnabled else { return false }
         let now = Date()
-        guard let upcoming = appointments
-            .filter({ $0.startsAt > now && $0.startsAt.timeIntervalSince(now) <= 7_200 })
-            .sorted(by: { $0.startsAt < $1.startsAt }).first else { return }
+        guard appointment.startsAt > now else { return false }
 
-        guard !Activity<GNZAppointmentAttributes>.activities.contains(where: {
-            $0.attributes.bookingReference == upcoming.reference
-        }) else { return }
+        if isActivityKnown(for: appointment.reference, startsAt: appointment.startsAt) { return true }
 
-        let attributes = GNZAppointmentAttributes(bookingReference: upcoming.reference)
+        // If Cal.com reuses the booking UID when a client changes the date
+        // inside the app, never leave an outdated scheduled activity behind.
+        for activity in Activity<GNZAppointmentAttributes>.activities
+            where activity.attributes.bookingReference == appointment.reference &&
+                activity.activityState != .ended && activity.activityState != .dismissed {
+            await activity.end(nil, dismissalPolicy: .immediate)
+        }
+
+        let attributes = GNZAppointmentAttributes(bookingReference: appointment.reference)
         let state = GNZAppointmentAttributes.ContentState(
             serviceTitle: "Rendez-vous showroom",
-            startsAt: upcoming.startsAt,
+            startsAt: appointment.startsAt,
             status: .confirmed
         )
         do {
-            _ = try Activity<GNZAppointmentAttributes>.request(
-                attributes: attributes,
-                content: ActivityContent(state: state, staleDate: upcoming.startsAt.addingTimeInterval(7_200)),
-                pushType: nil
-            )
+            let content = ActivityContent(state: state, staleDate: appointment.startsAt.addingTimeInterval(7_200))
+            let twoHoursBefore = appointment.startsAt.addingTimeInterval(-7_200)
+            if #available(iOS 26.0, *), twoHoursBefore > now.addingTimeInterval(5) {
+                // Apple starts this pre-scheduled Live Activity at the chosen
+                // date even if GNZ PARIS is closed or in the background.
+                // An alert is mandatory for this iOS 26 API.
+                _ = try Activity<GNZAppointmentAttributes>.request(
+                    attributes: attributes,
+                    content: content,
+                    pushType: nil,
+                    style: .standard,
+                    alertConfiguration: AlertConfiguration(
+                        title: "GNZ PARIS",
+                        body: "Votre rendez-vous showroom approche.",
+                        sound: .default
+                    ),
+                    start: twoHoursBefore
+                )
+            } else if appointment.startsAt.timeIntervalSince(now) <= 7_205 {
+                // Fallback on iOS 16.2-25: a foreground launch is required.
+                _ = try Activity<GNZAppointmentAttributes>.request(
+                    attributes: attributes,
+                    content: content,
+                    pushType: nil
+                )
+            } else {
+                return false
+            }
+            return true
         } catch {
-            // Local reminders remain available even when Live Activities are disabled.
+            // Local reminders remain available when ActivityKit declines the request.
+            return false
         }
     }
 }
