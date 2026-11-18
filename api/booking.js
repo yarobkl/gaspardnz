@@ -1,6 +1,9 @@
 import nodemailer from "nodemailer";
 import { createClient } from "@supabase/supabase-js";
 import { consumePersistentRateLimit } from "./send-email.js";
+import legacyAvailability from "../server/booking/availability.js";
+import legacyBookingRequest from "../server/booking/booking-request.js";
+import legacyBookingConfirmation from "../server/booking/booking-confirmation.js";
 
 const SUPABASE_URL = process.env.SUPABASE_URL || "https://imvjudhhtcdmtyhfhksm.supabase.co";
 const clean = (value, max = 2000) => String(value ?? "").replace(/[\u0000-\u001f\u007f]/g, " ").replace(/\s+/g, " ").trim().slice(0, max);
@@ -99,10 +102,15 @@ async function confirmBooking(req, res, client) {
 }
 
 export default async function handler(req, res) {
+  // Preserve public/admin legacy routes without spending three extra Vercel
+  // functions. Each legacy handler retains its own validations and permissions.
+  const route = clean(req.query?.route || req.body?.route, 30);
+  if (route === "legacy-availability") return legacyAvailability(req, res);
+  if (route === "legacy-request") return legacyBookingRequest(req, res);
+  if (route === "legacy-confirmation") return legacyBookingConfirmation(req, res);
   if (!process.env.SUPABASE_SERVICE_ROLE_KEY) return json(res, 503, { error: "Service indisponible" });
   const client = db();
   try {
-    const route = clean(req.query?.route || req.body?.route, 30);
     if (route === "availability") return await availability(req, res, client);
     if (route === "request") return await requestBooking(req, res, client);
     if (route === "confirm") return await confirmBooking(req, res, client);

@@ -1,4 +1,4 @@
-import { getValidGoogleAccessToken, googleFetch, json, markIntegrationSync, requireAdmin } from "../_lib/google.js";
+import { getValidGoogleAccessToken, googleFetch, json, markIntegrationSync, requireAdmin } from "../../api/_lib/google.js";
 
 const isoDate = (date) => date.toISOString().slice(0, 10);
 const numberValue = (value) => {

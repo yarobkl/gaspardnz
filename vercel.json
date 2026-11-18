@@ -6,6 +6,9 @@
   "trailingSlash": false,
   "ignoreCommand": "node -e \"process.exit(process.env.VERCEL_PROJECT_ID === 'prj_gQTGmZr0VWHSS5bNgGAR0HxrY2qF' ? 1 : 0)\"",
   "rewrites": [
+    { "source": "/api/booking-request", "destination": "/api/booking?route=legacy-request" },
+    { "source": "/api/booking-confirmation", "destination": "/api/booking?route=legacy-confirmation" },
+    { "source": "/api/availability", "destination": "/api/booking?route=legacy-availability" },
     { "source": "/api/admin-push-pair", "destination": "/api/notifications/admin-push-pair" },
     { "source": "/api/push-test-device", "destination": "/api/notifications/push-test-device" },
     { "source": "/api/admin-notification-test", "destination": "/api/notifications/admin-notification-test" },
