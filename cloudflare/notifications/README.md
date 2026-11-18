@@ -27,6 +27,11 @@ Secrets UI, never via committed `.env` files:
 The non-secret `SUPABASE_URL`, `APNS_BUNDLE_ID`, and `APNS_ENVIRONMENT` are
 declared in `wrangler.toml`. Never expose private secrets through `vars`.
 
+The initial Cloudflare repository wizard may select `main`; switch the
+Worker's **Settings → Builds → Production branch** to
+`feature/gnz-cloudflare-notifications` before deploying. A build of `main`
+will fail because this Worker lives only on the dedicated branch.
+
 After deploying, verify the Worker responds to `/health` and only then
 configure Cloudflare Workers routes on the Cloudflare-proxied
 `gaspardnz.style` zone:
@@ -42,6 +47,12 @@ Test on a registered iPhone: subscribe, create pairing code, pair, send an
 APNs test, publish a direct-link notification (TikTok), verify both the deep
 link and the permanent Actualités article; repeat with an article-only push.
 Then test editor auto-push, idempotency and access denied for non-admins.
+
+If the `gaspardnz.style` DNS zone is not managed by Cloudflare, do **not**
+change DNS merely to install the Worker. Use the Worker-specific HTTPS
+`*.workers.dev` URL and configure `VITE_GNZ_NOTIFICATION_API_ORIGIN`
+on the next website/iOS build. The old Vercel notification endpoints should
+remain active until the new build and APNs test both succeed.
 
 The free Workers plan currently caps requests, CPU time and outbound
 subrequests; publish in batches of eight, not as one long request. The current
