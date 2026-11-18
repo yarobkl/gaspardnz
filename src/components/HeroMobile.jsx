@@ -33,17 +33,27 @@ const WebHeroVideoLoop = ({ skipVideo }) => {
     if (skipVideo || !videoSrc) return;
     const v = ref.current;
     if (!v) return;
-    const play = () => { if (document.hidden || !v.paused) return; v.play().catch(() => {}); };
+    let active = true;
+    const pendingTimers = new Set();
+    const delay = (callback, ms) => {
+      if (!active) return;
+      const timer = window.setTimeout(() => {
+        pendingTimers.delete(timer);
+        if (active) callback();
+      }, ms);
+      pendingTimers.add(timer);
+    };
+    const play = () => { if (!active || document.hidden || !v.paused) return; v.play().catch(() => {}); };
     const attemptPlayAndCheck = () => {
       const result = v.play();
-      if (result && typeof result.catch === "function") result.then(() => { setTimeout(() => { if (!v.paused) setShowPausedNotice(false); }, 600); }).catch(() => setShowPausedNotice(true));
-      setTimeout(() => { if (v.paused) setShowPausedNotice(true); }, 600);
+      if (result && typeof result.catch === "function") result.then(() => delay(() => { if (!v.paused) setShowPausedNotice(false); }, 600)).catch(() => { if (active) setShowPausedNotice(true); });
+      delay(() => { if (v.paused) setShowPausedNotice(true); }, 600);
     };
-    const loadAndPlay = () => { v.load(); play(); window.setTimeout(play, 180); window.setTimeout(attemptPlayAndCheck, 650); };
+    const loadAndPlay = () => { v.load(); play(); delay(play, 180); delay(attemptPlayAndCheck, 650); };
     const onCanPlay = () => { readyRef.current = true; play(); };
     const onPlaying = () => setShowPausedNotice(false);
-    const onPause = () => { if (!document.hidden) setTimeout(play, 250); };
-    const onStall = () => setTimeout(play, 350);
+    const onPause = () => { if (!document.hidden) delay(play, 250); };
+    const onStall = () => delay(play, 350);
     const onVis = () => { if (!document.hidden && readyRef.current) play(); };
 
     loadAndPlay();
@@ -78,6 +88,9 @@ const WebHeroVideoLoop = ({ skipVideo }) => {
     }, 500);
 
     return () => {
+      active = false;
+      for (const timer of pendingTimers) window.clearTimeout(timer);
+      pendingTimers.clear();
       v.removeEventListener("canplay", onCanPlay);
       v.removeEventListener("loadeddata", onCanPlay);
       v.removeEventListener("loadedmetadata", onCanPlay);
