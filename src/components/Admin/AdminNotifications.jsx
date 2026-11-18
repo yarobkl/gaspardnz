@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../../services/supabaseClient.js";
+import { notificationEndpoint } from "../../services/notificationEndpoint.js";
 const initial = { category:"actualite",title:"",body:"",image_url:"",target_url:"",mode:"article",status:"send_now",scheduled_at:"" };
 const labels={arrivage:"Nouvel arrivage",promotion:"Promotion",evenement:"Événement",showroom:"Showroom",service:"Nouveau service",actualite:"Actualité",rappel:"Rappel",personnalise:"Message personnalisé"};
 export default function AdminNotifications() {
@@ -7,7 +8,7 @@ export default function AdminNotifications() {
  async function request(method,body) {
    const {data}=await supabase.auth.getSession();
    if(!data?.session?.access_token) throw new Error("Session expirée");
-   const response=await fetch("/api/notifications/admin-notifications",{method,headers:{"Content-Type":"application/json",Authorization:"Bearer "+data.session.access_token},...(body?{body:JSON.stringify(body)}:{})});
+   const response=await fetch(notificationEndpoint("/api/notifications/admin-notifications"),{method,headers:{"Content-Type":"application/json",Authorization:"Bearer "+data.session.access_token},...(body?{body:JSON.stringify(body)}:{})});
    const result=await response.json().catch(()=>({}));
    if(!response.ok) throw new Error(result.error||"Service indisponible");
    return result;
@@ -15,7 +16,7 @@ export default function AdminNotifications() {
  async function createPairCode(){
    setPairBusy(true);setTestResult("");
    try{const {data}=await supabase.auth.getSession();if(!data?.session?.access_token)throw new Error("Session expirée");
-     const response=await fetch("/api/notifications/admin-push-pair",{method:"POST",headers:{"Content-Type":"application/json",Authorization:"Bearer "+data.session.access_token}});
+     const response=await fetch(notificationEndpoint("/api/notifications/admin-push-pair"),{method:"POST",headers:{"Content-Type":"application/json",Authorization:"Bearer "+data.session.access_token}});
      const result=await response.json().catch(()=>({}));if(!response.ok)throw new Error(result.error||"Appairage indisponible");
      setPairCode(result.code);
    }catch(e){setTestResult(e.message);}finally{setPairBusy(false);}
@@ -25,7 +26,7 @@ export default function AdminNotifications() {
    try {
      const {data}=await supabase.auth.getSession();
      if(!data?.session?.access_token) throw new Error("Session expirée");
-     const response=await fetch("/api/notifications/admin-notification-test",{
+     const response=await fetch(notificationEndpoint("/api/notifications/admin-notification-test"),{
        method:"POST",headers:{"Content-Type":"application/json",Authorization:"Bearer "+data.session.access_token},
        body:JSON.stringify({title:form.title.trim()||"GaspardNZ — Test",body:form.body.trim()||"Votre notification de test fonctionne."})
      });
@@ -41,7 +42,7 @@ export default function AdminNotifications() {
  async function deliverCampaign(id){
    const {data}=await supabase.auth.getSession();if(!data?.session?.access_token)throw new Error("Session expirée");
    let remaining=1,sent=0,failed=0;
-   while(remaining>0){const response=await fetch("/api/notifications/send-campaign",{method:"POST",headers:{"Content-Type":"application/json",Authorization:"Bearer "+data.session.access_token},body:JSON.stringify({id})});const result=await response.json().catch(()=>({}));if(!response.ok)throw new Error(result.error||"Envoi indisponible");remaining=result.remaining;sent+=result.sent||0;failed+=result.failed||0;setSendResult(`Actualité publiée · ${sent} accepté(s) par Apple, ${failed} échec(s), ${remaining} restant(s).`);}
+   while(remaining>0){const response=await fetch(notificationEndpoint("/api/notifications/send-campaign"),{method:"POST",headers:{"Content-Type":"application/json",Authorization:"Bearer "+data.session.access_token},body:JSON.stringify({id})});const result=await response.json().catch(()=>({}));if(!response.ok)throw new Error(result.error||"Envoi indisponible");remaining=result.remaining;sent+=result.sent||0;failed+=result.failed||0;setSendResult(`Actualité publiée · ${sent} accepté(s) par Apple, ${failed} échec(s), ${remaining} restant(s).`);}
  }
  async function sendCampaign(row){
    if(!window.confirm(`Envoyer « ${row.title} » aux iPhone ayant accepté les notifications ?`))return;
@@ -51,7 +52,7 @@ export default function AdminNotifications() {
      if(!data?.session?.access_token)throw new Error("Session expirée");
      let remaining=1,sent=0,failed=0;
      while(remaining>0){
-       const response=await fetch("/api/notifications/send-campaign",{method:"POST",headers:{"Content-Type":"application/json",Authorization:"Bearer "+data.session.access_token},body:JSON.stringify({id:row.id})});
+       const response=await fetch(notificationEndpoint("/api/notifications/send-campaign"),{method:"POST",headers:{"Content-Type":"application/json",Authorization:"Bearer "+data.session.access_token},body:JSON.stringify({id:row.id})});
        const result=await response.json().catch(()=>({}));
        if(!response.ok)throw new Error(result.error||"Envoi indisponible");
        remaining=result.remaining;sent+=result.sent||0;failed+=result.failed||0;
