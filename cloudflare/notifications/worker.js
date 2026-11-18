@@ -5,7 +5,16 @@ import { safeNotificationUrl } from "../../src/utils/notificationLinks.js";
 // Same contracts as the existing /api/notifications/* Vercel routes.
 // This Worker never receives Apple or Supabase secrets from a browser.
 const publicOrigin = "https://gaspardnz.style";
-const allowedOrigins = new Set([publicOrigin, "https://www.gaspardnz.style", "capacitor://localhost", "http://localhost"]);
+const allowedOrigins = new Set([
+  publicOrigin,
+  "https://www.gaspardnz.style",
+  "capacitor://localhost",
+  "http://localhost",
+  // Exact Vercel preview hosts for the Cloudflare/APNs validation branch.
+  // Keep this list restricted: it protects the admin API from arbitrary web origins.
+  "https://gaspardnz-git-feature-gnz-cloudflare-t-b09b34-yarobkls-projects.vercel.app",
+  "https://gaspardnz-cg881f7ry-yarobkls-projects.vercel.app",
+]);
 const categories = new Set(["arrivage", "promotion", "evenement", "showroom", "service", "actualite", "rappel", "personnalise"]);
 const uuid = value => typeof value === "string" && /^[\da-f]{8}-(?:[\da-f]{4}-){3}[\da-f]{12}$/i.test(value);
 const deviceTokenValid = value => typeof value === "string" && /^[\da-f]{64,}$/i.test(value);
