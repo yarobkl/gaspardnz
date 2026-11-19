@@ -64,6 +64,7 @@ final class GaspardNativeTabController: CAPBridgeViewController, UIGestureRecogn
     private var tabIcons: [UIImageView] = []
     private var tabLabels: [UILabel] = []
     private let floatingGlass = UIVisualEffectView()
+    private let glassBackdropPlate = UIView()
     private let selectionGlass = UIVisualEffectView()
     private let newsBadge = UIView()
     private var selectionCenterXConstraint: NSLayoutConstraint?
@@ -292,13 +293,22 @@ final class GaspardNativeTabController: CAPBridgeViewController, UIGestureRecogn
         floatingGlass.transform = CGAffineTransform(translationX: 0, y: 16)
         floatingGlass.layer.cornerRadius = 41
         floatingGlass.clipsToBounds = true
+        floatingGlass.layer.borderWidth = 1
         floatingGlass.translatesAutoresizingMaskIntoConstraints = false
+        // The clear system glass needs a stable, lightly opaque surface over
+        // pale pages. Keep the native reflections, but don't let a busy photo
+        // or a light card erase the five navigation targets.
+        glassBackdropPlate.isUserInteractionEnabled = false
+        glassBackdropPlate.layer.cornerRadius = 41
+        glassBackdropPlate.clipsToBounds = true
+        glassBackdropPlate.translatesAutoresizingMaskIntoConstraints = false
         selectionGlass.isUserInteractionEnabled = false
         selectionGlass.layer.cornerRadius = 34
         selectionGlass.clipsToBounds = true
         selectionGlass.translatesAutoresizingMaskIntoConstraints = false
         tabBar.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(floatingGlass)
+        floatingGlass.contentView.addSubview(glassBackdropPlate)
         floatingGlass.contentView.addSubview(selectionGlass)
         floatingGlass.contentView.addSubview(tabBar)
 
@@ -314,6 +324,10 @@ final class GaspardNativeTabController: CAPBridgeViewController, UIGestureRecogn
             floatingGlass.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -12),
             floatingGlass.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -8),
             floatingGlass.heightAnchor.constraint(equalToConstant: 82),
+            glassBackdropPlate.leadingAnchor.constraint(equalTo: floatingGlass.contentView.leadingAnchor),
+            glassBackdropPlate.trailingAnchor.constraint(equalTo: floatingGlass.contentView.trailingAnchor),
+            glassBackdropPlate.topAnchor.constraint(equalTo: floatingGlass.contentView.topAnchor),
+            glassBackdropPlate.bottomAnchor.constraint(equalTo: floatingGlass.contentView.bottomAnchor),
             tabBar.leadingAnchor.constraint(equalTo: floatingGlass.contentView.leadingAnchor),
             tabBar.trailingAnchor.constraint(equalTo: floatingGlass.contentView.trailingAnchor),
             tabBar.topAnchor.constraint(equalTo: floatingGlass.contentView.topAnchor),
@@ -330,6 +344,19 @@ final class GaspardNativeTabController: CAPBridgeViewController, UIGestureRecogn
         guard currentBackdropTab != tab else { return }
         currentBackdropTab = tab
         let overPortrait = tab == .home
+
+        // The previous fully-clear capsule was almost invisible on Services:
+        // iOS could also resolve UIColor.label to white in dark appearance.
+        // Keep the existing 82pt mirror lens and drag, with consistent contrast.
+        let reduceTransparency = UIAccessibility.isReduceTransparencyEnabled
+        glassBackdropPlate.backgroundColor = overPortrait
+            ? UIColor.black.withAlphaComponent(reduceTransparency ? 0.92 : 0.42)
+            : UIColor(red: 250.0 / 255.0, green: 245.0 / 255.0,
+                      blue: 237.0 / 255.0, alpha: reduceTransparency ? 0.98 : 0.84)
+        floatingGlass.layer.borderColor = (overPortrait
+            ? UIColor.white.withAlphaComponent(0.28)
+            : UIColor(red: 129.0 / 255.0, green: 100.0 / 255.0,
+                      blue: 69.0 / 255.0, alpha: 0.30)).cgColor
 
         // Install glass just once. Replacing two effect views at every tab
         // change causes bright flashes during fast left/right reversals.
@@ -357,11 +384,12 @@ final class GaspardNativeTabController: CAPBridgeViewController, UIGestureRecogn
     }
 
     private func updateTabAppearance(for tab: GaspardTab) {
-        // Preview colors must follow the destination being hovered, not the
-        // previous route (which can be the dark portrait during a fast swipe).
-        let foreground = tab == .home
-            ? UIColor.white.withAlphaComponent(0.95)
-            : UIColor.label.withAlphaComponent(0.82)
+        // Preview icons must contrast with the currently visible glass plate,
+        // even while the finger hovers over a destination on another page.
+        let foreground = currentBackdropTab == .home
+            ? UIColor.white.withAlphaComponent(0.97)
+            : UIColor(red: 51.0 / 255.0, green: 42.0 / 255.0,
+                      blue: 32.0 / 255.0, alpha: 0.94)
         for (index, button) in tabButtons.enumerated() {
             let selected = GaspardTab.allCases[index] == tab
             let color = selected ? gold : foreground
