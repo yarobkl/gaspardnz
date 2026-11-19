@@ -17,14 +17,21 @@ vi.mock("../../src/hooks/usePublicCollection.js", () => ({
 }));
 vi.mock("../../src/utils/nativeHaptics.js", () => ({ nativeFeedback: vi.fn() }));
 
-function Harness({ initialId, onContact }) {
+function Harness({ initialId, discoveryId, onArticleOpened, onContact }) {
   const [lang, setLang] = useState("FR");
-  return <LangCtx.Provider value={{ lang, setLang }}><NativeNews initialId={initialId} onContact={onContact} /></LangCtx.Provider>;
+  return <LangCtx.Provider value={{ lang, setLang }}><NativeNews initialId={initialId} discoveryId={discoveryId} onArticleOpened={onArticleOpened} onContact={onContact} /></LangCtx.Provider>;
 }
 const recent = () => screen.getByRole("region", { name: "Articles récents" });
 const carousel = () => screen.getByRole("region", { name: "Actualités à la une" });
 
 describe("Actualités iOS — maquette magazine avec les données existantes", () => {
+  it("met À découvrir sur les nouveautés et notifie le lecteur de l'article ouvert", () => {
+    const onOpened = vi.fn();
+    render(<Harness discoveryId="live-1" onArticleOpened={onOpened} />);
+    expect(within(recent()).getByText("À découvrir")).toBeInTheDocument();
+    fireEvent.click(within(recent()).getByRole("button", { name: "Défilé de GaspardNZ" }));
+    expect(onOpened).toHaveBeenCalledWith("live-1");
+  });
   it("ne duplique pas Le Journal et garde la vraie image de la publication en couverture", () => {
     render(<Harness />);
     expect(screen.queryByText("Le style se raconte.")).not.toBeInTheDocument();

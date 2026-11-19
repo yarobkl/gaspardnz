@@ -65,7 +65,7 @@ export default function NativeServices({ lang, onContact }) {
     if (price == null || !Number.isFinite(Number(price))) return "";
     return new Intl.NumberFormat(lang === "FR" ? "fr-FR" : "en-US", { style: "currency", currency: currency || "EUR", maximumFractionDigits: 0 }).format(Number(price));
   };
-  return <div className="gnz-native-service-list">
+  return <div className={`gnz-native-service-list${selected === null ? " gnz-native-service-list--overview" : ""}`}>
     {selected && <button className="gnz-native-inline-back" type="button" onClick={() => {
       if (selectedGroomPackage) setSelectedGroomPackage(null);
       else if (selectedFormula) setSelectedFormula(null);

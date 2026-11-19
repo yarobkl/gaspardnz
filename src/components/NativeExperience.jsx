@@ -10,6 +10,8 @@ import { usePublicCollection } from "../hooks/usePublicCollection.js";
 import { downloadFile } from "../utils/downloadFile.js";
 import { nativeFeedback } from "../utils/nativeHaptics.js";
 import { openCookieSettings } from "../services/consent.js";
+import { safeNotificationUrl } from "../utils/notificationLinks.js";
+import { notificationEndpoint } from "../services/notificationEndpoint.js";
 import { hasNativeTabBarBridge, NATIVE_SHORTCUT_ROUTE_EVENT, NATIVE_SHORTCUT_ROUTES, NATIVE_TAB_EVENT, NATIVE_TABS, sendNativeTabState } from "../services/nativeTabs.js";
 import NativeTabBar from "./NativeTabBar.jsx";
 import NativeCalBooking from "./NativeCalBooking.jsx";
@@ -111,10 +113,52 @@ export default function NativeExperience(){
  const ui=localUI[lang]||localUI.FR;
  const legal=legalCopy[lang]||legalCopy.FR;
  useEffect(()=>{StatusBar.setStyle({style:Style.Light}).catch(()=>{});},[]);
- const [page,setPage]=useState("home"),[servicesRevision,setServicesRevision]=useState(0),[galleryViewerOpen,setGalleryViewerOpen]=useState(false),[contactOpen,setContactOpen]=useState(false),[contactProject,setContactProject]=useState(""),[contactDetails,setContactDetails]=useState(""),[downloadError,setDownloadError]=useState(""),[notificationsOpen,setNotificationsOpen]=useState(false),[newsFocusId,setNewsFocusId]=useState(null);
+ const [page,setPage]=useState("home"),[servicesRevision,setServicesRevision]=useState(0),[galleryViewerOpen,setGalleryViewerOpen]=useState(false),[galleryBarHidden,setGalleryBarHidden]=useState(false),[contactOpen,setContactOpen]=useState(false),[contactProject,setContactProject]=useState(""),[contactDetails,setContactDetails]=useState(""),[downloadError,setDownloadError]=useState(""),[notificationsOpen,setNotificationsOpen]=useState(false),[newsFocusId,setNewsFocusId]=useState(null);
+ const openNotificationDestination=(rawUrl,articleRef=null)=>{
+   const safeUrl=safeNotificationUrl(rawUrl);
+   setNotificationsOpen(false);
+   if(!safeUrl){setNewsFocusId(articleRef);setPage("news");window.scrollTo(0,0);return;}
+   const target=new URL(safeUrl);
+   const isGaspardNZ=target.hostname==="gaspardnz.style"||target.hostname.endsWith(".gaspardnz.style");
+   if(isGaspardNZ&&/\/rendez-vous\/?$|\/reservation\/?$/.test(target.pathname)){
+     setPage("booking");window.scrollTo(0,0);return;
+   }
+   if(isGaspardNZ&&/\/actualites\/?$/.test(target.pathname)){
+     const ref=target.searchParams.get("article")||target.searchParams.get("slug")||target.searchParams.get("id");
+     setNewsFocusId(ref||articleRef);setPage("news");window.scrollTo(0,0);return;
+   }
+   Browser.open({url:safeUrl}).catch(()=>window.open(safeUrl,"_blank","noopener,noreferrer"));
+ };
  useEffect(()=>{
    if(systemTabBar)document.documentElement.classList.toggle("gnz-system-tabs--home",page==="home");
  },[page,systemTabBar]);
+ useEffect(()=>{
+   const hidden=page==="gallery"&&galleryBarHidden;
+   document.documentElement.classList.toggle("gnz-gallery-tabs-hidden",hidden);
+   return()=>document.documentElement.classList.remove("gnz-gallery-tabs-hidden");
+ },[page,galleryBarHidden]);
+ // The gallery briefly yields its bottom chrome to the photographs while
+ // scrolling down. An upward swipe or a short pause restores navigation.
+ useEffect(()=>{
+   if(page!=="gallery"){setGalleryBarHidden(false);return undefined;}
+   let previousY=Math.max(0,window.scrollY||document.documentElement.scrollTop||0);
+   let restoreTimer;
+   const onScroll=()=>{
+     const y=Math.max(0,window.scrollY||document.documentElement.scrollTop||0);
+     const delta=y-previousY;
+     previousY=y;
+     if(y<80||delta<-8){
+       window.clearTimeout(restoreTimer);
+       setGalleryBarHidden(false);
+     }else if(y>130&&delta>8){
+       setGalleryBarHidden(true);
+       window.clearTimeout(restoreTimer);
+       restoreTimer=window.setTimeout(()=>setGalleryBarHidden(false),2800);
+     }
+   };
+   window.addEventListener("scroll",onScroll,{passive:true});
+   return()=>{window.removeEventListener("scroll",onScroll);window.clearTimeout(restoreTimer);};
+ },[page]);
  useEffect(()=>{
    const warm=()=>{ import("./GalleryMobile.jsx"); import("./NativeServices.jsx"); import("./NativeEditorial.jsx"); };
    const idle=window.requestIdleCallback?.(warm,{timeout:1200});
@@ -149,7 +193,7 @@ export default function NativeExperience(){
          // activation switch or retaining an opted-out APNs subscription.
          const token=pushToken.current||stored(IOS_PUSH_TOKEN_KEY);
          if(token){
-           const response=await CapacitorHttp.request({method:"DELETE",url:"https://gaspardnz.style/api/notifications/push-subscription",headers:{"Content-Type":"application/json"},data:{deviceToken:token}});
+           const response=await CapacitorHttp.request({method:"DELETE",url:notificationEndpoint("/api/notifications/push-subscription",{native:true}),headers:{"Content-Type":"application/json"},data:{deviceToken:token}});
            if(response.status>=200&&response.status<300){forget(IOS_PUSH_TOKEN_KEY);forget(IOS_PUSH_SYNCED_TOKEN_KEY);}
          }
        }
@@ -166,27 +210,17 @@ export default function NativeExperience(){
        pushToken.current=token.value;
        remember(IOS_PUSH_TOKEN_KEY,token.value);
        if(!permissionGranted||stored(IOS_PUSH_SYNCED_TOKEN_KEY)===token.value)return;
-       CapacitorHttp.post({url:"https://gaspardnz.style/api/notifications/push-subscription",headers:{"Content-Type":"application/json"},data:{deviceToken:token.value,consent:true}})
+       CapacitorHttp.post({url:notificationEndpoint("/api/notifications/push-subscription",{native:true}),headers:{"Content-Type":"application/json"},data:{deviceToken:token.value,consent:true}})
          .then(response=>{if(active&&response.status>=200&&response.status<300)remember(IOS_PUSH_SYNCED_TOKEN_KEY,token.value);})
          .catch(()=>{});
      }));
      listeners.push(await PushNotifications.addListener("registrationError",error=>{if(active)setPairStatus("Apple : "+(error?.error||"enregistrement impossible"));}));
+     listeners.push(await PushNotifications.addListener("pushNotificationReceived",()=>{
+       window.dispatchEvent(new Event("gnz:news-updated"));
+     }));
      listeners.push(await PushNotifications.addListener("pushNotificationActionPerformed",event=>{
-       const rawUrl=event.notification?.data?.url;
-       if(typeof rawUrl!=="string")return;
-       let target;
-       try{target=new URL(rawUrl);}catch{return;}
-       if(target.protocol!=="https:")return;
-       const isGaspardNZ=target.hostname==="gaspardnz.style"||target.hostname.endsWith(".gaspardnz.style");
-       setNotificationsOpen(false);
-       if(isGaspardNZ&&/\/rendez-vous\/?$|\/reservation\/?$/.test(target.pathname)){
-         setPage("booking");window.scrollTo(0,0);return;
-       }
-       if(isGaspardNZ&&/\/actualites\/?$/.test(target.pathname)){
-         const articleRef=target.searchParams.get("article")||target.searchParams.get("slug")||target.searchParams.get("id");
-         setNewsFocusId(articleRef||null);setPage("news");window.scrollTo(0,0);return;
-       }
-       Browser.open({url:target.href}).catch(()=>window.open(target.href,"_blank","noopener,noreferrer"));
+       window.dispatchEvent(new Event("gnz:news-updated"));
+       openNotificationDestination(event.notification?.data?.url,event.notification?.data?.news_slug||null);
      }));
      // The first-launch sheet belongs to iOS, not to the Notifications bell.
      // Wait until the opening portrait has started fading into the homepage.
@@ -218,7 +252,7 @@ export default function NativeExperience(){
        })();
      });
      const response=await CapacitorHttp.post({
-       url:"https://gaspardnz.style/api/notifications/push-test-device",
+       url:notificationEndpoint("/api/notifications/push-test-device",{native:true}),
        headers:{"Content-Type":"application/json"},
        data:{code:pairCode.trim(),deviceToken:token},
        connectTimeout:12000,readTimeout:20000
@@ -248,6 +282,7 @@ export default function NativeExperience(){
      : notificationFilter==="unread" ? !state.read && !state.archived : !state.archived;
  });
  const unreadCount=notificationItems.filter(item=>!notificationState[String(item.id)]?.read && !notificationState[String(item.id)]?.archived).length;
+ const discoveryId=notificationItems.find(item=>!notificationState[String(item.id)]?.read && !notificationState[String(item.id)]?.archived)?.id ?? null;
  const select=(key)=>{setNotificationsOpen(false);if(key==="services")setServicesRevision(revision=>revision+1);if(key===page)return;window.scrollTo(0,0);setPage(key);setDownloadError("");};
  const backToHome = () => select("home");
  const topTabForPage = (value) => tabs.some(([key]) => key === value) ? value : "more";
@@ -265,7 +300,7 @@ export default function NativeExperience(){
    };
    window.addEventListener(NATIVE_TAB_EVENT, onNativeTab);
    window.addEventListener(NATIVE_SHORTCUT_ROUTE_EVENT, onShortcutRoute);
-   sendNativeTabState({ selected: "home", visible: true, labels: ui.tabs });
+   sendNativeTabState({ selected: "home", visible: true, labels: ui.tabs, newsUnread: discoveryId !== null });
    return () => {
      window.removeEventListener(NATIVE_TAB_EVENT, onNativeTab);
      window.removeEventListener(NATIVE_SHORTCUT_ROUTE_EVENT, onShortcutRoute);
@@ -273,11 +308,16 @@ export default function NativeExperience(){
    };
  }, [systemTabBar]);
  useEffect(() => {
-   if (systemTabBar) sendNativeTabState({ selected: topTabForPage(page), visible: !galleryViewerOpen, labels: ui.tabs });
- }, [page, systemTabBar, lang, galleryViewerOpen]);
+   if (systemTabBar) sendNativeTabState({ selected: topTabForPage(page), visible: !galleryViewerOpen && !(page==="gallery"&&galleryBarHidden), labels: ui.tabs, newsUnread: discoveryId !== null });
+ }, [page, systemTabBar, lang, galleryViewerOpen, galleryBarHidden, discoveryId]);
  const handleAction=(event)=>{
   const action=event.target.closest("button,a");
   if(action && !action.disabled) nativeFeedback(action.dataset.haptic||"tap");
+ };
+ const openInboxNotification=(item)=>{
+   updateNotification(item.id,{read:true});
+   const directUrl=item.metadata?.link_url;
+   openNotificationDestination(directUrl,item.id);
  };
  const openContact=(project="",details="")=>{setContactProject(project);setContactDetails(details);setContactOpen(true);};
  const heading=(title,subtitle)=> <header className="gnz-native-heading"><span className="gnz-native-eyebrow">GASPARDNZ · PARIS</span><h1>{title}</h1>{subtitle&&<p>{subtitle}</p>}</header>;
@@ -286,7 +326,7 @@ export default function NativeExperience(){
   switch(page){
    case "home":return <div className="gnz-native-hero"><img src="/images/Photo%20application%20.JPG" alt={ui.photo} loading="eager" /><div className="gnz-native-hero-shade"/><div className="gnz-native-hero-content"><h1>{c.tagline}</h1><p>{c.intro}</p><button onClick={()=>select("services")}>{c.discover} <span>→</span></button><button className="gnz-native-outline" onClick={()=>openContact()}>{c.talk}</button></div></div>;
    case "services":return <section className="gnz-native-section">{heading(ui.sections.services,c.intro)}<Services key={servicesRevision} lang={lang} onContact={openContact}/></section>;
-   case "gallery":return <section className="gnz-native-section gnz-native-gallery-page">{heading(ui.sections.gallery)}<Gallery native onContact={openContact} onViewerVisibilityChange={setGalleryViewerOpen}/></section>;
+   case "gallery":return <section className="gnz-native-section gnz-native-gallery-page">{heading(ui.sections.gallery)}<Gallery native onContact={openContact} onViewerVisibilityChange={open=>{setGalleryViewerOpen(open);if(!open)setGalleryBarHidden(false);}}/></section>;
     case "booking":return <section className="gnz-native-section gnz-native-booking-page">
       <button className="gnz-native-section-back" type="button" onClick={backToHome}>‹ {c.back}</button>
       <div className="gnz-native-booking-icon" aria-hidden="true"><NativeIcon name="booking"/></div>
@@ -296,7 +336,7 @@ export default function NativeExperience(){
     </section>;
    case "more":return <section className="gnz-native-section">{heading(c.more)}<div className="gnz-native-list">{extra.map(([key,label])=><button key={key} onClick={()=>select(key)}><span className="gnz-native-more-icon"><NativeIcon name={key}/></span><span className="gnz-native-more-label">{ui.sections[key]||label}</span><span aria-hidden="true">›</span></button>)}{settings.lookbookPdfUrl && !settings.lookbookHidden && <button onClick={()=>{setDownloadError("");downloadFile(settings.lookbookPdfUrl,"lookbook-gaspardnz.pdf").catch(()=>setDownloadError(ui.loadError));}}><span className="gnz-native-more-icon"><NativeIcon name="lookbook"/></span><span className="gnz-native-more-label">{ui.lookbook}</span><span aria-hidden="true">↓</span></button>}{downloadError&&<p className="gnz-native-error" role="alert">{downloadError}</p>}<label className="gnz-native-language">{ui.language} <select value={lang} onChange={e=>setLang(e.target.value)}><option value="FR">Français</option><option value="EN">English</option><option value="ES">Español</option><option value="ZH">中文</option></select></label><section className="gnz-native-legal" aria-label={legal.title}><h2>{legal.title}</h2><div className="gnz-native-legal-links">{legalLinks.map(([key,href])=><a key={key} href={href} target={href.startsWith("https://")?"_blank":undefined} rel={href.startsWith("https://")?"noopener noreferrer":undefined}><span>{legal[key]}</span><span aria-hidden="true">↗</span></a>)}<button type="button" onClick={openCookieSettings}><span>{legal.consent}</span><span aria-hidden="true">›</span></button></div></section>{showInternalPushTools&&Capacitor.getPlatform()==="ios"&&<details className="gnz-native-internal-tools"><summary>Outils de diagnostic TestFlight</summary><div style={{padding:"12px 4px",display:"grid",gap:10}}><strong>Notifications Apple — appareil de test</strong><p>Entrez le code temporaire créé depuis l’administration pour associer cet iPhone.</p><input aria-label="Code d’appairage Apple" value={pairCode} onChange={e=>setPairCode(e.target.value.trim())} placeholder="Code temporaire" autoCapitalize="none" autoCorrect="off" style={{width:"100%",padding:12,borderRadius:8,border:"1px solid #b9aa97"}}/><button type="button" disabled={pairBusy} onClick={pairIphone}>{pairBusy?"Connexion Apple…":"Activer les notifications sur cet iPhone"}</button>{pairStatus&&<p role="status">{pairStatus}</p>}</div></details>}</div></section>;
    case "contact":return <section className="gnz-native-section"><button className="gnz-native-section-back" type="button" onClick={backToHome}>‹ {c.back}</button>{heading(ui.sections.contact)}<div className="gnz-native-contact-list"><button type="button" onClick={()=>openContact()}><ContactBrandIcon type="whatsapp"/><span><strong>WhatsApp</strong><small>{c.talk}</small></span><span aria-hidden="true">›</span></button>{settings.contactEmail&&<a href={`mailto:${settings.contactEmail}`}><ContactBrandIcon type="email"/><span><strong>E-mail</strong><small>{settings.contactEmail}</small></span><span aria-hidden="true">›</span></a>}<button type="button" onClick={()=>openContact()}><ContactBrandIcon type="request"/><span><strong>{ui.request}</strong><small>{ui.bookingHint}</small></span><span aria-hidden="true">›</span></button></div></section>;
-   case "news":return <section className="gnz-native-section gnz-native-news-page">{heading(ui.sections.news,lang==="FR"?"Les nouveautés, collections et événements de GaspardNZ.":lang==="EN"?"Discover GaspardNZ news, collections and events.":lang==="ES"?"Novedades, colecciones y eventos de GaspardNZ.":"GaspardNZ 最新资讯、系列与活动。")}<News initialId={newsFocusId} onInitialArticleOpened={()=>setNewsFocusId(null)} onContact={openContact}/></section>;
+   case "news":return <section className="gnz-native-section gnz-native-news-page">{heading(ui.sections.news,lang==="FR"?"Les nouveautés, collections et événements de GaspardNZ.":lang==="EN"?"Discover GaspardNZ news, collections and events.":lang==="ES"?"Novedades, colecciones y eventos de GaspardNZ.":"GaspardNZ 最新资讯、系列与活动。")}<News initialId={newsFocusId} discoveryId={discoveryId} onArticleOpened={id=>updateNotification(id,{read:true})} onInitialArticleOpened={()=>setNewsFocusId(null)} onContact={openContact}/></section>;
    case "showroom":return <section className="gnz-native-section"><button className="gnz-native-section-back" type="button" onClick={backToHome}>‹ {c.back}</button>{heading(ui.sections.showroom,lang==="FR"?"Découvrez notre espace et nos réalisations.":undefined)}<Showroom onContact={()=>openContact()}/></section>;
    default:{
     const title=ui.sections[page]||extra.find(([key])=>key===page)?.[1]||page;
@@ -305,5 +345,5 @@ export default function NativeExperience(){
    }
   }
  };
- return <div className="gnz-native" onClickCapture={handleAction} onChangeCapture={e=>{if(e.target.matches("select"))nativeFeedback("selection");}}><div className="gnz-native-top"><strong>GASPARDNZ <small>PARIS</small></strong><button type="button" className="gnz-native-notification-trigger" onClick={()=>setNotificationsOpen(v=>!v)} aria-label={ui.notifications} aria-expanded={notificationsOpen} aria-controls="gnz-native-notifications"><NativeIcon name="bell"/>{unreadCount>0 && <span className="gnz-native-notification-count">{unreadCount>9?"9+":unreadCount}</span>}</button></div><AnimatePresence>{notificationsOpen&&<motion.section key="notifications" initial={reduceMotion?false:{opacity:0,y:-8}} animate={{opacity:1,y:0}} exit={reduceMotion?{opacity:0}:{opacity:0,y:-8}} transition={{duration:reduceMotion?0:.18}} id="gnz-native-notifications" className="gnz-native-notifications" aria-label={ui.notifications}><div className="gnz-native-notifications-head"><strong>{ui.notifications}</strong><button type="button" onClick={()=>setNotificationsOpen(false)} aria-label={ui.close}>×</button></div><div className="gnz-native-notification-filters" role="group" aria-label="Filtrer les notifications">{[["all",lang==="FR"?"Toutes":"All"],["unread",lang==="FR"?"Non lues":"Unread"],["archived",lang==="FR"?"Archivées":"Archived"]].map(([key,label])=><button key={key} type="button" aria-pressed={notificationFilter===key} onClick={()=>setNotificationFilter(key)}>{label}</button>)}</div>{visibleNotifications.length ? visibleNotifications.map(item=><div className="gnz-native-notification-row" key={item.id}><button type="button" className="gnz-native-notification-item" onClick={()=>{updateNotification(item.id,{read:true});setNewsFocusId(item.id);setNotificationsOpen(false);select("news");}}>{!notificationState[String(item.id)]?.read && <span className="gnz-native-notification-unread" aria-label="Non lue"/>}<strong>{item.title}</strong><p>{item.excerpt || item.body || item.text || ""}</p>{(item.published_at || item.date) && <small>{item.published_at ? new Date(item.published_at).toLocaleDateString(lang === "FR" ? "fr-FR" : undefined) : item.date}</small>}</button><div className="gnz-native-notification-actions">{notificationFilter==="archived" ? <button type="button" onClick={()=>updateNotification(item.id,{archived:false})}>{lang==="FR"?"Restaurer":"Restore"}</button> : <><button type="button" onClick={()=>updateNotification(item.id,{read:true})}>{lang==="FR"?"Marquer comme lue":"Mark read"}</button><button type="button" onClick={()=>updateNotification(item.id,{archived:true})}>{lang==="FR"?"Archiver":"Archive"}</button></>}</div></div>) : <p>{notificationFilter==="unread" ? (lang==="FR"?"Aucune notification non lue.":"No unread notifications.") : notificationFilter==="archived" ? (lang==="FR"?"Aucune notification archivée.":"No archived notifications.") : ui.noNotifications}</p>}</motion.section>}</AnimatePresence><main id="gnz-native-main"><motion.div className="gnz-native-page" key={page} initial={reduceMotion?false:{opacity:.94}} animate={{opacity:1}} transition={{duration:reduceMotion?0:.12,ease:"easeOut"}}><Suspense fallback={<div className="gnz-native-loading" role="status">{ui.loading}</div>}>{content()}</Suspense></motion.div></main>{!systemTabBar && <NativeTabBar tabs={tabs} labels={ui} activeTab={topTabForPage(page)} onSelect={select} Icon={NativeIcon} />}<Suspense fallback={null}>{contactOpen&&<Contact native isOpen onClose={()=>setContactOpen(false)} whatsappNumber={settings.whatsappNumber} initialProjectType={contactProject} initialProjectDetails={contactDetails}/>}</Suspense></div>;
+ return <div className="gnz-native" onClickCapture={handleAction} onChangeCapture={e=>{if(e.target.matches("select"))nativeFeedback("selection");}}><div className="gnz-native-top"><strong>GASPARDNZ <small>PARIS</small></strong><button type="button" className="gnz-native-notification-trigger" onClick={()=>setNotificationsOpen(v=>!v)} aria-label={ui.notifications} aria-expanded={notificationsOpen} aria-controls="gnz-native-notifications"><NativeIcon name="bell"/>{unreadCount>0 && <span className="gnz-native-notification-count">{unreadCount>9?"9+":unreadCount}</span>}</button></div><AnimatePresence>{notificationsOpen&&<motion.section key="notifications" initial={reduceMotion?false:{opacity:0,y:-8}} animate={{opacity:1,y:0}} exit={reduceMotion?{opacity:0}:{opacity:0,y:-8}} transition={{duration:reduceMotion?0:.18}} id="gnz-native-notifications" className="gnz-native-notifications" aria-label={ui.notifications}><div className="gnz-native-notifications-head"><strong>{ui.notifications}</strong><button type="button" onClick={()=>setNotificationsOpen(false)} aria-label={ui.close}>×</button></div><div className="gnz-native-notification-filters" role="group" aria-label="Filtrer les notifications">{[["all",lang==="FR"?"Toutes":"All"],["unread",lang==="FR"?"Non lues":"Unread"],["archived",lang==="FR"?"Archivées":"Archived"]].map(([key,label])=><button key={key} type="button" aria-pressed={notificationFilter===key} onClick={()=>setNotificationFilter(key)}>{label}</button>)}</div>{visibleNotifications.length ? visibleNotifications.map(item=><div className="gnz-native-notification-row" key={item.id}><button type="button" className="gnz-native-notification-item" onClick={()=>openInboxNotification(item)}>{!notificationState[String(item.id)]?.read && <span className="gnz-native-notification-unread" aria-label="Non lue"/>}<strong>{item.title}</strong><p>{item.excerpt || item.body || item.text || ""}</p>{(item.published_at || item.date) && <small>{item.published_at ? new Date(item.published_at).toLocaleDateString(lang === "FR" ? "fr-FR" : undefined) : item.date}</small>}</button><div className="gnz-native-notification-actions">{notificationFilter==="archived" ? <button type="button" onClick={()=>updateNotification(item.id,{archived:false})}>{lang==="FR"?"Restaurer":"Restore"}</button> : <><button type="button" onClick={()=>updateNotification(item.id,{read:true})}>{lang==="FR"?"Marquer comme lue":"Mark read"}</button><button type="button" onClick={()=>updateNotification(item.id,{archived:true})}>{lang==="FR"?"Archiver":"Archive"}</button></>}</div></div>) : <p>{notificationFilter==="unread" ? (lang==="FR"?"Aucune notification non lue.":"No unread notifications.") : notificationFilter==="archived" ? (lang==="FR"?"Aucune notification archivée.":"No archived notifications.") : ui.noNotifications}</p>}</motion.section>}</AnimatePresence><main id="gnz-native-main"><motion.div className="gnz-native-page" key={page} initial={reduceMotion?false:{opacity:.94}} animate={{opacity:1}} transition={{duration:reduceMotion?0:.12,ease:"easeOut"}}><Suspense fallback={<div className="gnz-native-loading" role="status">{ui.loading}</div>}>{content()}</Suspense></motion.div></main>{!systemTabBar && <NativeTabBar tabs={tabs} labels={ui} activeTab={topTabForPage(page)} onSelect={select} Icon={NativeIcon} newsUnread={discoveryId!==null} />}<Suspense fallback={null}>{contactOpen&&<Contact native isOpen onClose={()=>setContactOpen(false)} whatsappNumber={settings.whatsappNumber} initialProjectType={contactProject} initialProjectDetails={contactDetails}/>}</Suspense></div>;
 }

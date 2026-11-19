@@ -14,13 +14,14 @@ export function hasNativeTabBarBridge() {
     && typeof window.webkit?.messageHandlers?.gnzNativeTabs?.postMessage === "function";
 }
 
-export function sendNativeTabState({ selected, visible, labels }) {
+export function sendNativeTabState({ selected, visible, labels, newsUnread }) {
   if (!hasNativeTabBarBridge()) return false;
 
   window.webkit.messageHandlers.gnzNativeTabs.postMessage({
     type: "state",
     selected: NATIVE_TABS.includes(selected) ? selected : "home",
     visible: Boolean(visible),
+    ...(typeof newsUnread === "boolean" ? { newsUnread } : {}),
     ...(Array.isArray(labels) && labels.length === NATIVE_TABS.length
       ? { labels: labels.map((label) => String(label).slice(0, 30)) }
       : {}),

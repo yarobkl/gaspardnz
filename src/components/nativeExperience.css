@@ -395,6 +395,7 @@
   user-select:none;
 }
 .gnz-native-tabs-draggable button>span:first-child{
+  position:relative;
   display:flex;
   align-items:center;
   justify-content:center;
@@ -406,6 +407,13 @@
   width:22px;
   height:22px;
   flex:none;
+}
+.gnz-native-news-tab-dot{
+  position:absolute;right:calc(50% - 21px);top:0;
+  width:8px;height:8px;border-radius:50%;
+  background:#b8973e;border:1px solid #fff9f1;
+  box-shadow:0 0 0 1px rgba(62,39,20,.08);
+  pointer-events:none;
 }
 .gnz-native-tabs-draggable button>small{
   display:block;
@@ -503,6 +511,14 @@
   min-width:0;font-family:Georgia,"Times New Roman",serif;
   font-size:clamp(23px,6.5vw,28px);font-weight:600;line-height:1.18;
   letter-spacing:-.035em;margin:0;color:var(--gnz-ink);
+}
+.gnz-native-news-discover{
+  flex:none;display:inline-flex;align-items:center;gap:6px;
+  color:#8c6a2e;font-size:10px;font-weight:650;
+  letter-spacing:.09em;white-space:nowrap;
+}
+.gnz-native-news-discover::before{
+  content:"";width:7px;height:7px;border-radius:50%;background:#b8973e;
 }
 .gnz-native-news-see-all{
   flex:none;display:inline-flex;align-items:center;justify-content:flex-end;gap:8px;
@@ -757,6 +773,15 @@
   box-shadow:0 8px 28px rgba(30,22,16,.16),inset 0 1px 0 rgba(255,255,255,.46);
   backdrop-filter:blur(26px) saturate(1.25);
   -webkit-backdrop-filter:blur(26px) saturate(1.25);
+  transition:opacity .22s ease,transform .22s ease,visibility 0s;
+}
+/* Scroll-to-immerse on the WebView fallback; UIKit uses the same state bridge. */
+html.gnz-gallery-tabs-hidden .gnz-native-tabs-draggable{
+  opacity:0;transform:translateY(20px);pointer-events:none;visibility:hidden;
+  transition:opacity .22s ease,transform .22s ease,visibility 0s linear .22s;
+}
+@media(prefers-reduced-motion:reduce){
+  .gnz-native-tabs-draggable,html.gnz-gallery-tabs-hidden .gnz-native-tabs-draggable{transition:none}
 }
 .gnz-native-tabs-draggable button{
   min-height:58px;
@@ -790,6 +815,28 @@ html.gnz-system-tabs .gnz-native{
 /* Scrollable room for the Services project CTA above the 82pt UIKit capsule. */
 html.gnz-system-tabs .gnz-native-section:has(.gnz-native-service-list){
   padding-bottom:calc(142px + env(safe-area-inset-bottom));
+}
+/* The project CTA must be visible on entry, above the 82pt floating bar.
+   Compact only the five-card overview; formula/concierge details retain
+   their original spacing and touch targets. */
+html.gnz-system-tabs .gnz-native-section:has(.gnz-native-service-list--overview){
+  padding-top:12px;
+}
+html.gnz-system-tabs .gnz-native-section:has(.gnz-native-service-list--overview) .gnz-native-heading{
+  padding-bottom:11px;
+}
+html.gnz-system-tabs .gnz-native-service-list--overview{gap:7px}
+html.gnz-system-tabs .gnz-native-service-list--overview .gnz-native-service-card{
+  min-height:65px;padding:5px;border-radius:14px;
+}
+html.gnz-system-tabs .gnz-native-service-list--overview .gnz-native-service-card img{
+  width:63px;height:55px;border-radius:10px;
+}
+html.gnz-system-tabs .gnz-native-service-list--overview .gnz-native-service-assistance{
+  margin-top:0;padding:12px 13px;
+}
+html.gnz-system-tabs .gnz-native-service-list--overview .gnz-native-service-assistance p{
+  margin-bottom:8px;font-size:17px;
 }
 html.gnz-system-tabs.gnz-system-tabs--home .gnz-native{
   padding-bottom:0;

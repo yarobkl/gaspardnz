@@ -70,11 +70,19 @@ describe("Services — conversion mobile GaspardNZ", () => {
 
   it("permet de contacter GaspardNZ directement depuis la liste des prestations", () => {
     const onContact = vi.fn();
-    render(<NativeServices lang="FR" onContact={onContact} />);
+    const { container } = render(<NativeServices lang="FR" onContact={onContact} />);
+    expect(container.querySelector(".gnz-native-service-list--overview")).toBeInTheDocument();
     expect(screen.getByText("Un projet ou une occasion particulière ?")).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Parler de mon projet" }));
     expect(onContact).toHaveBeenCalledTimes(1);
     expect(onContact).toHaveBeenCalledWith("other");
+  });
+
+  it("réserve la mise en page compacte à l'aperçu et non aux détails d'une formule", () => {
+    const { container } = render(<NativeServices lang="FR" onContact={vi.fn()} />);
+    fireEvent.click(screen.getByRole("button", { name: /Groom Conciergerie/ }));
+    expect(container.querySelector(".gnz-native-service-list--overview")).not.toBeInTheDocument();
+    expect(screen.getByText(/L'élégance à vos côtés/)).toBeInTheDocument();
   });
 
   it("traduit le bouton et conserve le même formulaire CRM en anglais", () => {

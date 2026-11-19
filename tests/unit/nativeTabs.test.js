@@ -38,6 +38,10 @@ describe("Barre UIKit dans le parcours iOS existant", () => {
 
     expect(sendNativeTabState({ selected: "booking", visible: true })).toBe(true);
     expect(postMessage).toHaveBeenLastCalledWith({ type: "state", selected: "home", visible: true });
+    expect(sendNativeTabState({ selected: "news", visible: true, newsUnread: true })).toBe(true);
+    expect(postMessage).toHaveBeenLastCalledWith({ type: "state", selected: "news", visible: true, newsUnread: true });
+    expect(sendNativeTabState({ selected: "news", visible: true, newsUnread: false })).toBe(true);
+    expect(postMessage).toHaveBeenLastCalledWith({ type: "state", selected: "news", visible: true, newsUnread: false });
     expect(NATIVE_TABS).toEqual(["home", "services", "gallery", "news", "more"]);
     expect(NATIVE_TAB_EVENT).toBe("gnz:native-tab");
   });

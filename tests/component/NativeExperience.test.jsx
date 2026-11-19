@@ -9,6 +9,7 @@ import NativeExperience from "../../src/components/NativeExperience.jsx";
 import { CAL_BOOKING_URL } from "../../src/components/NativeCalBooking.jsx";
 
 const mockSettings = vi.hoisted(() => ({ availability: undefined }));
+const mockNews = vi.hoisted(() => ({ rows: [] }));
 const pushListeners = vi.hoisted(() => new Map());
 
 // Test navigation without making live CRM calls or opening external apps.
@@ -16,7 +17,7 @@ vi.mock("../../src/hooks/useSettings.js", () => ({
   useSettings: () => ({ whatsappNumber: "+33600000000", lookbookHidden: true, bookingAvailability: mockSettings.availability }),
 }));
 vi.mock("../../src/hooks/usePublicCollection.js", () => ({
-  usePublicCollection: () => ({ rows: [], loading: false, error: null }),
+  usePublicCollection: (table) => ({ rows: table === "news_posts" ? mockNews.rows : [], source: table === "news_posts" ? "supabase" : "fallback", loading: false, error: null }),
 }));
 vi.mock("@capacitor/core", async (importOriginal) => ({
   ...await importOriginal(),
@@ -62,13 +63,16 @@ const openTab = (label) => fireEvent.click(within(navigation()).getByRole("butto
 
 beforeEach(() => {
   mockSettings.availability = undefined;
+  mockNews.rows = [];
   vi.stubGlobal("scrollTo", vi.fn());
   pushListeners.clear();
   PushNotifications.checkPermissions.mockReset().mockResolvedValue({ receive: "denied" });
   PushNotifications.requestPermissions.mockReset().mockResolvedValue({ receive: "denied" });
   PushNotifications.register.mockReset();
+  Browser.open.mockClear();
   window.localStorage.removeItem("gnz-ios-push-device-token");
   window.localStorage.removeItem("gnz-ios-push-subscribed-token");
+  window.localStorage.removeItem("gnz-notification-state-v1");
 });
 
 describe("GaspardNZ native iOS experience", () => {
@@ -112,6 +116,40 @@ describe("GaspardNZ native iOS experience", () => {
       fireEvent.click(screen.getByRole("button", { name: "Fermer la photo" }));
       expect(postMessage).toHaveBeenLastCalledWith(expect.objectContaining({ selected: "gallery", visible: true }));
     } finally {
+      delete window.webkit;
+      vi.restoreAllMocks();
+    }
+  });
+
+  it("efface temporairement la barre en descendant dans Galerie, puis la restaure en remontant ou après une pause", async () => {
+    const postMessage = vi.fn();
+    vi.spyOn(Capacitor, "getPlatform").mockReturnValue("ios");
+    vi.spyOn(Capacitor, "isNativePlatform").mockReturnValue(true);
+    window.webkit = { messageHandlers: { gnzNativeTabs: { postMessage } } };
+    try {
+      render(<Harness />);
+      act(() => window.dispatchEvent(new CustomEvent("gnz:native-tab", { detail: { tab: "gallery" } })));
+      expect(await screen.findByTestId("gallery")).toBeInTheDocument();
+      vi.useFakeTimers();
+
+      Object.defineProperty(window, "scrollY", { configurable: true, value: 185 });
+      act(() => fireEvent.scroll(window));
+      expect(postMessage).toHaveBeenLastCalledWith(expect.objectContaining({ selected: "gallery", visible: false }));
+      expect(document.documentElement).toHaveClass("gnz-gallery-tabs-hidden");
+
+      Object.defineProperty(window, "scrollY", { configurable: true, value: 155 });
+      act(() => fireEvent.scroll(window));
+      expect(postMessage).toHaveBeenLastCalledWith(expect.objectContaining({ selected: "gallery", visible: true }));
+
+      Object.defineProperty(window, "scrollY", { configurable: true, value: 245 });
+      act(() => fireEvent.scroll(window));
+      expect(postMessage).toHaveBeenLastCalledWith(expect.objectContaining({ selected: "gallery", visible: false }));
+      act(() => vi.advanceTimersByTime(2800));
+      expect(postMessage).toHaveBeenLastCalledWith(expect.objectContaining({ selected: "gallery", visible: true }));
+      expect(document.documentElement).not.toHaveClass("gnz-gallery-tabs-hidden");
+    } finally {
+      vi.useRealTimers();
+      Object.defineProperty(window, "scrollY", { configurable: true, value: 0 });
       delete window.webkit;
       vi.restoreAllMocks();
     }
@@ -361,5 +399,96 @@ describe("GaspardNZ native iOS experience", () => {
     expect(document.querySelectorAll("#gnz-native-main > .gnz-native-page")).toHaveLength(1);
     expect(screen.queryByTestId("gallery")).not.toBeInTheDocument();
     expect(await screen.findByRole("button", { name: "Parler de ce projet" })).toBeInTheDocument();
+  });
+
+  it("keeps admin announcements in the bell and opens their TikTok links directly", async () => {
+    const destination = "https://www.tiktok.com/@gaspardnz/video/123";
+    mockNews.rows = [{ id: "article-video", title: "Nouvelle vidéo de style", body: "Un look inédit",
+      published_at: "2026-11-18T12:00:00Z", metadata: { link_url: destination } }];
+    render(<Harness />);
+    fireEvent.click(screen.getByRole("button", { name: "Notifications" }));
+    const inbox = screen.getByLabelText("Filtrer les notifications").closest("section");
+    expect(within(inbox).getByText("Nouvelle vidéo de style")).toBeInTheDocument();
+    fireEvent.click(within(inbox).getByRole("button", { name: /Nouvelle vidéo de style/ }));
+    await waitFor(() => expect(Browser.open).toHaveBeenCalledWith({ url: destination }));
+    expect(screen.getByRole("button", { name: "Notifications" })).toHaveAttribute("aria-expanded", "false");
+  });
+
+  it("signale les nouvelles Actualités avec une pastille dorée puis l'efface à la lecture", async () => {
+    mockNews.rows = [{ id: "article-discovery", slug: "collection-automne", locale: "FR",
+      title: "La collection automne", body: "Nouvelle publication depuis l'administration.",
+      published_at: "2026-11-18T12:00:00Z", metadata: {} }];
+    render(<Harness />);
+    const newsTab = within(navigation()).getByRole("button", { name: "Actualités" });
+    expect(newsTab.querySelector(".gnz-native-news-tab-dot")).toBeInTheDocument();
+
+    fireEvent.click(newsTab);
+    expect(await screen.findByText("À découvrir")).toBeInTheDocument();
+    fireEvent.click(await screen.findByRole("button", { name: "La collection automne" }));
+    expect(await screen.findByRole("dialog", { name: "La collection automne" })).toBeInTheDocument();
+    await waitFor(() => {
+      expect(newsTab.querySelector(".gnz-native-news-tab-dot")).not.toBeInTheDocument();
+      expect(screen.queryByText("À découvrir")).not.toBeInTheDocument();
+      expect(screen.getByRole("button", { name: "Notifications" }).querySelector(".gnz-native-notification-count")).not.toBeInTheDocument();
+    });
+    expect(JSON.parse(window.localStorage.getItem("gnz-notification-state-v1"))["article-discovery"].read).toBe(true);
+  });
+
+  it("transmet l'indicateur À découvrir à la barre UIKit et le retire après consultation", async () => {
+    mockNews.rows = [{ id: "article-ios-dot", title: "Article iPhone", locale: "FR", body: "À lire dans l'application.", metadata: {} }];
+    const postMessage = vi.fn();
+    vi.spyOn(Capacitor, "getPlatform").mockReturnValue("ios");
+    vi.spyOn(Capacitor, "isNativePlatform").mockReturnValue(true);
+    window.webkit = { messageHandlers: { gnzNativeTabs: { postMessage } } };
+    try {
+      render(<Harness />);
+      expect(postMessage).toHaveBeenLastCalledWith(expect.objectContaining({ newsUnread: true }));
+      act(() => window.dispatchEvent(new CustomEvent("gnz:native-tab", { detail: { tab: "news" } })));
+      fireEvent.click(await screen.findByRole("button", { name: "Article iPhone" }));
+      await waitFor(() => expect(postMessage).toHaveBeenLastCalledWith(expect.objectContaining({
+        selected: "news", newsUnread: false,
+      })));
+    } finally { delete window.webkit; vi.restoreAllMocks(); }
+  });
+
+  it("routes a tapped Apple push directly to TikTok and refreshes durable news", async () => {
+    vi.spyOn(Capacitor, "getPlatform").mockReturnValue("ios");
+    const changed = vi.fn();
+    window.addEventListener("gnz:news-updated", changed);
+    try {
+      render(<Harness />);
+      await waitFor(() => expect(pushListeners.has("pushNotificationActionPerformed")).toBe(true));
+      act(() => pushListeners.get("pushNotificationReceived")({ data: {} }));
+      expect(changed).toHaveBeenCalledTimes(1);
+      act(() => pushListeners.get("pushNotificationActionPerformed")({ notification: { data: {
+        url: "https://www.tiktok.com/@gaspardnz/video/456", news_slug: "notification-article",
+      } } }));
+      await waitFor(() => expect(Browser.open).toHaveBeenCalledWith({ url: "https://www.tiktok.com/@gaspardnz/video/456" }));
+      expect(changed).toHaveBeenCalledTimes(2);
+    } finally {
+      window.removeEventListener("gnz:news-updated", changed);
+      vi.restoreAllMocks();
+    }
+  });
+
+  it("ouvre une notification d'article dans Actualités iOS sans charger la page du site", async () => {
+    vi.spyOn(Capacitor, "getPlatform").mockReturnValue("ios");
+    mockNews.rows = [{
+      id: "article-native", slug: "nouvelle-collection", locale: "FR",
+      title: "Une nouvelle collection", body: "La collection est disponible dans l'application.",
+      published_at: "2026-11-18T12:00:00Z", metadata: {},
+    }];
+    try {
+      render(<Harness />);
+      await waitFor(() => expect(pushListeners.has("pushNotificationActionPerformed")).toBe(true));
+      act(() => pushListeners.get("pushNotificationActionPerformed")({ notification: { data: {
+        url: "https://gaspardnz.style/actualites?article=nouvelle-collection",
+        news_slug: "nouvelle-collection",
+      } } }));
+      const reader = await screen.findByRole("dialog", { name: "Une nouvelle collection" });
+      expect(within(reader).getByRole("heading", { name: "Une nouvelle collection" })).toBeInTheDocument();
+      expect(within(reader).getByText("La collection est disponible dans l'application.")).toBeInTheDocument();
+      expect(Browser.open).not.toHaveBeenCalled();
+    } finally { vi.restoreAllMocks(); }
   });
 });

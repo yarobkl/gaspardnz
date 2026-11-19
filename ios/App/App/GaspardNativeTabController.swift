@@ -64,11 +64,15 @@ final class GaspardNativeTabController: CAPBridgeViewController, UIGestureRecogn
     private var tabIcons: [UIImageView] = []
     private var tabLabels: [UILabel] = []
     private let floatingGlass = UIVisualEffectView()
+    private let glassBackdropPlate = UIView()
     private let selectionGlass = UIVisualEffectView()
+    private let newsBadge = UIView()
     private var selectionCenterXConstraint: NSLayoutConstraint?
     private let selectionFeedback = UISelectionFeedbackGenerator()
+    private var lastSelectionTick: CFTimeInterval = 0
     private var isTrackingSelection = false
     private var previewTab: GaspardTab?
+    private var selectionAnimationGeneration = 0
     private var currentBackdropTab: GaspardTab?
     private var webAppReady = false
     private var launchArtworkOverlay: UIView?
@@ -265,19 +269,46 @@ final class GaspardNativeTabController: CAPBridgeViewController, UIGestureRecogn
             tabIcons.append(symbol)
             tabLabels.append(label)
             tabBar.addArrangedSubview(button)
+            if tab == .news {
+                newsBadge.backgroundColor = gold
+                newsBadge.layer.cornerRadius = 5
+                newsBadge.layer.borderWidth = 1
+                newsBadge.layer.borderColor = UIColor.white.withAlphaComponent(0.9).cgColor
+                newsBadge.isAccessibilityElement = false
+                newsBadge.isHidden = true
+                newsBadge.translatesAutoresizingMaskIntoConstraints = false
+                button.addSubview(newsBadge)
+                NSLayoutConstraint.activate([
+                    newsBadge.widthAnchor.constraint(equalToConstant: 10),
+                    newsBadge.heightAnchor.constraint(equalToConstant: 10),
+                    newsBadge.centerXAnchor.constraint(equalTo: symbol.trailingAnchor, constant: 2),
+                    newsBadge.centerYAnchor.constraint(equalTo: symbol.topAnchor, constant: 2)
+                ])
+            }
         }
 
         floatingGlass.isUserInteractionEnabled = true
         floatingGlass.isHidden = true
+        floatingGlass.alpha = 0
+        floatingGlass.transform = CGAffineTransform(translationX: 0, y: 16)
         floatingGlass.layer.cornerRadius = 41
         floatingGlass.clipsToBounds = true
+        floatingGlass.layer.borderWidth = 1
         floatingGlass.translatesAutoresizingMaskIntoConstraints = false
+        // The clear system glass needs a stable, lightly opaque surface over
+        // pale pages. Keep the native reflections, but don't let a busy photo
+        // or a light card erase the five navigation targets.
+        glassBackdropPlate.isUserInteractionEnabled = false
+        glassBackdropPlate.layer.cornerRadius = 41
+        glassBackdropPlate.clipsToBounds = true
+        glassBackdropPlate.translatesAutoresizingMaskIntoConstraints = false
         selectionGlass.isUserInteractionEnabled = false
         selectionGlass.layer.cornerRadius = 34
         selectionGlass.clipsToBounds = true
         selectionGlass.translatesAutoresizingMaskIntoConstraints = false
         tabBar.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(floatingGlass)
+        floatingGlass.contentView.addSubview(glassBackdropPlate)
         floatingGlass.contentView.addSubview(selectionGlass)
         floatingGlass.contentView.addSubview(tabBar)
 
@@ -293,6 +324,10 @@ final class GaspardNativeTabController: CAPBridgeViewController, UIGestureRecogn
             floatingGlass.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -12),
             floatingGlass.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -8),
             floatingGlass.heightAnchor.constraint(equalToConstant: 82),
+            glassBackdropPlate.leadingAnchor.constraint(equalTo: floatingGlass.contentView.leadingAnchor),
+            glassBackdropPlate.trailingAnchor.constraint(equalTo: floatingGlass.contentView.trailingAnchor),
+            glassBackdropPlate.topAnchor.constraint(equalTo: floatingGlass.contentView.topAnchor),
+            glassBackdropPlate.bottomAnchor.constraint(equalTo: floatingGlass.contentView.bottomAnchor),
             tabBar.leadingAnchor.constraint(equalTo: floatingGlass.contentView.leadingAnchor),
             tabBar.trailingAnchor.constraint(equalTo: floatingGlass.contentView.trailingAnchor),
             tabBar.topAnchor.constraint(equalTo: floatingGlass.contentView.topAnchor),
@@ -310,22 +345,38 @@ final class GaspardNativeTabController: CAPBridgeViewController, UIGestureRecogn
         currentBackdropTab = tab
         let overPortrait = tab == .home
 
-        // Clear Liquid Glass exposes the photograph; regular glass keeps
-        // controls legible over text and light editorial content.
-        if #available(iOS 26.0, *) {
-            let backdrop = UIGlassEffect(style: overPortrait ? .clear : .regular)
-            backdrop.isInteractive = false
-            floatingGlass.effect = backdrop
+        // The previous fully-clear capsule was almost invisible on Services:
+        // iOS could also resolve UIColor.label to white in dark appearance.
+        // Keep the existing 82pt mirror lens and drag, with consistent contrast.
+        let reduceTransparency = UIAccessibility.isReduceTransparencyEnabled
+        glassBackdropPlate.backgroundColor = overPortrait
+            ? UIColor.black.withAlphaComponent(reduceTransparency ? 0.92 : 0.42)
+            : UIColor(red: 250.0 / 255.0, green: 245.0 / 255.0,
+                      blue: 237.0 / 255.0, alpha: reduceTransparency ? 0.98 : 0.84)
+        floatingGlass.layer.borderColor = (overPortrait
+            ? UIColor.white.withAlphaComponent(0.28)
+            : UIColor(red: 129.0 / 255.0, green: 100.0 / 255.0,
+                      blue: 69.0 / 255.0, alpha: 0.30)).cgColor
 
-            let highlight = UIGlassEffect(style: .regular)
-            highlight.isInteractive = true
-            highlight.tintColor = overPortrait
-                ? UIColor.white.withAlphaComponent(0.08)
-                : gold.withAlphaComponent(0.16)
-            selectionGlass.effect = highlight
+        // Install glass just once. Replacing two effect views at every tab
+        // change causes bright flashes during fast left/right reversals.
+        if #available(iOS 26.0, *) {
+            if floatingGlass.effect == nil {
+                let backdrop = UIGlassEffect(style: .clear)
+                backdrop.isInteractive = false
+                floatingGlass.effect = backdrop
+            }
+            if selectionGlass.effect == nil {
+                let highlight = UIGlassEffect(style: .clear)
+                // The finger is tracked by our pan recognizer. Interactive
+                // glass adds a second, harsh white response during dragging.
+                highlight.isInteractive = false
+                highlight.tintColor = gold.withAlphaComponent(0.06)
+                selectionGlass.effect = highlight
+            }
         } else {
-            floatingGlass.effect = UIBlurEffect(style: overPortrait ? .systemThinMaterialDark : .systemThinMaterialLight)
-            selectionGlass.effect = UIBlurEffect(style: overPortrait ? .systemThinMaterialLight : .systemMaterialLight)
+            floatingGlass.effect = UIBlurEffect(style: overPortrait ? .systemUltraThinMaterialDark : .systemUltraThinMaterialLight)
+            selectionGlass.effect = UIBlurEffect(style: .systemThinMaterialLight)
         }
 
         updateTabAppearance(for: tab)
@@ -333,9 +384,12 @@ final class GaspardNativeTabController: CAPBridgeViewController, UIGestureRecogn
     }
 
     private func updateTabAppearance(for tab: GaspardTab) {
+        // Preview icons must contrast with the currently visible glass plate,
+        // even while the finger hovers over a destination on another page.
         let foreground = currentBackdropTab == .home
-            ? UIColor.white.withAlphaComponent(0.95)
-            : UIColor.label.withAlphaComponent(0.82)
+            ? UIColor.white.withAlphaComponent(0.97)
+            : UIColor(red: 51.0 / 255.0, green: 42.0 / 255.0,
+                      blue: 32.0 / 255.0, alpha: 0.94)
         for (index, button) in tabButtons.enumerated() {
             let selected = GaspardTab.allCases[index] == tab
             let color = selected ? gold : foreground
@@ -352,13 +406,19 @@ final class GaspardNativeTabController: CAPBridgeViewController, UIGestureRecogn
         floatingGlass.contentView.layoutIfNeeded()
         let target = tabButtons[index].center.x
         guard abs((selectionCenterXConstraint?.constant ?? 0) - target) > 0.5 else { return }
+        selectionAnimationGeneration += 1
+        let generation = selectionAnimationGeneration
         if animated && !UIAccessibility.isReduceMotionEnabled {
             isTrackingSelection = true
             selectionCenterXConstraint?.constant = target
-            UIView.animate(withDuration: 0.32, delay: 0, usingSpringWithDamping: 0.86, initialSpringVelocity: 0.15, options: [.beginFromCurrentState, .allowUserInteraction]) {
+            // QR Permanent uses native TabView responsiveness: settle promptly
+            // while preserving the GNZ glass lens that follows a finger.
+            UIView.animate(withDuration: 0.34, delay: 0, usingSpringWithDamping: 0.88, initialSpringVelocity: 0.34, options: [.beginFromCurrentState, .allowUserInteraction]) {
                 self.floatingGlass.contentView.layoutIfNeeded()
             } completion: { _ in
-                self.isTrackingSelection = false
+                if self.selectionAnimationGeneration == generation {
+                    self.isTrackingSelection = false
+                }
             }
         } else {
             selectionCenterXConstraint?.constant = target
@@ -384,7 +444,17 @@ final class GaspardNativeTabController: CAPBridgeViewController, UIGestureRecogn
         switch gesture.state {
         case .began, .changed:
             if gesture.state == .began {
+                // Interrupt from the presentation position, never from the
+                // previous destination (fast reversals must not jump).
+                let displayedX = selectionGlass.layer.presentation()?.position.x
+                selectionAnimationGeneration += 1
+                selectionGlass.layer.removeAllAnimations()
+                if let displayedX = displayedX, displayedX.isFinite {
+                    selectionCenterXConstraint?.constant = displayedX
+                    floatingGlass.contentView.layoutIfNeeded()
+                }
                 isTrackingSelection = true
+                lastSelectionTick = 0
                 selectionFeedback.prepare()
             }
             let x = max(first.center.x, min(last.center.x, gesture.location(in: tabBar).x))
@@ -392,13 +462,21 @@ final class GaspardNativeTabController: CAPBridgeViewController, UIGestureRecogn
             floatingGlass.contentView.layoutIfNeeded()
             let hovered = tab(at: x)
             if hovered != previewTab {
-                if previewTab != nil || hovered != currentBackdropTab { selectionFeedback.selectionChanged() }
+                let now = CACurrentMediaTime()
+                if (previewTab != nil || hovered != currentBackdropTab) && now - lastSelectionTick >= 0.055 {
+                    selectionFeedback.selectionChanged()
+                    lastSelectionTick = now
+                }
                 selectionFeedback.prepare()
                 previewTab = hovered
                 updateTabAppearance(for: hovered)
             }
         case .ended:
-            let hovered = tab(at: gesture.location(in: tabBar).x)
+            // Project the release very slightly, so a quick swipe settles on
+            // the intended tab while the lens keeps following the finger.
+            let velocity = gesture.velocity(in: tabBar).x
+            let projectedX = gesture.location(in: tabBar).x + max(-45, min(45, velocity * 0.07))
+            let hovered = tab(at: projectedX)
             previewTab = nil
             isTrackingSelection = false
             commitSelection(hovered, haptic: false)
@@ -442,8 +520,24 @@ final class GaspardNativeTabController: CAPBridgeViewController, UIGestureRecogn
 
         let visible = body["visible"] as? Bool ?? false
         webAppReady = visible
-        tabBar.isHidden = !visible
-        floatingGlass.isHidden = !visible
+        let duration: TimeInterval = UIAccessibility.isReduceMotionEnabled ? 0 : 0.22
+        if visible {
+            tabBar.isHidden = false
+            floatingGlass.isHidden = false
+            UIView.animate(withDuration: duration, delay: 0, options: [.beginFromCurrentState, .allowUserInteraction]) {
+                self.floatingGlass.alpha = 1
+                self.floatingGlass.transform = .identity
+            }
+        } else if !floatingGlass.isHidden {
+            UIView.animate(withDuration: duration, delay: 0, options: [.beginFromCurrentState, .allowUserInteraction]) {
+                self.floatingGlass.alpha = 0
+                self.floatingGlass.transform = CGAffineTransform(translationX: 0, y: 16)
+            } completion: { [weak self] _ in
+                guard let self = self, !self.webAppReady else { return }
+                self.tabBar.isHidden = true
+                self.floatingGlass.isHidden = true
+            }
+        }
         if visible { dismissLaunchArtworkWhenReady() }
 
         if let key = body["selected"] as? String,
@@ -454,6 +548,12 @@ final class GaspardNativeTabController: CAPBridgeViewController, UIGestureRecogn
             for (index, button) in tabButtons.enumerated() {
                 tabLabels[index].text = labels[index]
                 button.accessibilityLabel = labels[index]
+            }
+        }
+        if let unread = body["newsUnread"] as? Bool {
+            newsBadge.isHidden = !unread
+            if let newsIndex = GaspardTab.allCases.firstIndex(of: .news) {
+                tabButtons[newsIndex].accessibilityValue = unread ? "Nouvelle actualité à découvrir" : nil
             }
         }
         deliverPendingShortcut()
